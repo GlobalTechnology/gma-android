@@ -1,6 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context="com.expidev.gcmapp.MainActivity">
+
+    <item android:id="@+id/action_join_ministry"
+        android:title="@string/action_join_new_ministry"
+        android:orderInCategory="1"
+        app:showAsAction="never"
+        android:onClick="joinNewMinistry" />
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_reset"
@@ -13,4 +19,5 @@
         android:orderInCategory="102"
         app:showAsAction="never"
         android:onClick="logout" />
+
 </menu>

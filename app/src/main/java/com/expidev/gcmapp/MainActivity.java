@@ -42,6 +42,22 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void joinNewMinistry(MenuItem menuItem)
+    {
+        //TODO: implement join new ministry
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle("Join new ministry")
+                .setMessage("Choose a new ministry to join:")
+                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+
+        alertDialog.show();
+    }
+
     public void reset(MenuItem menuItem)
     {
         //TODO: implement reset: clear local data-model, download from server
