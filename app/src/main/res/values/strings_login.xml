@@ -1,0 +1,11 @@
+<resources>
+    <string name="button">Log In</string>
+    <string name="hint_username">username</string>
+    <string name="hint_password">password</string>
+    <string name="loading">Loading</string>
+    
+    <string name="exit">Exit</string>
+    <string name="cancel">Cancel</string>
+    
+    <string name="exit_message">Are you sure you would like to exit?</string>
+</resources>
