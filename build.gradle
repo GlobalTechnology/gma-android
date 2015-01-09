@@ -15,5 +15,9 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        maven {
+            name "maven.gcx.org"
+            url "https://maven.gcx.org/"
+        }
     }
 }

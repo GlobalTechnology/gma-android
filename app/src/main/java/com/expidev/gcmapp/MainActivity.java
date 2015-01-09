@@ -8,14 +8,19 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import me.thekey.android.TheKey;
+import me.thekey.android.lib.TheKeyImpl;
 
 public class MainActivity extends ActionBarActivity
 {
+    TheKey mTheKey;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mTheKey = TheKeyImpl.getInstance(this, BuildConfig.THEKEY_CLIENTID);
     }
 
     @Override
@@ -84,6 +89,7 @@ public class MainActivity extends ActionBarActivity
             .setMessage("You have been logged out! (not really)")
             .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
+                    mTheKey.logout();
                     dialog.dismiss();
                 }
             })
