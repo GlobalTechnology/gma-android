@@ -1,12 +1,17 @@
 package com.expidev.gcmapp;
 
 import android.app.AlertDialog;
+import android.support.v4.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.expidev.gcmapp.utils.Device;
+
+import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 
 
 public class MainActivity extends ActionBarActivity
@@ -16,6 +21,15 @@ public class MainActivity extends ActionBarActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        if (Device.isConnected(getApplicationContext()))
+        {
+            final FragmentManager fm = this.getSupportFragmentManager();
+            if (fm.findFragmentByTag("loginDialog") == null)
+            {
+                LoginDialogFragment.builder().clientId(THEKEY_CLIENTID).build().show(fm.beginTransaction().addToBackStack("loginDialog"), "loginDialog");
+            }
+        }
     }
 
     @Override
