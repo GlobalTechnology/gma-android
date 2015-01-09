@@ -84,11 +84,21 @@ public class MainActivity extends ActionBarActivity
             .setMessage("You have been logged out! (not really)")
             .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
+                    
+                    goToLoginScreen();
+                    
                     dialog.dismiss();
+                    finish();
                 }
             })
             .create();
 
         alertDialog.show();
+    }
+    
+    private void goToLoginScreen()
+    {
+        Intent goToLogin = new Intent(this, Login.class);
+        startActivity(goToLogin);
     }
 }
