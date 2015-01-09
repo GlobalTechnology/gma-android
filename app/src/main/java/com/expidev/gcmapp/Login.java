@@ -2,6 +2,7 @@ package com.expidev.gcmapp;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -110,8 +111,8 @@ public class Login extends ActionBarActivity
     
     private void goToHomeScreen()
     {
-        //Intent intent = new Intent(this, HomeScreen.class);
-        //startActivity(intent);
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
 
         // we don't want to come back to this page
         finish();
