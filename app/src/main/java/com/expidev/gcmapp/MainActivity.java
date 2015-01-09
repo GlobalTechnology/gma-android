@@ -42,6 +42,22 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void reset(MenuItem menuItem)
+    {
+        //TODO: implement reset: clear local data-model, download from server
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle("Reset")
+                .setMessage("Re-downloading information...")
+                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+
+        alertDialog.show();
+    }
+
     public void logout(MenuItem menuItem)
     {
         //TODO: implement logout: actually log user out, redirect to TheKey login page

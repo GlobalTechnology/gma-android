@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">GCM App</string>
     <string name="logout">Logout</string>
     <string name="title_activity_main">GCM App</string>
     <string name="hello_world">Welcome to the GCM App!</string>
     <string name="action_settings">Settings</string>
-
+    <string name="reset">Reset</string>
 </resources>
