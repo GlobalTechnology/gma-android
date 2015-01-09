@@ -31,6 +31,11 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".JoinMinistryActivity"
+            android:label="@string/title_activity_join_ministry" >
+        </activity>
+        
+        <activity
             android:name=".MapSettings"
             android:label="@string/title_activity_map_settings"
             android:parentActivityName=".MainActivity" >

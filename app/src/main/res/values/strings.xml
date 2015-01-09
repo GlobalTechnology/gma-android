@@ -1,15 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Titles -->
     <string name="app_name">GCM App</string>
-    <string name="logout">Logout</string>
     <string name="title_activity_main">GCM App</string>
+    <string name="title_activity_join_ministry">GCM App</string>
+
+    <!-- Main Activity -->
+    <string name="logout">Logout</string>
     <string name="hello_world">Welcome to the GCM App!</string>
     <string name="action_settings">Settings</string>
     <string name="reset">Reset</string>
     <string name="action_join_new_ministry">Join new ministry</string>
+
+    <!-- Join Ministry Activity -->
+    <string name="ministry_team_label">Ministry/Team:</string>
+    <string name="close_button">Close</string>
+    <string name="join_button">Join</string>
+
+    <!-- Buttons -->
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+
+    <!-- Messages -->
     <string name="no_internet">No network connection detected</string>
     <string name="logout_message">Are you sure you want to logout?</string>
     <string name="title_activity_map_settings">MapSettings</string>

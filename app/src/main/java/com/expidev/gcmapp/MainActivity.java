@@ -235,20 +235,8 @@ public class MainActivity extends ActionBarActivity
     public void joinNewMinistry(MenuItem menuItem)
     {
         loadSessionToken();
-        //TODO: implement join new ministry
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle("Join new ministry")
-                .setMessage("Choose a new ministry to join:")
-                .setNeutralButton("OK", new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        dialog.dismiss();
-                    }
-                })
-                .create();
-
-        alertDialog.show();
+        Intent goToJoinMinistryPage = new Intent(this, JoinMinistryActivity.class);
+        startActivity(goToJoinMinistryPage);
     }
 
     public void reset(MenuItem menuItem)
