@@ -1,8 +1,10 @@
 package com.expidev.gcmapp;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -38,5 +40,21 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void logout(MenuItem menuItem)
+    {
+        //TODO: implement logout: actually log user out, redirect to TheKey login page
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+            .setTitle("Logged Out")
+            .setMessage("You have been logged out! (not really)")
+            .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            })
+            .create();
+
+        alertDialog.show();
     }
 }
