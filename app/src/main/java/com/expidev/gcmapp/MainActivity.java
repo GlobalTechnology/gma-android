@@ -35,7 +35,8 @@ public class MainActivity extends ActionBarActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_settings)
+        {
             Intent goToSettings = new Intent(this, SettingsActivity.class);
             startActivity(goToSettings);
             return true;
@@ -50,8 +51,10 @@ public class MainActivity extends ActionBarActivity
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle("Join new ministry")
                 .setMessage("Choose a new ministry to join:")
-                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
+                .setNeutralButton("OK", new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
                         dialog.dismiss();
                     }
                 })
@@ -66,8 +69,10 @@ public class MainActivity extends ActionBarActivity
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle("Reset")
                 .setMessage("Re-downloading information...")
-                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
+                .setNeutralButton("OK", new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
                         dialog.dismiss();
                     }
                 })
@@ -80,22 +85,24 @@ public class MainActivity extends ActionBarActivity
     {
         //TODO: implement logout: actually log user out, redirect to TheKey login page
         AlertDialog alertDialog = new AlertDialog.Builder(this)
-            .setTitle("Logged Out")
-            .setMessage("You have been logged out! (not really)")
-            .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    
-                    goToLoginScreen();
-                    
-                    dialog.dismiss();
-                    finish();
-                }
-            })
-            .create();
+                .setTitle("Logged Out")
+                .setMessage("You have been logged out! (not really)")
+                .setNeutralButton("OK", new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+
+                        goToLoginScreen();
+
+                        dialog.dismiss();
+                        finish();
+                    }
+                })
+                .create();
 
         alertDialog.show();
     }
-    
+
     private void goToLoginScreen()
     {
         Intent goToLogin = new Intent(this, Login.class);
