@@ -15,9 +15,6 @@ import com.expidev.gcmapp.utils.GcmProperties;
 
 import java.util.Properties;
 
-import javax.crypto.spec.GCMParameterSpec;
-
-import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 
 
