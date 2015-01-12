@@ -1,10 +1,10 @@
 package com.expidev.gcmapp;
 
 import android.app.AlertDialog;
-import android.support.v4.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -19,10 +19,10 @@ import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 
 
 public class MainActivity extends ActionBarActivity
-{   
+{
     private final String TAG = "MainActivity";
     private Properties properties;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -30,19 +30,8 @@ public class MainActivity extends ActionBarActivity
         setContentView(R.layout.activity_main);
 
         getProperties();
-        
-        String keyClientString = properties.getProperty("TheKeyClientId", "");
-        long keyClientId = Long.parseLong(keyClientString);
-        Log.i(TAG, keyClientString);
-        
-        if (Device.isConnected(getApplicationContext()))
-        {
-            final FragmentManager fm = this.getSupportFragmentManager();
-            if (fm.findFragmentByTag("loginDialog") == null)
-            {
-                LoginDialogFragment.builder().clientId(keyClientId).build().show(fm.beginTransaction().addToBackStack("loginDialog"), "loginDialog");
-            }
-        }
+
+        doLogIn();
     }
 
     @Override
@@ -62,7 +51,8 @@ public class MainActivity extends ActionBarActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_settings)
+        {
             Intent goToSettings = new Intent(this, SettingsActivity.class);
             startActivity(goToSettings);
             return true;
@@ -77,8 +67,10 @@ public class MainActivity extends ActionBarActivity
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle("Join new ministry")
                 .setMessage("Choose a new ministry to join:")
-                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
+                .setNeutralButton("OK", new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
                         dialog.dismiss();
                     }
                 })
@@ -93,8 +85,10 @@ public class MainActivity extends ActionBarActivity
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle("Reset")
                 .setMessage("Re-downloading information...")
-                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
+                .setNeutralButton("OK", new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
                         dialog.dismiss();
                     }
                 })
@@ -105,23 +99,44 @@ public class MainActivity extends ActionBarActivity
 
     public void logout(MenuItem menuItem)
     {
-        //TODO: implement logout: actually log user out, redirect to TheKey login page
+        //TODO: implement logout: actually log user out
+        
         AlertDialog alertDialog = new AlertDialog.Builder(this)
-            .setTitle("Logged Out")
-            .setMessage("You have been logged out! (not really)")
-            .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            })
-            .create();
+                .setTitle("Logged Out")
+                .setMessage("You have been logged out! (not really)")
+                .setNeutralButton("OK", new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.dismiss();
+                        doLogIn();
+                    }
+                })
+                .create();
 
         alertDialog.show();
+        
     }
-    
+
     private void getProperties()
     {
         GcmProperties gcmProperties = new GcmProperties(this);
-        properties = gcmProperties.getProperties("gcm_properties.properties");  
+        properties = gcmProperties.getProperties("gcm_properties.properties");
+    }
+    
+    private void doLogIn()
+    {
+        String keyClientString = properties.getProperty("TheKeyClientId", "");
+        long keyClientId = Long.parseLong(keyClientString);
+        
+        if (Device.isConnected(getApplicationContext()))
+        {
+            final FragmentManager fm = this.getSupportFragmentManager();
+            if (fm.findFragmentByTag("loginDialog") == null)
+            {
+                LoginDialogFragment loginDialogFragment = LoginDialogFragment.builder().clientId(keyClientId).build();
+                loginDialogFragment.show(fm.beginTransaction().addToBackStack("loginDialog"), "loginDialog");
+            }
+        }
     }
 }
