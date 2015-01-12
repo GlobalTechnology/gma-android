@@ -6,28 +6,44 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.expidev.gcmapp.utils.Device;
+import com.expidev.gcmapp.utils.GcmProperties;
 
+import java.util.Properties;
+
+import javax.crypto.spec.GCMParameterSpec;
+
+import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 
 
 public class MainActivity extends ActionBarActivity
-{
+{   
+    private final String TAG = "MainActivity";
+    private Properties properties;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        getProperties();
+        
+        String keyClientString = properties.getProperty("TheKeyClientId", "");
+        long keyClientId = Long.parseLong(keyClientString);
+        Log.i(TAG, keyClientString);
         
         if (Device.isConnected(getApplicationContext()))
         {
             final FragmentManager fm = this.getSupportFragmentManager();
             if (fm.findFragmentByTag("loginDialog") == null)
             {
-                LoginDialogFragment.builder().clientId(THEKEY_CLIENTID).build().show(fm.beginTransaction().addToBackStack("loginDialog"), "loginDialog");
+                LoginDialogFragment.builder().clientId(keyClientId).build().show(fm.beginTransaction().addToBackStack("loginDialog"), "loginDialog");
             }
         }
     }
@@ -104,5 +120,11 @@ public class MainActivity extends ActionBarActivity
             .create();
 
         alertDialog.show();
+    }
+    
+    private void getProperties()
+    {
+        GcmProperties gcmProperties = new GcmProperties(this);
+        properties = gcmProperties.getProperties("gcm_properties.properties");  
     }
 }
