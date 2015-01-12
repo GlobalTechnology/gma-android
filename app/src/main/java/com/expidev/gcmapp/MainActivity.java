@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -31,7 +30,7 @@ public class MainActivity extends ActionBarActivity
 
         getProperties();
 
-        doLogIn();
+        login();
     }
 
     @Override
@@ -109,7 +108,7 @@ public class MainActivity extends ActionBarActivity
                     public void onClick(DialogInterface dialog, int which)
                     {
                         dialog.dismiss();
-                        doLogIn();
+                        login();
                     }
                 })
                 .create();
@@ -124,7 +123,7 @@ public class MainActivity extends ActionBarActivity
         properties = gcmProperties.getProperties("gcm_properties.properties");
     }
     
-    private void doLogIn()
+    private void login()
     {
         String keyClientString = properties.getProperty("TheKeyClientId", "");
         long keyClientId = Long.parseLong(keyClientString);
