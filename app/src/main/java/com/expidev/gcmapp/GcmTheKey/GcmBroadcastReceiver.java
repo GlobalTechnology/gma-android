@@ -2,9 +2,9 @@ package com.expidev.gcmapp.GcmTheKey;
 
 import android.util.Log;
 
-import com.expidev.gcmapp.User;
 import com.expidev.gcmapp.http.GcmApiClient;
 import com.expidev.gcmapp.http.TokenTask;
+import com.expidev.gcmapp.model.User;
 
 import org.json.JSONObject;
 
@@ -50,6 +50,12 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
     {
         super.onLogout(guid, changingUser);
         Log.i(TAG, "On Logout");
+        
+        // if changing user onLogin will be called
+        if (!changingUser)
+        {
+            
+        }
     }
 
     @Override

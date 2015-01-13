@@ -2,7 +2,7 @@ package com.expidev.gcmapp.GcmTheKey;
 
 import android.util.Log;
 
-import com.expidev.gcmapp.User;
+import com.expidev.gcmapp.model.User;
 
 import org.json.JSONObject;
 

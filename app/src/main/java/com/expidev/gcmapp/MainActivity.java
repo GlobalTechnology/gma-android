@@ -11,9 +11,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.GcmTheKey.GcmTheKeyHelper;
 import com.expidev.gcmapp.http.GcmApiClient;
 import com.expidev.gcmapp.http.TokenTask;
+import com.expidev.gcmapp.model.User;
 import com.expidev.gcmapp.utils.Device;
 import com.expidev.gcmapp.utils.GcmProperties;
 
@@ -44,6 +46,8 @@ public class MainActivity extends ActionBarActivity
         keyClientId = Long.parseLong(properties.getProperty("TheKeyClientId", ""));
 
         theKey = TheKeyImpl.getInstance(this, keyClientId);
+
+        GcmBroadcastReceiver gcmBroadcastReceiver = new GcmBroadcastReceiver();
 
         if (Device.isConnected(getApplicationContext()))
         {

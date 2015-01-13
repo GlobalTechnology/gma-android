@@ -1,4 +1,4 @@
-package com.expidev.gcmapp;
+package com.expidev.gcmapp.model;
 
 /**
  * Created by matthewfrederick on 1/13/15.

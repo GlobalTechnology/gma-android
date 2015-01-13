@@ -12,5 +12,5 @@
     <string name="cancel">Cancel</string>
     
     <string name="no_internet">No network connection detected</string>
-    <string name="logout_message">You have been logged out</string>
+    <string name="logout_message">Are you sure you want to logout?</string>
 </resources>
