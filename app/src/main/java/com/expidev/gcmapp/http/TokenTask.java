@@ -78,16 +78,9 @@ public class TokenTask extends AsyncTask<Object, Void, String>
     protected void onPostExecute(String s)
     {
         super.onPostExecute(s);
-        
-        if (status != null)
-        {
-            if ("success".equalsIgnoreCase(status)) taskHandler.taskComplete(jsonObject);
-            else taskHandler.taskFailed(status);
-        }
-        else
-        {
-            taskHandler.taskFailed("status is null");
-        }
+
+        if ("success".equalsIgnoreCase(status)) taskHandler.taskComplete(jsonObject);
+        else taskHandler.taskFailed(status);
     }
     
     private String readFully(InputStream inputStream, String encoding) throws IOException
