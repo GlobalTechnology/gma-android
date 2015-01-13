@@ -15,9 +15,6 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
-import java.util.Objects;
-import java.util.UUID;
-
 /**
  * Created by matthewfrederick on 1/13/15.
  */
@@ -33,7 +30,7 @@ public class TokenTask extends AsyncTask<Object, Void, String>
     public static interface TokenTaskHandler
     {
         void taskComplete(JSONObject object);
-        void taskFailed();
+        void taskFailed(String status);
     }
     
     public TokenTask(TokenTaskHandler listener)
@@ -85,6 +82,6 @@ public class TokenTask extends AsyncTask<Object, Void, String>
         super.onPostExecute(s);
         
         if (statusCode == HttpStatus.SC_OK && status.equalsIgnoreCase("success")) taskHandler.taskComplete(jsonObject);
-        else taskHandler.taskFailed();
+        else taskHandler.taskFailed(status);
     }
 }

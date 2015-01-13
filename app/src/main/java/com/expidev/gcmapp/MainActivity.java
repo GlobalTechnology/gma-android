@@ -70,9 +70,9 @@ public class MainActivity extends ActionBarActivity
                     }
 
                     @Override
-                    public void taskFailed()
+                    public void taskFailed(String status)
                     {
-                        Log.i(TAG, "Task Failed");
+                        Log.i(TAG, "Task Failed. Status: " + status);
                     }
                 });
             }

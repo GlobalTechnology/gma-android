@@ -25,7 +25,6 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
     @Override
     protected void onLogin(String guid)
     {
-        super.onLogin(guid);
         Log.i(TAG, "On Login");
 
         GcmApiClient.getToken(guid, new TokenTask.TokenTaskHandler()
@@ -38,9 +37,9 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
             }
 
             @Override
-            public void taskFailed()
+            public void taskFailed(String status)
             {
-                Log.i(TAG, "Task Failed");
+                Log.i(TAG, "Task Failed. Status: " + status);
             }
         });
     }
@@ -48,7 +47,6 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
     @Override
     protected void onLogout(String guid, boolean changingUser)
     {
-        super.onLogout(guid, changingUser);
         Log.i(TAG, "On Logout");
         
         // if changing user onLogin will be called
@@ -61,7 +59,6 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
     @Override
     protected void onAttributesLoaded(String guid)
     {
-        super.onAttributesLoaded(guid);
         Log.i(TAG, "On Attributes Loaded");
     }
 }
