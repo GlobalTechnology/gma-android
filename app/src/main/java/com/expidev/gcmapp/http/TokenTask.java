@@ -3,17 +3,14 @@ package com.expidev.gcmapp.http;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by matthewfrederick on 1/13/15.
@@ -41,29 +38,30 @@ public class TokenTask extends AsyncTask<Object, Void, String>
     @Override
     protected String doInBackground(Object... params)
     {
-        String url = params[0].toString();
+        String urlString = params[0].toString();
         String guid = params[1].toString();
         
-        String fullUrl = url + "/token?st=" + guid + "&refresh=true";
+        String fullUrl = urlString + "/token?st=" + guid + "&refresh=true";
 
         try
         {
-            HttpGet request = new HttpGet(fullUrl);
-            Log.i(TAG, fullUrl);
+            URL url = new URL(fullUrl);
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setReadTimeout(1000);
+            urlConnection.setConnectTimeout(10000);
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoInput(true);
+            
+            urlConnection.connect();
+            statusCode = urlConnection.getResponseCode();
 
-            HttpParams httpParams = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(httpParams, 10000);
-            HttpConnectionParams.setSoTimeout(httpParams, 10000);
-
-            HttpClient httpClient = new DefaultHttpClient(httpParams);
-            HttpResponse response = httpClient.execute(request);
-            statusCode = response.getStatusLine().getStatusCode();
-
-            HttpEntity entity = response.getEntity();
-            if (entity != null)
+            InputStream inputStream = urlConnection.getInputStream();
+            
+            if (inputStream != null)
             {
-                String jsonString = EntityUtils.toString(entity);
-                jsonObject = new JSONObject(jsonString);
+                String jsonAsString = readFully(inputStream, "UTF-8");
+                Log.i(TAG, jsonAsString);
+                jsonObject = new JSONObject(jsonAsString);
                 status = jsonObject.getString("status");
             }
         }
@@ -81,7 +79,24 @@ public class TokenTask extends AsyncTask<Object, Void, String>
     {
         super.onPostExecute(s);
         
-        if (statusCode == HttpStatus.SC_OK && status.equalsIgnoreCase("success")) taskHandler.taskComplete(jsonObject);
+        if ("success".equalsIgnoreCase(status)) taskHandler.taskComplete(jsonObject);
         else taskHandler.taskFailed(status);
+    }
+    
+    private String readFully(InputStream inputStream, String encoding) throws IOException
+    {
+        return new String(readFully(inputStream), encoding);
+    }
+    
+    private byte[] readFully(InputStream inputStream) throws IOException
+    {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int length = 0;
+        while ((length = inputStream.read(buffer)) != -1)
+        {
+            byteArrayOutputStream.write(buffer, 0, length);
+        }
+        return byteArrayOutputStream.toByteArray();
     }
 }
