@@ -13,7 +13,7 @@ import java.util.Properties;
  */
 public class GcmProperties
 {
-    private String TAG = "GcmProperties";
+    private String TAG = this.getClass().getSimpleName();
     
     private Context context;
     private Properties properties;
