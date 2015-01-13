@@ -67,7 +67,7 @@ public class TokenTask extends AsyncTask<Object, Void, String>
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage(), e);
             return null;
         }
 
@@ -79,8 +79,15 @@ public class TokenTask extends AsyncTask<Object, Void, String>
     {
         super.onPostExecute(s);
         
-        if ("success".equalsIgnoreCase(status)) taskHandler.taskComplete(jsonObject);
-        else taskHandler.taskFailed(status);
+        if (status != null)
+        {
+            if ("success".equalsIgnoreCase(status)) taskHandler.taskComplete(jsonObject);
+            else taskHandler.taskFailed(status);
+        }
+        else
+        {
+            taskHandler.taskFailed("status is null");
+        }
     }
     
     private String readFully(InputStream inputStream, String encoding) throws IOException
