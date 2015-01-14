@@ -35,6 +35,8 @@ public class MainActivity extends ActionBarActivity
     private Properties properties;
     private TheKey theKey;
     private long keyClientId;
+    private LocalBroadcastManager manager;
+    private GcmBroadcastReceiver gcmBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -48,8 +50,8 @@ public class MainActivity extends ActionBarActivity
 
         theKey = TheKeyImpl.getInstance(this, keyClientId);
 
-        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(getApplicationContext());
-        GcmBroadcastReceiver gcmBroadcastReceiver = new GcmBroadcastReceiver();
+        manager = LocalBroadcastManager.getInstance(getApplicationContext());
+        gcmBroadcastReceiver = new GcmBroadcastReceiver();
         gcmBroadcastReceiver.registerReceiver(manager);
 
         if (Device.isConnected(getApplicationContext()))
@@ -112,6 +114,13 @@ public class MainActivity extends ActionBarActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        manager.unregisterReceiver(gcmBroadcastReceiver);
     }
 
     public void joinNewMinistry(MenuItem menuItem)
