@@ -117,9 +117,9 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
-    protected void onStop()
+    protected void onDestroy()
     {
-        super.onStop();
+        super.onDestroy();
         manager.unregisterReceiver(gcmBroadcastReceiver);
     }
 
