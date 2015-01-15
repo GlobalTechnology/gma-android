@@ -52,7 +52,7 @@ public class MinistryJsonParser
             for(int i = 0; i < jsonResults.length(); i++)
             {
                 JSONObject jsonObject = jsonResults.getJSONObject(i);
-                ministryMap.put(jsonObject.getString("ministry_id"), jsonObject.getString("name"));
+                ministryMap.put(jsonObject.getString("name"), jsonObject.getString("ministry_id"));
             }
         }
         catch(JSONException e)

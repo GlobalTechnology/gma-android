@@ -30,6 +30,7 @@ public class GmaApiClient
     private static final String BASE_URL_STAGE = "https://stage.sbr.global-registry.org/api";
     private static final String BASE_URL_PROD = "https://sbr.global-registry.org/api";
     private static final String MEASUREMENTS = "/measurements";
+    private static final String MINISTRIES = "/ministries";
     private static final String TOKEN = "/token";
     
     private final TheKey theKey;
@@ -67,6 +68,11 @@ public class GmaApiClient
         }
         
         return null;
+    }
+
+    public static void getAllMinistries(String sessionToken, MinistriesTask.MinistriesTaskHandler taskHandler)
+    {
+        new MinistriesTask(taskHandler).execute(BASE_URL_STAGE + MEASUREMENTS + MINISTRIES + "?token=" + sessionToken);
     }
     
     private JSONObject httpGet(URL url) throws IOException, JSONException
