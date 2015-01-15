@@ -15,7 +15,7 @@
 
     <!-- Join Ministry Activity -->
     <string name="ministry_team_label">Ministry/Team:</string>
-    <string name="close_button">Close</string>
+    <string name="cancel_button">Cancel</string>
     <string name="join_button">Join</string>
 
     <!-- Buttons -->

@@ -1,12 +1,16 @@
 package com.expidev.gcmapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
@@ -72,6 +76,38 @@ public class JoinMinistryActivity extends ActionBarActivity
                 finish();
             }
         });
+    }
+
+    public void joinMinistry(View view)
+    {
+        AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView)findViewById(R.id.ministry_team_autocomplete);
+
+        String ministryName = autoCompleteTextView.getText().toString();
+        String ministryId = ministryMap.get(ministryName);
+
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+            .setTitle("Join Ministry")
+            .setMessage("You have joined " + ministryName + " with a ministry ID of: " + ministryId)
+            .setNeutralButton("OK", new DialogInterface.OnClickListener()
+            {
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    dialog.dismiss();
+                }
+            })
+            .create();
+
+        alertDialog.show();
+
+        //TODO: Give user self assigned team role (save to local storage?)
+        //TODO: Send request to join this ministry
+        //TODO: Make sure this ministry gets added to the list in Settings
+        //TODO: Go back to home page or previous page?
+    }
+
+    public void cancel(View view)
+    {
+        finish();
     }
 
 
