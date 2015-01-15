@@ -39,24 +39,26 @@ public class TokenTask extends AsyncTask<Object, Void, String>
     protected String doInBackground(Object... params)
     {
         String urlString = params[0].toString();
-        String guid = params[1].toString();
-        
-        String fullUrl = urlString + "/token?st=" + guid + "&refresh=true";
+        String sessionTicket = params[1].toString();
+
+        String fullUrl = urlString + "/token?st=" + sessionTicket + "&refresh=true";
+        Log.i(TAG, fullUrl);
 
         try
         {
             URL url = new URL(fullUrl);
+
             HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-            urlConnection.setReadTimeout(1000);
+            urlConnection.setReadTimeout(10000);
             urlConnection.setConnectTimeout(10000);
             urlConnection.setRequestMethod("GET");
             urlConnection.setDoInput(true);
-            
+
             urlConnection.connect();
             statusCode = urlConnection.getResponseCode();
 
             InputStream inputStream = urlConnection.getInputStream();
-            
+
             if (inputStream != null)
             {
                 String jsonAsString = readFully(inputStream, "UTF-8");

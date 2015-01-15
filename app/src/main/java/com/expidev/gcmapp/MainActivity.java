@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.GcmTheKey.GcmTheKeyHelper;
 import com.expidev.gcmapp.http.GcmApiClient;
+import com.expidev.gcmapp.http.TicketTask;
 import com.expidev.gcmapp.http.TokenTask;
 import com.expidev.gcmapp.model.User;
 import com.expidev.gcmapp.utils.Device;
@@ -37,6 +38,7 @@ public class MainActivity extends ActionBarActivity
     private long keyClientId;
     private LocalBroadcastManager manager;
     private GcmBroadcastReceiver gcmBroadcastReceiver;
+    private String baseUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -47,11 +49,12 @@ public class MainActivity extends ActionBarActivity
         getProperties();
 
         keyClientId = Long.parseLong(properties.getProperty("TheKeyClientId", ""));
+        baseUrl = properties.getProperty("BaseUrlStage", "");
 
-        theKey = TheKeyImpl.getInstance(this, keyClientId);
+        theKey = TheKeyImpl.getInstance(getApplicationContext(), keyClientId);
 
         manager = LocalBroadcastManager.getInstance(getApplicationContext());
-        gcmBroadcastReceiver = new GcmBroadcastReceiver();
+        gcmBroadcastReceiver = new GcmBroadcastReceiver(theKey);
         gcmBroadcastReceiver.registerReceiver(manager);
 
         if (Device.isConnected(getApplicationContext()))
@@ -63,21 +66,33 @@ public class MainActivity extends ActionBarActivity
             }
             else
             {
-                TheKey.Attributes attributes = theKey.getAttributes();
-                Log.i(TAG, "uuid: " + attributes.getGuid());
-                GcmApiClient.getToken(attributes.getGuid(), new TokenTask.TokenTaskHandler()
+                GcmApiClient.getTicket(theKey, new TicketTask.TicketTaskHandler()
                 {
                     @Override
-                    public void taskComplete(JSONObject object)
+                    public void taskComplete(String ticket)
                     {
-                        Log.i(TAG, "Task Complete");
-                        User user = GcmTheKeyHelper.createUser(object);
+                        GcmApiClient.getToken(ticket, new TokenTask.TokenTaskHandler()
+                        {
+                            @Override
+                            
+                            public void taskComplete(JSONObject object)
+                            {
+                                Log.i(TAG, "Task Complete");
+                                User user = GcmTheKeyHelper.createUser(object);
+                            }
+
+                            @Override
+                            public void taskFailed(String status)
+                            {
+                                Log.i(TAG, "Task Failed. Status: " + status);
+                            }
+                        });
                     }
 
                     @Override
-                    public void taskFailed(String status)
+                    public void taskFailed()
                     {
-                        Log.i(TAG, "Task Failed. Status: " + status);
+
                     }
                 });
             }
