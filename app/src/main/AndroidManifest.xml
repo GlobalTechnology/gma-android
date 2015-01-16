@@ -22,6 +22,12 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        
+        <receiver android:name=".Sync.ConnectionBroadcastReceiver" >
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHAGE"/>
+            </intent-filter>            
+        </receiver>
     </application>
 
 </manifest>
