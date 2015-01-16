@@ -41,7 +41,7 @@ public class TokenTask extends AsyncTask<Object, Void, String>
         String urlString = params[0].toString();
         String sessionTicket = params[1].toString();
 
-        String fullUrl = urlString + "/token?st=" + sessionTicket + "&refresh=true";
+        String fullUrl = urlString + "?st=" + sessionTicket + "&refresh=true";
         Log.i(TAG, fullUrl);
 
         try

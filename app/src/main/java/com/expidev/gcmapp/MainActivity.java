@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
@@ -38,18 +39,19 @@ public class MainActivity extends ActionBarActivity
     private long keyClientId;
     private LocalBroadcastManager manager;
     private GcmBroadcastReceiver gcmBroadcastReceiver;
-    private String baseUrl;
+    private TextView welcome;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        welcome = (TextView) findViewById(R.id.tv_welcome);
 
         getProperties();
 
         keyClientId = Long.parseLong(properties.getProperty("TheKeyClientId", ""));
-        baseUrl = properties.getProperty("BaseUrlStage", "");
 
         theKey = TheKeyImpl.getInstance(getApplicationContext(), keyClientId);
 
@@ -79,6 +81,8 @@ public class MainActivity extends ActionBarActivity
                             {
                                 Log.i(TAG, "Task Complete");
                                 User user = GcmTheKeyHelper.createUser(object);
+                                String welcomeMessage = "Welcome " + user.getFirstName() + " " + user.getLastName();
+                                welcome.setText(welcomeMessage);
                             }
 
                             @Override
