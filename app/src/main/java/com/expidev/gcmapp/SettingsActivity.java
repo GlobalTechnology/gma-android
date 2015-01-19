@@ -3,23 +3,18 @@ package com.expidev.gcmapp;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.RingtonePreference;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+import android.util.Log;
 
+import com.expidev.gcmapp.sql.QueryHelper;
+import com.expidev.gcmapp.sql.RetrieveMinistriesDatabaseTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +32,8 @@ import java.util.List;
  */
 public class SettingsActivity extends PreferenceActivity
 {
+    private final String TAG = getClass().getSimpleName();
+
     /**
      * Determines whether to always show the simplified settings UI, where
      * settings are presented in a single list. When false, settings are shown
@@ -75,8 +72,47 @@ public class SettingsActivity extends PreferenceActivity
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
         // their values. When their values change, their summaries are updated
         // to reflect the new value, per the Android Design guidelines.
-        bindPreferenceSummaryToValue(findPreference("ministry_team_list"));
+        createMinistryListPreference();
         bindPreferenceSummaryToValue(findPreference("mcc_list"));
+    }
+
+    private void createMinistryListPreference()
+    {
+        QueryHelper.retrieveMinistries(this, new RetrieveMinistriesDatabaseTask.RetrieveMinistriesDatabaseTaskHandler()
+        {
+            @Override
+            public void taskComplete(Cursor cursor)
+            {
+                if(cursor.getCount() > 0)
+                {
+                    ListPreference ministryListPreference = (ListPreference) findPreference("ministry_team_list");
+
+                    List<String> entries = new ArrayList<String>();
+                    List<String> values = new ArrayList<String>();
+
+                    cursor.moveToFirst();
+                    for(int i = 0; i < cursor.getCount(); i++)
+                    {
+                        String ministryName = cursor.getString(1);
+                        entries.add(ministryName);
+                        values.add(ministryName);
+                        cursor.moveToNext();
+                    }
+
+                    ministryListPreference.setEntries(entries.toArray(new CharSequence[entries.size()]));
+                    ministryListPreference.setEntryValues(values.toArray(new CharSequence[values.size()]));
+
+                    bindPreferenceSummaryToValue(ministryListPreference);
+                    cursor.close();
+                }
+            }
+
+            @Override
+            public void taskFailed(String message)
+            {
+                Log.w(TAG, "Failed to read ministries from database");
+            }
+        });
     }
 
     /**
