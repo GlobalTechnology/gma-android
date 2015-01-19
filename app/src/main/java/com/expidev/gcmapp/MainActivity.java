@@ -19,6 +19,8 @@ import com.expidev.gcmapp.http.TokenTask;
 import com.expidev.gcmapp.model.User;
 import com.expidev.gcmapp.utils.Device;
 import com.expidev.gcmapp.utils.GcmProperties;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import org.json.JSONObject;
 
@@ -32,6 +34,9 @@ import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 public class MainActivity extends ActionBarActivity
 {
     private final String TAG = this.getClass().getSimpleName();
+
+    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    
     private Properties properties;
     private TheKey theKey;
     private long keyClientId;
@@ -86,6 +91,8 @@ public class MainActivity extends ActionBarActivity
         {
             Toast.makeText(this, R.string.no_internet, Toast.LENGTH_LONG).show();
         }
+        
+        checkPlayServices();
 
     }
 
@@ -122,6 +129,8 @@ public class MainActivity extends ActionBarActivity
         super.onDestroy();
         manager.unregisterReceiver(gcmBroadcastReceiver);
     }
+    
+    
 
     public void joinNewMinistry(MenuItem menuItem)
     {
@@ -200,5 +209,23 @@ public class MainActivity extends ActionBarActivity
             LoginDialogFragment loginDialogFragment = LoginDialogFragment.builder().clientId(keyClientId).build();
             loginDialogFragment.show(fm.beginTransaction().addToBackStack("loginDialog"), "loginDialog");
         }
+    }
+
+    private boolean checkPlayServices()
+    {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS)
+        {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode))
+            {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            }
+            else
+            {
+                Log.i(TAG, "This device is not supported.");
+            }
+            return false;
+        }
+        return true;
     }
 }
