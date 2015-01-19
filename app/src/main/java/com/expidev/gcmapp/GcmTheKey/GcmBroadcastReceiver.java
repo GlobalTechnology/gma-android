@@ -3,11 +3,13 @@ package com.expidev.gcmapp.GcmTheKey;
 import android.util.Log;
 
 import com.expidev.gcmapp.http.GcmApiClient;
+import com.expidev.gcmapp.http.TicketTask;
 import com.expidev.gcmapp.http.TokenTask;
 import com.expidev.gcmapp.model.User;
 
 import org.json.JSONObject;
 
+import me.thekey.android.TheKey;
 import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
 
 /**
@@ -16,32 +18,50 @@ import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
 public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
 {
     private final String TAG = this.getClass().getSimpleName();
+
+    private TheKey theKey;
     
-    public GcmBroadcastReceiver()
+    public GcmBroadcastReceiver(TheKey theKey)
     {
         super();
+        this.theKey = theKey;
     }
 
     @Override
     protected void onLogin(String guid)
     {
         Log.i(TAG, "On Login");
-
-        GcmApiClient.getToken(guid, new TokenTask.TokenTaskHandler()
+        
+        GcmApiClient.getTicket(theKey, new TicketTask.TicketTaskHandler()
         {
             @Override
-            public void taskComplete(JSONObject object)
+            public void taskComplete(String ticket)
             {
-                Log.i(TAG, "Task Complete");
-                User user = GcmTheKeyHelper.createUser(object);
+                GcmApiClient.getToken(ticket, new TokenTask.TokenTaskHandler()
+                {
+                    @Override
+                    public void taskComplete(JSONObject object)
+                    {
+                        Log.i(TAG, "Task Complete");
+                        User user = GcmTheKeyHelper.createUser(object);
+                    }
+
+                    @Override
+                    public void taskFailed(String status)
+                    {
+                        Log.i(TAG, "Task Failed. Status: " + status);
+                    }
+                });
             }
 
             @Override
-            public void taskFailed(String status)
+            public void taskFailed()
             {
-                Log.i(TAG, "Task Failed. Status: " + status);
+
             }
         });
+
+
     }
 
     @Override

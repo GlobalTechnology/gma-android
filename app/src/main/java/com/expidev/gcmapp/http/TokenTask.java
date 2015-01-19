@@ -3,6 +3,7 @@ package com.expidev.gcmapp.http;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -14,6 +15,11 @@ import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by matthewfrederick on 1/13/15.
+ * 
+ * TokenTask is used to retrieve basic information about the user and the systems 
+ * to which he has access. A session ticket (retrieved from TicketTask) is passed
+ * to validate that thekey login was successful.
+ *
  */
 public class TokenTask extends AsyncTask<Object, Void, String>
 {
@@ -39,30 +45,39 @@ public class TokenTask extends AsyncTask<Object, Void, String>
     protected String doInBackground(Object... params)
     {
         String urlString = params[0].toString();
-        String guid = params[1].toString();
-        
-        String fullUrl = urlString + "/token?st=" + guid + "&refresh=true";
+        String sessionTicket = params[1].toString();
+
+        String fullUrl = urlString + "?st=" + sessionTicket + "&refresh=true";
+        Log.i(TAG, fullUrl);
 
         try
         {
             URL url = new URL(fullUrl);
+
             HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-            urlConnection.setReadTimeout(1000);
+            urlConnection.setReadTimeout(10000);
             urlConnection.setConnectTimeout(10000);
             urlConnection.setRequestMethod("GET");
             urlConnection.setDoInput(true);
-            
+
             urlConnection.connect();
             statusCode = urlConnection.getResponseCode();
 
-            InputStream inputStream = urlConnection.getInputStream();
-            
-            if (inputStream != null)
+            if (statusCode == HttpStatus.SC_OK)
             {
-                String jsonAsString = readFully(inputStream, "UTF-8");
-                Log.i(TAG, jsonAsString);
-                jsonObject = new JSONObject(jsonAsString);
-                status = jsonObject.getString("status");
+                InputStream inputStream = urlConnection.getInputStream();
+
+                if (inputStream != null)
+                {
+                    String jsonAsString = readFully(inputStream, "UTF-8");
+                    Log.i(TAG, jsonAsString);
+                    jsonObject = new JSONObject(jsonAsString);
+                    status = jsonObject.getString("status");
+                }
+            }
+            else 
+            {
+                Log.e(TAG, "Status Code: " + statusCode);
             }
         }
         catch (Exception e)

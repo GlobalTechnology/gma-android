@@ -19,10 +19,12 @@ public final class GcmTheKeyHelper
         
         try
         {
-            user.setFirstName(object.getString("first_name"));
-            user.setLastName(object.getString("last_name"));
-            user.setCasUsername(object.getString("cas_username"));
-            user.setPersonId(object.getString("person_id"));
+            JSONObject jsonUser = object.getJSONObject("user");
+            
+            user.setFirstName(jsonUser.getString("first_name"));
+            user.setLastName(jsonUser.getString("last_name"));
+            user.setCasUsername(jsonUser.getString("cas_username"));
+            user.setPersonId(jsonUser.getString("person_id"));
         } catch (Exception e)
         {
             Log.e(TAG, e.getMessage(), e);
