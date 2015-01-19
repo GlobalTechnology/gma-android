@@ -11,6 +11,7 @@ public class QueryHelper
         Context context,
         RetrieveMinistriesDatabaseTask.RetrieveMinistriesDatabaseTaskHandler taskHandler)
     {
-        new RetrieveMinistriesDatabaseTask(taskHandler).execute(context, "associated_ministries");
+        new RetrieveMinistriesDatabaseTask(taskHandler)
+            .execute(context, TableNames.ASSOCIATED_MINISTRIES.getTableName());
     }
 }

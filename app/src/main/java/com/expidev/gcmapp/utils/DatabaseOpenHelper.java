@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.expidev.gcmapp.sql.TableNames;
+
 /**
  * Created by William.Randall on 1/15/2015.
  */
@@ -30,7 +32,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     {
-        db.delete("associated_ministries", null, null);
+        db.delete(TableNames.ASSOCIATED_MINISTRIES.getTableName(), null, null);
         onCreate(db);
     }
 
@@ -40,7 +42,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      */
     private String createAssociatedMinistryTableSql()
     {
-        return "CREATE TABLE IF NOT EXISTS associated_ministries (" +
+        return "CREATE TABLE IF NOT EXISTS " + TableNames.ASSOCIATED_MINISTRIES.getTableName() + "(" +
             "ministry_id TEXT, " +
             "name TEXT, " +
             "team_role TEXT, " +                // Team Role of the current user for this ministry/team

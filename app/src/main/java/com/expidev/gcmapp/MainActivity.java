@@ -22,6 +22,7 @@ import com.expidev.gcmapp.http.GcmApiClient;
 import com.expidev.gcmapp.http.TicketTask;
 import com.expidev.gcmapp.http.TokenTask;
 import com.expidev.gcmapp.model.User;
+import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 import com.expidev.gcmapp.utils.Device;
 import com.expidev.gcmapp.utils.GcmProperties;
@@ -123,7 +124,9 @@ public class MainActivity extends ActionBarActivity
         DatabaseOpenHelper databaseOpenHelper = new DatabaseOpenHelper(this);
 
         SQLiteDatabase database = databaseOpenHelper.getWritableDatabase();
-        Cursor cursor = database.query("associated_ministries", null, null, null, null, null, null);
+        String tableName = TableNames.ASSOCIATED_MINISTRIES.getTableName();
+        
+        Cursor cursor = database.query(tableName, null, null, null, null, null, null);
 
         // Only add the dummy rows if none exist
         if(cursor.getCount() == 0)
@@ -135,28 +138,28 @@ public class MainActivity extends ActionBarActivity
             guatemala.put("name", "Guatemala");
             guatemala.put("team_role", "self-assigned");
             guatemala.put("last_synced", "datetime(2015-01-15 11:30:00)");
-            database.insert("associated_ministries", null, guatemala);
+            database.insert(tableName, null, guatemala);
 
             ContentValues bridgesUcf = new ContentValues();
             bridgesUcf.put("ministry_id", "2");
             bridgesUcf.put("name", "Bridges UCF");
             bridgesUcf.put("team_role", "member");
             bridgesUcf.put("last_synced", "datetime(2015-01-15 11:30:00)");
-            database.insert("associated_ministries", null, bridgesUcf);
+            database.insert(tableName, null, bridgesUcf);
 
             ContentValues antioch21 = new ContentValues();
             antioch21.put("ministry_id", "3");
             antioch21.put("name", "Antioch21 Church");
             antioch21.put("team_role", "leader");
             antioch21.put("last_synced", "datetime(2015-01-15 11:30:00)");
-            database.insert("associated_ministries", null, antioch21);
+            database.insert(tableName, null, antioch21);
 
             ContentValues random = new ContentValues();
             random.put("ministry_id", "4");
             random.put("name", "Random");
             random.put("team_role", "inherited_leader");
             random.put("last_synced", "datetime(2015-01-15 11:30:00)");
-            database.insert("associated_ministries", null, random);
+            database.insert(tableName, null, random);
 
             database.setTransactionSuccessful();
             database.endTransaction();
