@@ -3,6 +3,7 @@ package com.expidev.gcmapp.http;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -62,14 +63,21 @@ public class TokenTask extends AsyncTask<Object, Void, String>
             urlConnection.connect();
             statusCode = urlConnection.getResponseCode();
 
-            InputStream inputStream = urlConnection.getInputStream();
-
-            if (inputStream != null)
+            if (statusCode == HttpStatus.SC_OK)
             {
-                String jsonAsString = readFully(inputStream, "UTF-8");
-                Log.i(TAG, jsonAsString);
-                jsonObject = new JSONObject(jsonAsString);
-                status = jsonObject.getString("status");
+                InputStream inputStream = urlConnection.getInputStream();
+
+                if (inputStream != null)
+                {
+                    String jsonAsString = readFully(inputStream, "UTF-8");
+                    Log.i(TAG, jsonAsString);
+                    jsonObject = new JSONObject(jsonAsString);
+                    status = jsonObject.getString("status");
+                }
+            }
+            else 
+            {
+                Log.e(TAG, "Status Code: " + statusCode);
             }
         }
         catch (Exception e)
