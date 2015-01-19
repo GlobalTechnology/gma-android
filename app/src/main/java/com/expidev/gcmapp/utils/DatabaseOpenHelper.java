@@ -27,6 +27,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     {
         Log.i(TAG, "Creating database...");
         createAssociatedMinistryTable(db);
+        createSessionTable(db);
     }
 
     @Override
@@ -49,8 +50,19 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
             "last_synced TEXT);");              // Last time this information was synced with the web
     }
 
+    /**
+     * This table holds information for ministries the current user
+     * has already joined or requested to join.
+     */
+    private void createSessionTable(SQLiteDatabase db)
+    {
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.SESSION.getTableName() +
+            "(session_token TEXT);");
+    }
+
     private void deleteAllTables(SQLiteDatabase db)
     {
         db.delete(TableNames.ASSOCIATED_MINISTRIES.getTableName(), null, null);
+        db.delete(TableNames.SESSION.getTableName(), null, null);
     }
 }
