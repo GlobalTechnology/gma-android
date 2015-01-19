@@ -1,8 +1,11 @@
 package com.expidev.gcmapp;
 
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -19,6 +22,7 @@ import com.expidev.gcmapp.http.GcmApiClient;
 import com.expidev.gcmapp.http.TicketTask;
 import com.expidev.gcmapp.http.TokenTask;
 import com.expidev.gcmapp.model.User;
+import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 import com.expidev.gcmapp.utils.Device;
 import com.expidev.gcmapp.utils.GcmProperties;
 
@@ -48,6 +52,8 @@ public class MainActivity extends ActionBarActivity
         setContentView(R.layout.activity_main);
         
         welcome = (TextView) findViewById(R.id.tv_welcome);
+
+        populateDummyMinistries();
 
         getProperties();
 
@@ -109,6 +115,51 @@ public class MainActivity extends ActionBarActivity
 
                 }
             });
+        }
+    }
+
+    private void populateDummyMinistries()
+    {
+        DatabaseOpenHelper databaseOpenHelper = new DatabaseOpenHelper(this);
+
+        SQLiteDatabase database = databaseOpenHelper.getWritableDatabase();
+        Cursor cursor = database.query("associated_ministries", null, null, null, null, null, null);
+
+        // Only add the dummy rows if none exist
+        if(cursor.getCount() == 0)
+        {
+            database.beginTransaction();
+
+            ContentValues guatemala = new ContentValues();
+            guatemala.put("ministry_id", "1");
+            guatemala.put("name", "Guatemala");
+            guatemala.put("team_role", "self-assigned");
+            guatemala.put("last_synced", "datetime(2015-01-15 11:30:00)");
+            database.insert("associated_ministries", null, guatemala);
+
+            ContentValues bridgesUcf = new ContentValues();
+            bridgesUcf.put("ministry_id", "2");
+            bridgesUcf.put("name", "Bridges UCF");
+            bridgesUcf.put("team_role", "member");
+            bridgesUcf.put("last_synced", "datetime(2015-01-15 11:30:00)");
+            database.insert("associated_ministries", null, bridgesUcf);
+
+            ContentValues antioch21 = new ContentValues();
+            antioch21.put("ministry_id", "3");
+            antioch21.put("name", "Antioch21 Church");
+            antioch21.put("team_role", "leader");
+            antioch21.put("last_synced", "datetime(2015-01-15 11:30:00)");
+            database.insert("associated_ministries", null, antioch21);
+
+            ContentValues random = new ContentValues();
+            random.put("ministry_id", "4");
+            random.put("name", "Random");
+            random.put("team_role", "inherited_leader");
+            random.put("last_synced", "datetime(2015-01-15 11:30:00)");
+            database.insert("associated_ministries", null, random);
+
+            database.setTransactionSuccessful();
+            database.endTransaction();
         }
     }
 
