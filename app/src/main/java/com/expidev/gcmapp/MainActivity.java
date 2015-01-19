@@ -3,6 +3,9 @@ package com.expidev.gcmapp;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -11,7 +14,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
@@ -24,6 +26,12 @@ import com.expidev.gcmapp.utils.Device;
 import com.expidev.gcmapp.utils.GcmProperties;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONObject;
 
@@ -34,7 +42,7 @@ import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 
 
-public class MainActivity extends ActionBarActivity
+public class MainActivity extends ActionBarActivity implements OnMapReadyCallback
 {
     private final String TAG = this.getClass().getSimpleName();
 
@@ -46,6 +54,7 @@ public class MainActivity extends ActionBarActivity
     private LocalBroadcastManager manager;
     private GcmBroadcastReceiver gcmBroadcastReceiver;
     private ActionBar actionBar;
+    private SupportMapFragment mapFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -82,12 +91,11 @@ public class MainActivity extends ActionBarActivity
                         GcmApiClient.getToken(ticket, new TokenTask.TokenTaskHandler()
                         {
                             @Override
-                            
                             public void taskComplete(JSONObject object)
                             {
                                 Log.i(TAG, "Task Complete");
                                 User user = GcmTheKeyHelper.createUser(object);
-                                String welcomeMessage = "Welcome " + user.getFirstName() + " " + user.getLastName();
+                                String welcomeMessage = "Welcome " + user.getFirstName();
                                 actionBar.setTitle(welcomeMessage);
                             }
 
@@ -100,9 +108,9 @@ public class MainActivity extends ActionBarActivity
                     }
 
                     @Override
-                    public void taskFailed(String status)
+                    public void taskFailed()
                     {
-                        Log.i(TAG, "Task Failed. Status: " + status);
+
                     }
                 });
             }
@@ -112,8 +120,12 @@ public class MainActivity extends ActionBarActivity
             Toast.makeText(this, R.string.no_internet, Toast.LENGTH_LONG).show();
         }
         
-        checkPlayServices();
-
+        if (checkPlayServices())
+        {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            mapFragment = (SupportMapFragment) fragmentManager.findFragmentById(R.id.map);
+            mapFragment.getMapAsync(MainActivity.this);
+        }
     }
 
     @Override
@@ -245,5 +257,33 @@ public class MainActivity extends ActionBarActivity
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap)
+    {
+        Log.i(TAG, "On Map Ready");
+    }
+    
+    private void zoomToLocation()
+    {
+        mapFragment.getMap().setMyLocationEnabled(true);
+
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        String provider = locationManager.getBestProvider(new Criteria(), true);
+
+        if (provider != null)
+        {
+            Location location = locationManager.getLastKnownLocation(provider);
+
+            Log.i(TAG, "Lat: " + location.getLatitude() + " Long: " + location.getLongitude());
+
+            CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
+            CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+
+            mapFragment.getMap().moveCamera(center);
+            mapFragment.getMap().moveCamera(zoom);
+        }
+        
     }
 }
