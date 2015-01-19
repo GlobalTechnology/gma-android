@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -42,12 +43,15 @@ public class MainActivity extends ActionBarActivity
     private long keyClientId;
     private LocalBroadcastManager manager;
     private GcmBroadcastReceiver gcmBroadcastReceiver;
+    private ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        actionBar = getSupportActionBar();
 
         getProperties();
 
@@ -77,6 +81,7 @@ public class MainActivity extends ActionBarActivity
                     {
                         Log.i(TAG, "Task Complete");
                         User user = GcmTheKeyHelper.createUser(object);
+                        actionBar.setTitle("Hello " + user.getFirstName());
                     }
 
                     @Override
