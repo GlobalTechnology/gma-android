@@ -32,7 +32,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     {
-        db.delete(TableNames.ASSOCIATED_MINISTRIES.getTableName(), null, null);
+        deleteAllTables(db);
         onCreate(db);
     }
 
@@ -47,5 +47,10 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
             "name TEXT, " +
             "team_role TEXT, " +                // Team Role of the current user for this ministry/team
             "last_synced TEXT);";               // Last time this information was synced with the web
+    }
+
+    private void deleteAllTables(SQLiteDatabase db)
+    {
+        db.delete(TableNames.ASSOCIATED_MINISTRIES.getTableName(), null, null);
     }
 }
