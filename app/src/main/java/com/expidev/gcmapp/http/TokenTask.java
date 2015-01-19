@@ -14,6 +14,11 @@ import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by matthewfrederick on 1/13/15.
+ * 
+ * TokenTask is used to retrieve basic information about the user and the systems 
+ * to which he has access. A session ticket (retrieved from TicketTask) is passed
+ * to validate that thekey login was successful.
+ *
  */
 public class TokenTask extends AsyncTask<Object, Void, String>
 {

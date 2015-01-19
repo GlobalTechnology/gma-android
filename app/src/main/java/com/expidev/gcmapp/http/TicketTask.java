@@ -7,6 +7,10 @@ import me.thekey.android.TheKey;
 
 /**
  * Created by matthewfrederick on 1/15/15.
+ *
+ * TicketTask is used to get a session ticket for the specified 
+ * service and attributes for which the ticket was issued.
+ * 
  */
 public class TicketTask extends AsyncTask<Object, Void, String>
 {
