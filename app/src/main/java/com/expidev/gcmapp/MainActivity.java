@@ -61,51 +61,55 @@ public class MainActivity extends ActionBarActivity
 
         if (Device.isConnected(getApplicationContext()))
         {
-            // check for previous login sessions
-            if (theKey.getGuid() == null)
-            {
-                login();
-            }
-            else
-            {
-                GcmApiClient.getTicket(theKey, new TicketTask.TicketTaskHandler()
-                {
-                    @Override
-                    public void taskComplete(String ticket)
-                    {
-                        GcmApiClient.getToken(ticket, new TokenTask.TokenTaskHandler()
-                        {
-                            @Override
-                            
-                            public void taskComplete(JSONObject object)
-                            {
-                                Log.i(TAG, "Task Complete");
-                                User user = GcmTheKeyHelper.createUser(object);
-                                String welcomeMessage = "Welcome " + user.getFirstName() + " " + user.getLastName();
-                                welcome.setText(welcomeMessage);
-                            }
-
-                            @Override
-                            public void taskFailed(String status)
-                            {
-                                Log.i(TAG, "Task Failed. Status: " + status);
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void taskFailed()
-                    {
-
-                    }
-                });
-            }
+           handleLogin();
         }
         else
         {
             Toast.makeText(this, R.string.no_internet, Toast.LENGTH_LONG).show();
         }
+    }
 
+    private void handleLogin()
+    {
+        // check for previous login sessions
+        if (theKey.getGuid() == null)
+        {
+            login();
+        }
+        else
+        {
+            GcmApiClient.getTicket(theKey, new TicketTask.TicketTaskHandler()
+            {
+                @Override
+                public void taskComplete(String ticket)
+                {
+                    GcmApiClient.getToken(ticket, new TokenTask.TokenTaskHandler()
+                    {
+                        @Override
+
+                        public void taskComplete(JSONObject object)
+                        {
+                            Log.i(TAG, "Task Complete");
+                            User user = GcmTheKeyHelper.createUser(object);
+                            String welcomeMessage = "Welcome " + user.getFirstName() + " " + user.getLastName();
+                            welcome.setText(welcomeMessage);
+                        }
+
+                        @Override
+                        public void taskFailed(String status)
+                        {
+                            Log.i(TAG, "Task Failed. Status: " + status);
+                        }
+                    });
+                }
+
+                @Override
+                public void taskFailed()
+                {
+
+                }
+            });
+        }
     }
 
     @Override
