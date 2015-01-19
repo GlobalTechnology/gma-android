@@ -62,7 +62,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
 
     private void deleteAllTables(SQLiteDatabase db)
     {
-        db.delete(TableNames.ASSOCIATED_MINISTRIES.getTableName(), null, null);
-        db.delete(TableNames.SESSION.getTableName(), null, null);
+        db.execSQL("DROP TABLE IF EXISTS " + TableNames.ASSOCIATED_MINISTRIES);
+        db.execSQL("DROP TABLE IF EXISTS " + TableNames.SESSION);
     }
 }
