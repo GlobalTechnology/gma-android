@@ -26,7 +26,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     public void onCreate(SQLiteDatabase db)
     {
         Log.i(TAG, "Creating database...");
-        db.execSQL(createAssociatedMinistryTableSql());
+        createAssociatedMinistryTable(db);
     }
 
     @Override
@@ -37,16 +37,16 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     }
 
     /**
-     * Holds information for ministries the current user
+     * This table holds information for ministries the current user
      * has already joined or requested to join.
      */
-    private String createAssociatedMinistryTableSql()
+    private void createAssociatedMinistryTable(SQLiteDatabase db)
     {
-        return "CREATE TABLE IF NOT EXISTS " + TableNames.ASSOCIATED_MINISTRIES.getTableName() + "(" +
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.ASSOCIATED_MINISTRIES.getTableName() + "(" +
             "ministry_id TEXT, " +
             "name TEXT, " +
             "team_role TEXT, " +                // Team Role of the current user for this ministry/team
-            "last_synced TEXT);";               // Last time this information was synced with the web
+            "last_synced TEXT);");              // Last time this information was synced with the web
     }
 
     private void deleteAllTables(SQLiteDatabase db)
