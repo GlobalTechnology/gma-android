@@ -13,7 +13,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.expidev.gcmapp.sql.QueryHelper;
+import com.expidev.gcmapp.sql.DatabaseHelper;
 import com.expidev.gcmapp.sql.RetrieveMinistriesDatabaseTask;
 
 import java.util.ArrayList;
@@ -78,7 +78,7 @@ public class SettingsActivity extends PreferenceActivity
 
     private void createMinistryListPreference()
     {
-        QueryHelper.retrieveMinistries(this, new RetrieveMinistriesDatabaseTask.RetrieveMinistriesDatabaseTaskHandler()
+        DatabaseHelper.retrieveMinistries(this, new RetrieveMinistriesDatabaseTask.RetrieveMinistriesDatabaseTaskHandler()
         {
             @Override
             public void taskComplete(Cursor cursor)

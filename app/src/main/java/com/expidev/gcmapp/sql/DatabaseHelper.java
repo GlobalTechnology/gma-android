@@ -5,7 +5,7 @@ import android.content.Context;
 /**
  * Created by William.Randall on 1/19/2015.
  */
-public class QueryHelper
+public class DatabaseHelper
 {
     public static void retrieveMinistries(
         Context context,
