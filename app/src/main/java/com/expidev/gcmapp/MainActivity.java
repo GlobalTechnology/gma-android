@@ -119,14 +119,10 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
                         public void taskComplete(JSONObject object)
                         {
-                            @Override
-                            public void taskComplete(JSONObject object)
-                            {
-                                Log.i(TAG, "Task Complete");
-                                User user = GcmTheKeyHelper.createUser(object);
-                                String welcomeMessage = "Welcome " + user.getFirstName();
-                                actionBar.setTitle(welcomeMessage);
-                            }
+                            Log.i(TAG, "Task Complete");
+                            User user = GcmTheKeyHelper.createUser(object);
+                            String welcomeMessage = "Welcome " + user.getFirstName();
+                            actionBar.setTitle(welcomeMessage);
 
                             writeSessionTokenToDatabase(getTokenFromJson(object));
                         }
