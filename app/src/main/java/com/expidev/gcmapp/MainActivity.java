@@ -3,7 +3,9 @@ package com.expidev.gcmapp;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
@@ -55,6 +57,13 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     private GcmBroadcastReceiver gcmBroadcastReceiver;
     private ActionBar actionBar;
     private GPSTracker gps;
+    private boolean targets;
+    private boolean groups;
+    private boolean churches;
+    private boolean multiplyingChurches;
+    private boolean trainingActivities;
+    private boolean campuses;
+    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -64,6 +73,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         actionBar = getSupportActionBar();
 
+        getMapPreferences();
+        
         getProperties();
 
         keyClientId = Long.parseLong(properties.getProperty("TheKeyClientId", ""));
@@ -155,6 +166,13 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     }
 
     @Override
+    protected void onPostResume()
+    {
+        super.onPostResume();
+        getMapPreferences();
+    }
+
+    @Override
     protected void onDestroy()
     {
         super.onDestroy();
@@ -231,6 +249,17 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         properties = gcmProperties.getProperties("gcm_properties.properties");
     }
     
+    private void getMapPreferences()
+    {
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        targets = preferences.getBoolean("targets", true);
+        groups = preferences.getBoolean("preferences", true);
+        churches = preferences.getBoolean("churches", true);
+        multiplyingChurches = preferences.getBoolean("multiplyingChurches", true);
+        trainingActivities = preferences.getBoolean("trainingActivities", true);
+        campuses = preferences.getBoolean("campuses", true);
+    }
+    
     private void login()
     {   
         final FragmentManager fm = this.getSupportFragmentManager();
@@ -259,9 +288,11 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         return true;
     }
     
-    private void mapOptions(View view)
+    public void mapOptions(View view)
     {
         Log.i(TAG, "Map options");
+        Intent intent = new Intent(this, MapSettings.class);
+        startActivity(intent);
     }
 
     @Override
