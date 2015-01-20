@@ -3,9 +3,6 @@ package com.expidev.gcmapp;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -16,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.expidev.gcmapp.GPSService.GPSTracker;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.GcmTheKey.GcmTheKeyHelper;
 import com.expidev.gcmapp.http.GcmApiClient;
@@ -32,6 +30,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONObject;
 
@@ -54,8 +53,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     private LocalBroadcastManager manager;
     private GcmBroadcastReceiver gcmBroadcastReceiver;
     private ActionBar actionBar;
-//    private SupportMapFragment mapFragment;
-//    private GoogleMap map;
+    private GPSTracker gps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -160,6 +158,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     {
         super.onDestroy();
         manager.unregisterReceiver(gcmBroadcastReceiver);
+        gps.stopUsingGPS();
     }
 
     public void joinNewMinistry(MenuItem menuItem)
@@ -263,28 +262,28 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap)
     {
         Log.i(TAG, "On Map Ready");
-        zoomToLocation(googleMap);
+        
+        gps = new GPSTracker(this);
+        
+        if (gps.canGetLocation())
+        {
+            zoomToLocation(gps, googleMap);
+            googleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(gps.getLatitude(), gps.getLongitude()))
+                    .title("You"));
+        }
+        else
+        {
+            gps.showSettingsAlert();
+        }
     }
     
-    private void zoomToLocation(GoogleMap map)
+    private void zoomToLocation(GPSTracker gps, GoogleMap map)
     {
-        map.setMyLocationEnabled(true);
+        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(gps.getLatitude(), gps.getLongitude()));
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
 
-        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        String provider = locationManager.getBestProvider(new Criteria(), true);
-
-        if (provider != null)
-        {
-            Location location = locationManager.getLastKnownLocation(provider);
-
-            Log.i(TAG, "Lat: " + location.getLatitude() + " Long: " + location.getLongitude());
-
-            CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
-            CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
-
-            map.moveCamera(center);
-            map.moveCamera(zoom);
-        }
-        
+        map.moveCamera(center);
+        map.moveCamera(zoom);
     }
 }
