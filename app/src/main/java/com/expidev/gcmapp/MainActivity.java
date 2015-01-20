@@ -11,6 +11,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.expidev.gcmapp.GPSService.GPSTracker;
@@ -256,6 +257,11 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             return false;
         }
         return true;
+    }
+    
+    private void mapOptions(View view)
+    {
+        Log.i(TAG, "Map options");
     }
 
     @Override
