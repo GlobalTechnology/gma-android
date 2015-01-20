@@ -30,6 +30,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".MapSettings"
+            android:label="@string/title_activity_map_settings"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.expidev.gcmapp.MainActivity" />
+        </activity>
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -44,14 +52,6 @@
             </intent-filter>
         </receiver>
 
-        <activity
-            android:name=".MapSettings"
-            android:label="@string/title_activity_map_settings"
-            android:parentActivityName=".MainActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.expidev.gcmapp.MainActivity" />
-        </activity>
     </application>
 
 </manifest>
