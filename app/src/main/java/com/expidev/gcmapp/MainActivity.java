@@ -164,6 +164,8 @@ public class MainActivity extends ActionBarActivity
             database.setTransactionSuccessful();
             database.endTransaction();
         }
+        cursor.close();
+        database.close();
     }
 
     @Override
