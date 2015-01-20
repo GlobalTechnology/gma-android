@@ -22,11 +22,14 @@ import com.expidev.gcmapp.http.GcmApiClient;
 import com.expidev.gcmapp.http.TicketTask;
 import com.expidev.gcmapp.http.TokenTask;
 import com.expidev.gcmapp.model.User;
+import com.expidev.gcmapp.sql.DatabaseHelper;
+import com.expidev.gcmapp.sql.SessionTokenDatabaseTask;
 import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 import com.expidev.gcmapp.utils.Device;
 import com.expidev.gcmapp.utils.GcmProperties;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Properties;
@@ -63,7 +66,7 @@ public class MainActivity extends ActionBarActivity
         theKey = TheKeyImpl.getInstance(getApplicationContext(), keyClientId);
 
         manager = LocalBroadcastManager.getInstance(getApplicationContext());
-        gcmBroadcastReceiver = new GcmBroadcastReceiver(theKey);
+        gcmBroadcastReceiver = new GcmBroadcastReceiver(theKey, this);
         gcmBroadcastReceiver.registerReceiver(manager);
 
         if (Device.isConnected(getApplicationContext()))
@@ -100,6 +103,8 @@ public class MainActivity extends ActionBarActivity
                             User user = GcmTheKeyHelper.createUser(object);
                             String welcomeMessage = "Welcome " + user.getFirstName() + " " + user.getLastName();
                             welcome.setText(welcomeMessage);
+
+                            writeSessionTokenToDatabase(getTokenFromJson(object));
                         }
 
                         @Override
@@ -117,6 +122,37 @@ public class MainActivity extends ActionBarActivity
                 }
             });
         }
+    }
+
+    private String getTokenFromJson(JSONObject json)
+    {
+        try
+        {
+            return json.getString("session_ticket");
+        }
+        catch(JSONException e)
+        {
+            Log.e(TAG, "Failed to get session token from json: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private void writeSessionTokenToDatabase(String sessionToken)
+    {
+        DatabaseHelper.saveSessionToken(this, sessionToken, new SessionTokenDatabaseTask.SessionTokenDatabaseTaskHandler()
+        {
+            @Override
+            public void taskComplete()
+            {
+                Log.i(TAG, "Successfully saved session token to database");
+            }
+
+            @Override
+            public void taskFailed(String reason)
+            {
+                Log.e(TAG, "Failed to save session token: " + reason);
+            }
+        });
     }
 
     private void populateDummyMinistries()

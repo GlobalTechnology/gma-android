@@ -1,12 +1,16 @@
 package com.expidev.gcmapp.GcmTheKey;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.expidev.gcmapp.http.GcmApiClient;
 import com.expidev.gcmapp.http.TicketTask;
 import com.expidev.gcmapp.http.TokenTask;
 import com.expidev.gcmapp.model.User;
+import com.expidev.gcmapp.sql.DatabaseHelper;
+import com.expidev.gcmapp.sql.SessionTokenDatabaseTask;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import me.thekey.android.TheKey;
@@ -20,11 +24,13 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
     private final String TAG = this.getClass().getSimpleName();
 
     private TheKey theKey;
+    private Context context;
     
-    public GcmBroadcastReceiver(TheKey theKey)
+    public GcmBroadcastReceiver(TheKey theKey, Context context)
     {
         super();
         this.theKey = theKey;
+        this.context = context;
     }
 
     @Override
@@ -44,6 +50,7 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
                     {
                         Log.i(TAG, "Task Complete");
                         User user = GcmTheKeyHelper.createUser(object);
+                        writeSessionTokenToDatabase(getTokenFromJson(object));
                     }
 
                     @Override
@@ -60,8 +67,37 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
 
             }
         });
+    }
 
+    private void writeSessionTokenToDatabase(String sessionToken)
+    {
+        DatabaseHelper.saveSessionToken(context, sessionToken, new SessionTokenDatabaseTask.SessionTokenDatabaseTaskHandler()
+        {
+            @Override
+            public void taskComplete()
+            {
+                Log.i(TAG, "Successfully saved session token to database");
+            }
 
+            @Override
+            public void taskFailed(String reason)
+            {
+                Log.e(TAG, "Failed to save session token: " + reason);
+            }
+        });
+    }
+
+    private String getTokenFromJson(JSONObject json)
+    {
+        try
+        {
+            return json.getString("session_ticket");
+        }
+        catch(JSONException e)
+        {
+            Log.e(TAG, "Failed to get session token from json: " + e.getMessage());
+            return null;
+        }
     }
 
     @Override

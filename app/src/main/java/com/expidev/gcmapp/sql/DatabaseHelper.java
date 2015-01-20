@@ -14,4 +14,12 @@ public class DatabaseHelper
         new RetrieveMinistriesDatabaseTask(taskHandler)
             .execute(context, TableNames.ASSOCIATED_MINISTRIES.getTableName());
     }
+
+    public static void saveSessionToken(
+        Context context,
+        String sessionToken,
+        SessionTokenDatabaseTask.SessionTokenDatabaseTaskHandler taskHandler)
+    {
+        new SessionTokenDatabaseTask((taskHandler)).execute(context, sessionToken);
+    }
 }
