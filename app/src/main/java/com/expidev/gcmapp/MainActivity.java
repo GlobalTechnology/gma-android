@@ -155,6 +155,7 @@ public class MainActivity extends ActionBarActivity
         });
     }
 
+    //TODO: Remove this when join ministry works
     private void populateDummyMinistries()
     {
         DatabaseOpenHelper databaseOpenHelper = new DatabaseOpenHelper(this);
