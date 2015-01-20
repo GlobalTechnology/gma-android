@@ -9,13 +9,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.view.View;
 import android.widget.Toast;
 
+import com.expidev.gcmapp.GPSService.GPSTracker;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.GcmTheKey.GcmTheKeyHelper;
 import com.expidev.gcmapp.http.GcmApiClient;
@@ -28,6 +30,15 @@ import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 import com.expidev.gcmapp.utils.Device;
 import com.expidev.gcmapp.utils.GcmProperties;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,23 +50,27 @@ import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 
 
-public class MainActivity extends ActionBarActivity
+public class MainActivity extends ActionBarActivity implements OnMapReadyCallback
 {
     private final String TAG = this.getClass().getSimpleName();
+
+    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    
     private Properties properties;
     private TheKey theKey;
     private long keyClientId;
     private LocalBroadcastManager manager;
     private GcmBroadcastReceiver gcmBroadcastReceiver;
-    private TextView welcome;
+    private ActionBar actionBar;
+    private GPSTracker gps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
-        welcome = (TextView) findViewById(R.id.tv_welcome);
+
+        actionBar = getSupportActionBar();
 
         populateDummyMinistries();
 
@@ -76,6 +91,11 @@ public class MainActivity extends ActionBarActivity
         else
         {
             Toast.makeText(this, R.string.no_internet, Toast.LENGTH_LONG).show();
+        }
+        if (checkPlayServices())
+        {
+            SupportMapFragment map = (SupportMapFragment)  getSupportFragmentManager().findFragmentById(R.id.map);
+            map.getMapAsync(this);
         }
     }
 
@@ -99,10 +119,14 @@ public class MainActivity extends ActionBarActivity
 
                         public void taskComplete(JSONObject object)
                         {
-                            Log.i(TAG, "Task Complete");
-                            User user = GcmTheKeyHelper.createUser(object);
-                            String welcomeMessage = "Welcome " + user.getFirstName() + " " + user.getLastName();
-                            welcome.setText(welcomeMessage);
+                            @Override
+                            public void taskComplete(JSONObject object)
+                            {
+                                Log.i(TAG, "Task Complete");
+                                User user = GcmTheKeyHelper.createUser(object);
+                                String welcomeMessage = "Welcome " + user.getFirstName();
+                                actionBar.setTitle(welcomeMessage);
+                            }
 
                             writeSessionTokenToDatabase(getTokenFromJson(object));
                         }
@@ -237,6 +261,7 @@ public class MainActivity extends ActionBarActivity
     {
         super.onDestroy();
         manager.unregisterReceiver(gcmBroadcastReceiver);
+        gps.stopUsingGPS();
     }
 
     public void joinNewMinistry(MenuItem menuItem)
@@ -316,5 +341,58 @@ public class MainActivity extends ActionBarActivity
             LoginDialogFragment loginDialogFragment = LoginDialogFragment.builder().clientId(keyClientId).build();
             loginDialogFragment.show(fm.beginTransaction().addToBackStack("loginDialog"), "loginDialog");
         }
+    }
+
+    private boolean checkPlayServices()
+    {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS)
+        {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode))
+            {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            }
+            else
+            {
+                Log.i(TAG, "This device is not supported.");
+            }
+            return false;
+        }
+        return true;
+    }
+    
+    private void mapOptions(View view)
+    {
+        Log.i(TAG, "Map options");
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap)
+    {
+        Log.i(TAG, "On Map Ready");
+        
+        gps = new GPSTracker(this);
+        
+        if (gps.canGetLocation())
+        {
+            LatLng latLng = new LatLng(gps.getLatitude(), gps.getLongitude());
+            zoomToLocation(latLng, googleMap);
+            googleMap.addMarker(new MarkerOptions()
+                    .position(latLng)
+                    .title("You"));
+        }
+        else
+        {
+            gps.showSettingsAlert();
+        }
+    }
+    
+    private void zoomToLocation(LatLng latLng, GoogleMap map)
+    {
+        CameraUpdate center = CameraUpdateFactory.newLatLng(latLng);
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+
+        map.moveCamera(center);
+        map.moveCamera(zoom);
     }
 }
