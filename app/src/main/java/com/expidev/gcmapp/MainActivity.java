@@ -54,7 +54,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     private LocalBroadcastManager manager;
     private GcmBroadcastReceiver gcmBroadcastReceiver;
     private ActionBar actionBar;
-    private SupportMapFragment mapFragment;
+//    private SupportMapFragment mapFragment;
+//    private GoogleMap map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -122,9 +123,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         
         if (checkPlayServices())
         {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            mapFragment = (SupportMapFragment) fragmentManager.findFragmentById(R.id.map);
-            mapFragment.getMapAsync(MainActivity.this);
+            SupportMapFragment map = (SupportMapFragment)  getSupportFragmentManager().findFragmentById(R.id.map);
+            map.getMapAsync(this);
         }
     }
 
@@ -263,11 +263,12 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap)
     {
         Log.i(TAG, "On Map Ready");
+        zoomToLocation(googleMap);
     }
     
-    private void zoomToLocation()
+    private void zoomToLocation(GoogleMap map)
     {
-        mapFragment.getMap().setMyLocationEnabled(true);
+        map.setMyLocationEnabled(true);
 
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         String provider = locationManager.getBestProvider(new Criteria(), true);
@@ -281,8 +282,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
             CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
 
-            mapFragment.getMap().moveCamera(center);
-            mapFragment.getMap().moveCamera(zoom);
+            map.moveCamera(center);
+            map.moveCamera(zoom);
         }
         
     }
