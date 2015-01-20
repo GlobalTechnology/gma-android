@@ -273,9 +273,10 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         
         if (gps.canGetLocation())
         {
-            zoomToLocation(gps, googleMap);
+            LatLng latLng = new LatLng(gps.getLatitude(), gps.getLongitude());
+            zoomToLocation(latLng, googleMap);
             googleMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(gps.getLatitude(), gps.getLongitude()))
+                    .position(latLng)
                     .title("You"));
         }
         else
@@ -284,9 +285,9 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         }
     }
     
-    private void zoomToLocation(GPSTracker gps, GoogleMap map)
+    private void zoomToLocation(LatLng latLng, GoogleMap map)
     {
-        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(gps.getLatitude(), gps.getLongitude()));
+        CameraUpdate center = CameraUpdateFactory.newLatLng(latLng);
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
 
         map.moveCamera(center);
