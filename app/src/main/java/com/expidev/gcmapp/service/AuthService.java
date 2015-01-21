@@ -147,7 +147,7 @@ public class AuthService extends IntentService
         this.broadcastManager.sendBroadcast(ticketReceivedBroadcast(ticket));
     }
     
-    public void getToken(Intent intent)
+    private void getToken(Intent intent)
     {
         ticket = sharedPreferences.getString("ticket", null);
         
