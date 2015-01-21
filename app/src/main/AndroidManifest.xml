@@ -52,6 +52,8 @@
             </intent-filter>
         </receiver>
 
+        <service android:name=".service.SessionService" />
+
     </application>
 
 </manifest>

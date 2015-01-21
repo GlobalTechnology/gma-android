@@ -4,9 +4,9 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
@@ -27,8 +27,7 @@ import com.expidev.gcmapp.http.GcmApiClient;
 import com.expidev.gcmapp.http.TicketTask;
 import com.expidev.gcmapp.http.TokenTask;
 import com.expidev.gcmapp.model.User;
-import com.expidev.gcmapp.sql.DatabaseHelper;
-import com.expidev.gcmapp.sql.SessionTokenDatabaseTask;
+import com.expidev.gcmapp.service.SessionService;
 import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 import com.expidev.gcmapp.utils.Device;
@@ -174,20 +173,9 @@ public class MainActivity extends ActionBarActivity
 
     private void writeSessionTokenToDatabase(String sessionToken)
     {
-        DatabaseHelper.saveSessionToken(this, sessionToken, new SessionTokenDatabaseTask.SessionTokenDatabaseTaskHandler()
-        {
-            @Override
-            public void taskComplete()
-            {
-                Log.i(TAG, "Successfully saved session token to database");
-            }
-
-            @Override
-            public void taskFailed(String reason)
-            {
-                Log.e(TAG, "Failed to save session token: " + reason);
-            }
-        });
+        Intent saveSessionToken = new Intent(this, SessionService.class);
+        saveSessionToken.putExtra("sessionToken", sessionToken);
+        startService(saveSessionToken);
     }
 
     private void loadSessionToken()

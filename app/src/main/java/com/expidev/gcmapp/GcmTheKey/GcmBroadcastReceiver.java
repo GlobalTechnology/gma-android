@@ -1,14 +1,14 @@
 package com.expidev.gcmapp.GcmTheKey;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import com.expidev.gcmapp.http.GcmApiClient;
 import com.expidev.gcmapp.http.TicketTask;
 import com.expidev.gcmapp.http.TokenTask;
 import com.expidev.gcmapp.model.User;
-import com.expidev.gcmapp.sql.DatabaseHelper;
-import com.expidev.gcmapp.sql.SessionTokenDatabaseTask;
+import com.expidev.gcmapp.service.SessionService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -71,20 +71,9 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
 
     private void writeSessionTokenToDatabase(String sessionToken)
     {
-        DatabaseHelper.saveSessionToken(context, sessionToken, new SessionTokenDatabaseTask.SessionTokenDatabaseTaskHandler()
-        {
-            @Override
-            public void taskComplete()
-            {
-                Log.i(TAG, "Successfully saved session token to database");
-            }
-
-            @Override
-            public void taskFailed(String reason)
-            {
-                Log.e(TAG, "Failed to save session token: " + reason);
-            }
-        });
+        Intent saveSessionToken = new Intent(context, SessionService.class);
+        saveSessionToken.putExtra("sessionToken", sessionToken);
+        context.startService(saveSessionToken);
     }
 
     private String getTokenFromJson(JSONObject json)
