@@ -7,6 +7,7 @@ import android.util.Log;
 import com.expidev.gcmapp.utils.Constants;
 
 import org.apache.http.HttpStatus;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -58,31 +59,38 @@ public class GmaApiClient
             
             URL url = new URL(urlString);
 
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-
-            connection.setReadTimeout(10000);
-            connection.setConnectTimeout(10000);
-            connection.setRequestMethod("GET");
-            connection.setDoInput(true);
-
-            connection.connect();
-
-            if (connection.getResponseCode() == HttpStatus.SC_OK)
-            {
-                InputStream inputStream = connection.getInputStream();
-
-                if (inputStream != null)
-                {
-                    String jsonAsString = readFully(inputStream, "UTF-8");
-                    Log.i(TAG, jsonAsString);
-
-                    return new JSONObject(jsonAsString);
-                }
-            }
+            return httpGet(url);  
         }
         catch (Exception e)
         {
             Log.e(TAG, e.getMessage(), e);
+        }
+        
+        return null;
+    }
+    
+    private JSONObject httpGet(URL url) throws IOException, JSONException
+    {
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+        connection.setReadTimeout(10000);
+        connection.setConnectTimeout(10000);
+        connection.setRequestMethod("GET");
+        connection.setDoInput(true);
+
+        connection.connect();
+
+        if (connection.getResponseCode() == HttpStatus.SC_OK)
+        {
+            InputStream inputStream = connection.getInputStream();
+
+            if (inputStream != null)
+            {
+                String jsonAsString = readFully(inputStream, "UTF-8");
+                Log.i(TAG, jsonAsString);
+
+                return new JSONObject(jsonAsString);
+            }
         }
         
         return null;
