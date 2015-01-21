@@ -32,17 +32,12 @@ public class AuthService extends IntentService
 
     private LocalBroadcastManager broadcastManager;
     private TheKey theKey;
-    private String ticket;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor prefEditor;
 
     private static final String EXTRA_TYPE = AuthService.class.getName() + ".EXTRA_TYPE";
-    private static final String EXTRA_URL = AuthService.class.getName() + ".EXTRA_URL";
 
     private static final int TYPE_AUTHORIZE = 0;
-    private static final int TYPE_TOKEN = 1;
-
-    private static boolean running = false;
     
     public AuthService()
     {
@@ -63,7 +58,6 @@ public class AuthService extends IntentService
         sharedPreferences = this.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         prefEditor = sharedPreferences.edit();
 
-        running = true;
         this.broadcastManager.sendBroadcast(startBroadcast());
     }
 
