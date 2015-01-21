@@ -6,7 +6,8 @@ package com.expidev.gcmapp.sql;
 public enum TableNames
 {
     ASSOCIATED_MINISTRIES("associated_ministries"),
-    SESSION("session");
+    SESSION("session"),
+    USER("user");
 
     private String tableName;
 
