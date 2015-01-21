@@ -1,14 +1,9 @@
 package com.expidev.gcmapp.GcmTheKey;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
-import com.expidev.gcmapp.http.GcmApiClient;
-import com.expidev.gcmapp.service.SessionService;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.expidev.gcmapp.service.AuthService;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
@@ -35,27 +30,7 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
     {
         Log.i(TAG, "On Login");
 
-        GcmApiClient.getTicket(context);
-    }
-
-    private void writeSessionTokenToDatabase(String sessionToken)
-    {
-        Intent saveSessionToken = new Intent(context, SessionService.class);
-        saveSessionToken.putExtra("sessionToken", sessionToken);
-        context.startService(saveSessionToken);
-    }
-
-    private String getTokenFromJson(JSONObject json)
-    {
-        try
-        {
-            return json.getString("session_ticket");
-        }
-        catch(JSONException e)
-        {
-            Log.e(TAG, "Failed to get session token from json: " + e.getMessage());
-            return null;
-        }
+        AuthService.authorizeUser(context);
     }
 
     @Override

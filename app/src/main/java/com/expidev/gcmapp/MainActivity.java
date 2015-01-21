@@ -25,14 +25,14 @@ import com.expidev.gcmapp.GPSService.GPSTracker;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.db.UserDao;
 import com.expidev.gcmapp.fragment.SessionLoaderFragment;
-import com.expidev.gcmapp.http.GcmApiClient;
 import com.expidev.gcmapp.model.User;
+import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.SessionService;
 import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.BroadcastUtils;
+import com.expidev.gcmapp.utils.Constants;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 import com.expidev.gcmapp.utils.Device;
-import com.expidev.gcmapp.utils.GcmProperties;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
@@ -46,8 +46,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Properties;
-
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
@@ -58,11 +56,11 @@ public class MainActivity extends ActionBarActivity
 {
     private final String TAG = this.getClass().getSimpleName();
 
+    private final String PREF_NAME = "gcm_prefs";
+
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    
-    private Properties properties;
+
     private TheKey theKey;
-    private long keyClientId;
     private LocalBroadcastManager manager;
     private GcmBroadcastReceiver gcmBroadcastReceiver;
     private ActionBar actionBar;
@@ -73,6 +71,7 @@ public class MainActivity extends ActionBarActivity
     private boolean multiplyingChurches;
     private boolean trainingActivities;
     private boolean campuses;
+    private SharedPreferences mapPreferences;
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
 
@@ -88,15 +87,13 @@ public class MainActivity extends ActionBarActivity
 
         getMapPreferences();
         
+        preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        
         populateDummyMinistries();
-
-        getProperties();
         
         setupBroadcastReceivers();
 
-        keyClientId = Long.parseLong(properties.getProperty("TheKeyClientId", ""));
-
-        theKey = TheKeyImpl.getInstance(getApplicationContext(), keyClientId);
+        theKey = TheKeyImpl.getInstance(getApplicationContext(), Constants.THEKEY_CLIENTID);
 
         manager = LocalBroadcastManager.getInstance(getApplicationContext());
         gcmBroadcastReceiver = new GcmBroadcastReceiver(theKey, this);
@@ -126,7 +123,7 @@ public class MainActivity extends ActionBarActivity
         }
         else
         {
-            GcmApiClient.getTicket(this);
+            AuthService.authorizeUser(this);
         }
     }
 
@@ -321,22 +318,16 @@ public class MainActivity extends ActionBarActivity
 
         alertDialog.show();  
     }
-
-    private void getProperties()
-    {
-        GcmProperties gcmProperties = new GcmProperties(this);
-        properties = gcmProperties.getProperties("gcm_properties.properties");
-    }
     
     private void getMapPreferences()
     {
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        targets = preferences.getBoolean("targets", true);
-        groups = preferences.getBoolean("preferences", true);
-        churches = preferences.getBoolean("churches", true);
-        multiplyingChurches = preferences.getBoolean("multiplyingChurches", true);
-        trainingActivities = preferences.getBoolean("trainingActivities", true);
-        campuses = preferences.getBoolean("campuses", true);
+        mapPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        targets = mapPreferences.getBoolean("targets", true);
+        groups = mapPreferences.getBoolean("groups", true);
+        churches = mapPreferences.getBoolean("churches", true);
+        multiplyingChurches = mapPreferences.getBoolean("multiplyingChurches", true);
+        trainingActivities = mapPreferences.getBoolean("trainingActivities", true);
+        campuses = mapPreferences.getBoolean("campuses", true);
     }
     
     private void login()
@@ -344,7 +335,7 @@ public class MainActivity extends ActionBarActivity
         final FragmentManager fm = this.getSupportFragmentManager();
         if (fm.findFragmentByTag("loginDialog") == null)
         {
-            LoginDialogFragment loginDialogFragment = LoginDialogFragment.builder().clientId(keyClientId).build();
+            LoginDialogFragment loginDialogFragment = LoginDialogFragment.builder().clientId(Constants.THEKEY_CLIENTID).build();
             loginDialogFragment.show(fm.beginTransaction().addToBackStack("loginDialog"), "loginDialog");
         }
     }
@@ -424,17 +415,13 @@ public class MainActivity extends ActionBarActivity
                 else if (BroadcastUtils.ACTION_STOP.equals(intent.getAction()))
                 {
                     Log.i(TAG, "Action Done");
+
+                    UserDao userDao = UserDao.getInstance(context);
+                    User user = userDao.retrieveUser();
+                    actionBar.setTitle("Welcome " + user.getFirstName());
                     
-                    if (intent.getStringExtra("ticket") != null)
-                    {                       
-                        GcmApiClient.getToken(context);
-                    }
-                    else
-                    {
-                        UserDao userDao = UserDao.getInstance(context);
-                        User user = userDao.retrieveUser();
-                        actionBar.setTitle("Welcome " + user.getFirstName());
-                    }
+                    String sessionTicket = preferences.getString("session_ticket", null);
+                    Log.i(TAG, "Session Ticket: " + sessionTicket);
                 }
             }
         };
@@ -452,6 +439,4 @@ public class MainActivity extends ActionBarActivity
         broadcastReceiver = null;
         gcmBroadcastReceiver = null;
     }
-    
-    
 }
