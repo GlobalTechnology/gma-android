@@ -5,5 +5,5 @@ package com.expidev.gcmapp.utils;
  */
 public final class Constants
 {
-    public static final long THEKEY_CLIENTID = Long.parseLong("7439283632057308");
+    public static final long THEKEY_CLIENTID = 7439283632057308L;
 }
