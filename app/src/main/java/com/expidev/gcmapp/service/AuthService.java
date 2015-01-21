@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.expidev.gcmapp.db.UserDao;
 import com.expidev.gcmapp.utils.GcmProperties;
 
 import org.apache.http.HttpStatus;
@@ -177,6 +178,9 @@ public class AuthService extends IntentService
                     Log.i(TAG, jsonAsString);
 
                     JSONObject jsonObject = new JSONObject(jsonAsString);
+
+                    UserDao userDao = UserDao.getInstance(this);
+                    userDao.saveUser(jsonObject.getJSONObject("user"));
                 }
             }
             

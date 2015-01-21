@@ -23,8 +23,10 @@ import android.widget.Toast;
 
 import com.expidev.gcmapp.GPSService.GPSTracker;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
+import com.expidev.gcmapp.db.UserDao;
 import com.expidev.gcmapp.fragment.SessionLoaderFragment;
 import com.expidev.gcmapp.http.GcmApiClient;
+import com.expidev.gcmapp.model.User;
 import com.expidev.gcmapp.service.SessionService;
 import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.BroadcastUtils;
@@ -429,7 +431,9 @@ public class MainActivity extends ActionBarActivity
                     }
                     else
                     {
-                        // todo: get token from db
+                        UserDao userDao = UserDao.getInstance(context);
+                        User user = userDao.retrieveUser();
+                        actionBar.setTitle("Welcome " + user.getFirstName());
                     }
                 }
             }
