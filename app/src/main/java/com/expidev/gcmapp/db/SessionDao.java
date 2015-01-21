@@ -1,5 +1,6 @@
 package com.expidev.gcmapp.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -39,7 +40,7 @@ public class SessionDao
         return instance;
     }
 
-    public Cursor retrieveSessionToken()
+    public Cursor retrieveSessionTokenCursor()
     {
         final SQLiteDatabase database = databaseHelper.getReadableDatabase();
 
@@ -55,8 +56,62 @@ public class SessionDao
         return null;
     }
 
+    public String retrieveSessionToken()
+    {
+        Cursor cursor = null;
+        try
+        {
+            cursor = retrieveSessionTokenCursor();
+
+            if(cursor != null && cursor.getCount() == 1)
+            {
+                cursor.moveToFirst();
+                return cursor.getString(0);
+            }
+        }
+        finally
+        {
+            if(cursor != null)
+            {
+                cursor.close();
+            }
+        }
+        return null;
+    }
+
     public void saveSessionToken(String sessionToken)
     {
+        final SQLiteDatabase database = databaseHelper.getWritableDatabase();
+        try
+        {
+            String sessionTable = TableNames.SESSION.getTableName();
 
+            ContentValues sessionTokenToInsert = new ContentValues();
+            sessionTokenToInsert.put("session_token", sessionToken);
+
+
+            database.beginTransaction();
+
+            String existingToken = retrieveSessionToken();
+
+            if(existingToken == null)
+            {
+                database.insert(sessionTable, null, sessionTokenToInsert);
+            }
+            else
+            {
+                database.update(sessionTable, sessionTokenToInsert, null, null);
+            }
+
+            database.setTransactionSuccessful();
+        }
+        catch(Exception e)
+        {
+            Log.e(TAG, "Failed to save session token: " + e.getMessage());
+        }
+        finally
+        {
+            database.endTransaction();
+        }
     }
 }

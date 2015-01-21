@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.expidev.gcmapp.db.SessionDao;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
 /**
@@ -35,34 +36,8 @@ public class SessionTokenDatabaseTask extends AsyncTask<Object, Void, String>
     {
         try
         {
-            Context context = (Context) params[0];
-            String sessionToken = (String) params[1];
-
-            DatabaseOpenHelper databaseOpenHelper = new DatabaseOpenHelper(context);
-            SQLiteDatabase database = databaseOpenHelper.getWritableDatabase();
-            String sessionTable = TableNames.SESSION.getTableName();
-
-            ContentValues sessionTokenToInsert = new ContentValues();
-            sessionTokenToInsert.put("session_token", sessionToken);
-
-
-            database.beginTransaction();
-
-            Cursor cursor = database.query(sessionTable, null, null, null, null, null, null);
-
-            if(cursor.getCount() == 0)
-            {
-                database.insert(sessionTable, null, sessionTokenToInsert);
-            }
-            else
-            {
-                database.update(sessionTable, sessionTokenToInsert, null, null);
-            }
-
-            database.setTransactionSuccessful();
-            database.endTransaction();
-            database.close();
-            cursor.close();
+            SessionDao sessionDao = SessionDao.getInstance((Context)params[0]);
+            sessionDao.saveSessionToken((String)params[1]);
         }
         catch(Exception e)
         {

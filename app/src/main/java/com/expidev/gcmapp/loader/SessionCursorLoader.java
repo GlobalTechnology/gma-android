@@ -24,6 +24,6 @@ public class SessionCursorLoader extends CursorLoader
     @Override
     public final Cursor loadInBackground()
     {
-        return sessionDao.retrieveSessionToken();
+        return sessionDao.retrieveSessionTokenCursor();
     }
 }

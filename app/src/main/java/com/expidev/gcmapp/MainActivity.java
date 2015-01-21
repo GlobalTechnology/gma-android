@@ -202,7 +202,7 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onSessionTokenReturned(String sessionToken)
     {
-        Log.i(TAG, "Session token ready");
+        Log.i(TAG, "Session token ready: " + sessionToken);
         this.sessionToken = sessionToken;
     }
 
