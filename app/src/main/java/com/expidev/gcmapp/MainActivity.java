@@ -27,7 +27,6 @@ import com.expidev.gcmapp.db.UserDao;
 import com.expidev.gcmapp.fragment.SessionLoaderFragment;
 import com.expidev.gcmapp.model.User;
 import com.expidev.gcmapp.service.AuthService;
-import com.expidev.gcmapp.service.SessionService;
 import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.Constants;
@@ -42,9 +41,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
@@ -125,26 +121,6 @@ public class MainActivity extends ActionBarActivity
         {
             AuthService.authorizeUser(this);
         }
-    }
-
-    private String getTokenFromJson(JSONObject json)
-    {
-        try
-        {
-            return json.getString("session_ticket");
-        }
-        catch(JSONException e)
-        {
-            Log.e(TAG, "Failed to get session token from json: " + e.getMessage());
-            return null;
-        }
-    }
-
-    private void writeSessionTokenToDatabase(String sessionToken)
-    {
-        Intent saveSessionToken = new Intent(this, SessionService.class);
-        saveSessionToken.putExtra("sessionToken", sessionToken);
-        startService(saveSessionToken);
     }
 
     private void loadSessionToken()
