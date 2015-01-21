@@ -119,7 +119,7 @@ public class AuthService extends IntentService
 
     public static void getTicket(final Context context, String url)
     {
-        final Bundle extras = new Bundle(1);
+        final Bundle extras = new Bundle(2);
         extras.putInt(EXTRA_TYPE, TYPE_TICKET);
         extras.putString(EXTRA_URL, url);
         final Intent intent = baseIntent(context, extras);
@@ -128,7 +128,7 @@ public class AuthService extends IntentService
     
     public static void getToken(final Context context, String url)
     {
-        final Bundle extras = new Bundle(1);
+        final Bundle extras = new Bundle(2);
         extras.putInt(EXTRA_TYPE, TYPE_TOKEN);
         extras.putString(EXTRA_URL, url);
         final Intent intent = baseIntent(context, extras);
