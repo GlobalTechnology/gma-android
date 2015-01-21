@@ -1,6 +1,8 @@
 package com.expidev.gcmapp.http;
 
-import me.thekey.android.TheKey;
+import android.content.Context;
+
+import com.expidev.gcmapp.service.AuthService;
 
 /**
  * Created by matthewfrederick on 1/13/15.
@@ -19,8 +21,8 @@ public class GcmApiClient
         new TokenTask(taskHandler).execute(BASE_URL_STAGE + MEASUREMENTS + TOKEN, ticket);
     }
     
-    public static void getTicket(TheKey theKey, TicketTask.TicketTaskHandler taskHandler)
+    public static void getTicket(Context context)
     {
-        new TicketTask(taskHandler).execute(BASE_URL_STAGE + MEASUREMENTS + TOKEN, theKey);
+        AuthService.getTicket(context, BASE_URL_STAGE + MEASUREMENTS + TOKEN);
     }
 }
