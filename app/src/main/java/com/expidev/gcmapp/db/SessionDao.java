@@ -16,7 +16,7 @@ public class SessionDao
 {
     private final String TAG = getClass().getSimpleName();
 
-    private SQLiteOpenHelper databaseHelper;
+    private final SQLiteOpenHelper databaseHelper;
 
     private static final Object instanceLock = new Object();
     private static SessionDao instance;
