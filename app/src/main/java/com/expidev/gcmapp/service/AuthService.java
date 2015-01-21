@@ -135,7 +135,7 @@ public class AuthService extends IntentService
         context.startService(intent);
     }
     
-    public void getTicket(Intent intent) throws TheKeySocketException
+    private void getTicket(Intent intent) throws TheKeySocketException
     {
         String url = intent.getStringExtra(EXTRA_URL);
         ticket = theKey.getTicket(url);
