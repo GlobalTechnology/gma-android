@@ -5,9 +5,6 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.expidev.gcmapp.http.GcmApiClient;
-import com.expidev.gcmapp.http.TicketTask;
-import com.expidev.gcmapp.http.TokenTask;
-import com.expidev.gcmapp.model.User;
 import com.expidev.gcmapp.service.SessionService;
 
 import org.json.JSONException;
@@ -37,36 +34,8 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
     protected void onLogin(String guid)
     {
         Log.i(TAG, "On Login");
-        
-        GcmApiClient.getTicket(theKey, new TicketTask.TicketTaskHandler()
-        {
-            @Override
-            public void taskComplete(String ticket)
-            {
-                GcmApiClient.getToken(ticket, new TokenTask.TokenTaskHandler()
-                {
-                    @Override
-                    public void taskComplete(JSONObject object)
-                    {
-                        Log.i(TAG, "Task Complete");
-                        User user = GcmTheKeyHelper.createUser(object);
-                        writeSessionTokenToDatabase(getTokenFromJson(object));
-                    }
 
-                    @Override
-                    public void taskFailed(String status)
-                    {
-                        Log.i(TAG, "Task Failed. Status: " + status);
-                    }
-                });
-            }
-
-            @Override
-            public void taskFailed()
-            {
-
-            }
-        });
+        GcmApiClient.getTicket(context);
     }
 
     private void writeSessionTokenToDatabase(String sessionToken)
