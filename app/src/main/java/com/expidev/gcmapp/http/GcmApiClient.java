@@ -16,9 +16,9 @@ public class GcmApiClient
     private static final String MEASUREMENTS = "/measurements";
     private static final String TOKEN = "/token";
     
-    public static void getToken(String ticket, TokenTask.TokenTaskHandler taskHandler)
+    public static void getToken(Context context)
     {
-        new TokenTask(taskHandler).execute(BASE_URL_STAGE + MEASUREMENTS + TOKEN, ticket);
+        AuthService.getToken(context, BASE_URL_STAGE + MEASUREMENTS + TOKEN);
     }
     
     public static void getTicket(Context context)

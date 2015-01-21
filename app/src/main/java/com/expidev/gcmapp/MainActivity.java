@@ -58,8 +58,6 @@ public class MainActivity extends ActionBarActivity
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     
-    private final String PREF_NAME = "gcm_prefs";
-    
     private Properties properties;
     private TheKey theKey;
     private long keyClientId;
@@ -75,7 +73,6 @@ public class MainActivity extends ActionBarActivity
     private boolean campuses;
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
-    private SharedPreferences.Editor prefEditor;
 
     private String sessionToken;
 
@@ -86,10 +83,6 @@ public class MainActivity extends ActionBarActivity
         setContentView(R.layout.activity_main);
 
         actionBar = getSupportActionBar();
-        
-        // set shared preferences that can be accessed throughout the application
-        SharedPreferences sharedPreferences = this.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        prefEditor = sharedPreferences.edit();
 
         getMapPreferences();
         
@@ -429,10 +422,15 @@ public class MainActivity extends ActionBarActivity
                 else if (BroadcastUtils.ACTION_STOP.equals(intent.getAction()))
                 {
                     Log.i(TAG, "Action Done");
-                    String ticket = intent.getStringExtra("ticket");
-                    prefEditor.putString("ticket", ticket);
-                    prefEditor.commit();
-                    Log.i(TAG, ticket);
+                    
+                    if (intent.getStringExtra("ticket") != null)
+                    {                       
+                        GcmApiClient.getToken(context);
+                    }
+                    else
+                    {
+                        // todo: get token from db
+                    }
                 }
             }
         };
