@@ -29,6 +29,6 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:background="#00ffffff"
-        />
+        android:onClick="mapOptions"/>
 
 </RelativeLayout>
