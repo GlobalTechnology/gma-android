@@ -60,7 +60,10 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.SESSION.getTableName() +
             "(session_token TEXT);");
     }
-    
+
+    /**
+     * This table holds the user information.
+     */
     private void createUserTable(SQLiteDatabase db)
     {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.USER.getTableName() +
