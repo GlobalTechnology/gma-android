@@ -16,7 +16,6 @@ public class SessionDao
 {
     private final String TAG = getClass().getSimpleName();
 
-    private Context context;
     private SQLiteOpenHelper databaseHelper;
 
     private static final Object instanceLock = new Object();
@@ -24,7 +23,6 @@ public class SessionDao
 
     private SessionDao(final Context context)
     {
-        this.context = context;
         this.databaseHelper = new DatabaseOpenHelper(context);
     }
 
