@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.expidev.gcmapp.GPSService.GPSTracker;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.GcmTheKey.GcmTheKeyHelper;
+import com.expidev.gcmapp.fragment.SessionLoaderFragment;
 import com.expidev.gcmapp.http.GcmApiClient;
 import com.expidev.gcmapp.http.TicketTask;
 import com.expidev.gcmapp.http.TokenTask;
@@ -52,7 +53,8 @@ import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 
 
-public class MainActivity extends ActionBarActivity implements OnMapReadyCallback
+public class MainActivity extends ActionBarActivity
+    implements OnMapReadyCallback, SessionLoaderFragment.OnSessionTokenReadyListener
 {
     private final String TAG = this.getClass().getSimpleName();
 
@@ -72,6 +74,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     private boolean trainingActivities;
     private boolean campuses;
     private SharedPreferences preferences;
+
+    private String sessionToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -186,6 +190,21 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         });
     }
 
+    private void loadSessionToken()
+    {
+        getSupportFragmentManager()
+            .beginTransaction()
+            .add(new SessionLoaderFragment(), "sessionLoaderFragment")
+            .commit();
+    }
+
+    @Override
+    public void onSessionTokenReturned(String sessionToken)
+    {
+        Log.i(TAG, "Session token ready");
+        this.sessionToken = sessionToken;
+    }
+
     //TODO: Remove this when join ministry works
     private void populateDummyMinistries()
     {
@@ -280,6 +299,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     public void joinNewMinistry(MenuItem menuItem)
     {
+        loadSessionToken();
         //TODO: implement join new ministry
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle("Join new ministry")
