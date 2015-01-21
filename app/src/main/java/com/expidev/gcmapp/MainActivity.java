@@ -198,6 +198,7 @@ public class MainActivity extends ActionBarActivity
             .commit();
     }
 
+    //TODO: This will actually go into the specific activities that need the session token to call their endpoints
     @Override
     public void onSessionTokenReturned(String sessionToken)
     {
