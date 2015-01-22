@@ -21,7 +21,7 @@ public class SessionService extends IntentService
     @Override
     protected void onHandleIntent(Intent intent)
     {
-        SessionDao sessionDao = SessionDao.getInstance(getBaseContext());
+        SessionDao sessionDao = SessionDao.getInstance(this);
         sessionDao.saveSessionToken(intent.getStringExtra("sessionToken"));
 
         Log.i(TAG, "Successfully saved session token to database");
