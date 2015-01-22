@@ -71,8 +71,6 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
 
-    private String sessionToken;
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -217,8 +215,35 @@ public class MainActivity extends ActionBarActivity
 
     public void joinNewMinistry(MenuItem menuItem)
     {
-        Intent goToJoinMinistryPage = new Intent(this, JoinMinistryActivity.class);
-        startActivity(goToJoinMinistryPage);
+        final Context context = this;
+        if (Device.isConnected(getApplicationContext()))
+        {
+            if (theKey.getGuid() == null)
+            {
+                login();
+            }
+            else
+            {
+                Intent goToJoinMinistryPage = new Intent(context, JoinMinistryActivity.class);
+                startActivity(goToJoinMinistryPage);
+            }
+        }
+        else
+        {
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle("Internet Necessary")
+                .setMessage("You need Internet access to access this page")
+                .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+
+            alertDialog.show();
+        }
     }
 
     public void reset(MenuItem menuItem)

@@ -1,7 +1,6 @@
 package com.expidev.gcmapp;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -29,18 +28,16 @@ public class JoinMinistryActivity extends ActionBarActivity
     private final String TAG = this.getClass().getSimpleName();
     private final String PREF_NAME = "gcm_prefs";
 
-    private Context context;
     Map<String, String> ministryMap;
     private SharedPreferences preferences;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
+    public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
         preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
         setContentView(R.layout.activity_join_ministry);
-        context = this;
 
         GmaApiClient.getAllMinistries(preferences.getString("session_ticket", null), new MinistriesTask.MinistriesTaskHandler()
         {
@@ -55,7 +52,7 @@ public class JoinMinistryActivity extends ActionBarActivity
                 ministryMap = MinistryJsonParser.parseMinistriesAsMap(array);
 
                 ArrayAdapter<Ministry> ministryTeamAdapter = new ArrayAdapter<Ministry>(
-                    context,
+                    getApplicationContext(),
                     android.R.layout.simple_dropdown_item_1line,
                     ministryTeamList
                 );
@@ -96,6 +93,7 @@ public class JoinMinistryActivity extends ActionBarActivity
                 public void onClick(DialogInterface dialog, int which)
                 {
                     dialog.dismiss();
+                    finish();
                 }
             })
             .create();
