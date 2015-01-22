@@ -15,7 +15,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     private final String TAG = getClass().getSimpleName();
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "gcm_data";
+    private static final String DATABASE_NAME = "gcm_data.db";
 
     public DatabaseOpenHelper(Context context)
     {
