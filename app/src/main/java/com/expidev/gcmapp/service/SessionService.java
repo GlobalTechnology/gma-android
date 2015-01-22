@@ -1,9 +1,7 @@
 package com.expidev.gcmapp.service;
 
 import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
-import android.os.IBinder;
 import android.util.Log;
 
 import com.expidev.gcmapp.db.SessionDao;
@@ -13,6 +11,8 @@ import com.expidev.gcmapp.db.SessionDao;
  */
 public class SessionService extends IntentService
 {
+    private final String TAG = getClass().getSimpleName();
+
     public SessionService()
     {
         super("SessionService");
@@ -24,6 +24,6 @@ public class SessionService extends IntentService
         SessionDao sessionDao = SessionDao.getInstance(getBaseContext());
         sessionDao.saveSessionToken(intent.getStringExtra("sessionToken"));
 
-        Log.i(getClass().getSimpleName(), "Successfully saved session token to database");
+        Log.i(TAG, "Successfully saved session token to database");
     }
 }
