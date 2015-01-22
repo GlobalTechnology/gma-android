@@ -73,6 +73,7 @@ public class MinistriesDao
                 for(int i = 0; i < cursor.getCount(); i++)
                 {
                     associatedMinistries.add(cursor.getString(cursor.getColumnIndex("name")));
+                    cursor.moveToNext();
                 }
 
                 return associatedMinistries;
