@@ -102,7 +102,7 @@ public class SettingsActivity extends PreferenceActivity
      */
     private void setupSimplePreferencesScreen()
     {
-        startService(new Intent(this, AssociatedMinistriesService.class));
+        AssociatedMinistriesService.retrieveMinistries(this);
         if (!isSimplePreferences(this))
         {
             return;
