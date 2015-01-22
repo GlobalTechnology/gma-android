@@ -52,7 +52,10 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".service.SessionService" />
+        <service android:name=".service.SessionService"
+                 android:exported="false"/>
+        <service android:name=".service.AssociatedMinistriesService"
+                 android:exported="false"/>
 
     </application>
 

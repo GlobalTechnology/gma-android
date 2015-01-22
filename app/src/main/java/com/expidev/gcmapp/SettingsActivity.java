@@ -1,9 +1,11 @@
 package com.expidev.gcmapp;
 
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -11,12 +13,11 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.expidev.gcmapp.sql.DatabaseHelper;
-import com.expidev.gcmapp.sql.RetrieveMinistriesDatabaseTask;
+import com.expidev.gcmapp.service.AssociatedMinistriesService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,6 +34,8 @@ import java.util.List;
 public class SettingsActivity extends PreferenceActivity
 {
     private final String TAG = getClass().getSimpleName();
+
+    private BroadcastReceiver associatedMinistriesBroadcastReceiver;
 
     /**
      * Determines whether to always show the simplified settings UI, where
@@ -51,6 +54,47 @@ public class SettingsActivity extends PreferenceActivity
         setupSimplePreferencesScreen();
     }
 
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        setupBroadcastReceivers();
+    }
+
+    private void setupBroadcastReceivers()
+    {
+        Log.i(TAG, "Setting up broadcast receivers");
+        final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(this);
+
+        associatedMinistriesBroadcastReceiver = new BroadcastReceiver()
+        {
+            @Override
+            public void onReceive(Context context, Intent intent)
+            {
+                CharSequence[] associatedMinistries = intent.getCharSequenceArrayExtra("associatedMinistries");
+                populateMinistryListPreference(associatedMinistries);
+            }
+        };
+
+        broadcastManager.registerReceiver(associatedMinistriesBroadcastReceiver,
+            new IntentFilter(AssociatedMinistriesService.ACTION_RETRIEVE_ASSOCIATED_MINISTRIES));
+    }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        cleanupBroadcastReceivers();
+    }
+
+    private void cleanupBroadcastReceivers()
+    {
+        Log.i(TAG, "Cleaning up broadcast receivers");
+        final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(this);
+        broadcastManager.unregisterReceiver(associatedMinistriesBroadcastReceiver);
+        associatedMinistriesBroadcastReceiver = null;
+    }
+
     /**
      * Shows the simplified settings UI if the device configuration if the
      * device configuration dictates that a simplified, single-pane UI should be
@@ -58,6 +102,7 @@ public class SettingsActivity extends PreferenceActivity
      */
     private void setupSimplePreferencesScreen()
     {
+        startService(new Intent(this, AssociatedMinistriesService.class));
         if (!isSimplePreferences(this))
         {
             return;
@@ -72,47 +117,15 @@ public class SettingsActivity extends PreferenceActivity
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
         // their values. When their values change, their summaries are updated
         // to reflect the new value, per the Android Design guidelines.
-        createMinistryListPreference();
         bindPreferenceSummaryToValue(findPreference("mcc_list"));
     }
 
-    private void createMinistryListPreference()
+    private void populateMinistryListPreference(CharSequence[] associatedMinistries)
     {
-        DatabaseHelper.retrieveMinistries(this, new RetrieveMinistriesDatabaseTask.RetrieveMinistriesDatabaseTaskHandler()
-        {
-            @Override
-            public void taskComplete(Cursor cursor)
-            {
-                if(cursor.getCount() > 0)
-                {
-                    ListPreference ministryListPreference = (ListPreference) findPreference("ministry_team_list");
-
-                    List<String> entries = new ArrayList<String>();
-                    List<String> values = new ArrayList<String>();
-
-                    cursor.moveToFirst();
-                    for(int i = 0; i < cursor.getCount(); i++)
-                    {
-                        String ministryName = cursor.getString(1);
-                        entries.add(ministryName);
-                        values.add(ministryName);
-                        cursor.moveToNext();
-                    }
-
-                    ministryListPreference.setEntries(entries.toArray(new CharSequence[entries.size()]));
-                    ministryListPreference.setEntryValues(values.toArray(new CharSequence[values.size()]));
-
-                    bindPreferenceSummaryToValue(ministryListPreference);
-                    cursor.close();
-                }
-            }
-
-            @Override
-            public void taskFailed(String message)
-            {
-                Log.w(TAG, "Failed to read ministries from database");
-            }
-        });
+        ListPreference ministryListPreference = (ListPreference) findPreference("ministry_team_list");
+        ministryListPreference.setEntries(associatedMinistries);
+        ministryListPreference.setEntryValues(associatedMinistries);
+        bindPreferenceSummaryToValue(ministryListPreference);
     }
 
     @Override
@@ -229,7 +242,6 @@ public class SettingsActivity extends PreferenceActivity
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            ((SettingsActivity)getActivity()).createMinistryListPreference();
             bindPreferenceSummaryToValue(findPreference("mcc_list"));
         }
     }
