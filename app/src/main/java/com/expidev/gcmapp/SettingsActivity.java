@@ -115,9 +115,6 @@ public class SettingsActivity extends PreferenceActivity
         });
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean onIsMultiPane()
     {
@@ -148,9 +145,6 @@ public class SettingsActivity extends PreferenceActivity
                 || !isXLargeTablet(context);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void onBuildHeaders(List<Header> target)
