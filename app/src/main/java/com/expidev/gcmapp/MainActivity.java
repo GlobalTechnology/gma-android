@@ -26,6 +26,8 @@ import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.db.UserDao;
 import com.expidev.gcmapp.model.User;
 import com.expidev.gcmapp.service.AuthService;
+import com.expidev.gcmapp.service.AssociatedMinistriesService;
+import com.expidev.gcmapp.service.SessionService;
 import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;

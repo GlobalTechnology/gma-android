@@ -6,5 +6,6 @@ package com.expidev.gcmapp.service;
 public enum Action
 {
     RETRIEVE_ASSOCIATED_MINISTRIES,
-    RETRIEVE_ALL_MINISTRIES
+    RETRIEVE_ALL_MINISTRIES,
+    SAVE_ASSOCIATED_MINISTRIES
 }

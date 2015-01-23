@@ -8,13 +8,15 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.expidev.gcmapp.db.MinistriesDao;
-import com.expidev.gcmapp.ministries.MinistryJsonParser;
+import com.expidev.gcmapp.json.AssignmentsJsonParser;
+import com.expidev.gcmapp.json.MinistryJsonParser;
+import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.JsonStringReader;
 
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
-import org.json.JSONObject;
+import org.json.JSONException;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -25,13 +27,14 @@ import javax.net.ssl.HttpsURLConnection;
 
 import static com.expidev.gcmapp.service.Action.RETRIEVE_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Action.RETRIEVE_ASSOCIATED_MINISTRIES;
+import static com.expidev.gcmapp.service.Action.SAVE_ASSOCIATED_MINISTRIES;
 
 /**
  * Created by William.Randall on 1/22/2015.
  */
 public class AssociatedMinistriesService extends IntentService
 {
-    private final String TAG = getClass().getSimpleName();
+    private static final String TAG = AssociatedMinistriesService.class.getSimpleName();
 
     private LocalBroadcastManager broadcastManager;
 
@@ -39,6 +42,8 @@ public class AssociatedMinistriesService extends IntentService
         AssociatedMinistriesService.class.getName() + ".ACTION_RETRIEVE_ASSOCIATED_MINISTRIES";
     public static final String ACTION_RETRIEVE_ALL_MINISTRIES =
         AssociatedMinistriesService.class.getName() + ".ACTION_RETRIEVE_ALL_MINISTRIES";
+    public static final String ACTION_SAVE_ASSOCIATED_MINISTRIES_FROM_SERVER =
+        AssociatedMinistriesService.class.getName() + ".ACTION_SAVE_ASSOCIATED_MINISTRIES_FROM_SERVER";
 
     public AssociatedMinistriesService()
     {
@@ -67,6 +72,9 @@ public class AssociatedMinistriesService extends IntentService
                 break;
             case RETRIEVE_ALL_MINISTRIES:
                 retrieveAllMinistries(intent);
+                break;
+            case SAVE_ASSOCIATED_MINISTRIES:
+                saveAssociatedMinistriesFromServer(intent);
                 break;
             default:
                 break;
@@ -109,6 +117,20 @@ public class AssociatedMinistriesService extends IntentService
         Bundle extras = new Bundle(2);
         extras.putSerializable("action", RETRIEVE_ALL_MINISTRIES);
         extras.putString("apiUrl", apiUrl);
+
+        context.startService(baseIntent(context, extras));
+    }
+
+    public static void saveAssociatedMinistriesFromServer(final Context context, JSONArray assignments)
+    {
+        Bundle extras = new Bundle(1);
+        extras.putSerializable("action", SAVE_ASSOCIATED_MINISTRIES);
+
+        if(assignments != null)
+        {
+            List<Assignment> assignmentList = AssignmentsJsonParser.parseAssignments(assignments);
+            extras.putSerializable("assignments", (ArrayList<Assignment>) assignmentList);
+        }
 
         context.startService(baseIntent(context, extras));
     }
@@ -218,5 +240,16 @@ public class AssociatedMinistriesService extends IntentService
         dummyList.add(dummy1);
 
         return dummyList;
+    }
+
+    private void saveAssociatedMinistriesFromServer(Intent intent)
+    {
+        String assignmentsJson = intent.getStringExtra("assignments");
+        List<Assignment> assignments = (ArrayList<Assignment>) intent.getSerializableExtra("assignments");
+
+        for(Assignment assignment : assignments)
+        {
+            Log.i(TAG, "Assignment: " + assignment.getId() + " " + assignment.getTeamRole());
+        }
     }
 }
