@@ -1,8 +1,26 @@
-.gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
 .DS_Store
-/build
-/.idea/
 app/src/main/assets
+
+# standard android ignores
+gen/
+
+# gradle project ignores
+.gradle/
+build/
+
+# maven project ignores
+target/
+
+# eclipse project ignores
+.classpath
+.project
+.settings/
+.wtpmodules
+bin/
+
+# Android Studio project ignores
+.idea/
+*.iml
+gen-external-apklibs/
+out/
+local.properties
