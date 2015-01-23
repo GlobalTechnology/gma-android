@@ -16,7 +16,6 @@ import com.expidev.gcmapp.utils.JsonStringReader;
 
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -42,8 +41,6 @@ public class AssociatedMinistriesService extends IntentService
         AssociatedMinistriesService.class.getName() + ".ACTION_RETRIEVE_ASSOCIATED_MINISTRIES";
     public static final String ACTION_RETRIEVE_ALL_MINISTRIES =
         AssociatedMinistriesService.class.getName() + ".ACTION_RETRIEVE_ALL_MINISTRIES";
-    public static final String ACTION_SAVE_ASSOCIATED_MINISTRIES_FROM_SERVER =
-        AssociatedMinistriesService.class.getName() + ".ACTION_SAVE_ASSOCIATED_MINISTRIES_FROM_SERVER";
 
     public AssociatedMinistriesService()
     {
@@ -244,12 +241,11 @@ public class AssociatedMinistriesService extends IntentService
 
     private void saveAssociatedMinistriesFromServer(Intent intent)
     {
-        String assignmentsJson = intent.getStringExtra("assignments");
         List<Assignment> assignments = (ArrayList<Assignment>) intent.getSerializableExtra("assignments");
 
-        for(Assignment assignment : assignments)
-        {
-            Log.i(TAG, "Assignment: " + assignment.getId() + " " + assignment.getTeamRole());
-        }
+        MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
+        ministriesDao.saveAssociatedMinistries(assignments);
+
+        //TODO: May need to notify when running and when finished at some point
     }
 }
