@@ -1,9 +1,12 @@
 package com.expidev.gcmapp;
 
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
@@ -19,10 +22,14 @@ import android.widget.Toast;
 import com.expidev.gcmapp.GPSService.GPSTracker;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.GcmTheKey.GcmTheKeyHelper;
+import com.expidev.gcmapp.fragment.SessionLoaderFragment;
 import com.expidev.gcmapp.http.GcmApiClient;
 import com.expidev.gcmapp.http.TicketTask;
 import com.expidev.gcmapp.http.TokenTask;
 import com.expidev.gcmapp.model.User;
+import com.expidev.gcmapp.service.SessionService;
+import com.expidev.gcmapp.sql.TableNames;
+import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 import com.expidev.gcmapp.utils.Device;
 import com.expidev.gcmapp.utils.GcmProperties;
 import com.google.android.gms.common.ConnectionResult;
@@ -35,6 +42,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Properties;
@@ -44,7 +52,8 @@ import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 
 
-public class MainActivity extends ActionBarActivity implements OnMapReadyCallback
+public class MainActivity extends ActionBarActivity
+    implements OnMapReadyCallback, SessionLoaderFragment.OnSessionTokenReadyListener
 {
     private final String TAG = this.getClass().getSimpleName();
 
@@ -65,6 +74,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     private boolean campuses;
     private SharedPreferences preferences;
 
+    private String sessionToken;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -75,6 +86,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         getMapPreferences();
         
+        populateDummyMinistries();
+
         getProperties();
 
         keyClientId = Long.parseLong(properties.getProperty("TheKeyClientId", ""));
@@ -82,60 +95,153 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         theKey = TheKeyImpl.getInstance(getApplicationContext(), keyClientId);
 
         manager = LocalBroadcastManager.getInstance(getApplicationContext());
-        gcmBroadcastReceiver = new GcmBroadcastReceiver(theKey);
+        gcmBroadcastReceiver = new GcmBroadcastReceiver(theKey, this);
         gcmBroadcastReceiver.registerReceiver(manager);
 
         if (Device.isConnected(getApplicationContext()))
         {
-            // check for previous login sessions
-            if (theKey.getGuid() == null)
-            {
-                login();
-            }
-            else
-            {
-                GcmApiClient.getTicket(theKey, new TicketTask.TicketTaskHandler()
-                {
-                    @Override
-                    public void taskComplete(String ticket)
-                    {
-                        GcmApiClient.getToken(ticket, new TokenTask.TokenTaskHandler()
-                        {
-                            @Override
-                            public void taskComplete(JSONObject object)
-                            {
-                                Log.i(TAG, "Task Complete");
-                                User user = GcmTheKeyHelper.createUser(object);
-                                String welcomeMessage = "Welcome " + user.getFirstName();
-                                actionBar.setTitle(welcomeMessage);
-                            }
-
-                            @Override
-                            public void taskFailed(String status)
-                            {
-                                Log.i(TAG, "Task Failed. Status: " + status);
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void taskFailed()
-                    {
-
-                    }
-                });
-            }
+           handleLogin();
         }
         else
         {
             Toast.makeText(this, R.string.no_internet, Toast.LENGTH_LONG).show();
         }
-        
         if (checkPlayServices())
         {
             SupportMapFragment map = (SupportMapFragment)  getSupportFragmentManager().findFragmentById(R.id.map);
             map.getMapAsync(this);
         }
+    }
+
+    private void handleLogin()
+    {
+        // check for previous login sessions
+        if (theKey.getGuid() == null)
+        {
+            login();
+        }
+        else
+        {
+            GcmApiClient.getTicket(theKey, new TicketTask.TicketTaskHandler()
+            {
+                @Override
+                public void taskComplete(String ticket)
+                {
+                    GcmApiClient.getToken(ticket, new TokenTask.TokenTaskHandler()
+                    {
+                        @Override
+
+                        public void taskComplete(JSONObject object)
+                        {
+                            Log.i(TAG, "Task Complete");
+                            User user = GcmTheKeyHelper.createUser(object);
+                            String welcomeMessage = "Welcome " + user.getFirstName();
+                            actionBar.setTitle(welcomeMessage);
+
+                            writeSessionTokenToDatabase(getTokenFromJson(object));
+                        }
+
+                        @Override
+                        public void taskFailed(String status)
+                        {
+                            Log.i(TAG, "Task Failed. Status: " + status);
+                        }
+                    });
+                }
+
+                @Override
+                public void taskFailed()
+                {
+
+                }
+            });
+        }
+    }
+
+    private String getTokenFromJson(JSONObject json)
+    {
+        try
+        {
+            return json.getString("session_ticket");
+        }
+        catch(JSONException e)
+        {
+            Log.e(TAG, "Failed to get session token from json: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private void writeSessionTokenToDatabase(String sessionToken)
+    {
+        Intent saveSessionToken = new Intent(this, SessionService.class);
+        saveSessionToken.putExtra("sessionToken", sessionToken);
+        startService(saveSessionToken);
+    }
+
+    private void loadSessionToken()
+    {
+        getSupportFragmentManager()
+            .beginTransaction()
+            .add(new SessionLoaderFragment(), "sessionLoaderFragment")
+            .commit();
+    }
+
+    //TODO: This will actually go into the specific activities that need the session token to call their endpoints
+    @Override
+    public void onSessionTokenReturned(String sessionToken)
+    {
+        Log.i(TAG, "Session token ready: " + sessionToken);
+        this.sessionToken = sessionToken;
+    }
+
+    //TODO: Remove this when join ministry works
+    private void populateDummyMinistries()
+    {
+        DatabaseOpenHelper databaseOpenHelper = new DatabaseOpenHelper(this);
+
+        SQLiteDatabase database = databaseOpenHelper.getWritableDatabase();
+        String tableName = TableNames.ASSOCIATED_MINISTRIES.getTableName();
+        
+        Cursor cursor = database.query(tableName, null, null, null, null, null, null);
+
+        // Only add the dummy rows if none exist
+        if(cursor.getCount() == 0)
+        {
+            database.beginTransaction();
+
+            ContentValues guatemala = new ContentValues();
+            guatemala.put("ministry_id", "1");
+            guatemala.put("name", "Guatemala");
+            guatemala.put("team_role", "self-assigned");
+            guatemala.put("last_synced", "datetime(2015-01-15 11:30:00)");
+            database.insert(tableName, null, guatemala);
+
+            ContentValues bridgesUcf = new ContentValues();
+            bridgesUcf.put("ministry_id", "2");
+            bridgesUcf.put("name", "Bridges UCF");
+            bridgesUcf.put("team_role", "member");
+            bridgesUcf.put("last_synced", "datetime(2015-01-15 11:30:00)");
+            database.insert(tableName, null, bridgesUcf);
+
+            ContentValues antioch21 = new ContentValues();
+            antioch21.put("ministry_id", "3");
+            antioch21.put("name", "Antioch21 Church");
+            antioch21.put("team_role", "leader");
+            antioch21.put("last_synced", "datetime(2015-01-15 11:30:00)");
+            database.insert(tableName, null, antioch21);
+
+            ContentValues random = new ContentValues();
+            random.put("ministry_id", "4");
+            random.put("name", "Random");
+            random.put("team_role", "inherited_leader");
+            random.put("last_synced", "datetime(2015-01-15 11:30:00)");
+            database.insert(tableName, null, random);
+
+            database.setTransactionSuccessful();
+            database.endTransaction();
+        }
+        cursor.close();
+        database.close();
     }
 
     @Override
@@ -182,6 +288,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     public void joinNewMinistry(MenuItem menuItem)
     {
+        loadSessionToken();
         //TODO: implement join new ministry
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle("Join new ministry")
