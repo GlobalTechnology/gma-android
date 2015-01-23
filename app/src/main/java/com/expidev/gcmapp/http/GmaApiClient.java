@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.expidev.gcmapp.service.AssociatedMinistriesService;
+
 import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,9 +72,10 @@ public class GmaApiClient
         return null;
     }
 
-    public static void getAllMinistries(String sessionToken, MinistriesTask.MinistriesTaskHandler taskHandler)
+    public static void getAllMinistries(Context context, String sessionToken)
     {
-        new MinistriesTask(taskHandler).execute(BASE_URL_STAGE + MEASUREMENTS + MINISTRIES + "?token=" + sessionToken);
+        String url = BASE_URL_STAGE + MEASUREMENTS + MINISTRIES + "?token=" + sessionToken;
+        AssociatedMinistriesService.retrieveAllMinistries(context, url);
     }
     
     private JSONObject httpGet(URL url) throws IOException, JSONException

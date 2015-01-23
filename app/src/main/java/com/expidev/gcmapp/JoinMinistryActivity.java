@@ -1,9 +1,14 @@
 package com.expidev.gcmapp;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -13,14 +18,12 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
 import com.expidev.gcmapp.http.GmaApiClient;
-import com.expidev.gcmapp.http.MinistriesTask;
-import com.expidev.gcmapp.ministries.MinistryJsonParser;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.service.AssociatedMinistriesService;
 
-import org.json.JSONArray;
-
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 public class JoinMinistryActivity extends ActionBarActivity
@@ -28,54 +31,81 @@ public class JoinMinistryActivity extends ActionBarActivity
     private final String TAG = this.getClass().getSimpleName();
     private final String PREF_NAME = "gcm_prefs";
 
-    Map<String, String> ministryMap;
+    List<Ministry> ministryTeamList;
+    private LocalBroadcastManager manager;
+    private BroadcastReceiver allMinistriesRetrievedReceiver;
     private SharedPreferences preferences;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-        preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
         setContentView(R.layout.activity_join_ministry);
 
-        GmaApiClient.getAllMinistries(preferences.getString("session_ticket", null), new MinistriesTask.MinistriesTaskHandler()
+        manager = LocalBroadcastManager.getInstance(getApplicationContext());
+        preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+    }
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+
+        setupBroadcastReceivers();
+        GmaApiClient.getAllMinistries(this, preferences.getString("session_ticket", null));
+    }
+
+    private void setupBroadcastReceivers()
+    {
+        Log.i(TAG, "Setting up broadcast receivers");
+
+        allMinistriesRetrievedReceiver = new BroadcastReceiver()
         {
             @Override
-            public void taskComplete(JSONArray array)
+            public void onReceive(Context context, Intent intent)
             {
-                Log.i(TAG, "Task Complete");
-                setContentView(R.layout.activity_join_ministry);
-                Log.i(TAG, "Array: " + array);
-
-                List<Ministry> ministryTeamList = MinistryJsonParser.parseMinistriesJson(array);
-                ministryMap = MinistryJsonParser.parseMinistriesAsMap(array);
-
-                ArrayAdapter<Ministry> ministryTeamAdapter = new ArrayAdapter<Ministry>(
-                    getApplicationContext(),
-                    android.R.layout.simple_dropdown_item_1line,
-                    ministryTeamList
-                );
-
-                AutoCompleteTextView ministryTeamAutoComplete =
-                    (AutoCompleteTextView) findViewById(R.id.ministry_team_autocomplete);
-                ministryTeamAutoComplete.setAdapter(ministryTeamAdapter);
-
-                int i = 1;
-                for(Ministry ministry : ministryTeamList)
+                String reason = intent.getStringExtra("reason");
+                if(reason != null)
                 {
-                    Log.i(TAG, "Ministry " + i + ": " + ministry.getName());
-                    i++;
+                    Log.e(TAG, "Failed to retrieve ministries: " + reason);
+                    finish();
+                }
+                else
+                {
+                    Serializable data = intent.getSerializableExtra("ministryTeamList");
+
+                    if(data != null)
+                    {
+                        ministryTeamList = (ArrayList<Ministry>) data;
+                        ArrayAdapter<Ministry> ministryTeamAdapter = new ArrayAdapter<Ministry>(
+                            getApplicationContext(),
+                            android.R.layout.simple_dropdown_item_1line,
+                            ministryTeamList
+                        );
+
+                        AutoCompleteTextView ministryTeamAutoComplete =
+                            (AutoCompleteTextView)findViewById(R.id.ministry_team_autocomplete);
+                        ministryTeamAutoComplete.setAdapter(ministryTeamAdapter);
+                    }
                 }
             }
+        };
+        manager.registerReceiver(allMinistriesRetrievedReceiver,
+            new IntentFilter(AssociatedMinistriesService.ACTION_RETRIEVE_ALL_MINISTRIES));
+    }
 
-            @Override
-            public void taskFailed(String reason)
-            {
-                Log.e(TAG, "Failed to retrieve ministries: " + reason);
-                finish();
-            }
-        });
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        cleanupBroadcastReceivers();
+    }
+
+    private void cleanupBroadcastReceivers()
+    {
+        Log.i(TAG, "Cleaning up broadcast receivers");
+        manager.unregisterReceiver(allMinistriesRetrievedReceiver);
+        allMinistriesRetrievedReceiver = null;
     }
 
     public void joinMinistry(View view)
@@ -83,7 +113,8 @@ public class JoinMinistryActivity extends ActionBarActivity
         AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView)findViewById(R.id.ministry_team_autocomplete);
 
         String ministryName = autoCompleteTextView.getText().toString();
-        String ministryId = ministryMap.get(ministryName);
+        Ministry chosenMinistry = getMinistryByName(ministryTeamList, ministryName);
+        String ministryId = chosenMinistry.getMinistryId();
 
         AlertDialog alertDialog = new AlertDialog.Builder(this)
             .setTitle("Join Ministry")
@@ -104,6 +135,18 @@ public class JoinMinistryActivity extends ActionBarActivity
         //TODO: Send request to join this ministry
         //TODO: Make sure this ministry gets added to the list in Settings
         //TODO: Go back to home page or previous page?
+    }
+
+    private Ministry getMinistryByName(List<Ministry> ministryList, String name)
+    {
+        for(Ministry ministry : ministryList)
+        {
+            if(ministry.getName().equalsIgnoreCase(name))
+            {
+                return ministry;
+            }
+        }
+        return null;
     }
 
     public void cancel(View view)
