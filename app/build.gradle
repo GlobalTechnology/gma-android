@@ -8,11 +8,6 @@ repositories {
     }
 }
 
-dependencies {
-    compile 'me.thekey.android:thekey-api:0.7.0'
-    compile 'me.thekey.android:thekey-lib:0.7.0'
-}
-
 android {
     compileSdkVersion 21
     buildToolsVersion '19.1.0'
@@ -37,4 +32,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.android.support:support-v4:21.0.3'
     compile 'com.google.android.gms:play-services-maps:6.5.87'
+
+    compile 'me.thekey.android:thekey-api:0.7.0'
+    compile 'me.thekey.android:thekey-lib:0.7.0'
 }
