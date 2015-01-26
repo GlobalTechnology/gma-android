@@ -18,12 +18,14 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
 import com.expidev.gcmapp.http.GmaApiClient;
+import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.AssociatedMinistriesService;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 public class JoinMinistryActivity extends ActionBarActivity
@@ -116,6 +118,13 @@ public class JoinMinistryActivity extends ActionBarActivity
         Ministry chosenMinistry = getMinistryByName(ministryTeamList, ministryName);
         String ministryId = chosenMinistry.getMinistryId();
 
+        Assignment assignment = new Assignment();
+        assignment.setTeamRole("self_assigned");
+        assignment.setId(UUID.randomUUID().toString());  //TODO: What should go here?
+        assignment.setMinistry(chosenMinistry);
+
+        AssociatedMinistriesService.assignUserToMinistry(this, assignment);
+
         AlertDialog alertDialog = new AlertDialog.Builder(this)
             .setTitle("Join Ministry")
             .setMessage("You have joined " + ministryName + " with a ministry ID of: " + ministryId)
@@ -131,10 +140,7 @@ public class JoinMinistryActivity extends ActionBarActivity
 
         alertDialog.show();
 
-        //TODO: Give user self assigned team role (save to local storage?)
         //TODO: Send request to join this ministry
-        //TODO: Make sure this ministry gets added to the list in Settings
-        //TODO: Go back to home page or previous page?
     }
 
     private Ministry getMinistryByName(List<Ministry> ministryList, String name)

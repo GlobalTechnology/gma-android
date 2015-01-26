@@ -27,6 +27,7 @@ import javax.net.ssl.HttpsURLConnection;
 import static com.expidev.gcmapp.service.Action.RETRIEVE_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Action.RETRIEVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.service.Action.SAVE_ASSOCIATED_MINISTRIES;
+import static com.expidev.gcmapp.service.Action.SAVE_ASSIGNMENT;
 
 /**
  * Created by William.Randall on 1/22/2015.
@@ -72,6 +73,9 @@ public class AssociatedMinistriesService extends IntentService
                 break;
             case SAVE_ASSOCIATED_MINISTRIES:
                 saveAssociatedMinistriesFromServer(intent);
+                break;
+            case SAVE_ASSIGNMENT:
+                assignUserToMinistry(intent);
                 break;
             default:
                 break;
@@ -129,6 +133,14 @@ public class AssociatedMinistriesService extends IntentService
             extras.putSerializable("assignments", (ArrayList<Assignment>) assignmentList);
         }
 
+        context.startService(baseIntent(context, extras));
+    }
+
+    public static void assignUserToMinistry(final Context context, Assignment assignment)
+    {
+        Bundle extras = new Bundle(2);
+        extras.putSerializable("action", SAVE_ASSIGNMENT);
+        extras.putSerializable("assignment", assignment);
         context.startService(baseIntent(context, extras));
     }
 
@@ -247,5 +259,14 @@ public class AssociatedMinistriesService extends IntentService
         ministriesDao.saveAssociatedMinistries(assignments);
 
         //TODO: May need to notify when running and when finished at some point
+    }
+
+    private void assignUserToMinistry(Intent intent)
+    {
+        List<Assignment> assignments = new ArrayList<Assignment>();
+        assignments.add((Assignment) intent.getSerializableExtra("assignment"));
+
+        MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
+        ministriesDao.saveAssociatedMinistries(assignments);
     }
 }
