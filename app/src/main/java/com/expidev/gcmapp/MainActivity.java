@@ -29,7 +29,6 @@ import com.expidev.gcmapp.model.User;
 import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.BroadcastUtils;
-import com.expidev.gcmapp.utils.Constants;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 import com.expidev.gcmapp.utils.Device;
 import com.google.android.gms.common.ConnectionResult;
@@ -45,6 +44,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
+
+import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
 
 
 public class MainActivity extends ActionBarActivity
@@ -89,7 +90,7 @@ public class MainActivity extends ActionBarActivity
         
         setupBroadcastReceivers();
 
-        theKey = TheKeyImpl.getInstance(getApplicationContext(), Constants.THEKEY_CLIENTID);
+        theKey = TheKeyImpl.getInstance(getApplicationContext(), THEKEY_CLIENTID);
 
         manager = LocalBroadcastManager.getInstance(getApplicationContext());
         gcmBroadcastReceiver = new GcmBroadcastReceiver(theKey, this);
@@ -311,7 +312,7 @@ public class MainActivity extends ActionBarActivity
         final FragmentManager fm = this.getSupportFragmentManager();
         if (fm.findFragmentByTag("loginDialog") == null)
         {
-            LoginDialogFragment loginDialogFragment = LoginDialogFragment.builder().clientId(Constants.THEKEY_CLIENTID).build();
+            LoginDialogFragment loginDialogFragment = LoginDialogFragment.builder().clientId(THEKEY_CLIENTID).build();
             loginDialogFragment.show(fm.beginTransaction().addToBackStack("loginDialog"), "loginDialog");
         }
     }

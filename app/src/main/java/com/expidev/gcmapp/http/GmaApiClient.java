@@ -4,8 +4,6 @@ import android.content.Context;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.expidev.gcmapp.utils.Constants;
-
 import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +17,8 @@ import javax.net.ssl.HttpsURLConnection;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
+
+import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
 
 /**
  * Created by matthewfrederick on 1/23/15.
@@ -40,7 +40,7 @@ public class GmaApiClient
     
     public GmaApiClient(final Context context)
     {
-        theKey = TheKeyImpl.getInstance(context, Constants.THEKEY_CLIENTID);
+        theKey = TheKeyImpl.getInstance(context, THEKEY_CLIENTID);
         this.context = context;
         broadcastManager = LocalBroadcastManager.getInstance(context);
     }

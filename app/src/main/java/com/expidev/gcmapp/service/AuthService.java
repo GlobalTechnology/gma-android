@@ -10,7 +10,6 @@ import android.util.Log;
 
 import com.expidev.gcmapp.db.UserDao;
 import com.expidev.gcmapp.http.GmaApiClient;
-import com.expidev.gcmapp.utils.Constants;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,6 +17,7 @@ import org.json.JSONObject;
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
 
+import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
 import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
@@ -52,7 +52,7 @@ public class AuthService extends IntentService
         Log.i(TAG, "on Create");
         this.broadcastManager = LocalBroadcastManager.getInstance(this);
 
-        theKey = TheKeyImpl.getInstance(getApplicationContext(), Constants.THEKEY_CLIENTID);
+        theKey = TheKeyImpl.getInstance(getApplicationContext(), THEKEY_CLIENTID);
 
         // set shared preferences that can be accessed throughout the application
         sharedPreferences = this.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
