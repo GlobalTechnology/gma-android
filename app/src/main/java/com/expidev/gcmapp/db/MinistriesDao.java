@@ -60,6 +60,94 @@ public class MinistriesDao
         return null;
     }
 
+    public List<Ministry> retrieveAssociatedMinistriesList()
+    {
+        Cursor cursor = null;
+        List<Ministry> ministryList = new ArrayList<Ministry>();
+
+        try
+        {
+            cursor = retrieveAssociatedMinistriesCursor();
+
+            if(cursor != null && cursor.getCount() > 0)
+            {
+                cursor.moveToFirst();
+                for(int i = 0; i < cursor.getCount(); i++)
+                {
+                    ministryList.add(buildMinistryFromCursor(cursor));
+                    cursor.moveToNext();
+                }
+            }
+        }
+        finally
+        {
+            if(cursor != null)
+            {
+                cursor.close();
+            }
+        }
+
+        return ministryList;
+    }
+
+    private Ministry buildMinistryFromCursor(Cursor cursor)
+    {
+        Ministry ministry = new Ministry();
+        ministry.setName(cursor.getString(cursor.getColumnIndex("name")));
+        ministry.setMinistryId(cursor.getString(cursor.getColumnIndex("ministry_id")));
+        ministry.setMinistryCode(cursor.getString(cursor.getColumnIndex("min_code")));
+        ministry.setHasGcm(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_gcm"))));
+        ministry.setHasSlm(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_slm"))));
+        ministry.setHasDs(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_ds"))));
+        ministry.setHasLlm(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_llm"))));
+        ministry.setSubMinistries(retrieveMinistriesWithParent(ministry.getMinistryId()));
+
+        return ministry;
+    }
+
+    public List<Ministry> retrieveMinistriesWithParent(String parentMinistryId)
+    {
+        final SQLiteDatabase database = databaseHelper.getReadableDatabase();
+        Cursor cursor = null;
+        List<Ministry> ministryList = null;
+
+        try
+        {
+            cursor = database.query(
+                TableNames.ASSOCIATED_MINISTRIES.getTableName(),
+                null,
+                "parent_ministry_id = ?",
+                new String[] { parentMinistryId },
+                null,
+                null,
+                null);
+
+            if(cursor != null && cursor.getCount() > 0)
+            {
+                ministryList = new ArrayList<Ministry>();
+                cursor.moveToFirst();
+                for(int i = 0; i < cursor.getCount(); i++)
+                {
+                    ministryList.add(buildMinistryFromCursor(cursor));
+                    cursor.moveToNext();
+                }
+            }
+        }
+        catch(Exception e)
+        {
+            Log.e(TAG, "Failed to retrieve associated ministries: " + e.getMessage());
+        }
+        finally
+        {
+            if(cursor != null)
+            {
+                cursor.close();
+            }
+        }
+
+        return ministryList;
+    }
+
     public List<String> retrieveAssociatedMinistries()
     {
         Cursor cursor = null;
@@ -222,7 +310,7 @@ public class MinistriesDao
                 return true;
             }
 
-            existingAssignments.moveToNext();
+            existingAssociatedMinistries.moveToNext();
         }
         return false;
     }
@@ -238,7 +326,7 @@ public class MinistriesDao
                 return true;
             }
 
-            existingAssociatedMinistries.moveToNext();
+            existingAssignments.moveToNext();
         }
         return false;
     }
@@ -246,6 +334,11 @@ public class MinistriesDao
     private int booleanToInt(boolean booleanValue)
     {
         return booleanValue ? 1 : 0;
+    }
+
+    private boolean intToBoolean(int intValue)
+    {
+        return intValue == 1;
     }
 
     private ContentValues buildAssociationValues(Ministry associatedMinistry)

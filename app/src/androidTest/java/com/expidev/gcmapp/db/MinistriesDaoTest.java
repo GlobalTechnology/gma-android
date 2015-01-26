@@ -57,6 +57,29 @@ public class MinistriesDaoTest extends InstrumentationTestCase
 
         cursor.moveToFirst();
         assertEquals("A1", cursor.getString(cursor.getColumnIndex("id")));
+        assertEquals("self-assigned", cursor.getString(cursor.getColumnIndex("team_role")));
+    }
+
+    public void testSaveAssociatedMinistriesWithUpdates()
+    {
+        testSaveAssociatedMinistriesForTheFirstTime();
+
+        ArrayList<Assignment> assignments = getTestAssignments();
+        Assignment testAssignment = assignments.get(0);
+        testAssignment.setTeamRole("leader");
+
+        ministriesDao.saveAssociatedMinistries(assignments);
+
+        List<Ministry> ministryList = ministriesDao.retrieveAssociatedMinistriesList();
+        assertEquals(6, ministryList.size());
+
+        Cursor cursor = ministriesDao.retrieveAssignmentsCursor();
+        assertNotNull(cursor);
+        assertEquals(1, cursor.getCount());
+
+        cursor.moveToFirst();
+        String teamRole = cursor.getString(cursor.getColumnIndex("team_role"));
+        assertEquals("leader", teamRole);
     }
 
     private ArrayList<Assignment> getTestAssignments()
