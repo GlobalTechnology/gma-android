@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 
 import com.expidev.gcmapp.service.AuthService;
+import com.expidev.gcmapp.service.TrainingService;
 
 /**
  * Created by matthewfrederick on 1/23/15.
@@ -15,6 +16,7 @@ public final class BroadcastUtils
     public static final String ACTION_STOP = AuthService.class.getName() + ".ACTION_STOP";
 
     public static final String TICKET_RECEIVED = AuthService.class.getName() + ".TICKET_RECEIVED";
+    public static final String TRAINING_RECEIVED = TrainingService.class.getName() + ".TRAINING_RECEIVED";
 
     public static Intent startBroadcast()
     {
@@ -51,5 +53,10 @@ public final class BroadcastUtils
         Intent intent = new Intent(ACTION_STOP);
         intent.putExtra("ticket", ticket);
         return intent;
+    }
+    
+    public static Intent trainingReceivedBroadcast()
+    {
+        return new Intent(TRAINING_RECEIVED);
     }
 }

@@ -31,6 +31,7 @@ public class GmaApiClient
     private static final String BASE_URL_PROD = "https://sbr.global-registry.org/api";
     private static final String MEASUREMENTS = "/measurements";
     private static final String TOKEN = "/token";
+    private static final String TRAINING = "/training";
     
     private final TheKey theKey;
     
@@ -60,6 +61,27 @@ public class GmaApiClient
             URL url = new URL(urlString);
 
             return httpGet(url);  
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, e.getMessage(), e);
+        }
+        
+        return null;
+    }
+    
+    public JSONObject searchTraining(String ministryId, String sessionTicket)
+    {
+        try
+        {
+            String urlString = BASE_URL_STAGE + MEASUREMENTS + TRAINING +
+                    "?token=" + sessionTicket + "&ministry_id=" + ministryId;
+
+            Log.i(TAG, "Url: " + urlString);
+
+            URL url = new URL(urlString);
+            
+            return httpGet(url);
         }
         catch (Exception e)
         {
