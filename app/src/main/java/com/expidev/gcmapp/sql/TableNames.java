@@ -8,7 +8,8 @@ public enum TableNames
     ASSOCIATED_MINISTRIES("associated_ministries"),
     SESSION("session"),
     USER("user"),
-    TRAINING("training");
+    TRAINING("training"),
+    TRAINING_COMPLETIONS("training_completions");
 
     private String tableName;
 
