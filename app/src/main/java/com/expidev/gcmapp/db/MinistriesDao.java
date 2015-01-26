@@ -118,27 +118,22 @@ public class MinistriesDao
             database.beginTransaction();
 
             Cursor existingAssignments = retrieveAssignmentsCursor();
+            Cursor existingAssociations = retrieveAssociatedMinistriesCursor();
 
             if(existingAssignments != null && existingAssignments.getCount() > 0)
             {
                 // We need to insert associations that don't yet exist, and update those that do
                 for(Assignment assignment : assignmentList)
                 {
-                    //TODO: Handle sub ministries
                     Ministry associatedMinistry = assignment.getMinistry();
 
-                    ContentValues associationValues = buildAssociationValues(associatedMinistry);
                     ContentValues assignmentValues = buildAssignmentValues(assignment);
 
-                    if(ministryExistsInDatabase(associatedMinistry.getMinistryId(), existingAssignments))
+                    if(assignmentExistsInDatabase(assignment.getId(), existingAssignments))
                     {
-                        String[] whereArgs = { associatedMinistry.getMinistryId() };
+                        insertOrUpdateMinistry(associatedMinistry, null, database, existingAssociations);
 
-                        database.update(
-                            TableNames.ASSOCIATED_MINISTRIES.getTableName(),
-                            associationValues,
-                            "ministry_id = ?",
-                            whereArgs);
+                        String[] whereArgs = { associatedMinistry.getMinistryId() };
 
                         database.update(
                             TableNames.ASSIGNMENTS.getTableName(),
@@ -148,22 +143,22 @@ public class MinistriesDao
                     }
                     else
                     {
-                        database.insert(TableNames.ASSOCIATED_MINISTRIES.getTableName(), null, associationValues);
+                        insertOrUpdateMinistry(associatedMinistry, null, database, existingAssociations);
                         database.insert(TableNames.ASSIGNMENTS.getTableName(), null, assignmentValues);
                     }
                 }
-
             }
-
-            for(Assignment assignment : assignmentList)
+            else
             {
-                Ministry associatedMinistry = assignment.getMinistry();
+                for(Assignment assignment : assignmentList)
+                {
+                    Ministry associatedMinistry = assignment.getMinistry();
 
-                ContentValues associationValues = buildAssociationValues(associatedMinistry);
-                ContentValues assignmentValues = buildAssignmentValues(assignment);
+                    ContentValues assignmentValues = buildAssignmentValues(assignment);
 
-                database.insert(TableNames.ASSOCIATED_MINISTRIES.getTableName(), null, associationValues);
-                database.insert(TableNames.ASSIGNMENTS.getTableName(), null, assignmentValues);
+                    insertOrUpdateMinistry(associatedMinistry, null, database, existingAssociations);
+                    database.insert(TableNames.ASSIGNMENTS.getTableName(), null, assignmentValues);
+                }
             }
 
             database.setTransactionSuccessful();
@@ -175,6 +170,42 @@ public class MinistriesDao
         finally
         {
             database.endTransaction();
+        }
+    }
+
+    void insertOrUpdateMinistry(
+        Ministry ministry,
+        String parentMinistryId,
+        SQLiteDatabase database,
+        Cursor existingAssociatedMinistries)
+    {
+        if(ministry.getSubMinistries() != null)
+        {
+            for(Ministry subMinistry : ministry.getSubMinistries())
+            {
+                insertOrUpdateMinistry(subMinistry, ministry.getMinistryId(), database, existingAssociatedMinistries);
+            }
+        }
+
+        ContentValues subMinistryValues = buildAssociationValues(ministry);
+        subMinistryValues.put("parent_ministry_id", parentMinistryId);
+
+        // If the ministry already exists in the database, update it, otherwise insert it
+        if(ministryExistsInDatabase(ministry.getMinistryId(), existingAssociatedMinistries))
+        {
+            String[] whereArgs = { ministry.getMinistryId() };
+            database.update(
+                TableNames.ASSOCIATED_MINISTRIES.getTableName(),
+                subMinistryValues,
+                "ministry_id = ?",
+                whereArgs);
+        }
+        else
+        {
+            database.insert(
+                TableNames.ASSOCIATED_MINISTRIES.getTableName(),
+                null,
+                subMinistryValues);
         }
     }
 
@@ -190,6 +221,24 @@ public class MinistriesDao
             {
                 return true;
             }
+
+            existingAssignments.moveToNext();
+        }
+        return false;
+    }
+
+    private boolean assignmentExistsInDatabase(String assignmentId, Cursor existingAssignments)
+    {
+        existingAssignments.moveToFirst();
+        for(int i = 0; i < existingAssignments.getCount(); i++)
+        {
+            String existingAssignmentId = existingAssignments.getString(existingAssignments.getColumnIndex("id"));
+            if(assignmentId.equalsIgnoreCase(existingAssignmentId))
+            {
+                return true;
+            }
+
+            existingAssociatedMinistries.moveToNext();
         }
         return false;
     }
@@ -223,5 +272,27 @@ public class MinistriesDao
         assignmentValues.put("ministry_id", assignment.getMinistry().getMinistryId());
 
         return assignmentValues;
+    }
+
+    void deleteAllData()
+    {
+        final SQLiteDatabase database = databaseHelper.getWritableDatabase();
+
+        database.beginTransaction();
+
+        try
+        {
+            database.delete(TableNames.ASSIGNMENTS.getTableName(), null, null);
+            database.delete(TableNames.ASSOCIATED_MINISTRIES.getTableName(), null, null);
+            database.setTransactionSuccessful();
+        }
+        catch(Exception e)
+        {
+            Log.e(TAG, e.getMessage());
+        }
+        finally
+        {
+            database.endTransaction();
+        }
     }
 }
