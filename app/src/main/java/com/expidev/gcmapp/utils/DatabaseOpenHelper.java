@@ -27,7 +27,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     {
         Log.i(TAG, "Creating database...");
         createAssociatedMinistryTable(db);
-        createSessionTable(db);
         createUserTable(db);
     }
 
@@ -52,16 +51,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     }
 
     /**
-     * This table holds information for ministries the current user
-     * has already joined or requested to join.
-     */
-    private void createSessionTable(SQLiteDatabase db)
-    {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.SESSION.getTableName() +
-            "(session_token TEXT);");
-    }
-
-    /**
      * This table holds the user information.
      */
     private void createUserTable(SQLiteDatabase db)
@@ -73,7 +62,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     private void deleteAllTables(SQLiteDatabase db)
     {
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.ASSOCIATED_MINISTRIES);
-        db.execSQL("DROP TABLE IF EXISTS " + TableNames.SESSION);
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.USER);
     }
 }

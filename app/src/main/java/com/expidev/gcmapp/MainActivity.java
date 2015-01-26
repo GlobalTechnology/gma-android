@@ -24,7 +24,6 @@ import android.widget.Toast;
 import com.expidev.gcmapp.GPSService.GPSTracker;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.db.UserDao;
-import com.expidev.gcmapp.fragment.SessionLoaderFragment;
 import com.expidev.gcmapp.model.User;
 import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.sql.TableNames;
@@ -49,7 +48,7 @@ import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
 
 
 public class MainActivity extends ActionBarActivity
-    implements OnMapReadyCallback, SessionLoaderFragment.OnSessionTokenReadyListener
+    implements OnMapReadyCallback
 {
     private final String TAG = this.getClass().getSimpleName();
 
@@ -122,22 +121,6 @@ public class MainActivity extends ActionBarActivity
         {
             AuthService.authorizeUser(this);
         }
-    }
-
-    private void loadSessionToken()
-    {
-        getSupportFragmentManager()
-            .beginTransaction()
-            .add(new SessionLoaderFragment(), "sessionLoaderFragment")
-            .commit();
-    }
-
-    //TODO: This will actually go into the specific activities that need the session token to call their endpoints
-    @Override
-    public void onSessionTokenReturned(String sessionToken)
-    {
-        Log.i(TAG, "Session token ready: " + sessionToken);
-        this.sessionToken = sessionToken;
     }
 
     //TODO: Remove this when join ministry works
@@ -234,7 +217,6 @@ public class MainActivity extends ActionBarActivity
 
     public void joinNewMinistry(MenuItem menuItem)
     {
-        loadSessionToken();
         Intent goToJoinMinistryPage = new Intent(this, JoinMinistryActivity.class);
         startActivity(goToJoinMinistryPage);
     }

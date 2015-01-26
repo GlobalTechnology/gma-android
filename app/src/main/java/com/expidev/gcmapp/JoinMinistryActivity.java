@@ -3,8 +3,7 @@ package com.expidev.gcmapp;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Build;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -28,18 +27,22 @@ import java.util.Map;
 public class JoinMinistryActivity extends ActionBarActivity
 {
     private final String TAG = this.getClass().getSimpleName();
+    private final String PREF_NAME = "gcm_prefs";
 
     private Context context;
     Map<String, String> ministryMap;
+    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        setContentView(R.layout.activity_join_ministry);
         context = this;
 
-        //TODO: Need token
-        GmaApiClient.getAllMinistries("", new MinistriesTask.MinistriesTaskHandler()
+        GmaApiClient.getAllMinistries(preferences.getString("session_ticket", null), new MinistriesTask.MinistriesTaskHandler()
         {
             @Override
             public void taskComplete(JSONArray array)
