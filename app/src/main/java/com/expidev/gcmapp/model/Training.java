@@ -18,6 +18,7 @@ public class Training
     private double latitude;
     private double longitude;
     private List<GCMTrainingCompletions> completions;
+    private boolean synced;
 
     public int getId()
     {
@@ -109,13 +110,24 @@ public class Training
         this.completions = completions;
     }
 
+    public boolean isSynced()
+    {
+        return synced;
+    }
+
+    public void setSynced(boolean synced)
+    {
+        this.synced = synced;
+    }
+
     private class GCMTrainingCompletions
     {
         private int id;
-        private String phase;
+        private int phase;
         private int numberCompleted;
         private Date date;
         private int trainingId;
+        private boolean synced;
 
         public int getId()
         {
@@ -127,12 +139,12 @@ public class Training
             this.id = id;
         }
 
-        public String getPhase()
+        public int getPhase()
         {
             return phase;
         }
 
-        public void setPhase(String phase)
+        public void setPhase(int phase)
         {
             this.phase = phase;
         }
@@ -165,6 +177,16 @@ public class Training
         public void setTrainingId(int trainingId)
         {
             this.trainingId = trainingId;
+        }
+
+        public boolean isSynced()
+        {
+            return synced;
+        }
+
+        public void setSynced(boolean synced)
+        {
+            this.synced = synced;
         }
     }
 }

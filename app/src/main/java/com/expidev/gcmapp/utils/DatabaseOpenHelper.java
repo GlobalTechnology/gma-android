@@ -29,6 +29,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         createAssociatedMinistryTable(db);
         createSessionTable(db);
         createUserTable(db);
+        createTrainingTables(db);
     }
 
     @Override
@@ -69,11 +70,22 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.USER.getTableName() +
             "(first_name TEXT, last_name TEXT, cas_username TEXT, person_id TEXT);");        
     }
+    
+    private void createTrainingTables(SQLiteDatabase db)
+    {
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.TRAINING.getTableName() +
+            "(id INT, ministry_id TEXT, name TEXT, date TEXT, type TEXT, mmc TEXT, latitude DECIMAL, longitude DECIMAL, synced INT DEFAULT 0);");
+        
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.TRAINING_COMPLETIONS.getTableName() + 
+            "(id INT, phase INT, number_completed INT, date TEXT, training_id INT, synced INT DEFAULT 0);");
+    }
 
     private void deleteAllTables(SQLiteDatabase db)
     {
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.ASSOCIATED_MINISTRIES);
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.SESSION);
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.USER);
+        db.execSQL("DROP TABLE IF EXISTS " + TableNames.TRAINING);
+        db.execSQL("DROP TABLE IF EXISTS " + TableNames.TRAINING_COMPLETIONS);
     }
 }
