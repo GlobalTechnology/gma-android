@@ -74,7 +74,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     private void createTrainingTables(SQLiteDatabase db)
     {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.TRAINING.getTableName() +
-            "(id INT, ministry_id TEXT, name TEXT, date TEXT, type TEXT, mmc TEXT, latitude DECIMAL, longitude DECIMAL, synced INT DEFAULT 0);");
+            "(id INT, ministry_id TEXT, name TEXT, date TEXT, type TEXT, mcc TEXT, latitude DECIMAL, longitude DECIMAL, synced INT DEFAULT 0);");
         
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.TRAINING_COMPLETIONS.getTableName() + 
             "(id INT, phase INT, number_completed INT, date TEXT, training_id INT, synced INT DEFAULT 0);");

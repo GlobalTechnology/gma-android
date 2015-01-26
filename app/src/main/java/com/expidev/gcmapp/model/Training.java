@@ -120,7 +120,7 @@ public class Training
         this.synced = synced;
     }
 
-    private class GCMTrainingCompletions
+    public class GCMTrainingCompletions
     {
         private int id;
         private int phase;
