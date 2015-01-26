@@ -18,6 +18,8 @@ android {
         targetSdkVersion 19
         versionCode 1
         versionName "1.0"
+        
+        buildConfigField "long", "THEKEY_CLIENTID", "7439283632057308L"
     }
 
     buildTypes {

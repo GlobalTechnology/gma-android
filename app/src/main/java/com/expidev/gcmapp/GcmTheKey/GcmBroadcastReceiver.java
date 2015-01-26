@@ -1,17 +1,9 @@
 package com.expidev.gcmapp.GcmTheKey;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
-import com.expidev.gcmapp.http.GcmApiClient;
-import com.expidev.gcmapp.http.TicketTask;
-import com.expidev.gcmapp.http.TokenTask;
-import com.expidev.gcmapp.model.User;
-import com.expidev.gcmapp.service.SessionService;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.expidev.gcmapp.service.AuthService;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
@@ -37,56 +29,8 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
     protected void onLogin(String guid)
     {
         Log.i(TAG, "On Login");
-        
-        GcmApiClient.getTicket(theKey, new TicketTask.TicketTaskHandler()
-        {
-            @Override
-            public void taskComplete(String ticket)
-            {
-                GcmApiClient.getToken(ticket, new TokenTask.TokenTaskHandler()
-                {
-                    @Override
-                    public void taskComplete(JSONObject object)
-                    {
-                        Log.i(TAG, "Task Complete");
-                        User user = GcmTheKeyHelper.createUser(object);
-                        writeSessionTokenToDatabase(getTokenFromJson(object));
-                    }
 
-                    @Override
-                    public void taskFailed(String status)
-                    {
-                        Log.i(TAG, "Task Failed. Status: " + status);
-                    }
-                });
-            }
-
-            @Override
-            public void taskFailed()
-            {
-
-            }
-        });
-    }
-
-    private void writeSessionTokenToDatabase(String sessionToken)
-    {
-        Intent saveSessionToken = new Intent(context, SessionService.class);
-        saveSessionToken.putExtra("sessionToken", sessionToken);
-        context.startService(saveSessionToken);
-    }
-
-    private String getTokenFromJson(JSONObject json)
-    {
-        try
-        {
-            return json.getString("session_ticket");
-        }
-        catch(JSONException e)
-        {
-            Log.e(TAG, "Failed to get session token from json: " + e.getMessage());
-            return null;
-        }
+        AuthService.authorizeUser(context);
     }
 
     @Override

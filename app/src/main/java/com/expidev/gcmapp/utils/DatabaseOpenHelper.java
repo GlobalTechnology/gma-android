@@ -28,6 +28,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         Log.i(TAG, "Creating database...");
         createAssociatedMinistryTable(db);
         createSessionTable(db);
+        createUserTable(db);
     }
 
     @Override
@@ -60,9 +61,19 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
             "(session_token TEXT);");
     }
 
+    /**
+     * This table holds the user information.
+     */
+    private void createUserTable(SQLiteDatabase db)
+    {
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.USER.getTableName() +
+            "(first_name TEXT, last_name TEXT, cas_username TEXT, person_id TEXT);");        
+    }
+
     private void deleteAllTables(SQLiteDatabase db)
     {
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.ASSOCIATED_MINISTRIES);
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.SESSION);
+        db.execSQL("DROP TABLE IF EXISTS " + TableNames.USER);
     }
 }
