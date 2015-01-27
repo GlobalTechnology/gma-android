@@ -72,7 +72,7 @@ public class TrainingDao
     {
         final SQLiteDatabase database = databaseHelper.getReadableDatabase();
         
-        String select = "SELECT * FROM " + TableNames.TRAINING.getTableName() + "WHERE id = " + id;
+        String select = "SELECT * FROM " + TableNames.TRAINING.getTableName() + " WHERE id = " + id;
         return database.rawQuery(select, null);
     }
     
@@ -151,10 +151,10 @@ public class TrainingDao
                 trainingToInsert.put("latitude", training.getDouble("latitude"));
                 trainingToInsert.put("longitude", training.getDouble("longitude"));
                 trainingToInsert.put("synced", 1);
-                
-                database.beginTransaction();
-                
+
                 Training previousRecord = retrieveTrainingById(id);
+
+                database.beginTransaction();
                 
                 if (previousRecord == null)
                 {
@@ -164,10 +164,9 @@ public class TrainingDao
                 {
                     database.update(trainingTable, trainingToInsert, null, null);
                 }
-                
-                database.setTransactionSuccessful();
-                
             }
+
+            database.setTransactionSuccessful();
         }
         catch (Exception e)
         {

@@ -192,8 +192,10 @@ public class MainActivity extends ActionBarActivity
         cursor.close();
         database.close();
     }
+
+    // todo: once ministries are saved in database, this will loop through and find training
+    // for each ministry
     
-    // todo: remove after testing
     private void trainingSearch(String ministryId)
     {
         Log.i(TAG, "Test Training search");

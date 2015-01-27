@@ -124,7 +124,7 @@ public class GmaApiClient
         {
             String urlString = BASE_URL_STAGE + MEASUREMENTS +TRAINING +
                     "?token=" + sessionTicket + "&ministry_id=" + ministryId +
-                    "&show_all=false&show_tree=false&mcc=slm";
+                    "&mcc=slm";
 
             Log.i(TAG, "Url: " + urlString);
 
