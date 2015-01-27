@@ -163,9 +163,9 @@ public class TrainingDao
                 trainingToInsert.put("longitude", training.getDouble("longitude"));
                 trainingToInsert.put("synced", 1);
 
-                Training previousRecord = retrieveTrainingById(id);
-
                 database.beginTransaction();
+
+                Training previousRecord = retrieveTrainingById(id);
                 
                 if (previousRecord == null)
                 {
@@ -231,7 +231,27 @@ public class TrainingDao
             database.endTransaction();
         }
     }
-    
+
+    void deleteAllData()
+    {
+        final SQLiteDatabase database = databaseHelper.getWritableDatabase();
+
+        database.beginTransaction();
+
+        try
+        {
+            database.delete(TableNames.TRAINING.getTableName(), null, null);
+            database.setTransactionSuccessful();
+        } catch (Exception e)
+        {
+            Log.e(TAG, e.getMessage());
+        } finally
+        {
+            database.endTransaction();
+        }
+    }
+
+
     private Date stringToDate(String string) throws ParseException
     {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");

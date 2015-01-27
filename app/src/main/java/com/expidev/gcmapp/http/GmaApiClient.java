@@ -90,7 +90,6 @@ public class GmaApiClient
                     stringBuilder.append(cookie);
                 }
             }
-            Log.i(TAG, "Full Cookie: " + stringBuilder.toString());
 
             // cookie store is not retrieving cookie so it will be saved to preferences
             prefEditor.putString("Cookie", stringBuilder.toString());
