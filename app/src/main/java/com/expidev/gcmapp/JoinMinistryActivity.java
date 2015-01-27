@@ -17,7 +17,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
-import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.AssociatedMinistriesService;
@@ -54,7 +53,7 @@ public class JoinMinistryActivity extends ActionBarActivity
         super.onStart();
 
         setupBroadcastReceivers();
-        GmaApiClient.getAllMinistries(this, preferences.getString("session_ticket", null));
+        AssociatedMinistriesService.retrieveAllMinistries(this, preferences.getString("session_ticket", null));
     }
 
     private void setupBroadcastReceivers()
@@ -66,29 +65,25 @@ public class JoinMinistryActivity extends ActionBarActivity
             @Override
             public void onReceive(Context context, Intent intent)
             {
-                String reason = intent.getStringExtra("reason");
-                if(reason != null)
+                Serializable data = intent.getSerializableExtra("ministryTeamList");
+
+                if(data != null)
                 {
-                    Log.e(TAG, "Failed to retrieve ministries: " + reason);
-                    finish();
+                    ministryTeamList = (ArrayList<Ministry>) data;
+                    ArrayAdapter<Ministry> ministryTeamAdapter = new ArrayAdapter<Ministry>(
+                        getApplicationContext(),
+                        android.R.layout.simple_dropdown_item_1line,
+                        ministryTeamList
+                    );
+
+                    AutoCompleteTextView ministryTeamAutoComplete =
+                        (AutoCompleteTextView) findViewById(R.id.ministry_team_autocomplete);
+                    ministryTeamAutoComplete.setAdapter(ministryTeamAdapter);
                 }
                 else
                 {
-                    Serializable data = intent.getSerializableExtra("ministryTeamList");
-
-                    if(data != null)
-                    {
-                        ministryTeamList = (ArrayList<Ministry>) data;
-                        ArrayAdapter<Ministry> ministryTeamAdapter = new ArrayAdapter<Ministry>(
-                            getApplicationContext(),
-                            android.R.layout.simple_dropdown_item_1line,
-                            ministryTeamList
-                        );
-
-                        AutoCompleteTextView ministryTeamAutoComplete =
-                            (AutoCompleteTextView)findViewById(R.id.ministry_team_autocomplete);
-                        ministryTeamAutoComplete.setAdapter(ministryTeamAdapter);
-                    }
+                    Log.e(TAG, "Failed to retrieve ministries");
+                    finish();
                 }
             }
         };

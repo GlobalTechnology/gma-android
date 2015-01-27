@@ -4,9 +4,13 @@ import android.content.Context;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.expidev.gcmapp.json.MinistryJsonParser;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.AssociatedMinistriesService;
+import com.expidev.gcmapp.utils.JsonStringReader;
 
 import org.apache.http.HttpStatus;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,6 +18,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -72,10 +78,58 @@ public class GmaApiClient
         return null;
     }
 
-    public static void getAllMinistries(Context context, String sessionToken)
+    public List<Ministry> getAllMinistries(String sessionToken)
     {
-        String url = BASE_URL_STAGE + MEASUREMENTS + MINISTRIES + "?token=" + sessionToken;
-        AssociatedMinistriesService.retrieveAllMinistries(context, url);
+        String reason;
+        String urlString = BASE_URL_STAGE + MEASUREMENTS + MINISTRIES + "?token=" + sessionToken;
+
+        try
+        {
+            JSONObject jsonObject = httpGet(new URL(urlString));
+
+            if(jsonObject == null)
+            {
+                reason = "Failed to retrieve ministries, most likely cause is a bad session ticket";
+            }
+            else
+            {
+                reason = jsonObject.optString("reason");
+            }
+
+            if(reason != null)
+            {
+                Log.e(TAG, reason);
+                return dummyMinistryList();
+            }
+            else
+            {
+                JSONArray names = new JSONArray();
+                names.put("ministry_id");
+                names.put("name");
+
+                JSONArray jsonArray = jsonObject.toJSONArray(names);
+                return MinistryJsonParser.parseMinistriesJson(jsonArray);
+            }
+        }
+        catch(Exception e)
+        {
+            reason = e.getMessage();
+            Log.e(TAG, "Problem occurred while retrieving ministries: " + reason);
+            return dummyMinistryList();
+        }
+    }
+
+    private ArrayList<Ministry> dummyMinistryList()
+    {
+        ArrayList<Ministry> dummyList = new ArrayList<Ministry>();
+
+        Ministry dummy1 = new Ministry();
+        dummy1.setMinistryId("37e3bb68-da0b-11e3-9786-12725f8f377c");
+        dummy1.setName("Addis Ababa Campus Team (ETH)");
+
+        dummyList.add(dummy1);
+
+        return dummyList;
     }
     
     private JSONObject httpGet(URL url) throws IOException, JSONException
