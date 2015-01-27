@@ -2,13 +2,11 @@ package com.expidev.gcmapp;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
@@ -24,12 +22,11 @@ import android.widget.Toast;
 import com.expidev.gcmapp.GPSService.GPSTracker;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.db.UserDao;
-import com.expidev.gcmapp.fragment.SessionLoaderFragment;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.User;
+import com.expidev.gcmapp.service.AssociatedMinistriesService;
 import com.expidev.gcmapp.service.AuthService;
-import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.BroadcastUtils;
-import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 import com.expidev.gcmapp.utils.Device;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -41,6 +38,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
@@ -49,7 +50,7 @@ import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
 
 
 public class MainActivity extends ActionBarActivity
-    implements OnMapReadyCallback, SessionLoaderFragment.OnSessionTokenReadyListener
+    implements OnMapReadyCallback
 {
     private final String TAG = this.getClass().getSimpleName();
 
@@ -71,8 +72,7 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences mapPreferences;
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
-
-    private String sessionToken;
+    private BroadcastReceiver allMinistriesRetrievedReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -85,9 +85,7 @@ public class MainActivity extends ActionBarActivity
         getMapPreferences();
         
         preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        
-        populateDummyMinistries();
-        
+
         setupBroadcastReceivers();
 
         theKey = TheKeyImpl.getInstance(getApplicationContext(), THEKEY_CLIENTID);
@@ -98,7 +96,7 @@ public class MainActivity extends ActionBarActivity
 
         if (Device.isConnected(getApplicationContext()))
         {
-           handleLogin();
+            handleLogin();
         }
         else
         {
@@ -122,72 +120,6 @@ public class MainActivity extends ActionBarActivity
         {
             AuthService.authorizeUser(this);
         }
-    }
-
-    private void loadSessionToken()
-    {
-        getSupportFragmentManager()
-            .beginTransaction()
-            .add(new SessionLoaderFragment(), "sessionLoaderFragment")
-            .commit();
-    }
-
-    //TODO: This will actually go into the specific activities that need the session token to call their endpoints
-    @Override
-    public void onSessionTokenReturned(String sessionToken)
-    {
-        Log.i(TAG, "Session token ready: " + sessionToken);
-        this.sessionToken = sessionToken;
-    }
-
-    //TODO: Remove this when join ministry works
-    private void populateDummyMinistries()
-    {
-        DatabaseOpenHelper databaseOpenHelper = new DatabaseOpenHelper(this);
-
-        SQLiteDatabase database = databaseOpenHelper.getWritableDatabase();
-        String tableName = TableNames.ASSOCIATED_MINISTRIES.getTableName();
-        
-        Cursor cursor = database.query(tableName, null, null, null, null, null, null);
-
-        // Only add the dummy rows if none exist
-        if(cursor.getCount() == 0)
-        {
-            database.beginTransaction();
-
-            ContentValues guatemala = new ContentValues();
-            guatemala.put("ministry_id", "1");
-            guatemala.put("name", "Guatemala");
-            guatemala.put("team_role", "self-assigned");
-            guatemala.put("last_synced", "datetime(2015-01-15 11:30:00)");
-            database.insert(tableName, null, guatemala);
-
-            ContentValues bridgesUcf = new ContentValues();
-            bridgesUcf.put("ministry_id", "2");
-            bridgesUcf.put("name", "Bridges UCF");
-            bridgesUcf.put("team_role", "member");
-            bridgesUcf.put("last_synced", "datetime(2015-01-15 11:30:00)");
-            database.insert(tableName, null, bridgesUcf);
-
-            ContentValues antioch21 = new ContentValues();
-            antioch21.put("ministry_id", "3");
-            antioch21.put("name", "Antioch21 Church");
-            antioch21.put("team_role", "leader");
-            antioch21.put("last_synced", "datetime(2015-01-15 11:30:00)");
-            database.insert(tableName, null, antioch21);
-
-            ContentValues random = new ContentValues();
-            random.put("ministry_id", "4");
-            random.put("name", "Random");
-            random.put("team_role", "inherited_leader");
-            random.put("last_synced", "datetime(2015-01-15 11:30:00)");
-            database.insert(tableName, null, random);
-
-            database.setTransactionSuccessful();
-            database.endTransaction();
-        }
-        cursor.close();
-        database.close();
     }
 
     @Override
@@ -234,12 +166,25 @@ public class MainActivity extends ActionBarActivity
 
     public void joinNewMinistry(MenuItem menuItem)
     {
-        loadSessionToken();
-        //TODO: implement join new ministry
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle("Join new ministry")
-                .setMessage("Choose a new ministry to join:")
-                .setNeutralButton("OK", new DialogInterface.OnClickListener()
+        final Context context = this;
+        if (Device.isConnected(getApplicationContext()))
+        {
+            if (theKey.getGuid() == null)
+            {
+                login();
+            }
+            else
+            {
+                Intent goToJoinMinistryPage = new Intent(context, JoinMinistryActivity.class);
+                startActivity(goToJoinMinistryPage);
+            }
+        }
+        else
+        {
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle("Internet Necessary")
+                .setMessage("You need Internet access to access this page")
+                .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener()
                 {
                     public void onClick(DialogInterface dialog, int which)
                     {
@@ -248,7 +193,8 @@ public class MainActivity extends ActionBarActivity
                 })
                 .create();
 
-        alertDialog.show();
+            alertDialog.show();
+        }
     }
 
     public void reset(MenuItem menuItem)
@@ -399,9 +345,33 @@ public class MainActivity extends ActionBarActivity
                     
                     String sessionTicket = preferences.getString("session_ticket", null);
                     Log.i(TAG, "Session Ticket: " + sessionTicket);
+
+                    AssociatedMinistriesService.retrieveAllMinistries(getApplicationContext(), sessionTicket);
                 }
             }
         };
+
+        allMinistriesRetrievedReceiver = new BroadcastReceiver()
+        {
+            @Override
+            public void onReceive(Context context, Intent intent)
+            {
+                Serializable data = intent.getSerializableExtra("ministryTeamList");
+
+                if(data != null)
+                {
+                    List<Ministry> ministryTeamList = (ArrayList<Ministry>) data;
+                    AssociatedMinistriesService.saveAllMinistries(getApplicationContext(), ministryTeamList);
+                }
+                else
+                {
+                    Log.e(TAG, "Failed to retrieve ministries");
+                    finish();
+                }
+            }
+        };
+        manager.registerReceiver(allMinistriesRetrievedReceiver,
+            new IntentFilter(AssociatedMinistriesService.ACTION_RETRIEVE_ALL_MINISTRIES));
 
         manager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
         manager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());
