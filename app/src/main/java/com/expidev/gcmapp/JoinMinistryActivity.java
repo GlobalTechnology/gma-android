@@ -34,7 +34,7 @@ public class JoinMinistryActivity extends ActionBarActivity
 
     List<Ministry> ministryTeamList;
     private LocalBroadcastManager manager;
-    private BroadcastReceiver allMinistriesRetrievedReceiver;
+    private BroadcastReceiver allMinistriesLoadedReceiver;
     private SharedPreferences preferences;
 
     @Override
@@ -53,19 +53,19 @@ public class JoinMinistryActivity extends ActionBarActivity
         super.onStart();
 
         setupBroadcastReceivers();
-        AssociatedMinistriesService.retrieveAllMinistries(this, preferences.getString("session_ticket", null));
+        AssociatedMinistriesService.loadAllMinistriesFromLocalStorage(this);
     }
 
     private void setupBroadcastReceivers()
     {
         Log.i(TAG, "Setting up broadcast receivers");
 
-        allMinistriesRetrievedReceiver = new BroadcastReceiver()
+        allMinistriesLoadedReceiver = new BroadcastReceiver()
         {
             @Override
             public void onReceive(Context context, Intent intent)
             {
-                Serializable data = intent.getSerializableExtra("ministryTeamList");
+                Serializable data = intent.getSerializableExtra("allMinistries");
 
                 if(data != null)
                 {
@@ -82,13 +82,14 @@ public class JoinMinistryActivity extends ActionBarActivity
                 }
                 else
                 {
+                    //TODO: Should we try to load from the API in this case?
                     Log.e(TAG, "Failed to retrieve ministries");
                     finish();
                 }
             }
         };
-        manager.registerReceiver(allMinistriesRetrievedReceiver,
-            new IntentFilter(AssociatedMinistriesService.ACTION_RETRIEVE_ALL_MINISTRIES));
+        manager.registerReceiver(allMinistriesLoadedReceiver,
+            new IntentFilter(AssociatedMinistriesService.ACTION_LOAD_ALL_MINISTRIES));
     }
 
     @Override
@@ -101,8 +102,8 @@ public class JoinMinistryActivity extends ActionBarActivity
     private void cleanupBroadcastReceivers()
     {
         Log.i(TAG, "Cleaning up broadcast receivers");
-        manager.unregisterReceiver(allMinistriesRetrievedReceiver);
-        allMinistriesRetrievedReceiver = null;
+        manager.unregisterReceiver(allMinistriesLoadedReceiver);
+        allMinistriesLoadedReceiver = null;
     }
 
     public void joinMinistry(View view)

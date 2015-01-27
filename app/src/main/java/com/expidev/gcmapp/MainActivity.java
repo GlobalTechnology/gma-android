@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -21,7 +22,9 @@ import android.widget.Toast;
 import com.expidev.gcmapp.GPSService.GPSTracker;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.db.UserDao;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.User;
+import com.expidev.gcmapp.service.AssociatedMinistriesService;
 import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.Device;
@@ -34,6 +37,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
@@ -65,6 +72,7 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences mapPreferences;
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
+    private BroadcastReceiver allMinistriesRetrievedReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -88,7 +96,7 @@ public class MainActivity extends ActionBarActivity
 
         if (Device.isConnected(getApplicationContext()))
         {
-           handleLogin();
+            handleLogin();
         }
         else
         {
@@ -337,9 +345,33 @@ public class MainActivity extends ActionBarActivity
                     
                     String sessionTicket = preferences.getString("session_ticket", null);
                     Log.i(TAG, "Session Ticket: " + sessionTicket);
+
+                    AssociatedMinistriesService.retrieveAllMinistries(getApplicationContext(), sessionTicket);
                 }
             }
         };
+
+        allMinistriesRetrievedReceiver = new BroadcastReceiver()
+        {
+            @Override
+            public void onReceive(Context context, Intent intent)
+            {
+                Serializable data = intent.getSerializableExtra("ministryTeamList");
+
+                if(data != null)
+                {
+                    List<Ministry> ministryTeamList = (ArrayList<Ministry>) data;
+                    AssociatedMinistriesService.saveAllMinistries(getApplicationContext(), ministryTeamList);
+                }
+                else
+                {
+                    Log.e(TAG, "Failed to retrieve ministries");
+                    finish();
+                }
+            }
+        };
+        manager.registerReceiver(allMinistriesRetrievedReceiver,
+            new IntentFilter(AssociatedMinistriesService.ACTION_RETRIEVE_ALL_MINISTRIES));
 
         manager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
         manager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());

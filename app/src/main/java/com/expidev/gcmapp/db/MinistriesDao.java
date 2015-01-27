@@ -45,6 +45,64 @@ public class MinistriesDao
         return instance;
     }
 
+    public Cursor retrieveAllMinistriesCursor()
+    {
+        final SQLiteDatabase database = databaseHelper.getReadableDatabase();
+
+        try
+        {
+            return database.query(TableNames.ALL_MINISTRIES.getTableName(), null, null, null, null, null, null);
+        }
+        catch(Exception e)
+        {
+            Log.e(TAG, "Failed to retrieve all ministries: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    public List<Ministry> retrieveAllMinistries()
+    {
+        Cursor cursor = null;
+        List<Ministry> allMinistries = new ArrayList<Ministry>();
+
+        try
+        {
+            cursor = retrieveAllMinistriesCursor();
+
+            if(cursor != null && cursor.getCount() > 0)
+            {
+
+
+                cursor.moveToFirst();
+
+                for(int i = 0; i < cursor.getCount(); i++)
+                {
+                    Ministry ministry = new Ministry();
+                    ministry.setMinistryId(cursor.getString(cursor.getColumnIndex("ministry_id")));
+                    ministry.setName(cursor.getString(cursor.getColumnIndex("name")));
+
+                    allMinistries.add(ministry);
+
+                    cursor.moveToNext();
+                }
+            }
+        }
+        catch(Exception e)
+        {
+            Log.e(TAG, e.getMessage());
+        }
+        finally
+        {
+            if(cursor != null)
+            {
+                cursor.close();
+            }
+        }
+
+        return allMinistries;
+    }
+
     public Cursor retrieveAssociatedMinistriesCursor()
     {
         final SQLiteDatabase database = databaseHelper.getReadableDatabase();
@@ -377,6 +435,50 @@ public class MinistriesDao
         {
             database.delete(TableNames.ASSIGNMENTS.getTableName(), null, null);
             database.delete(TableNames.ASSOCIATED_MINISTRIES.getTableName(), null, null);
+            database.setTransactionSuccessful();
+        }
+        catch(Exception e)
+        {
+            Log.e(TAG, e.getMessage());
+        }
+        finally
+        {
+            database.endTransaction();
+        }
+    }
+
+    public void saveAllMinistries(List<Ministry> allMinistries)
+    {
+        final SQLiteDatabase database = databaseHelper.getWritableDatabase();
+
+        database.beginTransaction();
+        Cursor existingMinistries = retrieveAllMinistriesCursor();
+
+        try
+        {
+            for(Ministry ministry : allMinistries)
+            {
+                ContentValues ministryValues = new ContentValues();
+                ministryValues.put("ministry_id", ministry.getMinistryId());
+                ministryValues.put("name", ministry.getName());
+
+                if(ministryExistsInDatabase(ministry.getMinistryId(), existingMinistries))
+                {
+                    database.update(
+                        TableNames.ALL_MINISTRIES.getTableName(),
+                        ministryValues,
+                        "ministry_id = ?",
+                        new String[] { ministry.getMinistryId() });
+                }
+                else
+                {
+                    database.insert(
+                        TableNames.ALL_MINISTRIES.getTableName(),
+                        null,
+                        ministryValues
+                    );
+                }
+            }
             database.setTransactionSuccessful();
         }
         catch(Exception e)

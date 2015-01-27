@@ -18,10 +18,12 @@ import org.json.JSONArray;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.expidev.gcmapp.service.Action.LOAD_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Action.RETRIEVE_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Action.RETRIEVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.service.Action.SAVE_ASSIGNMENT;
 import static com.expidev.gcmapp.service.Action.SAVE_ASSOCIATED_MINISTRIES;
+import static com.expidev.gcmapp.service.Action.SAVE_ALL_MINISTRIES;
 
 /**
  * Created by William.Randall on 1/22/2015.
@@ -36,6 +38,10 @@ public class AssociatedMinistriesService extends IntentService
         AssociatedMinistriesService.class.getName() + ".ACTION_RETRIEVE_ASSOCIATED_MINISTRIES";
     public static final String ACTION_RETRIEVE_ALL_MINISTRIES =
         AssociatedMinistriesService.class.getName() + ".ACTION_RETRIEVE_ALL_MINISTRIES";
+    public static final String ACTION_SAVE_ALL_MINISTRIES =
+        AssociatedMinistriesService.class.getName() + ".ACTION_SAVE_ALL_MINISTRIES";
+    public static final String ACTION_LOAD_ALL_MINISTRIES =
+        AssociatedMinistriesService.class.getName() + ".ACTION_LOAD_ALL_MINISTRIES";
 
     public AssociatedMinistriesService()
     {
@@ -70,6 +76,12 @@ public class AssociatedMinistriesService extends IntentService
                 break;
             case SAVE_ASSIGNMENT:
                 assignUserToMinistry(intent);
+                break;
+            case SAVE_ALL_MINISTRIES:
+                saveAllMinistries(intent);
+                break;
+            case LOAD_ALL_MINISTRIES:
+                loadAllMinistriesFromLocalStorage();
                 break;
             default:
                 break;
@@ -116,6 +128,14 @@ public class AssociatedMinistriesService extends IntentService
         context.startService(baseIntent(context, extras));
     }
 
+    public static void loadAllMinistriesFromLocalStorage(final Context context)
+    {
+        Bundle extras = new Bundle(1);
+        extras.putSerializable("action", LOAD_ALL_MINISTRIES);
+
+        context.startService(baseIntent(context, extras));
+    }
+
     public static void saveAssociatedMinistriesFromServer(final Context context, JSONArray assignments)
     {
         Bundle extras = new Bundle(1);
@@ -135,6 +155,14 @@ public class AssociatedMinistriesService extends IntentService
         Bundle extras = new Bundle(2);
         extras.putSerializable("action", SAVE_ASSIGNMENT);
         extras.putSerializable("assignment", assignment);
+        context.startService(baseIntent(context, extras));
+    }
+
+    public static void saveAllMinistries(final Context context, List<Ministry> allMinistries)
+    {
+        Bundle extras = new Bundle(2);
+        extras.putSerializable("action", SAVE_ALL_MINISTRIES);
+        extras.putSerializable("allMinistries", (ArrayList<Ministry>)allMinistries);
         context.startService(baseIntent(context, extras));
     }
 
@@ -165,6 +193,16 @@ public class AssociatedMinistriesService extends IntentService
         broadcastManager.sendBroadcast(broadcastAllMinistriesRetrieved);
     }
 
+    private void loadAllMinistriesFromLocalStorage()
+    {
+        Intent broadcastAllMinistriesLoaded = new Intent(ACTION_LOAD_ALL_MINISTRIES);
+
+        MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
+        List<Ministry> allMinistries = ministriesDao.retrieveAllMinistries();
+        broadcastAllMinistriesLoaded.putExtra("allMinistries", (ArrayList<Ministry>)allMinistries);
+        broadcastManager.sendBroadcast(broadcastAllMinistriesLoaded);
+    }
+
     private CharSequence[] listToCharSequenceArray(List<String> list)
     {
         return list.toArray(new CharSequence[list.size()]);
@@ -187,5 +225,14 @@ public class AssociatedMinistriesService extends IntentService
 
         MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
         ministriesDao.saveAssociatedMinistries(assignments);
+    }
+
+    private void saveAllMinistries(Intent intent)
+    {
+        List<Ministry> allMinistries = (ArrayList<Ministry>) intent.getSerializableExtra("allMinistries");
+
+        MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
+        ministriesDao.saveAllMinistries(allMinistries);
+        broadcastManager.sendBroadcast(new Intent(ACTION_SAVE_ALL_MINISTRIES));
     }
 }

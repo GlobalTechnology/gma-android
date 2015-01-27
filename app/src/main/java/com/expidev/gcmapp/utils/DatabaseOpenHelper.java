@@ -29,6 +29,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         createAssociatedMinistryTable(db);
         createUserTable(db);
         createAssignmentsTable(db);
+        createAllMinistriesTable(db);
     }
 
     @Override
@@ -78,13 +79,27 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     private void createUserTable(SQLiteDatabase db)
     {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.USER.getTableName() +
-            "(first_name TEXT, last_name TEXT, cas_username TEXT, person_id TEXT);");        
+            "(first_name TEXT, last_name TEXT, cas_username TEXT, person_id TEXT);");
+    }
+
+    /**
+     * This table holds information for all ministries on the server
+     * that are visible for the autocomplete text field on the
+     * Join Ministry page.
+     */
+    private void createAllMinistriesTable(SQLiteDatabase db)
+    {
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.ALL_MINISTRIES.getTableName() + "( " +
+            "ministry_id TEXT, " +
+            "name TEXT, " +
+            "last_synced TEXT);");
     }
 
     private void deleteAllTables(SQLiteDatabase db)
     {
-        db.execSQL("DROP TABLE IF EXISTS " + TableNames.ASSOCIATED_MINISTRIES);
-        db.execSQL("DROP TABLE IF EXISTS " + TableNames.ASSIGNMENTS);
-        db.execSQL("DROP TABLE IF EXISTS " + TableNames.USER);
+        db.execSQL("DROP TABLE IF EXISTS " + TableNames.ASSOCIATED_MINISTRIES.getTableName());
+        db.execSQL("DROP TABLE IF EXISTS " + TableNames.ASSIGNMENTS.getTableName());
+        db.execSQL("DROP TABLE IF EXISTS " + TableNames.USER.getTableName());
+        db.execSQL("DROP TABLE IF EXISTS " + TableNames.ALL_MINISTRIES.getTableName());
     }
 }

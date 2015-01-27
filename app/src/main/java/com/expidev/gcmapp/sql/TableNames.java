@@ -7,7 +7,8 @@ public enum TableNames
 {
     ASSOCIATED_MINISTRIES("associated_ministries"),
     USER("user"),
-    ASSIGNMENTS("assignments");
+    ASSIGNMENTS("assignments"),
+    ALL_MINISTRIES("all_ministries");
 
     private String tableName;
 
