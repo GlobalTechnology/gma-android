@@ -71,9 +71,18 @@ public class TrainingDao
     public Cursor retrieveTrainingCursorById(int id)
     {
         final SQLiteDatabase database = databaseHelper.getReadableDatabase();
-        
-        String select = "SELECT * FROM " + TableNames.TRAINING.getTableName() + " WHERE id = " + id;
-        return database.rawQuery(select, null);
+        String whereCondition = "id = ?";
+        String[] whereArgs = {String.valueOf(id)};
+
+        try
+        {
+            return database.query(TableNames.TRAINING.getTableName(), null, whereCondition, whereArgs, null, null, null);
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, e.getMessage(), e);
+        }
+        return null;
     }
     
     public List<Training> retrieveAllTraining()
@@ -114,6 +123,8 @@ public class TrainingDao
             cursor = retrieveTrainingCursorById(id);
             if (cursor != null && cursor.getCount() == 1)
             {
+                Log.i(TAG, "Count: " + cursor.getCount());
+                
                 cursor.moveToFirst();
                 return setTrainingFromCursor(cursor);                
             }
