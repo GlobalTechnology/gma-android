@@ -107,6 +107,9 @@ public class AuthService extends IntentService
 
         UserDao userDao = UserDao.getInstance(this);
         userDao.saveUser(jsonObject.getJSONObject("user"));
+
+        AssociatedMinistriesService.saveAssociatedMinistriesFromServer(
+            getApplicationContext(), jsonObject.optJSONArray("assignments"));
         
         broadcastManager.sendBroadcast(stopBroadcast(BroadcastUtils.AUTH));
     }

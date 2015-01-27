@@ -27,7 +27,6 @@ import com.expidev.gcmapp.db.UserDao;
 import com.expidev.gcmapp.fragment.SessionLoaderFragment;
 import com.expidev.gcmapp.model.User;
 import com.expidev.gcmapp.service.AuthService;
-import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
@@ -42,8 +41,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.UUID;
-
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
@@ -52,7 +49,7 @@ import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
 
 
 public class MainActivity extends ActionBarActivity
-    implements OnMapReadyCallback, SessionLoaderFragment.OnSessionTokenReadyListener
+    implements OnMapReadyCallback
 {
     private final String TAG = this.getClass().getSimpleName();
 
@@ -74,6 +71,7 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences mapPreferences;
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
+    private BroadcastReceiver allMinistriesRetrievedReceiver;
 
     private String sessionToken;
 
@@ -127,15 +125,6 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
-    private void loadSessionToken()
-    {
-        getSupportFragmentManager()
-            .beginTransaction()
-            .add(new SessionLoaderFragment(), "sessionLoaderFragment")
-            .commit();
-    }
-
-    //TODO: This will actually go into the specific activities that need the session token to call their endpoints
     @Override
     public void onSessionTokenReturned(String sessionToken)
     {
@@ -246,12 +235,25 @@ public class MainActivity extends ActionBarActivity
 
     public void joinNewMinistry(MenuItem menuItem)
     {
-        loadSessionToken();
-        //TODO: implement join new ministry
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle("Join new ministry")
-                .setMessage("Choose a new ministry to join:")
-                .setNeutralButton("OK", new DialogInterface.OnClickListener()
+        final Context context = this;
+        if (Device.isConnected(getApplicationContext()))
+        {
+            if (theKey.getGuid() == null)
+            {
+                login();
+            }
+            else
+            {
+                Intent goToJoinMinistryPage = new Intent(context, JoinMinistryActivity.class);
+                startActivity(goToJoinMinistryPage);
+            }
+        }
+        else
+        {
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle("Internet Necessary")
+                .setMessage("You need Internet access to access this page")
+                .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener()
                 {
                     public void onClick(DialogInterface dialog, int which)
                     {
@@ -260,7 +262,8 @@ public class MainActivity extends ActionBarActivity
                 })
                 .create();
 
-        alertDialog.show();
+            alertDialog.show();
+        }
     }
 
     public void reset(MenuItem menuItem)
@@ -428,6 +431,28 @@ public class MainActivity extends ActionBarActivity
                 }
             }
         };
+
+        allMinistriesRetrievedReceiver = new BroadcastReceiver()
+        {
+            @Override
+            public void onReceive(Context context, Intent intent)
+            {
+                Serializable data = intent.getSerializableExtra("ministryTeamList");
+
+                if(data != null)
+                {
+                    List<Ministry> ministryTeamList = (ArrayList<Ministry>) data;
+                    AssociatedMinistriesService.saveAllMinistries(getApplicationContext(), ministryTeamList);
+                }
+                else
+                {
+                    Log.e(TAG, "Failed to retrieve ministries");
+                    finish();
+                }
+            }
+        };
+        manager.registerReceiver(allMinistriesRetrievedReceiver,
+            new IntentFilter(AssociatedMinistriesService.ACTION_RETRIEVE_ALL_MINISTRIES));
 
         manager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
         manager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());

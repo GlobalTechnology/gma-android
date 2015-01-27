@@ -9,6 +9,8 @@ public enum TableNames
     SESSION("session"),
     USER("user"),
     TRAINING("training"),
+    ASSIGNMENTS("assignments"),
+    ALL_MINISTRIES("all_ministries"),
     TRAINING_COMPLETIONS("training_completions");
 
     private String tableName;
