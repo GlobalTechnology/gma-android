@@ -58,6 +58,8 @@
                  android:exported="false"/>
         <service android:name=".service.AuthService"
                  android:exported="false" />
+        <service android:name=".service.TrainingService"
+                 android:exported="false" />
 
     </application>
 

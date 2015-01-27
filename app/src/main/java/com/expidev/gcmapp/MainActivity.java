@@ -27,6 +27,7 @@ import com.expidev.gcmapp.db.UserDao;
 import com.expidev.gcmapp.fragment.SessionLoaderFragment;
 import com.expidev.gcmapp.model.User;
 import com.expidev.gcmapp.service.AuthService;
+import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
@@ -40,6 +41,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.UUID;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
@@ -188,6 +191,13 @@ public class MainActivity extends ActionBarActivity
         }
         cursor.close();
         database.close();
+    }
+    
+    // todo: remove after testing
+    private void trainingSearch(String ministryId)
+    {
+        Log.i(TAG, "Test Training search");
+        TrainingService.downloadTraining(this, UUID.fromString("770ffd2c-d6ac-11e3-9e38-12725f8f377c"));
     }
 
     @Override
@@ -393,12 +403,26 @@ public class MainActivity extends ActionBarActivity
                 {
                     Log.i(TAG, "Action Done");
 
-                    UserDao userDao = UserDao.getInstance(context);
-                    User user = userDao.retrieveUser();
-                    actionBar.setTitle("Welcome " + user.getFirstName());
+                    int type = intent.getIntExtra(BroadcastUtils.ACTION_TYPE, -1);
                     
-                    String sessionTicket = preferences.getString("session_ticket", null);
-                    Log.i(TAG, "Session Ticket: " + sessionTicket);
+                    switch (type)
+                    {
+                        case BroadcastUtils.AUTH:
+                            UserDao userDao = UserDao.getInstance(context);
+                            User user = userDao.retrieveUser();
+                            actionBar.setTitle("Welcome " + user.getFirstName());
+
+                            String sessionTicket = preferences.getString("session_ticket", null);
+                            Log.i(TAG, "Session Ticket: " + sessionTicket);
+                            
+                            trainingSearch(null);
+                            
+                            break;
+                        
+                        case BroadcastUtils.TRAINING:
+                            Log.i(TAG, "Training search complete");
+                            break;
+                    }
                 }
             }
         };

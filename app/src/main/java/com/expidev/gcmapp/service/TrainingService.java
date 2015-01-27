@@ -10,15 +10,15 @@ import android.util.Log;
 
 import com.expidev.gcmapp.db.TrainingDao;
 import com.expidev.gcmapp.http.GmaApiClient;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.UUID;
 
 import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.trainingReceivedBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 
 /**
  * Created by matthewfrederick on 1/26/15.
@@ -57,6 +57,7 @@ public class TrainingService extends IntentService
     @Override
     protected void onHandleIntent(Intent intent)
     {
+        Log.i(TAG, "Handle Intent");
         broadcastManager.sendBroadcast(runningBroadcast());
         
         final int type = intent.getIntExtra(EXTRA_TYPE, -1);
@@ -78,7 +79,7 @@ public class TrainingService extends IntentService
 
     public static Intent baseIntent(final Context context, final Bundle extras)
     {
-        final Intent intent = new Intent(context, AuthService.class);
+        final Intent intent = new Intent(context, TrainingService.class);
         if (extras != null)
         {
             intent.putExtras(extras);
@@ -102,16 +103,21 @@ public class TrainingService extends IntentService
             String sessionTicket = sharedPreferences.getString("session_ticket", null);
 
             GmaApiClient gmaApi = new GmaApiClient(this);
-            JSONObject jsonObject = gmaApi.searchTraining(ministryId, sessionTicket);
+            JSONArray jsonArray = gmaApi.searchTraining(ministryId, sessionTicket);
 
-            if (jsonObject != null)
+            if (jsonArray != null)
             {
+                Log.i(TAG, jsonArray.toString());
+                
                 TrainingDao trainingDao = TrainingDao.getInstance(this);
-                JSONArray jsonArray = new JSONArray(jsonObject.toString());
                 trainingDao.saveTrainingFromAPI(jsonArray);
             }
+            else
+            {
+                Log.d(TAG, "JSON Object is null");
+            }
             
-            broadcastManager.sendBroadcast(trainingReceivedBroadcast());
+            broadcastManager.sendBroadcast(stopBroadcast(BroadcastUtils.TRAINING));
         }
         catch (Exception e)
         {
