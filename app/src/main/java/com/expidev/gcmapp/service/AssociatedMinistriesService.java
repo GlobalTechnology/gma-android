@@ -10,25 +10,18 @@ import android.util.Log;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.AssignmentsJsonParser;
-import com.expidev.gcmapp.json.MinistryJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
-import com.expidev.gcmapp.utils.JsonStringReader;
 
-import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.net.ssl.HttpsURLConnection;
-
 import static com.expidev.gcmapp.service.Action.RETRIEVE_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Action.RETRIEVE_ASSOCIATED_MINISTRIES;
-import static com.expidev.gcmapp.service.Action.SAVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.service.Action.SAVE_ASSIGNMENT;
+import static com.expidev.gcmapp.service.Action.SAVE_ASSOCIATED_MINISTRIES;
 
 /**
  * Created by William.Randall on 1/22/2015.
