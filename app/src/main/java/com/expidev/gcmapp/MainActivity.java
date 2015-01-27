@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -24,9 +25,11 @@ import android.widget.Toast;
 import com.expidev.gcmapp.GPSService.GPSTracker;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.db.UserDao;
-import com.expidev.gcmapp.fragment.SessionLoaderFragment;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.User;
+import com.expidev.gcmapp.service.AssociatedMinistriesService;
 import com.expidev.gcmapp.service.AuthService;
+import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
@@ -40,6 +43,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
@@ -123,13 +131,6 @@ public class MainActivity extends ActionBarActivity
         {
             AuthService.authorizeUser(this);
         }
-    }
-
-    @Override
-    public void onSessionTokenReturned(String sessionToken)
-    {
-        Log.i(TAG, "Session token ready: " + sessionToken);
-        this.sessionToken = sessionToken;
     }
 
     //TODO: Remove this when join ministry works

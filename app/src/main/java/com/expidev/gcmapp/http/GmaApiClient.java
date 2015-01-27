@@ -1,17 +1,25 @@
 package com.expidev.gcmapp.http;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.expidev.gcmapp.json.MinistryJsonParser;
+import com.expidev.gcmapp.model.Ministry;
+
 import org.apache.http.HttpStatus;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -106,7 +114,7 @@ public class GmaApiClient
             
             URL url = new URL(urlString);
 
-            return httpGet(url);  
+            return new JSONObject(httpGet(url));
         }
         catch (Exception e)
         {
@@ -123,7 +131,7 @@ public class GmaApiClient
 
         try
         {
-            JSONObject jsonObject = httpGet(new URL(urlString));
+            JSONObject jsonObject = new JSONObject(httpGet(new URL(urlString)));
 
             if(jsonObject == null)
             {
