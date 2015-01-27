@@ -407,7 +407,9 @@ public class MainActivity extends ActionBarActivity
         manager = LocalBroadcastManager.getInstance(this);
         manager.unregisterReceiver(broadcastReceiver);
         manager.unregisterReceiver(gcmBroadcastReceiver);
+        manager.unregisterReceiver(allMinistriesRetrievedReceiver);
         broadcastReceiver = null;
         gcmBroadcastReceiver = null;
+        allMinistriesRetrievedReceiver = null;
     }
 }

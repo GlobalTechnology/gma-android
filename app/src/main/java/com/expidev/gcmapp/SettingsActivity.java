@@ -16,8 +16,10 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.AssociatedMinistriesService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -71,7 +73,7 @@ public class SettingsActivity extends PreferenceActivity
             @Override
             public void onReceive(Context context, Intent intent)
             {
-                CharSequence[] associatedMinistries = intent.getCharSequenceArrayExtra("associatedMinistries");
+                List<Ministry> associatedMinistries = (ArrayList<Ministry>)intent.getSerializableExtra("associatedMinistries");
                 populateMinistryListPreference(associatedMinistries);
             }
         };
@@ -120,11 +122,18 @@ public class SettingsActivity extends PreferenceActivity
         bindPreferenceSummaryToValue(findPreference("mcc_list"));
     }
 
-    private void populateMinistryListPreference(CharSequence[] associatedMinistries)
+    private void populateMinistryListPreference(List<Ministry> associatedMinistries)
     {
         ListPreference ministryListPreference = (ListPreference) findPreference("ministry_team_list");
-        ministryListPreference.setEntries(associatedMinistries);
-        ministryListPreference.setEntryValues(associatedMinistries);
+
+        List<String> ministryNames = new ArrayList<String>(associatedMinistries.size());
+
+        for(Ministry ministry : associatedMinistries)
+        {
+            ministryNames.add(ministry.getName());
+        }
+        ministryListPreference.setEntries(ministryNames.toArray(new CharSequence[ministryNames.size()]));
+        ministryListPreference.setEntryValues(ministryNames.toArray(new CharSequence[ministryNames.size()]));
         bindPreferenceSummaryToValue(ministryListPreference);
     }
 

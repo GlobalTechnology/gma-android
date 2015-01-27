@@ -173,11 +173,11 @@ public class AssociatedMinistriesService extends IntentService
     private void retrieveMinistries()
     {
         MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
-        List<String> associatedMinistries = ministriesDao.retrieveAssociatedMinistries();
+        List<Ministry> associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
         Log.i(TAG, "Retrieved associated ministries");
 
         Intent broadcastToSettingsActivity = new Intent(ACTION_RETRIEVE_ASSOCIATED_MINISTRIES);
-        broadcastToSettingsActivity.putExtra("associatedMinistries", listToCharSequenceArray(associatedMinistries));
+        broadcastToSettingsActivity.putExtra("associatedMinistries", (ArrayList<Ministry>)associatedMinistries);
 
         broadcastManager.sendBroadcast(broadcastToSettingsActivity);
     }
@@ -201,11 +201,6 @@ public class AssociatedMinistriesService extends IntentService
         List<Ministry> allMinistries = ministriesDao.retrieveAllMinistries();
         broadcastAllMinistriesLoaded.putExtra("allMinistries", (ArrayList<Ministry>)allMinistries);
         broadcastManager.sendBroadcast(broadcastAllMinistriesLoaded);
-    }
-
-    private CharSequence[] listToCharSequenceArray(List<String> list)
-    {
-        return list.toArray(new CharSequence[list.size()]);
     }
 
     private void saveAssociatedMinistriesFromServer(Intent intent)
