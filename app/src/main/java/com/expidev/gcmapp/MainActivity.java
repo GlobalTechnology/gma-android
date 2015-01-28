@@ -2,14 +2,11 @@ package com.expidev.gcmapp;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
@@ -30,9 +27,7 @@ import com.expidev.gcmapp.model.User;
 import com.expidev.gcmapp.service.AssociatedMinistriesService;
 import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.TrainingService;
-import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.BroadcastUtils;
-import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 import com.expidev.gcmapp.utils.Device;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -81,8 +76,6 @@ public class MainActivity extends ActionBarActivity
     private BroadcastReceiver broadcastReceiver;
     private BroadcastReceiver allMinistriesRetrievedReceiver;
 
-    private String sessionToken;
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -95,8 +88,6 @@ public class MainActivity extends ActionBarActivity
         
         preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         
-        populateDummyMinistries();
-        
         setupBroadcastReceivers();
 
         theKey = TheKeyImpl.getInstance(getApplicationContext(), THEKEY_CLIENTID);
@@ -107,7 +98,7 @@ public class MainActivity extends ActionBarActivity
 
         if (Device.isConnected(getApplicationContext()))
         {
-           handleLogin();
+            handleLogin();
         }
         else
         {
@@ -131,56 +122,6 @@ public class MainActivity extends ActionBarActivity
         {
             AuthService.authorizeUser(this);
         }
-    }
-
-    //TODO: Remove this when join ministry works
-    private void populateDummyMinistries()
-    {
-        DatabaseOpenHelper databaseOpenHelper = new DatabaseOpenHelper(this);
-
-        SQLiteDatabase database = databaseOpenHelper.getWritableDatabase();
-        String tableName = TableNames.ASSOCIATED_MINISTRIES.getTableName();
-        
-        Cursor cursor = database.query(tableName, null, null, null, null, null, null);
-
-        // Only add the dummy rows if none exist
-        if(cursor.getCount() == 0)
-        {
-            database.beginTransaction();
-
-            ContentValues guatemala = new ContentValues();
-            guatemala.put("ministry_id", "1");
-            guatemala.put("name", "Guatemala");
-            guatemala.put("team_role", "self-assigned");
-            guatemala.put("last_synced", "datetime(2015-01-15 11:30:00)");
-            database.insert(tableName, null, guatemala);
-
-            ContentValues bridgesUcf = new ContentValues();
-            bridgesUcf.put("ministry_id", "2");
-            bridgesUcf.put("name", "Bridges UCF");
-            bridgesUcf.put("team_role", "member");
-            bridgesUcf.put("last_synced", "datetime(2015-01-15 11:30:00)");
-            database.insert(tableName, null, bridgesUcf);
-
-            ContentValues antioch21 = new ContentValues();
-            antioch21.put("ministry_id", "3");
-            antioch21.put("name", "Antioch21 Church");
-            antioch21.put("team_role", "leader");
-            antioch21.put("last_synced", "datetime(2015-01-15 11:30:00)");
-            database.insert(tableName, null, antioch21);
-
-            ContentValues random = new ContentValues();
-            random.put("ministry_id", "4");
-            random.put("name", "Random");
-            random.put("team_role", "inherited_leader");
-            random.put("last_synced", "datetime(2015-01-15 11:30:00)");
-            database.insert(tableName, null, random);
-
-            database.setTransactionSuccessful();
-            database.endTransaction();
-        }
-        cursor.close();
-        database.close();
     }
 
     // todo: once ministries are saved in database, this will loop through and find training
@@ -420,7 +361,8 @@ public class MainActivity extends ActionBarActivity
 
                             String sessionTicket = preferences.getString("session_ticket", null);
                             Log.i(TAG, "Session Ticket: " + sessionTicket);
-                            
+
+                            AssociatedMinistriesService.retrieveAllMinistries(getApplicationContext(), sessionTicket);
                             trainingSearch(null);
                             
                             break;
