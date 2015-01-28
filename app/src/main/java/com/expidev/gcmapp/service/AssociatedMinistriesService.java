@@ -19,12 +19,12 @@ import org.json.JSONArray;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.expidev.gcmapp.service.Action.LOAD_ALL_MINISTRIES;
-import static com.expidev.gcmapp.service.Action.RETRIEVE_ALL_MINISTRIES;
-import static com.expidev.gcmapp.service.Action.RETRIEVE_ASSOCIATED_MINISTRIES;
-import static com.expidev.gcmapp.service.Action.SAVE_ALL_MINISTRIES;
-import static com.expidev.gcmapp.service.Action.SAVE_ASSIGNMENT;
-import static com.expidev.gcmapp.service.Action.SAVE_ASSOCIATED_MINISTRIES;
+import static com.expidev.gcmapp.service.Type.LOAD_ALL_MINISTRIES;
+import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
+import static com.expidev.gcmapp.service.Type.RETRIEVE_ASSOCIATED_MINISTRIES;
+import static com.expidev.gcmapp.service.Type.SAVE_ALL_MINISTRIES;
+import static com.expidev.gcmapp.service.Type.SAVE_ASSIGNMENT;
+import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
 
 /**
  * Created by William.Randall on 1/22/2015.
@@ -53,9 +53,9 @@ public class AssociatedMinistriesService extends IntentService
     @Override
     public void onHandleIntent(Intent intent)
     {
-        final Action action = (Action)intent.getSerializableExtra("action");
+        final Type type = (Type)intent.getSerializableExtra("type");
 
-        switch(action)
+        switch(type)
         {
             case RETRIEVE_ASSOCIATED_MINISTRIES:
                 retrieveMinistries();
@@ -103,7 +103,7 @@ public class AssociatedMinistriesService extends IntentService
     public static void retrieveMinistries(final Context context)
     {
         Bundle extras = new Bundle(1);
-        extras.putSerializable("action", RETRIEVE_ASSOCIATED_MINISTRIES);
+        extras.putSerializable("type", RETRIEVE_ASSOCIATED_MINISTRIES);
 
         context.startService(baseIntent(context, extras));
     }
@@ -114,7 +114,7 @@ public class AssociatedMinistriesService extends IntentService
     public static void retrieveAllMinistries(final Context context, String sessionTicket)
     {
         Bundle extras = new Bundle(2);
-        extras.putSerializable("action", RETRIEVE_ALL_MINISTRIES);
+        extras.putSerializable("type", RETRIEVE_ALL_MINISTRIES);
         extras.putString("sessionTicket", sessionTicket);
 
         context.startService(baseIntent(context, extras));
@@ -123,7 +123,7 @@ public class AssociatedMinistriesService extends IntentService
     public static void loadAllMinistriesFromLocalStorage(final Context context)
     {
         Bundle extras = new Bundle(1);
-        extras.putSerializable("action", LOAD_ALL_MINISTRIES);
+        extras.putSerializable("type", LOAD_ALL_MINISTRIES);
 
         context.startService(baseIntent(context, extras));
     }
@@ -131,7 +131,7 @@ public class AssociatedMinistriesService extends IntentService
     public static void saveAssociatedMinistriesFromServer(final Context context, JSONArray assignments)
     {
         Bundle extras = new Bundle(1);
-        extras.putSerializable("action", SAVE_ASSOCIATED_MINISTRIES);
+        extras.putSerializable("type", SAVE_ASSOCIATED_MINISTRIES);
 
         if(assignments != null)
         {
@@ -145,7 +145,7 @@ public class AssociatedMinistriesService extends IntentService
     public static void assignUserToMinistry(final Context context, Assignment assignment)
     {
         Bundle extras = new Bundle(2);
-        extras.putSerializable("action", SAVE_ASSIGNMENT);
+        extras.putSerializable("type", SAVE_ASSIGNMENT);
         extras.putSerializable("assignment", assignment);
         context.startService(baseIntent(context, extras));
     }
@@ -153,7 +153,7 @@ public class AssociatedMinistriesService extends IntentService
     public static void saveAllMinistries(final Context context, List<Ministry> allMinistries)
     {
         Bundle extras = new Bundle(2);
-        extras.putSerializable("action", SAVE_ALL_MINISTRIES);
+        extras.putSerializable("type", SAVE_ALL_MINISTRIES);
         extras.putSerializable("allMinistries", (ArrayList<Ministry>)allMinistries);
         context.startService(baseIntent(context, extras));
     }
@@ -169,7 +169,7 @@ public class AssociatedMinistriesService extends IntentService
         Log.i(TAG, "Retrieved associated ministries");
 
         Intent broadcastToSettingsActivity = new Intent(BroadcastUtils.ACTION_RETRIEVE_ASSOCIATED_MINISTRIES);
-        broadcastToSettingsActivity.putExtra("associatedMinistries", (ArrayList<Ministry>)associatedMinistries);
+        broadcastToSettingsActivity.putExtra("associatedMinistries", (ArrayList<Ministry>) associatedMinistries);
 
         broadcastManager.sendBroadcast(broadcastToSettingsActivity);
     }
