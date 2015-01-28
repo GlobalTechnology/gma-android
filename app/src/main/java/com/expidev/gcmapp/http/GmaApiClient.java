@@ -7,13 +7,13 @@ import android.util.Log;
 
 import com.expidev.gcmapp.json.MinistryJsonParser;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.utils.JsonStringReader;
 
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -216,7 +216,7 @@ public class GmaApiClient
 
             if (inputStream != null)
             {
-                String jsonAsString = readFully(inputStream, "UTF-8");
+                String jsonAsString = JsonStringReader.readFully(inputStream, "UTF-8");
                 Log.i(TAG, jsonAsString);
 
                 // instead of returning a JSONObject, a string will be returned. This is
@@ -230,22 +230,5 @@ public class GmaApiClient
         }
 
         return null;
-    }
-
-    private String readFully(InputStream inputStream, String encoding) throws IOException
-    {
-        return new String(readFully(inputStream), encoding);
-    }
-
-    private byte[] readFully(InputStream inputStream) throws IOException
-    {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        int length = 0;
-        while ((length = inputStream.read(buffer)) != -1)
-        {
-            byteArrayOutputStream.write(buffer, 0, length);
-        }
-        return byteArrayOutputStream.toByteArray();
     }
 }
