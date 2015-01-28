@@ -3,10 +3,12 @@ package com.expidev.gcmapp.utils;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import com.expidev.gcmapp.service.AssociatedMinistriesService;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
+
+import java.util.ArrayList;
 
 /**
  * Created by matthewfrederick on 1/23/15.
@@ -21,14 +23,6 @@ public final class BroadcastUtils
 
     public static final String TICKET_RECEIVED = AuthService.class.getName() + ".TICKET_RECEIVED";
     public static final String TRAINING_RECEIVED = TrainingService.class.getName() + ".TRAINING_RECEIVED";
-    public static final String ACTION_RETRIEVE_ASSOCIATED_MINISTRIES =
-        AssociatedMinistriesService.class.getName() + ".ACTION_RETRIEVE_ASSOCIATED_MINISTRIES";
-    public static final String ACTION_RETRIEVE_ALL_MINISTRIES =
-        AssociatedMinistriesService.class.getName() + ".ACTION_RETRIEVE_ALL_MINISTRIES";
-    public static final String ACTION_SAVE_ALL_MINISTRIES =
-        AssociatedMinistriesService.class.getName() + ".ACTION_SAVE_ALL_MINISTRIES";
-    public static final String ACTION_LOAD_ALL_MINISTRIES =
-        AssociatedMinistriesService.class.getName() + ".ACTION_LOAD_ALL_MINISTRIES";
 
     public static Intent startBroadcast()
     {
@@ -72,5 +66,26 @@ public final class BroadcastUtils
     public static Intent trainingReceivedBroadcast()
     {
         return new Intent(TRAINING_RECEIVED);
+    }
+
+    public static Intent allMinistriesReceivedBroadcast(ArrayList<Ministry> allMinistries)
+    {
+        Intent intent = stopBroadcast(Type.RETRIEVE_ALL_MINISTRIES);
+        intent.putExtra("allMinistries", allMinistries);
+        return intent;
+    }
+
+    public static Intent allMinistriesLoadedBroadcast(ArrayList<Ministry> allMinistries)
+    {
+        Intent intent = stopBroadcast(Type.LOAD_ALL_MINISTRIES);
+        intent.putExtra("allMinistries", allMinistries);
+        return intent;
+    }
+
+    public static Intent associatedMinistriesReceivedBroadcast(ArrayList<Ministry> associatedMinistries)
+    {
+        Intent intent = stopBroadcast(Type.RETRIEVE_ASSOCIATED_MINISTRIES);
+        intent.putExtra("associatedMinistries", associatedMinistries);
+        return intent;
     }
 }

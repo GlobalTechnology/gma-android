@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -366,25 +365,28 @@ public class MainActivity extends ActionBarActivity
                             trainingSearch(null);
                             
                             break;
-                        
                         case TRAINING:
                             Log.i(TAG, "Training search complete");
                             break;
-                    }
-                }
-                else if(BroadcastUtils.ACTION_RETRIEVE_ALL_MINISTRIES.equals(intent.getAction()))
-                {
-                    Serializable data = intent.getSerializableExtra("ministryTeamList");
+                        case RETRIEVE_ALL_MINISTRIES:
+                            Serializable data = intent.getSerializableExtra("allMinistries");
 
-                    if(data != null)
-                    {
-                        List<Ministry> ministryTeamList = (ArrayList<Ministry>) data;
-                        AssociatedMinistriesService.saveAllMinistries(getApplicationContext(), ministryTeamList);
-                    }
-                    else
-                    {
-                        Log.e(TAG, "Failed to retrieve ministries");
-                        finish();
+                            if(data != null)
+                            {
+                                List<Ministry> allMinistries = (ArrayList<Ministry>) data;
+                                AssociatedMinistriesService.saveAllMinistries(getApplicationContext(), allMinistries);
+                            }
+                            else
+                            {
+                                Log.e(TAG, "Failed to retrieve ministries");
+                                finish();
+                            }
+                            break;
+                        case SAVE_ALL_MINISTRIES:
+                            Log.i(TAG, "All ministries saved to local storage");
+                            break;
+                        default:
+                            Log.i(TAG, "Unhandled Type: " + type);
                     }
                 }
             }
@@ -393,7 +395,6 @@ public class MainActivity extends ActionBarActivity
         manager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
         manager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());
         manager.registerReceiver(broadcastReceiver, BroadcastUtils.stopFilter());
-        manager.registerReceiver(broadcastReceiver, new IntentFilter(BroadcastUtils.ACTION_RETRIEVE_ALL_MINISTRIES));
     }
 
     private void removeBroadcastReceivers()

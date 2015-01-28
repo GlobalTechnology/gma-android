@@ -12,7 +12,6 @@ import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.AssignmentsJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
-import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.json.JSONArray;
 
@@ -25,6 +24,10 @@ import static com.expidev.gcmapp.service.Type.RETRIEVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.SAVE_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.SAVE_ASSIGNMENT;
 import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
+import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesLoadedBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesReceivedBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.associatedMinistriesReceivedBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 
 /**
  * Created by William.Randall on 1/22/2015.
@@ -154,7 +157,7 @@ public class AssociatedMinistriesService extends IntentService
     {
         Bundle extras = new Bundle(2);
         extras.putSerializable("type", SAVE_ALL_MINISTRIES);
-        extras.putSerializable("allMinistries", (ArrayList<Ministry>)allMinistries);
+        extras.putSerializable("allMinistries", (ArrayList<Ministry>) allMinistries);
         context.startService(baseIntent(context, extras));
     }
 
@@ -168,31 +171,23 @@ public class AssociatedMinistriesService extends IntentService
         List<Ministry> associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
         Log.i(TAG, "Retrieved associated ministries");
 
-        Intent broadcastToSettingsActivity = new Intent(BroadcastUtils.ACTION_RETRIEVE_ASSOCIATED_MINISTRIES);
-        broadcastToSettingsActivity.putExtra("associatedMinistries", (ArrayList<Ministry>) associatedMinistries);
-
-        broadcastManager.sendBroadcast(broadcastToSettingsActivity);
+        broadcastManager.sendBroadcast(associatedMinistriesReceivedBroadcast((ArrayList<Ministry>) associatedMinistries));
     }
 
     private void retrieveAllMinistries(final Intent intent)
     {
-        Intent broadcastAllMinistriesRetrieved = new Intent(BroadcastUtils.ACTION_RETRIEVE_ALL_MINISTRIES);
-
         GmaApiClient apiClient = new GmaApiClient(this);
         List<Ministry> ministryList = apiClient.getAllMinistries(intent.getStringExtra("sessionTicket"));
 
-        broadcastAllMinistriesRetrieved.putExtra("ministryTeamList", (ArrayList<Ministry>) ministryList);
-        broadcastManager.sendBroadcast(broadcastAllMinistriesRetrieved);
+        broadcastManager.sendBroadcast(allMinistriesReceivedBroadcast((ArrayList<Ministry>) ministryList));
     }
 
     private void loadAllMinistriesFromLocalStorage()
     {
-        Intent broadcastAllMinistriesLoaded = new Intent(BroadcastUtils.ACTION_LOAD_ALL_MINISTRIES);
-
         MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
         List<Ministry> allMinistries = ministriesDao.retrieveAllMinistries();
-        broadcastAllMinistriesLoaded.putExtra("allMinistries", (ArrayList<Ministry>)allMinistries);
-        broadcastManager.sendBroadcast(broadcastAllMinistriesLoaded);
+
+        broadcastManager.sendBroadcast(allMinistriesLoadedBroadcast((ArrayList<Ministry>) allMinistries));
     }
 
     private void saveAssociatedMinistriesFromServer(Intent intent)
@@ -202,7 +197,7 @@ public class AssociatedMinistriesService extends IntentService
         MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
         ministriesDao.saveAssociatedMinistries(assignments);
 
-        //TODO: May need to notify when running and when finished at some point
+        broadcastManager.sendBroadcast(stopBroadcast(SAVE_ASSOCIATED_MINISTRIES));
     }
 
     private void assignUserToMinistry(Intent intent)
@@ -212,6 +207,8 @@ public class AssociatedMinistriesService extends IntentService
 
         MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
         ministriesDao.saveAssociatedMinistries(assignments);
+
+        broadcastManager.sendBroadcast(stopBroadcast(SAVE_ASSIGNMENT));
     }
 
     private void saveAllMinistries(Intent intent)
@@ -220,6 +217,6 @@ public class AssociatedMinistriesService extends IntentService
 
         MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
         ministriesDao.saveAllMinistries(allMinistries);
-        broadcastManager.sendBroadcast(new Intent(BroadcastUtils.ACTION_SAVE_ALL_MINISTRIES));
+        broadcastManager.sendBroadcast(stopBroadcast(SAVE_ALL_MINISTRIES));
     }
 }

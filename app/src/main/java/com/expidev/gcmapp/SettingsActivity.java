@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -19,6 +18,7 @@ import android.util.Log;
 
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.AssociatedMinistriesService;
+import com.expidev.gcmapp.service.Type;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import java.util.ArrayList;
@@ -84,19 +84,42 @@ public class SettingsActivity extends PreferenceActivity
             @Override
             public void onReceive(Context context, Intent intent)
             {
-                List<Ministry> associatedMinistries =
-                    (ArrayList<Ministry>)intent.getSerializableExtra("associatedMinistries");
-                populateMinistryListPreference(associatedMinistries);
-                String chosenMinistry = preferences.getString("chosen_ministry", null);
-                if(chosenMinistry != null)
+                if (BroadcastUtils.ACTION_START.equals(intent.getAction()))
                 {
-                    populateMissionCriticalComponentsPreference(associatedMinistries, chosenMinistry);
+                    Log.i(TAG, "Action Started");
+                }
+                else if (BroadcastUtils.ACTION_RUNNING.equals(intent.getAction()))
+                {
+                    Log.i(TAG, "Action Running");
+                }
+                else if (BroadcastUtils.ACTION_STOP.equals(intent.getAction()))
+                {
+                    Log.i(TAG, "Action Done");
+
+                    Type type = (Type) intent.getSerializableExtra(BroadcastUtils.ACTION_TYPE);
+
+                    switch(type)
+                    {
+                        case RETRIEVE_ASSOCIATED_MINISTRIES:
+                            List<Ministry> associatedMinistries =
+                                (ArrayList<Ministry>) intent.getSerializableExtra("associatedMinistries");
+                            populateMinistryListPreference(associatedMinistries);
+                            String chosenMinistry = preferences.getString("chosen_ministry", null);
+                            if(chosenMinistry != null)
+                            {
+                                populateMissionCriticalComponentsPreference(associatedMinistries, chosenMinistry);
+                            }
+                            break;
+                        default:
+                            Log.i(TAG, "Unhandled Type: " + type);
+                    }
                 }
             }
         };
 
-        broadcastManager.registerReceiver(broadcastReceiver,
-            new IntentFilter(BroadcastUtils.ACTION_RETRIEVE_ASSOCIATED_MINISTRIES));
+        broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.stopFilter());
+        broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
+        broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());
     }
 
     @Override
