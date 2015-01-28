@@ -15,8 +15,6 @@
         android:key="mcc_list"
         android:title="@string/pref_title_mcc"
         android:defaultValue="0"
-        android:entries="@array/pref_mcc_demo"
-        android:entryValues="@array/pref_mcc_demo"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null" />
 
