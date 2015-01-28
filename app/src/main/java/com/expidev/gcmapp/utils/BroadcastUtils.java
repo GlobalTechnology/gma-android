@@ -3,8 +3,12 @@ package com.expidev.gcmapp.utils;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.TrainingService;
+import com.expidev.gcmapp.service.Type;
+
+import java.util.ArrayList;
 
 /**
  * Created by matthewfrederick on 1/23/15.
@@ -19,9 +23,6 @@ public final class BroadcastUtils
 
     public static final String TICKET_RECEIVED = AuthService.class.getName() + ".TICKET_RECEIVED";
     public static final String TRAINING_RECEIVED = TrainingService.class.getName() + ".TRAINING_RECEIVED";
-    
-    public static final int TRAINING = 0;
-    public static final int AUTH = 1;
 
     public static Intent startBroadcast()
     {
@@ -33,7 +34,7 @@ public final class BroadcastUtils
         return new Intent(ACTION_RUNNING);
     }
 
-    public static Intent stopBroadcast(int type)
+    public static Intent stopBroadcast(Type type)
     {
         Intent intent = new Intent(ACTION_STOP);
         intent.putExtra(ACTION_TYPE, type);
@@ -65,5 +66,26 @@ public final class BroadcastUtils
     public static Intent trainingReceivedBroadcast()
     {
         return new Intent(TRAINING_RECEIVED);
+    }
+
+    public static Intent allMinistriesReceivedBroadcast(ArrayList<Ministry> allMinistries)
+    {
+        Intent intent = stopBroadcast(Type.RETRIEVE_ALL_MINISTRIES);
+        intent.putExtra("allMinistries", allMinistries);
+        return intent;
+    }
+
+    public static Intent allMinistriesLoadedBroadcast(ArrayList<Ministry> allMinistries)
+    {
+        Intent intent = stopBroadcast(Type.LOAD_ALL_MINISTRIES);
+        intent.putExtra("allMinistries", allMinistries);
+        return intent;
+    }
+
+    public static Intent associatedMinistriesReceivedBroadcast(ArrayList<Ministry> associatedMinistries)
+    {
+        Intent intent = stopBroadcast(Type.RETRIEVE_ASSOCIATED_MINISTRIES);
+        intent.putExtra("associatedMinistries", associatedMinistries);
+        return intent;
     }
 }

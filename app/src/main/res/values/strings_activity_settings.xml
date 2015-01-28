@@ -3,13 +3,5 @@
     <!-- Strings related to Settings -->
     <string name="pref_header_general">General</string>
     <string name="pref_title_ministry_team_text">Ministry/Team:</string>
-
-    <!-- Demo values for MCC, this will eventually come from an API call -->
     <string name="pref_title_mcc">MCC</string>
-    <string-array name="pref_mcc_demo">
-        <item>SLM</item>
-        <item>GCM</item>
-        <item>LLM</item>
-        <item>DS</item>
-    </string-array>
 </resources>

@@ -4,7 +4,7 @@ import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,8 +16,12 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.AssociatedMinistriesService;
+import com.expidev.gcmapp.service.Type;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,7 +39,9 @@ public class SettingsActivity extends PreferenceActivity
 {
     private final String TAG = getClass().getSimpleName();
 
-    private BroadcastReceiver associatedMinistriesBroadcastReceiver;
+    private BroadcastReceiver broadcastReceiver;
+    private final String PREF_NAME = "gcm_prefs";
+    private SharedPreferences preferences;
 
     /**
      * Determines whether to always show the simplified settings UI, where
@@ -45,6 +51,12 @@ public class SettingsActivity extends PreferenceActivity
      */
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
+    @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+    }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState)
@@ -59,6 +71,7 @@ public class SettingsActivity extends PreferenceActivity
     {
         super.onStart();
         setupBroadcastReceivers();
+        AssociatedMinistriesService.retrieveMinistries(this);
     }
 
     private void setupBroadcastReceivers()
@@ -66,18 +79,47 @@ public class SettingsActivity extends PreferenceActivity
         Log.i(TAG, "Setting up broadcast receivers");
         final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(this);
 
-        associatedMinistriesBroadcastReceiver = new BroadcastReceiver()
+        broadcastReceiver = new BroadcastReceiver()
         {
             @Override
             public void onReceive(Context context, Intent intent)
             {
-                CharSequence[] associatedMinistries = intent.getCharSequenceArrayExtra("associatedMinistries");
-                populateMinistryListPreference(associatedMinistries);
+                if (BroadcastUtils.ACTION_START.equals(intent.getAction()))
+                {
+                    Log.i(TAG, "Action Started");
+                }
+                else if (BroadcastUtils.ACTION_RUNNING.equals(intent.getAction()))
+                {
+                    Log.i(TAG, "Action Running");
+                }
+                else if (BroadcastUtils.ACTION_STOP.equals(intent.getAction()))
+                {
+                    Log.i(TAG, "Action Done");
+
+                    Type type = (Type) intent.getSerializableExtra(BroadcastUtils.ACTION_TYPE);
+
+                    switch(type)
+                    {
+                        case RETRIEVE_ASSOCIATED_MINISTRIES:
+                            List<Ministry> associatedMinistries =
+                                (ArrayList<Ministry>) intent.getSerializableExtra("associatedMinistries");
+                            populateMinistryListPreference(associatedMinistries);
+                            String chosenMinistry = preferences.getString("chosen_ministry", null);
+                            if(chosenMinistry != null)
+                            {
+                                populateMissionCriticalComponentsPreference(associatedMinistries, chosenMinistry);
+                            }
+                            break;
+                        default:
+                            Log.i(TAG, "Unhandled Type: " + type);
+                    }
+                }
             }
         };
 
-        broadcastManager.registerReceiver(associatedMinistriesBroadcastReceiver,
-            new IntentFilter(AssociatedMinistriesService.ACTION_RETRIEVE_ASSOCIATED_MINISTRIES));
+        broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.stopFilter());
+        broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
+        broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());
     }
 
     @Override
@@ -91,8 +133,8 @@ public class SettingsActivity extends PreferenceActivity
     {
         Log.i(TAG, "Cleaning up broadcast receivers");
         final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(this);
-        broadcastManager.unregisterReceiver(associatedMinistriesBroadcastReceiver);
-        associatedMinistriesBroadcastReceiver = null;
+        broadcastManager.unregisterReceiver(broadcastReceiver);
+        broadcastReceiver = null;
     }
 
     /**
@@ -102,7 +144,6 @@ public class SettingsActivity extends PreferenceActivity
      */
     private void setupSimplePreferencesScreen()
     {
-        AssociatedMinistriesService.retrieveMinistries(this);
         if (!isSimplePreferences(this))
         {
             return;
@@ -113,19 +154,82 @@ public class SettingsActivity extends PreferenceActivity
 
         // Add 'general' preferences.
         addPreferencesFromResource(R.xml.pref_general);
-
-        // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
-        // their values. When their values change, their summaries are updated
-        // to reflect the new value, per the Android Design guidelines.
-        bindPreferenceSummaryToValue(findPreference("mcc_list"));
     }
 
-    private void populateMinistryListPreference(CharSequence[] associatedMinistries)
+    private void populateMinistryListPreference(final List<Ministry> associatedMinistries)
     {
         ListPreference ministryListPreference = (ListPreference) findPreference("ministry_team_list");
-        ministryListPreference.setEntries(associatedMinistries);
-        ministryListPreference.setEntryValues(associatedMinistries);
+
+        List<String> ministryNames = new ArrayList<String>(associatedMinistries.size());
+
+        for(Ministry ministry : associatedMinistries)
+        {
+            ministryNames.add(ministry.getName());
+        }
+        ministryListPreference.setEntries(ministryNames.toArray(new CharSequence[ministryNames.size()]));
+        ministryListPreference.setEntryValues(ministryNames.toArray(new CharSequence[ministryNames.size()]));
         bindPreferenceSummaryToValue(ministryListPreference);
+
+        ministryListPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
+        {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue)
+            {
+                String ministryName = newValue.toString();
+                bindPreferenceSummaryToValue(preference, ministryName);
+
+                populateMissionCriticalComponentsPreference(associatedMinistries, ministryName);
+                preferences
+                    .edit()
+                    .putString("chosen_ministry", ministryName)
+                    .commit();
+                return true;
+            }
+        });
+    }
+
+    private void populateMissionCriticalComponentsPreference(
+        List<Ministry> associatedMinistries,
+        String chosenMinistryName)
+    {
+        ListPreference mccListPreference = (ListPreference) findPreference("mcc_list");
+        List<String> options = new ArrayList<String>();
+
+        if(chosenMinistryName != null)
+        {
+            Ministry chosenMinistry = null;
+            for(Ministry ministry : associatedMinistries)
+            {
+                if(chosenMinistryName.equalsIgnoreCase(ministry.getName()))
+                {
+                    chosenMinistry = ministry;
+                    break;
+                }
+            }
+
+            if(chosenMinistry != null)
+            {
+                if(chosenMinistry.hasDs()) options.add("DS");
+                if(chosenMinistry.hasGcm()) options.add("GCM");
+                if(chosenMinistry.hasLlm()) options.add("LLM");
+                if(chosenMinistry.hasSlm()) options.add("SLM");
+            }
+        }
+
+        //TODO: Find out what to do here
+        if(options.isEmpty())
+        {
+            mccListPreference.setEntries(new CharSequence[] { "No MCC Options" });
+            mccListPreference.setEntryValues(new CharSequence[] { "No MCC Options" });
+        }
+        else
+        {
+            mccListPreference.setEntries(options.toArray(new CharSequence[options.size()]));
+            mccListPreference.setEntryValues(options.toArray(new CharSequence[options.size()]));
+        }
+
+        mccListPreference.setPersistent(true);
+        bindPreferenceSummaryToValue(mccListPreference);
     }
 
     @Override
@@ -177,31 +281,39 @@ public class SettingsActivity extends PreferenceActivity
         @Override
         public boolean onPreferenceChange(Preference preference, Object value)
         {
-            String stringValue = value.toString();
-
-            if (preference instanceof ListPreference)
-            {
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
-                ListPreference listPreference = (ListPreference) preference;
-                int index = listPreference.findIndexOfValue(stringValue);
-
-                // Set the summary to reflect the new value.
-                preference.setSummary(
-                        index >= 0
-                                ? listPreference.getEntries()[index]
-                                : null);
-
-            }
-            else
-            {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
-                preference.setSummary(stringValue);
-            }
+            bindPreferenceSummaryToValue(preference, value.toString());
             return true;
         }
     };
+
+    /**
+     * Using this instead of {@link #bindPreferenceSummaryToValue(android.preference.Preference)}
+     * allows the calling method to define its own OnPreferenceChanged listener
+     * instead of coupling this logic with it
+     */
+    private static void bindPreferenceSummaryToValue(Preference preference, String stringValue)
+    {
+        if (preference instanceof ListPreference)
+        {
+            // For list preferences, look up the correct display value in
+            // the preference's 'entries' list.
+            ListPreference listPreference = (ListPreference) preference;
+            int index = listPreference.findIndexOfValue(stringValue);
+
+            // Set the summary to reflect the new value.
+            preference.setSummary(
+                index >= 0
+                    ? listPreference.getEntries()[index]
+                    : null);
+
+        }
+        else
+        {
+            // For all other preferences, set the summary to the value's
+            // simple string representation.
+            preference.setSummary(stringValue);
+        }
+    }
 
     /**
      * Binds a preference's summary to its value. More specifically, when the
@@ -237,12 +349,6 @@ public class SettingsActivity extends PreferenceActivity
         {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("mcc_list"));
         }
     }
 }

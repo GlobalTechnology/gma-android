@@ -7,18 +7,17 @@ import android.util.Log;
 
 import com.expidev.gcmapp.json.MinistryJsonParser;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.utils.JsonStringReader;
 
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -69,7 +68,7 @@ public class GmaApiClient
         
         if (!cookie.isEmpty())
         {
-            connection.addRequestProperty("Cookie", cookie.toString());
+            connection.addRequestProperty("Cookie", cookie);
         }
         
         return connection;
@@ -79,7 +78,7 @@ public class GmaApiClient
     {
         if (connection.getHeaderFields() != null)
         {
-            String headerName = null;
+            String headerName;
             StringBuilder stringBuilder = new StringBuilder();
             for (int i = 1; (headerName = connection.getHeaderFieldKey(i)) != null; i++)
             {
@@ -130,51 +129,35 @@ public class GmaApiClient
 
         try
         {
-            JSONObject jsonObject = new JSONObject(httpGet(new URL(urlString)));
+            String json = httpGet(new URL(urlString));
 
-            if(jsonObject == null)
+            if(json == null)
             {
-                reason = "Failed to retrieve ministries, most likely cause is a bad session ticket";
+                Log.e(TAG, "Failed to retrieve ministries, most likely cause is a bad session ticket");
+                return null;
             }
             else
             {
-                reason = jsonObject.optString("reason");
-            }
-
-            if(reason != null)
-            {
-                Log.e(TAG, reason);
-                return dummyMinistryList();
-            }
-            else
-            {
-                JSONArray names = new JSONArray();
-                names.put("ministry_id");
-                names.put("name");
-
-                JSONArray jsonArray = jsonObject.toJSONArray(names);
-                return MinistryJsonParser.parseMinistriesJson(jsonArray);
+                if(json.startsWith("["))
+                {
+                    JSONArray jsonArray = new JSONArray(json);
+                    return MinistryJsonParser.parseMinistriesJson(jsonArray);
+                }
+                else
+                {
+                    JSONObject jsonObject = new JSONObject(json);
+                    reason = jsonObject.optString("reason");
+                    Log.e(TAG, reason);
+                    return null;
+                }
             }
         }
         catch(Exception e)
         {
             reason = e.getMessage();
             Log.e(TAG, "Problem occurred while retrieving ministries: " + reason);
-            return dummyMinistryList();
+            return null;
         }
-    }
-
-    private ArrayList<Ministry> dummyMinistryList()
-    {
-        ArrayList<Ministry> dummyList = new ArrayList<Ministry>();
-
-        Ministry dummy1 = new Ministry();
-        dummy1.setMinistryId("37e3bb68-da0b-11e3-9786-12725f8f377c");
-        dummy1.setName("Addis Ababa Campus Team (ETH)");
-
-        dummyList.add(dummy1);
-
-        return dummyList;
     }
 
     public JSONArray searchTraining(String ministryId, String sessionTicket)
@@ -216,7 +199,7 @@ public class GmaApiClient
 
             if (inputStream != null)
             {
-                String jsonAsString = readFully(inputStream, "UTF-8");
+                String jsonAsString = JsonStringReader.readFully(inputStream, "UTF-8");
                 Log.i(TAG, jsonAsString);
 
                 // instead of returning a JSONObject, a string will be returned. This is
@@ -230,22 +213,5 @@ public class GmaApiClient
         }
 
         return null;
-    }
-
-    private String readFully(InputStream inputStream, String encoding) throws IOException
-    {
-        return new String(readFully(inputStream), encoding);
-    }
-
-    private byte[] readFully(InputStream inputStream) throws IOException
-    {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        int length = 0;
-        while ((length = inputStream.read(buffer)) != -1)
-        {
-            byteArrayOutputStream.write(buffer, 0, length);
-        }
-        return byteArrayOutputStream.toByteArray();
     }
 }

@@ -10,12 +10,12 @@ import android.util.Log;
 
 import com.expidev.gcmapp.db.TrainingDao;
 import com.expidev.gcmapp.http.GmaApiClient;
-import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.json.JSONArray;
 
 import java.util.UUID;
 
+import static com.expidev.gcmapp.service.Type.TRAINING;
 import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
@@ -117,7 +117,7 @@ public class TrainingService extends IntentService
                 Log.d(TAG, "JSON Object is null");
             }
             
-            broadcastManager.sendBroadcast(stopBroadcast(BroadcastUtils.TRAINING));
+            broadcastManager.sendBroadcast(stopBroadcast(TRAINING));
         }
         catch (Exception e)
         {
