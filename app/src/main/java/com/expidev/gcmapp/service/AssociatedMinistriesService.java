@@ -12,6 +12,7 @@ import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.AssignmentsJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.json.JSONArray;
 
@@ -21,9 +22,9 @@ import java.util.List;
 import static com.expidev.gcmapp.service.Action.LOAD_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Action.RETRIEVE_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Action.RETRIEVE_ASSOCIATED_MINISTRIES;
+import static com.expidev.gcmapp.service.Action.SAVE_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Action.SAVE_ASSIGNMENT;
 import static com.expidev.gcmapp.service.Action.SAVE_ASSOCIATED_MINISTRIES;
-import static com.expidev.gcmapp.service.Action.SAVE_ALL_MINISTRIES;
 
 /**
  * Created by William.Randall on 1/22/2015.
@@ -33,15 +34,6 @@ public class AssociatedMinistriesService extends IntentService
     private static final String TAG = AssociatedMinistriesService.class.getSimpleName();
 
     private LocalBroadcastManager broadcastManager;
-
-    public static final String ACTION_RETRIEVE_ASSOCIATED_MINISTRIES =
-        AssociatedMinistriesService.class.getName() + ".ACTION_RETRIEVE_ASSOCIATED_MINISTRIES";
-    public static final String ACTION_RETRIEVE_ALL_MINISTRIES =
-        AssociatedMinistriesService.class.getName() + ".ACTION_RETRIEVE_ALL_MINISTRIES";
-    public static final String ACTION_SAVE_ALL_MINISTRIES =
-        AssociatedMinistriesService.class.getName() + ".ACTION_SAVE_ALL_MINISTRIES";
-    public static final String ACTION_LOAD_ALL_MINISTRIES =
-        AssociatedMinistriesService.class.getName() + ".ACTION_LOAD_ALL_MINISTRIES";
 
     public AssociatedMinistriesService()
     {
@@ -176,7 +168,7 @@ public class AssociatedMinistriesService extends IntentService
         List<Ministry> associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
         Log.i(TAG, "Retrieved associated ministries");
 
-        Intent broadcastToSettingsActivity = new Intent(ACTION_RETRIEVE_ASSOCIATED_MINISTRIES);
+        Intent broadcastToSettingsActivity = new Intent(BroadcastUtils.ACTION_RETRIEVE_ASSOCIATED_MINISTRIES);
         broadcastToSettingsActivity.putExtra("associatedMinistries", (ArrayList<Ministry>)associatedMinistries);
 
         broadcastManager.sendBroadcast(broadcastToSettingsActivity);
@@ -184,7 +176,7 @@ public class AssociatedMinistriesService extends IntentService
 
     private void retrieveAllMinistries(final Intent intent)
     {
-        Intent broadcastAllMinistriesRetrieved = new Intent(ACTION_RETRIEVE_ALL_MINISTRIES);
+        Intent broadcastAllMinistriesRetrieved = new Intent(BroadcastUtils.ACTION_RETRIEVE_ALL_MINISTRIES);
 
         GmaApiClient apiClient = new GmaApiClient(this);
         List<Ministry> ministryList = apiClient.getAllMinistries(intent.getStringExtra("sessionTicket"));
@@ -195,7 +187,7 @@ public class AssociatedMinistriesService extends IntentService
 
     private void loadAllMinistriesFromLocalStorage()
     {
-        Intent broadcastAllMinistriesLoaded = new Intent(ACTION_LOAD_ALL_MINISTRIES);
+        Intent broadcastAllMinistriesLoaded = new Intent(BroadcastUtils.ACTION_LOAD_ALL_MINISTRIES);
 
         MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
         List<Ministry> allMinistries = ministriesDao.retrieveAllMinistries();
@@ -228,6 +220,6 @@ public class AssociatedMinistriesService extends IntentService
 
         MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
         ministriesDao.saveAllMinistries(allMinistries);
-        broadcastManager.sendBroadcast(new Intent(ACTION_SAVE_ALL_MINISTRIES));
+        broadcastManager.sendBroadcast(new Intent(BroadcastUtils.ACTION_SAVE_ALL_MINISTRIES));
     }
 }

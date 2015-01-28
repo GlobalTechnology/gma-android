@@ -19,6 +19,7 @@ import android.util.Log;
 
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.AssociatedMinistriesService;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,7 +96,7 @@ public class SettingsActivity extends PreferenceActivity
         };
 
         broadcastManager.registerReceiver(associatedMinistriesBroadcastReceiver,
-            new IntentFilter(AssociatedMinistriesService.ACTION_RETRIEVE_ASSOCIATED_MINISTRIES));
+            new IntentFilter(BroadcastUtils.ACTION_RETRIEVE_ASSOCIATED_MINISTRIES));
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.expidev.gcmapp.utils;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import com.expidev.gcmapp.service.AssociatedMinistriesService;
 import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.TrainingService;
 
@@ -19,6 +20,14 @@ public final class BroadcastUtils
 
     public static final String TICKET_RECEIVED = AuthService.class.getName() + ".TICKET_RECEIVED";
     public static final String TRAINING_RECEIVED = TrainingService.class.getName() + ".TRAINING_RECEIVED";
+    public static final String ACTION_RETRIEVE_ASSOCIATED_MINISTRIES =
+        AssociatedMinistriesService.class.getName() + ".ACTION_RETRIEVE_ASSOCIATED_MINISTRIES";
+    public static final String ACTION_RETRIEVE_ALL_MINISTRIES =
+        AssociatedMinistriesService.class.getName() + ".ACTION_RETRIEVE_ALL_MINISTRIES";
+    public static final String ACTION_SAVE_ALL_MINISTRIES =
+        AssociatedMinistriesService.class.getName() + ".ACTION_SAVE_ALL_MINISTRIES";
+    public static final String ACTION_LOAD_ALL_MINISTRIES =
+        AssociatedMinistriesService.class.getName() + ".ACTION_LOAD_ALL_MINISTRIES";
     
     public static final int TRAINING = 0;
     public static final int AUTH = 1;

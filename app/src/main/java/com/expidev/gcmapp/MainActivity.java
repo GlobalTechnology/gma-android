@@ -395,7 +395,7 @@ public class MainActivity extends ActionBarActivity
             }
         };
         manager.registerReceiver(allMinistriesRetrievedReceiver,
-            new IntentFilter(AssociatedMinistriesService.ACTION_RETRIEVE_ALL_MINISTRIES));
+            new IntentFilter(BroadcastUtils.ACTION_RETRIEVE_ALL_MINISTRIES));
 
         manager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
         manager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());

@@ -20,6 +20,7 @@ import android.widget.AutoCompleteTextView;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.AssociatedMinistriesService;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -89,7 +90,7 @@ public class JoinMinistryActivity extends ActionBarActivity
             }
         };
         manager.registerReceiver(allMinistriesLoadedReceiver,
-            new IntentFilter(AssociatedMinistriesService.ACTION_LOAD_ALL_MINISTRIES));
+            new IntentFilter(BroadcastUtils.ACTION_LOAD_ALL_MINISTRIES));
     }
 
     @Override
