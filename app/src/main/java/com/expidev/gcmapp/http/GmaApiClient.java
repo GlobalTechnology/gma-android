@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -135,26 +134,21 @@ public class GmaApiClient
             if(json == null)
             {
                 Log.e(TAG, "Failed to retrieve ministries, most likely cause is a bad session ticket");
-                return dummyMinistryList();
+                return null;
             }
             else
             {
-                JSONObject jsonObject = new JSONObject(json);
-                reason = jsonObject.optString("reason");
-
-                if(reason != null)
+                if(json.startsWith("["))
                 {
-                    Log.e(TAG, reason);
-                    return dummyMinistryList();
+                    JSONArray jsonArray = new JSONArray(json);
+                    return MinistryJsonParser.parseMinistriesJson(jsonArray);
                 }
                 else
                 {
-                    JSONArray names = new JSONArray();
-                    names.put("ministry_id");
-                    names.put("name");
-
-                    JSONArray jsonArray = jsonObject.toJSONArray(names);
-                    return MinistryJsonParser.parseMinistriesJson(jsonArray);
+                    JSONObject jsonObject = new JSONObject(json);
+                    reason = jsonObject.optString("reason");
+                    Log.e(TAG, reason);
+                    return null;
                 }
             }
         }
@@ -162,21 +156,8 @@ public class GmaApiClient
         {
             reason = e.getMessage();
             Log.e(TAG, "Problem occurred while retrieving ministries: " + reason);
-            return dummyMinistryList();
+            return null;
         }
-    }
-
-    private ArrayList<Ministry> dummyMinistryList()
-    {
-        ArrayList<Ministry> dummyList = new ArrayList<Ministry>();
-
-        Ministry dummy1 = new Ministry();
-        dummy1.setMinistryId("37e3bb68-da0b-11e3-9786-12725f8f377c");
-        dummy1.setName("Addis Ababa Campus Team (ETH)");
-
-        dummyList.add(dummy1);
-
-        return dummyList;
     }
 
     public JSONArray searchTraining(String ministryId, String sessionTicket)

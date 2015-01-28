@@ -179,6 +179,12 @@ public class AssociatedMinistriesService extends IntentService
         GmaApiClient apiClient = new GmaApiClient(this);
         List<Ministry> ministryList = apiClient.getAllMinistries(intent.getStringExtra("sessionTicket"));
 
+        if(ministryList == null)
+        {
+            Log.e(TAG, "Empty ministry list from API");
+            return;
+        }
+
         broadcastManager.sendBroadcast(allMinistriesReceivedBroadcast((ArrayList<Ministry>) ministryList));
     }
 
