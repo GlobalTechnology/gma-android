@@ -130,30 +130,32 @@ public class GmaApiClient
 
         try
         {
-            JSONObject jsonObject = new JSONObject(httpGet(new URL(urlString)));
+            String json = httpGet(new URL(urlString));
 
-            if(jsonObject == null)
+            if(json == null)
             {
-                reason = "Failed to retrieve ministries, most likely cause is a bad session ticket";
-            }
-            else
-            {
-                reason = jsonObject.optString("reason");
-            }
-
-            if(reason != null)
-            {
-                Log.e(TAG, reason);
+                Log.e(TAG, "Failed to retrieve ministries, most likely cause is a bad session ticket");
                 return dummyMinistryList();
             }
             else
             {
-                JSONArray names = new JSONArray();
-                names.put("ministry_id");
-                names.put("name");
+                JSONObject jsonObject = new JSONObject(json);
+                reason = jsonObject.optString("reason");
 
-                JSONArray jsonArray = jsonObject.toJSONArray(names);
-                return MinistryJsonParser.parseMinistriesJson(jsonArray);
+                if(reason != null)
+                {
+                    Log.e(TAG, reason);
+                    return dummyMinistryList();
+                }
+                else
+                {
+                    JSONArray names = new JSONArray();
+                    names.put("ministry_id");
+                    names.put("name");
+
+                    JSONArray jsonArray = jsonObject.toJSONArray(names);
+                    return MinistryJsonParser.parseMinistriesJson(jsonArray);
+                }
             }
         }
         catch(Exception e)
