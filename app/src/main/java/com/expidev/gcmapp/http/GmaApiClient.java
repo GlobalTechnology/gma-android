@@ -69,7 +69,7 @@ public class GmaApiClient
         
         if (!cookie.isEmpty())
         {
-            connection.addRequestProperty("Cookie", cookie.toString());
+            connection.addRequestProperty("Cookie", cookie);
         }
         
         return connection;
@@ -79,7 +79,7 @@ public class GmaApiClient
     {
         if (connection.getHeaderFields() != null)
         {
-            String headerName = null;
+            String headerName;
             StringBuilder stringBuilder = new StringBuilder();
             for (int i = 1; (headerName = connection.getHeaderFieldKey(i)) != null; i++)
             {
