@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.sql.Timestamp;
 
 /**
  * Created by matthewfrederick on 1/26/15.
@@ -161,7 +162,7 @@ public class TrainingDao
                 trainingToInsert.put("mcc", training.getString("mcc"));
                 trainingToInsert.put("latitude", training.getDouble("latitude"));
                 trainingToInsert.put("longitude", training.getDouble("longitude"));
-                trainingToInsert.put("synced", 1);
+                trainingToInsert.put("synced", "");
 
                 database.beginTransaction();
 
@@ -205,7 +206,7 @@ public class TrainingDao
             trainingToInsert.put("mcc", training.getMcc());
             trainingToInsert.put("latitude", training.getLatitude());
             trainingToInsert.put("longitude", training.getLongitude());
-            trainingToInsert.put("synced", booleanToInt(training.isSynced()));
+            trainingToInsert.put("synced", training.getSynced().toString());
             
             database.beginTransaction();
             
@@ -257,23 +258,11 @@ public class TrainingDao
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         return format.parse(string);
     }
-    
+
     private String dateToString(Date date)
     {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         return dateFormat.format(date);
-    }
-    
-    private boolean intToBoolean(int i)
-    {
-        if (i == 1) return true;
-        return false;
-    }
-    
-    private int booleanToInt(boolean bool)
-    {
-        if (bool) return 1;
-        return 0;
     }
     
     private Training setTrainingFromCursor(Cursor cursor) throws ParseException
@@ -287,7 +276,18 @@ public class TrainingDao
         training.setMcc(cursor.getString(cursor.getColumnIndex("mcc")));
         training.setLatitude(cursor.getDouble(cursor.getColumnIndex("latitude")));
         training.setLongitude(cursor.getDouble(cursor.getColumnIndex("longitude")));
-        training.setSynced(intToBoolean(cursor.getInt(cursor.getColumnIndex("synced"))));
+        
+        if (!cursor.getString(cursor.getColumnIndex("synced")).isEmpty())
+        {
+            try
+            {
+                training.setSynced(Timestamp.valueOf(cursor.getString(cursor.getColumnIndex("synced"))));
+            }
+            catch (Exception e)
+            {
+                Log.i(TAG, "Could not parse Timestamp");
+            }
+        }
         
         return training;
     }

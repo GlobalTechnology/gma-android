@@ -1,5 +1,6 @@
 package com.expidev.gcmapp.model;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -18,7 +19,7 @@ public class Training
     private double latitude;
     private double longitude;
     private List<GCMTrainingCompletions> completions;
-    private boolean synced;
+    private Timestamp synced;
 
     public int getId()
     {
@@ -110,12 +111,12 @@ public class Training
         this.completions = completions;
     }
 
-    public boolean isSynced()
+    public Timestamp getSynced()
     {
         return synced;
     }
 
-    public void setSynced(boolean synced)
+    public void setSynced(Timestamp synced)
     {
         this.synced = synced;
     }
@@ -127,7 +128,7 @@ public class Training
         private int numberCompleted;
         private Date date;
         private int trainingId;
-        private boolean synced;
+        private Timestamp synced;
 
         public int getId()
         {
@@ -179,12 +180,12 @@ public class Training
             this.trainingId = trainingId;
         }
 
-        public boolean isSynced()
+        public Timestamp getSynced()
         {
             return synced;
         }
 
-        public void setSynced(boolean synced)
+        public void setSynced(Timestamp synced)
         {
             this.synced = synced;
         }
