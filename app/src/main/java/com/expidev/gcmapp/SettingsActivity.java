@@ -152,17 +152,7 @@ public class SettingsActivity extends PreferenceActivity
             public boolean onPreferenceChange(Preference preference, Object newValue)
             {
                 String ministryName = newValue.toString();
-
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
-                ListPreference listPreference = (ListPreference) preference;
-                int index = listPreference.findIndexOfValue(ministryName);
-
-                // Set the summary to reflect the new value.
-                preference.setSummary(
-                    index >= 0
-                        ? listPreference.getEntries()[index]
-                        : null);
+                bindPreferenceSummaryToValue(preference, ministryName);
 
                 populateMissionCriticalComponentsPreference(associatedMinistries, ministryName);
                 preferences
@@ -267,32 +257,39 @@ public class SettingsActivity extends PreferenceActivity
         @Override
         public boolean onPreferenceChange(Preference preference, Object value)
         {
-            String stringValue = value.toString();
-
-            if (preference instanceof ListPreference)
-            {
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
-                ListPreference listPreference = (ListPreference) preference;
-                int index = listPreference.findIndexOfValue(stringValue);
-
-                // Set the summary to reflect the new value.
-                preference.setSummary(
-                        index >= 0
-                                ? listPreference.getEntries()[index]
-                                : null);
-
-            }
-            else
-            {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
-                preference.setSummary(stringValue);
-            }
-
+            bindPreferenceSummaryToValue(preference, value.toString());
             return true;
         }
     };
+
+    /**
+     * Using this instead of {@link #bindPreferenceSummaryToValue(android.preference.Preference)}
+     * allows the calling method to define its own OnPreferenceChanged listener
+     * instead of coupling this logic with it
+     */
+    private static void bindPreferenceSummaryToValue(Preference preference, String stringValue)
+    {
+        if (preference instanceof ListPreference)
+        {
+            // For list preferences, look up the correct display value in
+            // the preference's 'entries' list.
+            ListPreference listPreference = (ListPreference) preference;
+            int index = listPreference.findIndexOfValue(stringValue);
+
+            // Set the summary to reflect the new value.
+            preference.setSummary(
+                index >= 0
+                    ? listPreference.getEntries()[index]
+                    : null);
+
+        }
+        else
+        {
+            // For all other preferences, set the summary to the value's
+            // simple string representation.
+            preference.setSummary(stringValue);
+        }
+    }
 
     /**
      * Binds a preference's summary to its value. More specifically, when the
