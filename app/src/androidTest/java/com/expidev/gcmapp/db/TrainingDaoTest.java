@@ -10,6 +10,7 @@ import com.expidev.gcmapp.model.Training;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -51,8 +52,8 @@ public class TrainingDaoTest extends InstrumentationTestCase
         assertEquals(training.getLatitude(), 15.533247294294055);
         assertEquals(training.getType(), "MC2");
         
-        // todo: fix date
-        //assertEquals(training.getDate(), new Date(2014,11,13));
+        // date is created by year - 1900 and month 0-11. Why?
+        assertEquals(training.getDate(), new Date(2014-1900, 10, 13));
     }
     
     private JSONArray createTestData() throws JSONException
