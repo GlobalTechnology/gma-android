@@ -74,7 +74,6 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences mapPreferences;
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
-    private BroadcastReceiver allMinistriesRetrievedReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -372,34 +371,28 @@ public class MainActivity extends ActionBarActivity
                             break;
                     }
                 }
-            }
-        };
-
-        allMinistriesRetrievedReceiver = new BroadcastReceiver()
-        {
-            @Override
-            public void onReceive(Context context, Intent intent)
-            {
-                Serializable data = intent.getSerializableExtra("ministryTeamList");
-
-                if(data != null)
+                else if(BroadcastUtils.ACTION_RETRIEVE_ALL_MINISTRIES.equals(intent.getAction()))
                 {
-                    List<Ministry> ministryTeamList = (ArrayList<Ministry>) data;
-                    AssociatedMinistriesService.saveAllMinistries(getApplicationContext(), ministryTeamList);
-                }
-                else
-                {
-                    Log.e(TAG, "Failed to retrieve ministries");
-                    finish();
+                    Serializable data = intent.getSerializableExtra("ministryTeamList");
+
+                    if(data != null)
+                    {
+                        List<Ministry> ministryTeamList = (ArrayList<Ministry>) data;
+                        AssociatedMinistriesService.saveAllMinistries(getApplicationContext(), ministryTeamList);
+                    }
+                    else
+                    {
+                        Log.e(TAG, "Failed to retrieve ministries");
+                        finish();
+                    }
                 }
             }
         };
-        manager.registerReceiver(allMinistriesRetrievedReceiver,
-            new IntentFilter(BroadcastUtils.ACTION_RETRIEVE_ALL_MINISTRIES));
 
         manager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
         manager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());
         manager.registerReceiver(broadcastReceiver, BroadcastUtils.stopFilter());
+        manager.registerReceiver(broadcastReceiver, new IntentFilter(BroadcastUtils.ACTION_RETRIEVE_ALL_MINISTRIES));
     }
 
     private void removeBroadcastReceivers()
@@ -407,9 +400,7 @@ public class MainActivity extends ActionBarActivity
         manager = LocalBroadcastManager.getInstance(this);
         manager.unregisterReceiver(broadcastReceiver);
         manager.unregisterReceiver(gcmBroadcastReceiver);
-        manager.unregisterReceiver(allMinistriesRetrievedReceiver);
         broadcastReceiver = null;
         gcmBroadcastReceiver = null;
-        allMinistriesRetrievedReceiver = null;
     }
 }

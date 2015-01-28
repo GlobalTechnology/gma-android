@@ -39,7 +39,7 @@ public class SettingsActivity extends PreferenceActivity
 {
     private final String TAG = getClass().getSimpleName();
 
-    private BroadcastReceiver associatedMinistriesBroadcastReceiver;
+    private BroadcastReceiver broadcastReceiver;
     private final String PREF_NAME = "gcm_prefs";
     private SharedPreferences preferences;
 
@@ -79,7 +79,7 @@ public class SettingsActivity extends PreferenceActivity
         Log.i(TAG, "Setting up broadcast receivers");
         final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(this);
 
-        associatedMinistriesBroadcastReceiver = new BroadcastReceiver()
+        broadcastReceiver = new BroadcastReceiver()
         {
             @Override
             public void onReceive(Context context, Intent intent)
@@ -95,7 +95,7 @@ public class SettingsActivity extends PreferenceActivity
             }
         };
 
-        broadcastManager.registerReceiver(associatedMinistriesBroadcastReceiver,
+        broadcastManager.registerReceiver(broadcastReceiver,
             new IntentFilter(BroadcastUtils.ACTION_RETRIEVE_ASSOCIATED_MINISTRIES));
     }
 
@@ -110,8 +110,8 @@ public class SettingsActivity extends PreferenceActivity
     {
         Log.i(TAG, "Cleaning up broadcast receivers");
         final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(this);
-        broadcastManager.unregisterReceiver(associatedMinistriesBroadcastReceiver);
-        associatedMinistriesBroadcastReceiver = null;
+        broadcastManager.unregisterReceiver(broadcastReceiver);
+        broadcastReceiver = null;
     }
 
     /**

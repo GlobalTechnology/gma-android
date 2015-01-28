@@ -35,7 +35,7 @@ public class JoinMinistryActivity extends ActionBarActivity
 
     List<Ministry> ministryTeamList;
     private LocalBroadcastManager manager;
-    private BroadcastReceiver allMinistriesLoadedReceiver;
+    private BroadcastReceiver broadcastReceiver;
     private SharedPreferences preferences;
 
     @Override
@@ -61,7 +61,7 @@ public class JoinMinistryActivity extends ActionBarActivity
     {
         Log.i(TAG, "Setting up broadcast receivers");
 
-        allMinistriesLoadedReceiver = new BroadcastReceiver()
+        broadcastReceiver = new BroadcastReceiver()
         {
             @Override
             public void onReceive(Context context, Intent intent)
@@ -89,8 +89,7 @@ public class JoinMinistryActivity extends ActionBarActivity
                 }
             }
         };
-        manager.registerReceiver(allMinistriesLoadedReceiver,
-            new IntentFilter(BroadcastUtils.ACTION_LOAD_ALL_MINISTRIES));
+        manager.registerReceiver(broadcastReceiver, new IntentFilter(BroadcastUtils.ACTION_LOAD_ALL_MINISTRIES));
     }
 
     @Override
@@ -103,8 +102,8 @@ public class JoinMinistryActivity extends ActionBarActivity
     private void cleanupBroadcastReceivers()
     {
         Log.i(TAG, "Cleaning up broadcast receivers");
-        manager.unregisterReceiver(allMinistriesLoadedReceiver);
-        allMinistriesLoadedReceiver = null;
+        manager.unregisterReceiver(broadcastReceiver);
+        broadcastReceiver = null;
     }
 
     public void joinMinistry(View view)
