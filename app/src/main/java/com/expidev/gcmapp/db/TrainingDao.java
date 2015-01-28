@@ -162,7 +162,7 @@ public class TrainingDao
                 trainingToInsert.put("mcc", training.getString("mcc"));
                 trainingToInsert.put("latitude", training.getDouble("latitude"));
                 trainingToInsert.put("longitude", training.getDouble("longitude"));
-                trainingToInsert.put("synced", "");
+                trainingToInsert.put("synced", new Timestamp(new Date().getTime()).toString());
 
                 database.beginTransaction();
 
