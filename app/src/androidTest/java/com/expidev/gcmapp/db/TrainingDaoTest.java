@@ -10,7 +10,8 @@ import com.expidev.gcmapp.model.Training;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.util.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.UUID;
 
 /**
@@ -52,8 +53,8 @@ public class TrainingDaoTest extends InstrumentationTestCase
         assertEquals(training.getLatitude(), 15.533247294294055);
         assertEquals(training.getType(), "MC2");
         
-        // date is created by year - 1900 and month 0-11. Why?
-        assertEquals(training.getDate(), new Date(2014-1900, 10, 13));
+        Calendar calendar = new GregorianCalendar(2014, Calendar.NOVEMBER, 13);
+        assertEquals(training.getDate(), calendar.getTime());
     }
     
     private JSONArray createTestData() throws JSONException
