@@ -1,4 +1,15 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "com.newrelic.agent.android:agent-gradle-plugin:4.178.0"
+    }
+}
+
 apply plugin: 'com.android.application'
+apply plugin: 'newrelic'
 
 repositories {
     mavenCentral()
@@ -18,7 +29,8 @@ android {
         targetSdkVersion 19
         versionCode 1
         versionName "1.0"
-        
+
+        buildConfigField "String", "NEW_RELIC_API_KEY", "\"AAfd80ddf74e333f27c92d3f89f125be5cecf9c532\""
         buildConfigField "long", "THEKEY_CLIENTID", "7439283632057308L"
     }
 
@@ -39,6 +51,8 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.android.support:support-v4:21.0.3'
     compile 'com.google.android.gms:play-services-maps:6.5.87'
+
+    compile 'com.newrelic.agent.android:android-agent:4.178.0'
 
     compile 'me.thekey.android:thekey-api:0.7.0'
     compile 'me.thekey.android:thekey-lib:0.7.0'
