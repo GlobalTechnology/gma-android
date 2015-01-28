@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.expidev.gcmapp.db.UserDao;
 import com.expidev.gcmapp.http.GmaApiClient;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -110,7 +111,7 @@ public class AuthService extends IntentService
         AssociatedMinistriesService.saveAssociatedMinistriesFromServer(
             getApplicationContext(), jsonObject.optJSONArray("assignments"));
         
-        broadcastManager.sendBroadcast(stopBroadcast());
+        broadcastManager.sendBroadcast(stopBroadcast(BroadcastUtils.AUTH));
     }
 
     public static void authorizeUser(final Context context)
