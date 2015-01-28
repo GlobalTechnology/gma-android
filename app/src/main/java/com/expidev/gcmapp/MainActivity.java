@@ -27,6 +27,7 @@ import com.expidev.gcmapp.model.User;
 import com.expidev.gcmapp.service.AssociatedMinistriesService;
 import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.TrainingService;
+import com.expidev.gcmapp.service.Type;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.Device;
 import com.google.android.gms.common.ConnectionResult;
@@ -349,11 +350,11 @@ public class MainActivity extends ActionBarActivity
                 {
                     Log.i(TAG, "Action Done");
 
-                    int type = intent.getIntExtra(BroadcastUtils.ACTION_TYPE, -1);
+                    Type type = (Type) intent.getSerializableExtra(BroadcastUtils.ACTION_TYPE);
                     
                     switch (type)
                     {
-                        case BroadcastUtils.AUTH:
+                        case AUTH:
                             UserDao userDao = UserDao.getInstance(context);
                             User user = userDao.retrieveUser();
                             actionBar.setTitle("Welcome " + user.getFirstName());
@@ -366,7 +367,7 @@ public class MainActivity extends ActionBarActivity
                             
                             break;
                         
-                        case BroadcastUtils.TRAINING:
+                        case TRAINING:
                             Log.i(TAG, "Training search complete");
                             break;
                     }

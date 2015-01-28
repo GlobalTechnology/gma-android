@@ -6,6 +6,7 @@ import android.content.IntentFilter;
 import com.expidev.gcmapp.service.AssociatedMinistriesService;
 import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.TrainingService;
+import com.expidev.gcmapp.service.Type;
 
 /**
  * Created by matthewfrederick on 1/23/15.
@@ -28,9 +29,6 @@ public final class BroadcastUtils
         AssociatedMinistriesService.class.getName() + ".ACTION_SAVE_ALL_MINISTRIES";
     public static final String ACTION_LOAD_ALL_MINISTRIES =
         AssociatedMinistriesService.class.getName() + ".ACTION_LOAD_ALL_MINISTRIES";
-    
-    public static final int TRAINING = 0;
-    public static final int AUTH = 1;
 
     public static Intent startBroadcast()
     {
@@ -42,7 +40,7 @@ public final class BroadcastUtils
         return new Intent(ACTION_RUNNING);
     }
 
-    public static Intent stopBroadcast(int type)
+    public static Intent stopBroadcast(Type type)
     {
         Intent intent = new Intent(ACTION_STOP);
         intent.putExtra(ACTION_TYPE, type);
