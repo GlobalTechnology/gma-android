@@ -160,13 +160,13 @@ public class GmaApiClient
         }
     }
 
-    public JSONArray searchTraining(String ministryId, String sessionTicket)
+    public JSONArray searchTraining(String ministryId, String mcc, String sessionTicket)
     {
         try
         {
             String urlString = BASE_URL_STAGE + MEASUREMENTS +TRAINING +
                     "?token=" + sessionTicket + "&ministry_id=" + ministryId +
-                    "&mcc=slm";
+                    "&mcc=" + mcc;
 
             Log.i(TAG, "Url: " + urlString);
 

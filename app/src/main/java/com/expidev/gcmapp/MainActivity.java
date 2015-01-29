@@ -362,7 +362,6 @@ public class MainActivity extends ActionBarActivity
                             Log.i(TAG, "Session Ticket: " + sessionTicket);
 
                             AssociatedMinistriesService.retrieveAllMinistries(getApplicationContext(), sessionTicket);
-                            trainingSearch(null);
                             
                             break;
                         case TRAINING:
@@ -375,6 +374,7 @@ public class MainActivity extends ActionBarActivity
                             {
                                 List<Ministry> allMinistries = (ArrayList<Ministry>) data;
                                 AssociatedMinistriesService.saveAllMinistries(getApplicationContext(), allMinistries);
+
                             }
                             else
                             {
