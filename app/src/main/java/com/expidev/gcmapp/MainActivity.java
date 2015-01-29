@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.expidev.gcmapp.GPSService.GPSTracker;
@@ -76,6 +77,8 @@ public class MainActivity extends ActionBarActivity
     private BroadcastReceiver broadcastReceiver;
     private String chosenMinistry;
     private Ministry currentMinistry;
+    
+    private TextView mapOverlayText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -84,6 +87,8 @@ public class MainActivity extends ActionBarActivity
         setContentView(R.layout.activity_main);
 
         actionBar = getSupportActionBar();
+        
+        mapOverlayText = (TextView) findViewById(R.id.map_text);
 
         getMapPreferences();
         
@@ -283,7 +288,7 @@ public class MainActivity extends ActionBarActivity
         MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
         List<Ministry> associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
         
-        if (associatedMinistries == null)
+        if (associatedMinistries == null || associatedMinistries.size() == 0)
         {
             Log.w(TAG, "No Associated Ministries");
             return;
@@ -309,12 +314,16 @@ public class MainActivity extends ActionBarActivity
         Log.i(TAG, "Current Ministry: " + currentMinistry.getName());
         
         if (currentMinistry != null)
-        {
+        {   
             String mcc = null;
             if (currentMinistry.hasSlm()) mcc = "slm";
             else if (currentMinistry.hasDs()) mcc = "ds";
             else if (currentMinistry.hasGcm()) mcc = "gcm";
             else if (currentMinistry.hasLlm()) mcc = "llm";
+            
+            String mccDisplay = "";
+            if (mcc != null) mccDisplay = " (" + mcc +")";
+            mapOverlayText.setText(currentMinistry.getName() + mccDisplay);
             
             trainingSearch(currentMinistry.getMinistryId(), mcc);
         }
