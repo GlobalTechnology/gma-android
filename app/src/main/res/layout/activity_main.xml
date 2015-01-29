@@ -29,6 +29,15 @@
             android:textSize="30dp"
             android:textStyle="bold" />
         
+        <android.support.v7.widget.SearchView
+            android:id="@+id/map_search"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:queryHint="@string/search"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:paddingTop="65dp"/>
+        
         </fragment>
 
     <ImageButton
