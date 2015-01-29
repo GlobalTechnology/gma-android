@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.expidev.gcmapp.GPSService.GPSTracker;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
+import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.db.UserDao;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.User;
@@ -42,7 +43,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
@@ -74,6 +74,8 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences mapPreferences;
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
+    private String chosenMinistry;
+    private Ministry currentMinistry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -94,6 +96,8 @@ public class MainActivity extends ActionBarActivity
         manager = LocalBroadcastManager.getInstance(getApplicationContext());
         gcmBroadcastReceiver = new GcmBroadcastReceiver(theKey, this);
         gcmBroadcastReceiver.registerReceiver(manager);
+        
+        getChosenMinistry();
 
         if (Device.isConnected(getApplicationContext()))
         {
@@ -122,14 +126,12 @@ public class MainActivity extends ActionBarActivity
             AuthService.authorizeUser(this);
         }
     }
-
-    // todo: once ministries are saved in database, this will loop through and find training
-    // for each ministry
     
-    private void trainingSearch(String ministryId)
+    private void trainingSearch(String ministryId, String mcc)
     {
-        Log.i(TAG, "Test Training search");
-        TrainingService.downloadTraining(this, UUID.fromString("770ffd2c-d6ac-11e3-9e38-12725f8f377c"));
+        Log.i(TAG, "Training search");
+        if (mcc == null) mcc = "slm";
+        TrainingService.downloadTraining(this, ministryId, mcc);
     }
 
     @Override
@@ -158,6 +160,8 @@ public class MainActivity extends ActionBarActivity
 
         return super.onOptionsItemSelected(item);
     }
+    
+    
 
     @Override
     protected void onPostResume()
@@ -272,6 +276,49 @@ public class MainActivity extends ActionBarActivity
             loginDialogFragment.show(fm.beginTransaction().addToBackStack("loginDialog"), "loginDialog");
         }
     }
+    
+    private void getChosenMinistry()
+    {
+        chosenMinistry = preferences.getString("chosen_ministry", null);
+        MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
+        List<Ministry> associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
+        
+        if (associatedMinistries == null)
+        {
+            Log.w(TAG, "No Associated Ministries");
+            return;
+        }
+        
+        if (chosenMinistry == null)
+        {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("chosen_ministry", associatedMinistries.get(0).getName());
+            chosenMinistry = associatedMinistries.get(0).getName();
+            
+            currentMinistry = associatedMinistries.get(0);
+                
+        }
+        else
+        {
+            for (Ministry ministry : associatedMinistries)
+            {
+                if (ministry.getName().equals(chosenMinistry)) currentMinistry = ministry;
+            }
+        }
+        
+        Log.i(TAG, "Current Ministry: " + currentMinistry.getName());
+        
+        if (currentMinistry != null)
+        {
+            String mcc = null;
+            if (currentMinistry.hasSlm()) mcc = "slm";
+            else if (currentMinistry.hasDs()) mcc = "ds";
+            else if (currentMinistry.hasGcm()) mcc = "gcm";
+            else if (currentMinistry.hasLlm()) mcc = "llm";
+            
+            trainingSearch(currentMinistry.getMinistryId(), mcc);
+        }
+    }
 
     private boolean checkPlayServices()
     {
@@ -374,7 +421,6 @@ public class MainActivity extends ActionBarActivity
                             {
                                 List<Ministry> allMinistries = (ArrayList<Ministry>) data;
                                 AssociatedMinistriesService.saveAllMinistries(getApplicationContext(), allMinistries);
-
                             }
                             else
                             {
@@ -384,6 +430,9 @@ public class MainActivity extends ActionBarActivity
                             break;
                         case SAVE_ALL_MINISTRIES:
                             Log.i(TAG, "All ministries saved to local storage");
+                            break;
+                        case SAVE_ASSOCIATED_MINISTRIES:
+                            getChosenMinistry();
                             break;
                         default:
                             Log.i(TAG, "Unhandled Type: " + type);
