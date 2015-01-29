@@ -173,6 +173,7 @@ public class MainActivity extends ActionBarActivity
     {
         super.onPostResume();
         getMapPreferences();
+        getChosenMinistry();
     }
 
     @Override
