@@ -1,9 +1,7 @@
 package com.expidev.gcmapp;
 
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -403,21 +401,7 @@ public class MeasurementsActivity extends ActionBarActivity
 
     public void drillIntoMeasurementDetails(Measurement measurement)
     {
-        //TODO: Integrate measurement details branch
-        Log.i(TAG, "drilling into measurement");
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-            .setTitle("Measurement selected")
-            .setMessage("Drilling into measurement: " + measurement.getName())
-            .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int which)
-                {
-                    dialog.dismiss();
-                }
-            })
-            .create();
-
-        alertDialog.show();
+        startActivity(new Intent(this, MeasurementDetailsActivity.class));
     }
 
     public void goToPreviousPeriod(View view)

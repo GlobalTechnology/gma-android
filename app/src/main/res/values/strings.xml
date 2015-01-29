@@ -7,6 +7,7 @@
     <string name="title_activity_join_ministry">GCM App</string>
     <string name="title_activity_map_settings">MapSettings</string>
     <string name="title_activity_measurements">Measurements</string>
+    <string name="title_activity_measurement_details">Measurement Details</string>
 
     <!-- Main Activity -->
     <string name="logout">Logout</string>
@@ -44,5 +45,12 @@
     <string name="period_placeholder">2015&#8211;01</string>
     <string name="period_left">"&#60;&#60;</string>
     <string name="period_right">&#62;&#62;</string>
+
+    <!-- Measurement Details Graph -->
+    <string name="measurement_detail_graph_title">_Training for Action</string>
+    <string name="action_measurement_details">Measurement Details</string>
+    <string name="local">Local</string>
+    <string name="team_members_title">Team Members</string>
+    <string name="you_label">You</string>
 
 </resources>
