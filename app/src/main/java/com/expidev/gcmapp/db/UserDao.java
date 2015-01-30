@@ -124,6 +124,29 @@ public class UserDao
         finally
         {
             database.endTransaction();
+            
+            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread");
+        }
+    }
+
+    public void deleteAllData()
+    {
+        final SQLiteDatabase database = databaseHelper.getWritableDatabase();
+
+        database.beginTransaction();
+
+        try
+        {
+            database.delete(TableNames.USER.getTableName(), null, null);
+            database.setTransactionSuccessful();
+        } catch (Exception e)
+        {
+            Log.e(TAG, e.getMessage());
+        } finally
+        {
+            database.endTransaction();
+
+            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread");
         }
     }
 }

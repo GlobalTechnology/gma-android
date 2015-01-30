@@ -10,6 +10,7 @@ import com.expidev.gcmapp.model.Training;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.UUID;
@@ -55,6 +56,33 @@ public class TrainingDaoTest extends InstrumentationTestCase
         
         Calendar calendar = new GregorianCalendar(2014, Calendar.NOVEMBER, 13);
         assertEquals(training.getDate(), calendar.getTime());
+    }
+    
+    public void testSaveTraining()
+    {       
+        Training training = new Training();
+        training.setId(1);
+        training.setMinistryId(UUID.randomUUID());
+        training.setLongitude(1.12345);
+        training.setLatitude(3.14159);
+        training.setMcc("slm");
+        training.setDate(new GregorianCalendar(2014, Calendar.NOVEMBER, 13).getTime());
+        training.setName("Test training");
+        training.setSynced(new Timestamp(456789L));
+        
+        trainingDao.saveTraining(training);
+        
+        Training returnedTraining = trainingDao.retrieveTrainingById(1);
+        assertNotNull(returnedTraining);
+        
+        assertEquals(returnedTraining.getId(), training.getId());
+        assertEquals(returnedTraining.getMinistryId(), training.getMinistryId());
+        assertEquals(returnedTraining.getLongitude(), training.getLongitude());
+        assertEquals(returnedTraining.getLatitude(), training.getLatitude());
+        assertEquals(returnedTraining.getMcc(), training.getMcc());
+        assertEquals(returnedTraining.getDate(), training.getDate());
+        assertEquals(returnedTraining.getName(), training.getName());
+        assertEquals(returnedTraining.getSynced(), training.getSynced());
     }
     
     private JSONArray createTestData() throws JSONException
