@@ -22,8 +22,10 @@ import android.widget.Toast;
 import com.expidev.gcmapp.GPSService.GPSTracker;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.db.MinistriesDao;
+import com.expidev.gcmapp.db.TrainingDao;
 import com.expidev.gcmapp.db.UserDao;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.model.User;
 import com.expidev.gcmapp.service.AssociatedMinistriesService;
 import com.expidev.gcmapp.service.AuthService;
@@ -79,6 +81,8 @@ public class MainActivity extends ActionBarActivity
     private Ministry currentMinistry;
     
     private TextView mapOverlayText;
+    
+    private List<Training> allTraining;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -425,7 +429,11 @@ public class MainActivity extends ActionBarActivity
                             
                             break;
                         case TRAINING:
-                            Log.i(TAG, "Training search complete");
+                            Log.i(TAG, "Training search complete and training saved");
+                            
+                            TrainingDao trainingDao = TrainingDao.getInstance(context);
+                            allTraining = trainingDao.getAllMinistryTraining(currentMinistry.getMinistryId());
+                            
                             break;
                         case RETRIEVE_ALL_MINISTRIES:
                             Serializable data = intent.getSerializableExtra("allMinistries");

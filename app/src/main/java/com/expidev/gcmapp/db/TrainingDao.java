@@ -85,6 +85,23 @@ public class TrainingDao
         return null;
     }
     
+    public Cursor retrieveTrainingCursorByMinistry(String ministryId)
+    {
+        final SQLiteDatabase database = databaseHelper.getReadableDatabase();
+        String where = "ministry_id = ?";
+        String[] whereArgs = {ministryId};
+        
+        try
+        {
+            return database.query(TableNames.TRAINING.getTableName(), null, where, whereArgs, null, null, null);
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, e.getMessage(), e);
+        }
+        return null;
+    }
+    
     public Cursor retrieveCompletedTrainingCursor(int trainingId)
     {
         final SQLiteDatabase database = databaseHelper.getReadableDatabase();
@@ -118,6 +135,38 @@ public class TrainingDao
                 cursor.moveToFirst();
                 return setTrainingFromCursor(cursor, complete);                
             }
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, e.getMessage(), e);
+        }
+        finally
+        {
+            if (cursor != null) cursor.close();
+        }
+        return null;
+    }
+    
+    public List<Training> getAllMinistryTraining(String ministry_id)
+    {
+        Cursor cursor = null;
+        List<Training> allTraining = new ArrayList<>();
+        
+        try
+        {
+            cursor = retrieveTrainingCursorByMinistry(ministry_id);
+            if (cursor != null && cursor.getCount() > 0)
+            {
+                cursor.moveToFirst();
+                for (int i = 0; i < cursor.getCount(); i++)
+                {
+                    List<Training.GCMTrainingCompletions> completed = getCompletedTrainingByTrainingId(cursor.getInt(cursor.getColumnIndex("id")));
+                    Training training = setTrainingFromCursor(cursor, completed);
+                    allTraining.add(training);
+                    cursor.moveToNext();
+                }
+            }
+            return allTraining;
         }
         catch (Exception e)
         {

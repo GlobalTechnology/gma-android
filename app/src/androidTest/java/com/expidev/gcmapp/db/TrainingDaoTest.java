@@ -13,6 +13,7 @@ import org.json.JSONException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -49,13 +50,17 @@ public class TrainingDaoTest extends InstrumentationTestCase
         assertEquals(training.getId(), 13);
         assertEquals(training.getMcc(), "slm");
         assertEquals(training.getName(), "Test Training Map12");
-        assertEquals(training.getMinistryId(), UUID.fromString("770ffd2c-d6ac-11e3-9e38-12725f8f377c"));
+        assertEquals(training.getMinistryId(), "770ffd2c-d6ac-11e3-9e38-12725f8f377c");
         assertEquals(training.getLongitude(), -90.3214498270645);
         assertEquals(training.getLatitude(), 15.533247294294055);
         assertEquals(training.getType(), "MC2");
         
         Calendar calendar = new GregorianCalendar(2014, Calendar.NOVEMBER, 13);
         assertEquals(training.getDate(), calendar.getTime());
+
+        List<Training> allTraining = trainingDao.getAllMinistryTraining("770ffd2c-d6ac-11e3-9e38-12725f8f377c");
+        assertNotNull(allTraining);
+        assertEquals(allTraining.size(), 3);
     }
     
     public void testSaveTraining()
