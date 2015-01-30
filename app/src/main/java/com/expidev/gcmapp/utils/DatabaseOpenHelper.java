@@ -13,13 +13,26 @@ import com.expidev.gcmapp.sql.TableNames;
 public class DatabaseOpenHelper extends SQLiteOpenHelper
 {
     private final String TAG = getClass().getSimpleName();
+    
+    private static DatabaseOpenHelper instance;
+    private Context context;
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "gcm_data.db";
 
-    public DatabaseOpenHelper(Context context)
+    private DatabaseOpenHelper(Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
+    }
+    
+    public static DatabaseOpenHelper getInstance(Context context)
+    {
+        if (instance == null)
+        {
+            instance = new DatabaseOpenHelper(context.getApplicationContext());
+        }
+        return instance;
     }
 
     @Override
@@ -113,5 +126,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.TRAINING.getTableName());
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.TRAINING_COMPLETIONS.getTableName());
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.ALL_MINISTRIES.getTableName());
+    
+    
     }
 }

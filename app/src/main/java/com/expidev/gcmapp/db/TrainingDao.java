@@ -14,14 +14,12 @@ import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
-import java.sql.Timestamp;
 
 /**
  * Created by matthewfrederick on 1/26/15.
@@ -37,7 +35,7 @@ public class TrainingDao
     
     private TrainingDao(final Context context)
     {
-        this.databaseHelper = new DatabaseOpenHelper(context);        
+        this.databaseHelper = DatabaseOpenHelper.getInstance(context);
     }
     
     public static TrainingDao getInstance(Context context)
@@ -86,36 +84,6 @@ public class TrainingDao
         return null;
     }
     
-    public List<Training> retrieveAllTraining()
-    {
-        Cursor cursor = null;
-        try
-        {
-            cursor = retrieveTrainingCursor();
-            if (cursor != null && cursor.getCount() > 0)
-            {
-                List<Training> trainings = new ArrayList<>(cursor.getCount());
-                cursor.moveToFirst();
-                for (int i = 0; i < cursor.getCount(); i++)
-                {
-                    trainings.add(setTrainingFromCursor(cursor));
-                    cursor.moveToNext();
-                }
-                
-                return trainings;
-            }
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
-        }
-        finally
-        {
-            if (cursor != null) cursor.close();
-        }
-        return null;
-    }
-    
     public Training retrieveTrainingById(int id)
     {
         Cursor cursor = null;
@@ -144,8 +112,13 @@ public class TrainingDao
     public void saveTrainingFromAPI(JSONArray jsonArray)
     {
         final SQLiteDatabase database = databaseHelper.getWritableDatabase();
+        
         try
         {
+            database.beginTransaction();
+            
+            Cursor existingTraining = retrieveTrainingCursor();
+            
             String trainingTable = TableNames.TRAINING.getTableName();
             
             for (int i = 0; i < jsonArray.length(); i++)
@@ -163,12 +136,8 @@ public class TrainingDao
                 trainingToInsert.put("latitude", training.getDouble("latitude"));
                 trainingToInsert.put("longitude", training.getDouble("longitude"));
                 trainingToInsert.put("synced", new Timestamp(new Date().getTime()).toString());
-
-                database.beginTransaction();
-
-                Training previousRecord = retrieveTrainingById(id);
                 
-                if (previousRecord == null)
+                if (!trainingExistsInDatabase(id, existingTraining))
                 {
                     database.insert(trainingTable, null, trainingToInsert);
                 }
@@ -195,8 +164,13 @@ public class TrainingDao
     public void saveTraining(Training training)
     {
         final SQLiteDatabase database = databaseHelper.getWritableDatabase();
+        
         try
         {
+            database.beginTransaction();
+
+            Cursor existingTraining = retrieveTrainingCursor();
+            
             String trainingTable = TableNames.TRAINING.getTableName();
             
             ContentValues trainingToInsert = new ContentValues();
@@ -209,12 +183,8 @@ public class TrainingDao
             trainingToInsert.put("latitude", training.getLatitude());
             trainingToInsert.put("longitude", training.getLongitude());
             trainingToInsert.put("synced", training.getSynced().toString());
-            
-            database.beginTransaction();
-            
-            Training previousRecord = retrieveTrainingById(training.getId());
 
-            if (previousRecord == null)
+            if (trainingExistsInDatabase(training.getId(), existingTraining))
             {
                 database.insert(trainingTable, null, trainingToInsert);
             }
@@ -258,6 +228,19 @@ public class TrainingDao
         }
     }
 
+    private boolean trainingExistsInDatabase(int id, Cursor existingTraining)
+    {
+        existingTraining.moveToFirst();
+        
+        for (int i = 0; i < existingTraining.getCount(); i++)
+        {
+            int existingId = existingTraining.getInt(existingTraining.getColumnIndex("id"));
+            if (existingId == id) return true;
+            existingTraining.moveToNext();
+        }
+        
+        return false;
+    }
 
     private Date stringToDate(String string) throws ParseException
     {

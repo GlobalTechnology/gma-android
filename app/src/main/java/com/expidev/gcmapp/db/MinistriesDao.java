@@ -29,7 +29,7 @@ public class MinistriesDao
 
     private MinistriesDao(final Context context)
     {
-        this.databaseHelper = new DatabaseOpenHelper(context);
+        this.databaseHelper = DatabaseOpenHelper.getInstance(context);
     }
 
     public static MinistriesDao getInstance(Context context)
@@ -493,4 +493,6 @@ public class MinistriesDao
             if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (saveAllMinistries)");
         }
     }
+    
+    
 }

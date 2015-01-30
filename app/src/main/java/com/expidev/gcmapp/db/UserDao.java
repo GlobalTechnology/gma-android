@@ -27,7 +27,7 @@ public class UserDao
     
     private UserDao(final Context context)
     {
-        this.databaseHelper = new DatabaseOpenHelper(context);        
+        this.databaseHelper = DatabaseOpenHelper.getInstance(context);
     }
     
     public static UserDao getInstance(Context context)
