@@ -382,22 +382,16 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         int layoutPosition = 1;
         for(Map.Entry<String, Integer> localDataSource : localBreakdown.entrySet())
         {
-            if(localDataSource.getKey().equals("total"))
+            //TODO: Should we skip 0 value rows?
+            if(localDataSource.getKey().equals("total")) // || localDataSource.getValue() == 0)
             {
                 continue;
             }
-            TextView localDataSourceName = createNameView(localDataSource.getKey());
-            TextView localDataSourceValue = createValueView(Integer.toString(localDataSource.getValue()));
 
-            LinearLayout linearLayout = new LinearLayout(this);
-            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-
-            linearLayout.addView(localDataSourceName);
-            linearLayout.addView(localDataSourceValue);
-
-            dataSection.addView(linearLayout, layoutPosition);
+            LinearLayout row = createRow(localDataSource.getKey(), localDataSource.getValue());
+            dataSection.addView(row, layoutPosition);
             layoutPosition++;
+
             dataSection.addView(new HorizontalLineView(this), layoutPosition);
             layoutPosition++;
         }
@@ -410,19 +404,9 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             dataSection.addView(horizontalLine);
 
             String name = teamMemberDetails.getFirstName() + " " + teamMemberDetails.getLastName();
-            Integer number = teamMemberDetails.getTotal();
 
-            TextView nameView = createNameView(name);
-            TextView valueView = createValueView(number.toString());
-
-            LinearLayout linearLayout = new LinearLayout(this);
-            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-
-            linearLayout.addView(nameView);
-            linearLayout.addView(valueView);
-
-            dataSection.addView(linearLayout);
+            LinearLayout row = createRow(name, teamMemberDetails.getTotal());
+            dataSection.addView(row);
         }
 
         List<SubMinistryDetails> subMinistryDetailsList = measurementDetails.getSubMinistryDetails();
@@ -436,17 +420,8 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
             for(SubMinistryDetails subMinistryDetails : subMinistryDetailsList)
             {
-                TextView subMinistryNameView = createNameView(subMinistryDetails.getName());
-                TextView subMinistryValueView = createValueView(Integer.toString(subMinistryDetails.getTotal()));
-
-                LinearLayout linearLayout = new LinearLayout(this);
-                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-                linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-
-                linearLayout.addView(subMinistryNameView);
-                linearLayout.addView(subMinistryValueView);
-
-                dataSection.addView(linearLayout);
+                LinearLayout row = createRow(subMinistryDetails.getName(), subMinistryDetails.getTotal());
+                dataSection.addView(row);
             }
         }
     }
@@ -478,5 +453,21 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         valueView.setLayoutParams(valueLayoutParams);
 
         return valueView;
+    }
+
+    private LinearLayout createRow(String name, int value)
+    {
+        TextView nameView = createNameView(name);
+        TextView valueView = createValueView(Integer.toString(value));
+
+        LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        linearLayout.setLayoutParams(
+            new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        linearLayout.addView(nameView);
+        linearLayout.addView(valueView);
+
+        return linearLayout;
     }
 }
