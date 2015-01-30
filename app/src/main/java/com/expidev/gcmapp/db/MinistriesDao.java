@@ -316,6 +316,7 @@ public class MinistriesDao
         finally
         {
             database.endTransaction();
+            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (saveAssociatedMinistries)");
         }
     }
 
@@ -444,6 +445,7 @@ public class MinistriesDao
         finally
         {
             database.endTransaction();
+            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (deleteAllData)");
         }
     }
 
@@ -488,6 +490,7 @@ public class MinistriesDao
         finally
         {
             database.endTransaction();
+            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (saveAllMinistries)");
         }
     }
 }
