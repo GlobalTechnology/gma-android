@@ -60,6 +60,8 @@ public class TrainingDaoTest extends InstrumentationTestCase
     
     public void testSaveTraining()
     {       
+        cleanupDatabase();
+        
         Training training = new Training();
         training.setId(1);
         training.setMinistryId(UUID.randomUUID());
