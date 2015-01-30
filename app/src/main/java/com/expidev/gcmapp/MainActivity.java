@@ -19,11 +19,11 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.expidev.gcmapp.GPSService.GPSTracker;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.db.TrainingDao;
 import com.expidev.gcmapp.db.UserDao;
+import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.model.User;
@@ -41,7 +41,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -67,7 +66,6 @@ public class MainActivity extends ActionBarActivity
     private LocalBroadcastManager manager;
     private GcmBroadcastReceiver gcmBroadcastReceiver;
     private ActionBar actionBar;
-    private GPSTracker gps;
     private boolean targets;
     private boolean groups;
     private boolean churches;
@@ -78,7 +76,11 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
     private String chosenMinistry;
+    
+    private GoogleMap map;
+    
     private Ministry currentMinistry;
+    private Assignment currentAssignment;
     
     private TextView mapOverlayText;
     
@@ -188,7 +190,6 @@ public class MainActivity extends ActionBarActivity
     {
         super.onDestroy();
         removeBroadcastReceivers();
-        gps.stopUsingGPS();
     }
 
     public void joinNewMinistry(MenuItem menuItem)
@@ -305,19 +306,31 @@ public class MainActivity extends ActionBarActivity
         if (chosenMinistry == null)
         {
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("chosen_ministry", associatedMinistries.get(0).getName());
-            chosenMinistry = associatedMinistries.get(0).getName();
+            editor.putString("chosen_ministry", associatedMinistries.get(1).getName());
+            chosenMinistry = associatedMinistries.get(1).getName();
             
-            currentMinistry = associatedMinistries.get(0);
+            currentMinistry = associatedMinistries.get(1);
+            currentAssignment = ministriesDao.retrieveCurrentAssignment(currentMinistry);
+
+            if (currentAssignment != null)
+            Log.i(TAG, "current assignment: " + currentAssignment.toString());
                 
         }
         else
         {
             for (Ministry ministry : associatedMinistries)
             {
-                if (ministry.getName().equals(chosenMinistry)) currentMinistry = ministry;
+                if (ministry.getName().equals(chosenMinistry))
+                {
+                    currentMinistry = ministry;
+                    currentAssignment = ministriesDao.retrieveCurrentAssignment(ministry);
+                    
+                    Log.i(TAG, "current assignment: " + currentAssignment.toString());
+                }
             }
         }
+        
+        if (map != null) zoomToLocation();
         
         Log.i(TAG, "Current Ministry: " + currentMinistry.getName());
         
@@ -366,27 +379,13 @@ public class MainActivity extends ActionBarActivity
     public void onMapReady(GoogleMap googleMap)
     {
         Log.i(TAG, "On Map Ready");
-        
-        gps = new GPSTracker(this);
-        
-        if (gps.canGetLocation())
-        {
-            LatLng latLng = new LatLng(gps.getLatitude(), gps.getLongitude());
-            zoomToLocation(latLng, googleMap);
-            googleMap.addMarker(new MarkerOptions()
-                    .position(latLng)
-                    .title("You"));
-        }
-        else
-        {
-            gps.showSettingsAlert();
-        }
+        this.map = googleMap;
     }
-    
-    private void zoomToLocation(LatLng latLng, GoogleMap map)
+
+    private void zoomToLocation()
     {
-        CameraUpdate center = CameraUpdateFactory.newLatLng(latLng);
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(currentAssignment.getLatitude(), currentAssignment.getLongitude()));
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(currentAssignment.getLocationZoom());
 
         map.moveCamera(center);
         map.moveCamera(zoom);

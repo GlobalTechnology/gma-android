@@ -133,6 +133,8 @@ public class AssociatedMinistriesService extends IntentService
 
     public static void saveAssociatedMinistriesFromServer(final Context context, JSONArray assignments)
     {
+        Log.i(TAG, assignments.toString());
+        
         Bundle extras = new Bundle(1);
         extras.putSerializable("type", SAVE_ASSOCIATED_MINISTRIES);
 

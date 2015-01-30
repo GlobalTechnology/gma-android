@@ -83,6 +83,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
             "id TEXT PRIMARY KEY, " +
             "team_role TEXT, " +               // Team Role of the current user for this ministry/team
             "ministry_id TEXT, " +
+            "latitude DECIMAL, " +
+            "longitude DECIMAL, " +
+            "location_zoom INTEGER, " +
             "last_synced TEXT, " +             // Last time this information was synced with the web
             "FOREIGN KEY(ministry_id) REFERENCES " + TableNames.ASSOCIATED_MINISTRIES.getTableName() + "(ministry_id));");
     }

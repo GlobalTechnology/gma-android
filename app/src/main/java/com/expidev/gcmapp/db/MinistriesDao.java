@@ -147,6 +147,49 @@ public class MinistriesDao
 
         return ministryList;
     }
+    
+    public Assignment retrieveCurrentAssignment(Ministry ministry)
+    {
+        Cursor cursor = null;
+        Log.i(TAG, "Looking for assignment with ministryId: " + ministry.getMinistryId());
+        
+        try
+        {
+            cursor = retrieveAssignmentsCursor();
+            
+            if (cursor != null && cursor.getCount() > 0)
+            {
+                cursor.moveToFirst();
+                for (int i = 0; i < cursor.getCount(); i++)
+                {
+                    Log.i(TAG, "assignment ministry id: " + cursor.getString(cursor.getColumnIndex("ministry_id")));
+                    if (cursor.getString(cursor.getColumnIndex("ministry_id")).equals(ministry.getMinistryId()))
+                    {
+                        return buildAssignmentFromCursor(cursor, ministry);
+                    }
+                }
+            }
+        }
+        finally
+        {
+            if (cursor != null) cursor.close();
+        }
+        
+        return null;
+    }
+
+    private Assignment buildAssignmentFromCursor(Cursor cursor, Ministry ministry)
+    {
+        Assignment assignment = new Assignment();
+        assignment.setId(cursor.getString(cursor.getColumnIndex("ministry_id")));
+        assignment.setLatitude(cursor.getDouble(cursor.getColumnIndex("latitude")));
+        assignment.setLongitude(cursor.getDouble(cursor.getColumnIndex("longitude")));
+        assignment.setMinistry(ministry);
+        assignment.setLocationZoom(cursor.getInt(cursor.getColumnIndex("location_zoom")));
+        assignment.setTeamRole(cursor.getString(cursor.getColumnIndex("team_role")));
+        
+        return assignment;
+    }
 
     private Ministry buildMinistryFromCursor(Cursor cursor)
     {
@@ -253,7 +296,6 @@ public class MinistriesDao
 
         return null;
     }
-
 
     public void saveAssociatedMinistries(List<Assignment> assignmentList)
     {
@@ -422,6 +464,9 @@ public class MinistriesDao
         assignmentValues.put("id", assignment.getId());
         assignmentValues.put("team_role", assignment.getTeamRole());
         assignmentValues.put("ministry_id", assignment.getMinistry().getMinistryId());
+        assignmentValues.put("latitude", assignment.getLatitude());
+        assignmentValues.put("longitude", assignment.getLongitude());
+        assignmentValues.put("location_zoom", assignment.getLocationZoom());
 
         return assignmentValues;
     }

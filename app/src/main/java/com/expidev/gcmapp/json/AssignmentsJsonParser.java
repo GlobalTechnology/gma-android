@@ -31,6 +31,12 @@ public class AssignmentsJsonParser
 
                 assignment.setId(assignmentJson.getString("id"));
                 assignment.setTeamRole(assignmentJson.getString("team_role"));
+                
+                JSONObject location = assignmentJson.getJSONObject("location");
+                assignment.setLatitude(location.getDouble("latitude"));
+                assignment.setLongitude(location.getDouble("longitude"));
+                
+                assignment.setLocationZoom(assignmentJson.getInt("location_zoom"));
 
                 Ministry ministry = MinistryJsonParser.parseMinistry(assignmentJson);
 
