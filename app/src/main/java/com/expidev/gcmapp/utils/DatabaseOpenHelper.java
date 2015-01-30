@@ -95,7 +95,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.USER.getTableName() +
             "(first_name TEXT, last_name TEXT, cas_username TEXT, person_id TEXT);");
     }
-    
+
     private void createTrainingTables(SQLiteDatabase db)
     {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.TRAINING.getTableName() +

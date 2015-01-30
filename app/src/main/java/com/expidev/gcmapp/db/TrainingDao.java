@@ -18,8 +18,9 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.UUID;
+import java.util.List;
 
 /**
  * Created by matthewfrederick on 1/26/15.
@@ -51,13 +52,13 @@ public class TrainingDao
         return instance;
     }
     
-    public Cursor retrieveTrainingCursor()
+    public Cursor retrieveTrainingCursor(String tableName)
     {
         final SQLiteDatabase database = databaseHelper.getReadableDatabase();
         
         try
         {
-            return database.query(TableNames.TRAINING.getTableName(), null, null, null, null, null, null);
+            return database.query(tableName, null, null, null, null, null, null);
         }
         catch (Exception e)
         {
@@ -84,19 +85,72 @@ public class TrainingDao
         return null;
     }
     
+    public Cursor retrieveCompletedTrainingCursor(int trainingId)
+    {
+        final SQLiteDatabase database = databaseHelper.getReadableDatabase();
+        String whereCondition = "training_id = ?";
+        String[] whereArgs = {String.valueOf(trainingId)};
+        
+        try
+        {
+            return database.query(TableNames.TRAINING_COMPLETIONS.getTableName(), null, whereCondition, whereArgs, null, null, null);
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, e.getMessage(), e);
+        }
+        return null;
+    }
+    
     public Training retrieveTrainingById(int id)
     {
+        // first see if there is any completed training for this training
+        List<Training.GCMTrainingCompletions> complete = getCompletedTrainingByTrainingId(id);
+        
         Cursor cursor = null;
+        
         try
         {
             cursor = retrieveTrainingCursorById(id);
+            
             if (cursor != null && cursor.getCount() == 1)
-            {
-                Log.i(TAG, "Count: " + cursor.getCount());
-                
+            {   
                 cursor.moveToFirst();
-                return setTrainingFromCursor(cursor);                
+                return setTrainingFromCursor(cursor, complete);                
             }
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, e.getMessage(), e);
+        }
+        finally
+        {
+            if (cursor != null) cursor.close();
+        }
+        return null;
+    }
+    
+    public List<Training.GCMTrainingCompletions> getCompletedTrainingByTrainingId(int id)
+    {
+        Cursor cursor = null;
+        List<Training.GCMTrainingCompletions> completed =  new ArrayList<>();
+        
+        try
+        {
+            cursor = retrieveCompletedTrainingCursor(id);
+            
+            if (cursor != null && cursor.getCount() > 0)
+            {
+                cursor.moveToFirst();
+                for (int i = 0; i < cursor.getCount(); i++)
+                {
+                    Training.GCMTrainingCompletions completedTraining = setCompletedTrainingFromCursor(cursor);
+                    completed.add(completedTraining);
+                    cursor.moveToNext();
+                }
+            }
+            
+            return completed;
         }
         catch (Exception e)
         {
@@ -116,10 +170,12 @@ public class TrainingDao
         try
         {
             database.beginTransaction();
-            
-            Cursor existingTraining = retrieveTrainingCursor();
-            
+
             String trainingTable = TableNames.TRAINING.getTableName();
+            String trainingCompleteTable = TableNames.TRAINING_COMPLETIONS.getTableName();
+            
+            Cursor existingTraining = retrieveTrainingCursor(trainingTable);
+            Cursor existingCompletedTraining = retrieveTrainingCursor(trainingCompleteTable);
             
             for (int i = 0; i < jsonArray.length(); i++)
             {   
@@ -137,6 +193,34 @@ public class TrainingDao
                 trainingToInsert.put("longitude", training.getDouble("longitude"));
                 trainingToInsert.put("synced", new Timestamp(new Date().getTime()).toString());
                 
+                JSONArray trainingCompletedArray = training.getJSONArray("gcm_training_completions");
+                
+                for (int j = 0; j < trainingCompletedArray.length(); j++)
+                {
+                    JSONObject completedTraining = trainingCompletedArray.getJSONObject(j);
+                    int completedId = completedTraining.getInt("id");
+                    
+                    ContentValues completedTrainingToInsert = new ContentValues();
+                    completedTrainingToInsert.put("id", completedId);
+                    completedTrainingToInsert.put("phase", completedTraining.getInt("phase"));
+                    completedTrainingToInsert.put("number_completed", completedTraining.getInt("number_completed"));
+                    completedTrainingToInsert.put("date", completedTraining.getString("date"));
+                    completedTrainingToInsert.put("training_id", completedTraining.getInt("training_id"));
+                    completedTrainingToInsert.put("synced", new Timestamp(new Date().getTime()).toString());
+                    
+                    if (!trainingExistsInDatabase(completedId, existingCompletedTraining))
+                    {
+                        database.insert(trainingCompleteTable, null, completedTrainingToInsert);
+                    }
+                    else
+                    {
+                        database.update(trainingCompleteTable, completedTrainingToInsert, null, null);
+                    }
+
+                    Log.i(TAG, "Inserted/Updated completed training: " + completedId);
+                    
+                }
+                
                 if (!trainingExistsInDatabase(id, existingTraining))
                 {
                     database.insert(trainingTable, null, trainingToInsert);
@@ -145,6 +229,8 @@ public class TrainingDao
                 {
                     database.update(trainingTable, trainingToInsert, null, null);
                 }
+                
+                Log.i(TAG, "Inserted/Updated training: " + id);
             }
 
             database.setTransactionSuccessful();
@@ -169,9 +255,11 @@ public class TrainingDao
         {
             database.beginTransaction();
 
-            Cursor existingTraining = retrieveTrainingCursor();
-            
             String trainingTable = TableNames.TRAINING.getTableName();
+            String completedTrainingTable = TableNames.TRAINING_COMPLETIONS.getTableName();
+
+            Cursor existingTraining = retrieveTrainingCursor(trainingTable);
+            Cursor existingCompletedTraining = retrieveTrainingCursor(completedTrainingTable);
             
             ContentValues trainingToInsert = new ContentValues();
             trainingToInsert.put("id", training.getId());
@@ -183,8 +271,33 @@ public class TrainingDao
             trainingToInsert.put("latitude", training.getLatitude());
             trainingToInsert.put("longitude", training.getLongitude());
             trainingToInsert.put("synced", training.getSynced().toString());
+            
+            if (training.getCompletions() != null && training.getCompletions().size() > 0)
+            {
 
-            if (trainingExistsInDatabase(training.getId(), existingTraining))
+                for (Training.GCMTrainingCompletions completion : training.getCompletions())
+                {
+                    ContentValues completedTrainingToInsert = new ContentValues();
+                    completedTrainingToInsert.put("id", completion.getId());
+                    completedTrainingToInsert.put("phase", completion.getPhase());
+                    completedTrainingToInsert.put("number_completed", completion.getNumberCompleted());
+                    completedTrainingToInsert.put("training_id", completion.getTrainingId());
+                    completedTrainingToInsert.put("synced", completion.getSynced().toString());
+
+                    if (!trainingExistsInDatabase(completion.getId(), existingCompletedTraining))
+                    {
+                        database.insert(completedTrainingTable, null, completedTrainingToInsert);
+                    }
+                    else
+                    {
+                        database.update(completedTrainingTable, completedTrainingToInsert, null, null);
+                    }
+
+                    Log.i(TAG, "Inserted/Updated completed training: " + completion.getId());
+                }
+            }
+
+            if (!trainingExistsInDatabase(training.getId(), existingTraining))
             {
                 database.insert(trainingTable, null, trainingToInsert);
             }
@@ -192,6 +305,8 @@ public class TrainingDao
             {
                 database.update(trainingTable, trainingToInsert, null, null);
             }
+
+            Log.i(TAG, "Inserted/Updated training: " + training.getId());
 
             database.setTransactionSuccessful();
         }
@@ -254,17 +369,22 @@ public class TrainingDao
         return dateFormat.format(date);
     }
     
-    private Training setTrainingFromCursor(Cursor cursor) throws ParseException
+    private Training setTrainingFromCursor(Cursor cursor, List<Training.GCMTrainingCompletions> completed) throws ParseException
     {
         Training training = new Training();
         training.setId(cursor.getInt(cursor.getColumnIndex("id")));
-        training.setMinistryId(UUID.fromString(cursor.getString(cursor.getColumnIndex("ministry_id"))));
+        training.setMinistryId(cursor.getString(cursor.getColumnIndex("ministry_id")));
         training.setName(cursor.getString(cursor.getColumnIndex("name")));
         training.setDate(stringToDate(cursor.getString(cursor.getColumnIndex("date"))));
         training.setType(cursor.getString(cursor.getColumnIndex("type")));
         training.setMcc(cursor.getString(cursor.getColumnIndex("mcc")));
         training.setLatitude(cursor.getDouble(cursor.getColumnIndex("latitude")));
         training.setLongitude(cursor.getDouble(cursor.getColumnIndex("longitude")));
+        
+        if (completed != null && completed.size() > 0)
+        {
+            training.setCompletions(completed);
+        }
         
         if (!cursor.getString(cursor.getColumnIndex("synced")).isEmpty())
         {
@@ -279,5 +399,29 @@ public class TrainingDao
         }
         
         return training;
+    }
+    
+    private Training.GCMTrainingCompletions setCompletedTrainingFromCursor(Cursor cursor) throws ParseException
+    {
+        Training.GCMTrainingCompletions trainingCompletions = new Training.GCMTrainingCompletions();
+        trainingCompletions.setId(cursor.getInt(cursor.getColumnIndex("id")));
+        trainingCompletions.setPhase(cursor.getInt(cursor.getColumnIndex("phase")));
+        trainingCompletions.setNumberCompleted(cursor.getInt(cursor.getColumnIndex("number_completed")));
+        trainingCompletions.setTrainingId(cursor.getInt(cursor.getColumnIndex("training_id")));
+        trainingCompletions.setDate(stringToDate(cursor.getString(cursor.getColumnIndex("date"))));
+        
+        if (!cursor.getString(cursor.getColumnIndex("synced")).isEmpty())
+        {
+            try
+            {
+                trainingCompletions.setSynced(Timestamp.valueOf(cursor.getString(cursor.getColumnIndex("synced"))));
+            }
+            catch (Exception e)
+            {
+                Log.i(TAG, "Could not parse Timestamp");
+            }
+        }
+        
+        return trainingCompletions;
     }
 }

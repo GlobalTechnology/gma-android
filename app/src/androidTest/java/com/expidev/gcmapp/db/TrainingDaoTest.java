@@ -64,7 +64,7 @@ public class TrainingDaoTest extends InstrumentationTestCase
         
         Training training = new Training();
         training.setId(1);
-        training.setMinistryId(UUID.randomUUID());
+        training.setMinistryId(UUID.randomUUID().toString());
         training.setLongitude(1.12345);
         training.setLatitude(3.14159);
         training.setMcc("slm");

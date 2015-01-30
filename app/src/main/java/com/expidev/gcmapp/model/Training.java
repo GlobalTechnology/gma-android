@@ -3,7 +3,6 @@ package com.expidev.gcmapp.model;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by matthewfrederick on 1/26/15.
@@ -11,7 +10,7 @@ import java.util.UUID;
 public class Training
 {
     private int id;
-    private UUID ministryId;
+    private String ministryId;
     private String name;
     private Date date;
     private String type;
@@ -31,12 +30,12 @@ public class Training
         this.id = id;
     }
 
-    public UUID getMinistryId()
+    public String getMinistryId()
     {
         return ministryId;
     }
 
-    public void setMinistryId(UUID ministryId)
+    public void setMinistryId(String ministryId)
     {
         this.ministryId = ministryId;
     }
@@ -121,7 +120,7 @@ public class Training
         this.synced = synced;
     }
 
-    public class GCMTrainingCompletions
+    public static class GCMTrainingCompletions
     {
         private int id;
         private int phase;

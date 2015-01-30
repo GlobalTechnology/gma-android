@@ -102,6 +102,9 @@ public class MainActivity extends ActionBarActivity
         gcmBroadcastReceiver = new GcmBroadcastReceiver(theKey, this);
         gcmBroadcastReceiver.registerReceiver(manager);
         
+        // This call at times will create a null pointer. However, this is no big deal since it is call
+        // again later. It could be removed here; however, this does help a returning user retrieve
+        // their saved information a little quicker.
         getChosenMinistry();
 
         if (Device.isConnected(getApplicationContext()))
