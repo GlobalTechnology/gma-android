@@ -125,7 +125,7 @@ public class UserDao
         {
             database.endTransaction();
             
-            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread");
+            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (saveUser)");
         }
     }
 
@@ -146,7 +146,7 @@ public class UserDao
         {
             database.endTransaction();
 
-            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread");
+            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (deleteAllData)");
         }
     }
 }
