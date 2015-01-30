@@ -114,6 +114,4 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.TRAINING_COMPLETIONS.getTableName());
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.ALL_MINISTRIES.getTableName());
     }
-    
-    
 }
