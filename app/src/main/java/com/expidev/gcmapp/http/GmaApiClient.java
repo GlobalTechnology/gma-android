@@ -204,6 +204,37 @@ public class GmaApiClient
         return null;
     }
 
+    public JSONObject getDetailsForMeasurement(
+        String measurementId,
+        String sessionTicket,
+        String ministryId,
+        String mcc,
+        String period)
+    {
+        try
+        {
+            String urlString = BuildConfig.GCM_BASE_URI + "measurements/" + measurementId +
+                "?token=" + sessionTicket +
+                "&ministry_id=" + ministryId +
+                "&mcc=" + mcc;
+
+            if(period != null)
+            {
+                urlString += "&period=" + period;
+            }
+
+            Log.i(TAG, "Url: " + urlString);
+
+            return new JSONObject(httpGet(new URL(urlString)));
+        }
+        catch(Exception e)
+        {
+            Log.e(TAG, e.getMessage(), e);
+        }
+
+        return null;
+    }
+    
     private String httpGet(URL url) throws IOException, JSONException, URISyntaxException
     {
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
