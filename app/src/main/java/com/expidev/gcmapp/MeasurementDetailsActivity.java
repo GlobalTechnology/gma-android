@@ -1,11 +1,15 @@
 package com.expidev.gcmapp;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,8 +18,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.expidev.gcmapp.model.measurement.MeasurementDetails;
+import com.expidev.gcmapp.model.measurement.SubMinistryDetails;
+import com.expidev.gcmapp.model.measurement.TeamMemberDetails;
+import com.expidev.gcmapp.service.MeasurementsService;
+import com.expidev.gcmapp.service.Type;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.ViewUtils;
 import com.expidev.gcmapp.view.HorizontalLineView;
+import com.expidev.gcmapp.view.TextHeaderView;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
@@ -25,8 +36,10 @@ import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
-import java.util.HashMap;
+import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by William.Randall on 1/28/2015.
@@ -37,6 +50,8 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     private final String PREF_NAME = "gcm_prefs";
 
     private SharedPreferences preferences;
+    private LocalBroadcastManager broadcastManager;
+    private BroadcastReceiver broadcastReceiver;
 
     // The main dataset that includes all the series that go into a chart
     private XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
@@ -49,6 +64,9 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     // The chart view that displays the data
     private GraphicalView chartView;
 
+    private String measurementName;
+    private String ministryName;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -58,10 +76,93 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
 
-        initializeRenderer();
-        initializeSeriesData();
-        renderGraph();
-        initializeDataSection();
+        String measurementId = getIntent().getStringExtra("measurementId");
+        String ministryId = getIntent().getStringExtra("ministryId");
+        String mcc = getIntent().getStringExtra("mcc");
+        String period = getIntent().getStringExtra("period");
+        measurementName = getIntent().getStringExtra("measurementName");
+        ministryName = getIntent().getStringExtra("ministryName");
+
+        MeasurementsService.retrieveDetailsForMeasurement(
+            this, measurementId, preferences.getString("session_ticket", null), ministryId, mcc, period);
+    }
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        setupBroadcastReceivers();
+    }
+
+    private void setupBroadcastReceivers()
+    {
+        broadcastManager = LocalBroadcastManager.getInstance(this);
+
+        broadcastReceiver = new BroadcastReceiver()
+        {
+            @Override
+            public void onReceive(Context context, Intent intent)
+            {
+                if (BroadcastUtils.ACTION_START.equals(intent.getAction()))
+                {
+                    Log.i(TAG, "Action Started");
+                }
+                else if (BroadcastUtils.ACTION_RUNNING.equals(intent.getAction()))
+                {
+                    Log.i(TAG, "Action Running");
+                }
+                else if (BroadcastUtils.ACTION_STOP.equals(intent.getAction()))
+                {
+                    Log.i(TAG, "Action Done");
+
+                    Type type = (Type) intent.getSerializableExtra(BroadcastUtils.ACTION_TYPE);
+
+                    switch (type)
+                    {
+                        case RETRIEVE_MEASUREMENT_DETAILS:
+                            Serializable data = intent.getSerializableExtra("measurementDetails");
+
+                            if(data != null)
+                            {
+                                Log.i(TAG, "Measurement details retrieved");
+                                MeasurementDetails measurementDetails = (MeasurementDetails) data;
+
+                                initializeRenderer(measurementDetails.getSixMonthTotalAmounts().keySet());
+                                initializeSeriesData(measurementDetails);
+                                renderGraph();
+                                initializeDataSection(measurementDetails);
+                            }
+                            else
+                            {
+                                Log.w(TAG, "No data for measurement");
+                                finish();
+                            }
+                            break;
+                        default:
+                            Log.i(TAG, "Unhandled Type: " + type);
+                            break;
+                    }
+                }
+            }
+        };
+
+        broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
+        broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());
+        broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.stopFilter());
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        removeBroadcastReceivers();
+    }
+
+    private void removeBroadcastReceivers()
+    {
+        broadcastManager = LocalBroadcastManager.getInstance(this);
+        broadcastManager.unregisterReceiver(broadcastReceiver);
+        broadcastReceiver = null;
     }
 
     @Override
@@ -100,7 +201,8 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedState) {
+    protected void onRestoreInstanceState(@NonNull Bundle savedState)
+    {
         super.onRestoreInstanceState(savedState);
 
         // restore the current data, for instance when changing the screen orientation
@@ -113,7 +215,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     /**
      * Sets the properties for the graph as a whole
      */
-    private void initializeRenderer()
+    private void initializeRenderer(Set<String> months)
     {
         renderer.setApplyBackgroundColor(true);
         renderer.setBackgroundColor(Color.WHITE);
@@ -132,7 +234,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         renderer.setPanEnabled(false);
         renderer.setShowGridX(true);
 
-        renderer.setChartTitle(getString(R.string.measurement_detail_graph_title));
+        renderer.setChartTitle(measurementName);
         renderer.setShowLegend(true);
         renderer.setShowLabels(true);
 
@@ -144,63 +246,64 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         renderer.setXAxisMax(5.0d);
 
         renderer.clearXTextLabels();
-        renderer.addXTextLabel(0.0, "2014-07");
-        renderer.addXTextLabel(1.0, "2014-08");
-        renderer.addXTextLabel(2.0, "2014-09");
-        renderer.addXTextLabel(3.0, "2014-10");
-        renderer.addXTextLabel(4.0, "2014-11");
-        renderer.addXTextLabel(5.0, "2014-12");
+
+        double xIndex = 0.0d;
+        for(String month : months)
+        {
+            renderer.addXTextLabel(xIndex, month);
+            xIndex++;
+        }
     }
 
-    private void initializeSeriesData()
+    private void initializeSeriesData(MeasurementDetails measurementDetails)
     {
-        initializeTotalSeries();
-        initializeLocalSeries();
-        initializeMySeries();
+        initializeTotalSeries(measurementDetails.getSixMonthTotalAmounts());
+        initializeLocalSeries(measurementDetails.getSixMonthLocalAmounts());
+        initializeMySeries(measurementDetails.getSixMonthPersonalAmounts());
     }
 
-    private void initializeTotalSeries()
+    private void initializeTotalSeries(Map<String, Integer> data)
     {
         currentSeries = new XYSeries(legendTitleWithPadding("Total"));
 
-        currentSeries.add(0.0d, 0.0d);
-        currentSeries.add(1.0d, 0.0d);
-        currentSeries.add(2.0d, 0.0d);
-        currentSeries.add(3.0d, 115.0d);
-        currentSeries.add(4.0d, 75.0d);
-        currentSeries.add(5.0d, 80.0d);
+        double xPoint = 0.0d;
+        for(int dataValue : data.values())
+        {
+            currentSeries.add(xPoint, dataValue);
+            xPoint++;
+        }
 
         dataset.addSeries(currentSeries);
 
         initializeSeriesRenderer(Color.BLUE);
     }
 
-    private void initializeLocalSeries()
+    private void initializeLocalSeries(Map<String, Integer> data)
     {
         currentSeries = new XYSeries(legendTitleWithPadding("Local"));
 
-        currentSeries.add(0.0d, 0.0d);
-        currentSeries.add(1.0d, 0.0d);
-        currentSeries.add(2.0d, 0.0d);
-        currentSeries.add(3.0d, 115.0d);
-        currentSeries.add(4.0d, 75.0d);
-        currentSeries.add(5.0d, 70.0d);
+        double xPoint = 0.0d;
+        for(int dataValue : data.values())
+        {
+            currentSeries.add(xPoint, dataValue);
+            xPoint++;
+        }
 
         dataset.addSeries(currentSeries);
 
         initializeSeriesRenderer(Color.RED);
     }
 
-    private void initializeMySeries()
+    private void initializeMySeries(Map<String, Integer> data)
     {
         currentSeries = new XYSeries("Me");
 
-        currentSeries.add(0.0d, 0.0d);
-        currentSeries.add(1.0d, 0.0d);
-        currentSeries.add(2.0d, 0.0d);
-        currentSeries.add(3.0d, 0.0d);
-        currentSeries.add(4.0d, 0.0d);
-        currentSeries.add(5.0d, 0.0d);
+        double xPoint = 0.0d;
+        for(int dataValue : data.values())
+        {
+            currentSeries.add(xPoint, dataValue);
+            xPoint++;
+        }
 
         dataset.addSeries(currentSeries);
 
@@ -267,28 +370,47 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         }
     }
 
-    private void initializeDataSection()
+    private void initializeDataSection(MeasurementDetails measurementDetails)
     {
         TextView totalNumberTitle = (TextView) findViewById(R.id.md_total_number_title);
-        totalNumberTitle.setText("Guatemala (Local)");
-
-        TextView totalNumberLabel = (TextView) findViewById(R.id.md_total_number_label);
-        totalNumberLabel.setText("training");
-
-        int total = 40;
-        TextView totalNumberData = (TextView) findViewById(R.id.md_total_number);
-        totalNumberData.setText(Integer.toString(total));
+        totalNumberTitle.setText(ministryName);
 
         LinearLayout dataSection = (LinearLayout) findViewById(R.id.md_chart_data);
-        Map<String, Integer> dummyData = dummyData();
 
-        for(Map.Entry<String, Integer> entry : dummyData.entrySet())
+        Map<String, Integer> localBreakdown = measurementDetails.getLocalBreakdown();
+
+        int layoutPosition = 1;
+        for(Map.Entry<String, Integer> localDataSource : localBreakdown.entrySet())
+        {
+            if(localDataSource.getKey().equals("total"))
+            {
+                continue;
+            }
+            TextView localDataSourceName = createNameView(localDataSource.getKey());
+            TextView localDataSourceValue = createValueView(Integer.toString(localDataSource.getValue()));
+
+            LinearLayout linearLayout = new LinearLayout(this);
+            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+            linearLayout.addView(localDataSourceName);
+            linearLayout.addView(localDataSourceValue);
+
+            dataSection.addView(linearLayout, layoutPosition);
+            layoutPosition++;
+            dataSection.addView(new HorizontalLineView(this), layoutPosition);
+            layoutPosition++;
+        }
+
+        List<TeamMemberDetails> teamMemberDetailsList = measurementDetails.getTeamMemberDetails();
+
+        for(TeamMemberDetails teamMemberDetails : teamMemberDetailsList)
         {
             HorizontalLineView horizontalLine = new HorizontalLineView(this);
             dataSection.addView(horizontalLine);
 
-            String name = entry.getKey();
-            Integer number = entry.getValue();
+            String name = teamMemberDetails.getFirstName() + " " + teamMemberDetails.getLastName();
+            Integer number = teamMemberDetails.getTotal();
 
             TextView nameView = createNameView(name);
             TextView valueView = createValueView(number.toString());
@@ -301,6 +423,31 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             linearLayout.addView(valueView);
 
             dataSection.addView(linearLayout);
+        }
+
+        List<SubMinistryDetails> subMinistryDetailsList = measurementDetails.getSubMinistryDetails();
+
+        if(subMinistryDetailsList.size() > 0)
+        {
+            TextHeaderView subMinistryTextView = new TextHeaderView(this);
+            subMinistryTextView.setText(R.string.sub_team_ministries_header);
+
+            dataSection.addView(subMinistryTextView);
+
+            for(SubMinistryDetails subMinistryDetails : subMinistryDetailsList)
+            {
+                TextView subMinistryNameView = createNameView(subMinistryDetails.getName());
+                TextView subMinistryValueView = createValueView(Integer.toString(subMinistryDetails.getTotal()));
+
+                LinearLayout linearLayout = new LinearLayout(this);
+                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+                linearLayout.addView(subMinistryNameView);
+                linearLayout.addView(subMinistryValueView);
+
+                dataSection.addView(linearLayout);
+            }
         }
     }
 
@@ -331,19 +478,5 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         valueView.setLayoutParams(valueLayoutParams);
 
         return valueView;
-    }
-
-    private Map<String, Integer> dummyData()
-    {
-        Map<String, Integer> dummyData = new HashMap<String, Integer>();
-        dummyData.put("Keith Seabourn", 12);
-        dummyData.put("Mark Griffen", 0);
-        dummyData.put("Accounts Team", 0);
-        dummyData.put("Stefan Dell", 0);
-        dummyData.put("Mike Thacker", 0);
-        dummyData.put("Ryan Carlson", 0);
-        dummyData.put("Matthew Ritsema", 0);
-
-        return dummyData;
     }
 }

@@ -47,10 +47,10 @@
     <string name="period_right">&#62;&#62;</string>
 
     <!-- Measurement Details Graph -->
-    <string name="measurement_detail_graph_title">_Training for Action</string>
     <string name="action_measurement_details">Measurement Details</string>
     <string name="local">Local</string>
     <string name="team_members_title">Team Members</string>
     <string name="you_label">You</string>
+    <string name="sub_team_ministries_header">Sub-Team/Ministries</string>
 
 </resources>

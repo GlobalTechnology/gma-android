@@ -62,6 +62,8 @@ public class MeasurementsJsonParser
             measurementDetails.setSubMinistryDetails(parseSubMinistryDetails(json.getJSONArray("sub_ministries")));
             measurementDetails.setTeamMemberDetails(parseTeamDetails(json.getJSONArray("team")));
             measurementDetails.setSelfAssignedDetails(parseTeamDetails(json.getJSONArray("self_assigned")));
+
+            return measurementDetails;
         }
         catch(Exception e)
         {

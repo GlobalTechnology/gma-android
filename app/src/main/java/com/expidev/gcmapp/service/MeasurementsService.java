@@ -22,6 +22,8 @@ import static com.expidev.gcmapp.service.Type.SEARCH_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_MEASUREMENT_DETAILS;
 import static com.expidev.gcmapp.utils.BroadcastUtils.measurementDetailsReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.measurementsReceivedBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
 
 /**
  * Created by William.Randall on 2/4/2015.
@@ -46,12 +48,14 @@ public class MeasurementsService extends IntentService
     {
         super.onCreate();
         broadcastManager = LocalBroadcastManager.getInstance(this);
+        broadcastManager.sendBroadcast(startBroadcast());
     }
 
     @Override
     public void onHandleIntent(Intent intent)
     {
-        final Type type = (Type)intent.getSerializableExtra("type");
+        broadcastManager.sendBroadcast(runningBroadcast());
+        final Type type = (Type) intent.getSerializableExtra("type");
 
         switch(type)
         {

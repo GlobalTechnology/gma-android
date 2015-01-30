@@ -401,7 +401,13 @@ public class MeasurementsActivity extends ActionBarActivity
 
     public void drillIntoMeasurementDetails(Measurement measurement)
     {
-        startActivity(new Intent(this, MeasurementDetailsActivity.class));
+        Intent goToMeasurementDetails = new Intent(this, MeasurementDetailsActivity.class);
+        goToMeasurementDetails.putExtra("measurementId", measurement.getMeasurementId());
+        goToMeasurementDetails.putExtra("ministryId", chosenMinistry.getMinistryId());
+        goToMeasurementDetails.putExtra("ministryName", chosenMinistry.getName());
+        goToMeasurementDetails.putExtra("mcc", chosenMcc);
+        goToMeasurementDetails.putExtra("measurementName", measurement.getName());
+        startActivity(goToMeasurementDetails);
     }
 
     public void goToPreviousPeriod(View view)
