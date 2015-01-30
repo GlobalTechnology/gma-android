@@ -187,6 +187,8 @@ public class TrainingDao
         finally
         {
             database.endTransaction();
+
+            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (saveTrainingFromAPI)");
         }
     }
     
@@ -230,6 +232,8 @@ public class TrainingDao
         finally
         {
             database.endTransaction();
+
+            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (saveTraining)");
         }
     }
 
@@ -249,6 +253,8 @@ public class TrainingDao
         } finally
         {
             database.endTransaction();
+
+            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (deleteAllData)");
         }
     }
 
