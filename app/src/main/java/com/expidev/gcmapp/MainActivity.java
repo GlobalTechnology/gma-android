@@ -325,17 +325,19 @@ public class MainActivity extends ActionBarActivity
                     currentMinistry = ministry;
                     currentAssignment = ministriesDao.retrieveCurrentAssignment(ministry);
                     
-                    Log.i(TAG, "current assignment: " + currentAssignment.toString());
+                    if (currentAssignment != null)
+                    {
+                        Log.i(TAG, "current assignment: " + currentAssignment.toString());
+                    }
                 }
             }
         }
         
-        if (map != null) zoomToLocation();
-        
-        Log.i(TAG, "Current Ministry: " + currentMinistry.getName());
-        
+        if (map != null && currentAssignment != null) zoomToLocation();
+
         if (currentMinistry != null)
-        {   
+        {
+            Log.i(TAG, "Current Ministry: " + currentMinistry.getName());
             String mcc = null;
             if (currentMinistry.hasSlm()) mcc = "slm";
             else if (currentMinistry.hasDs()) mcc = "ds";
