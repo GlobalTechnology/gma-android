@@ -19,6 +19,17 @@ public class Training
     private double longitude;
     private List<GCMTrainingCompletions> completions;
     private Timestamp synced;
+    
+    public static boolean equals(Training first, Training second)
+    {
+        // does everything in the object need to be compared?
+        
+        if (first.getId() != second.getId()) return false;
+        if (!first.getName().equals(second.getName())) return false;
+        if (!first.getMinistryId().equals(second.getMinistryId())) return false;
+        
+        return true;
+    }
 
     public int getId()
     {
@@ -128,6 +139,15 @@ public class Training
         private Date date;
         private int trainingId;
         private Timestamp synced;
+        
+        public static boolean equals(GCMTrainingCompletions first, GCMTrainingCompletions second)
+        {
+            if (first.getId() != second.getId()) return false;
+            if (first.getPhase() != second.getPhase()) return false;
+            if (first.getTrainingId() != second.getTrainingId()) return false;
+
+            return true;
+        }
 
         public int getId()
         {

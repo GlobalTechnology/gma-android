@@ -121,6 +121,7 @@ public class TrainingDao
     
     public Training retrieveTrainingById(int id)
     {
+        
         // first see if there is any completed training for this training
         List<Training.GCMTrainingCompletions> complete = getCompletedTrainingByTrainingId(id);
         
@@ -162,10 +163,24 @@ public class TrainingDao
                 {
                     List<Training.GCMTrainingCompletions> completed = getCompletedTrainingByTrainingId(cursor.getInt(cursor.getColumnIndex("id")));
                     Training training = setTrainingFromCursor(cursor, completed);
-                    allTraining.add(training);
+                    
+                    // if size is 0 go ahead an add
+                    if (allTraining.size() > 0)
+                    {
+                        for (Training trainingAlreadyAdded : allTraining)
+                        {
+                            if (!Training.equals(trainingAlreadyAdded, training))
+                                allTraining.add(training);
+                        }
+                    }
+                    else
+                    {
+                        allTraining.add(training);
+                    }
                     cursor.moveToNext();
                 }
             }
+
             return allTraining;
         }
         catch (Exception e)
@@ -194,7 +209,19 @@ public class TrainingDao
                 for (int i = 0; i < cursor.getCount(); i++)
                 {
                     Training.GCMTrainingCompletions completedTraining = setCompletedTrainingFromCursor(cursor);
-                    completed.add(completedTraining);
+                    
+                    // if size is 0, go ahead and add
+                    if (completed.size() > 0)
+                    {
+                        for (Training.GCMTrainingCompletions training : completed)
+                        {
+                            if (!Training.GCMTrainingCompletions.equals(training, completedTraining)) completed.add(completedTraining);
+                        }
+                    }
+                    else
+                    {
+                        completed.add(completedTraining);
+                    }
                     cursor.moveToNext();
                 }
             }
@@ -273,13 +300,13 @@ public class TrainingDao
                 if (!trainingExistsInDatabase(id, existingTraining))
                 {
                     database.insert(trainingTable, null, trainingToInsert);
+                    Log.i(TAG, "Inserted training: " + id);
                 }
                 else
                 {
                     database.update(trainingTable, trainingToInsert, null, null);
+                    Log.i(TAG, "Updated training: " + id);
                 }
-                
-                Log.i(TAG, "Inserted/Updated training: " + id);
             }
 
             database.setTransactionSuccessful();
@@ -349,13 +376,13 @@ public class TrainingDao
             if (!trainingExistsInDatabase(training.getId(), existingTraining))
             {
                 database.insert(trainingTable, null, trainingToInsert);
+                Log.i(TAG, "Inserted training: " + training.getId());
             }
             else
             {
                 database.update(trainingTable, trainingToInsert, null, null);
+                Log.i(TAG, "Updated training: " + training.getId());
             }
-
-            Log.i(TAG, "Inserted/Updated training: " + training.getId());
 
             database.setTransactionSuccessful();
         }

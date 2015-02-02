@@ -404,7 +404,7 @@ public class MainActivity extends ActionBarActivity
             
             for (Training training : allTraining)
             {
-                Log.i(TAG, "Adding training marker at: " + training.getLatitude() + ", " + training.getLongitude());
+                Log.i(TAG, "Adding training marker id: " + training.getId() + " at: " + training.getLatitude() + ", " + training.getLongitude());
                 
                 map.addMarker(new MarkerOptions()
                 .position(new LatLng(training.getLatitude(), training.getLongitude()))
