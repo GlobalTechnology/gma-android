@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
@@ -102,9 +101,9 @@ public class MainActivity extends ActionBarActivity
         
         mapOverlayText = (TextView) findViewById(R.id.map_text);
 
-        getMapPreferences();
-        
         preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+
+        getMapPreferences();
         
         setupBroadcastReceivers();
 
@@ -276,13 +275,12 @@ public class MainActivity extends ActionBarActivity
     
     private void getMapPreferences()
     {
-        mapPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        targets = mapPreferences.getBoolean("targets", true);
-        groups = mapPreferences.getBoolean("groups", true);
-        churches = mapPreferences.getBoolean("churches", true);
-        multiplyingChurches = mapPreferences.getBoolean("multiplyingChurches", true);
-        trainingActivities = mapPreferences.getBoolean("trainingActivities", true);
-        campuses = mapPreferences.getBoolean("campuses", true);
+        targets = preferences.getBoolean("targets", true);
+        groups = preferences.getBoolean("groups", true);
+        churches = preferences.getBoolean("churches", true);
+        multiplyingChurches = preferences.getBoolean("multiplyingChurches", true);
+        trainingActivities = preferences.getBoolean("trainingActivities", true);
+        campuses = preferences.getBoolean("campuses", true);
     }
     
     private void login()

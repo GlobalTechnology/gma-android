@@ -28,6 +28,7 @@
     <string name="logout_message">Are you sure you want to logout?</string>
     <string name="title_activity_map_settings">MapSettings</string>
     
+    <!-- Map Settings -->
     <string name="map_settings">Map Settings</string>
     <string name="info">Show/Hide Icons</string>
     <string name="targets">Targets</string>
