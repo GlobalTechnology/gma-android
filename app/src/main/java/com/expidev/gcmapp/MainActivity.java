@@ -40,7 +40,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -392,6 +394,26 @@ public class MainActivity extends ActionBarActivity
         map.moveCamera(center);
         map.moveCamera(zoom);
     }
+    
+    private void addTrainingMakersToMap()
+    {
+        // do not show training activities if turned off in map settings
+        if (map != null && trainingActivities)
+        {
+            Log.i(TAG, "Adding Training to map. Number of trainings: " + allTraining.size());
+            
+            for (Training training : allTraining)
+            {
+                Log.i(TAG, "Adding training marker at: " + training.getLatitude() + ", " + training.getLongitude());
+                
+                map.addMarker(new MarkerOptions()
+                .position(new LatLng(training.getLatitude(), training.getLongitude()))
+                .title(training.getName())
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.training)));
+            }
+        }
+        
+    }
 
     private void setupBroadcastReceivers()
     {
@@ -434,6 +456,8 @@ public class MainActivity extends ActionBarActivity
                             
                             TrainingDao trainingDao = TrainingDao.getInstance(context);
                             allTraining = trainingDao.getAllMinistryTraining(currentMinistry.getMinistryId());
+                            
+                            addTrainingMakersToMap();
                             
                             break;
                         case RETRIEVE_ALL_MINISTRIES:
