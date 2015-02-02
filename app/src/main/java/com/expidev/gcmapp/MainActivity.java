@@ -79,6 +79,10 @@ public class MainActivity extends ActionBarActivity
     private BroadcastReceiver broadcastReceiver;
     private String chosenMinistry;
     
+    // try to cut down on api calls
+    private boolean trainingDownloaded = false;
+    private boolean ministriesDownloaded = false;
+    
     private GoogleMap map;
     
     private Ministry currentMinistry;
@@ -350,7 +354,10 @@ public class MainActivity extends ActionBarActivity
             if (mcc != null) mccDisplay = " (" + mcc +")";
             mapOverlayText.setText(currentMinistry.getName() + mccDisplay);
             
-            trainingSearch(currentMinistry.getMinistryId(), mcc);
+            if (!trainingDownloaded)
+            {
+                trainingSearch(currentMinistry.getMinistryId(), mcc);
+            }
         }
     }
 
@@ -448,11 +455,16 @@ public class MainActivity extends ActionBarActivity
                             String sessionTicket = preferences.getString("session_ticket", null);
                             Log.i(TAG, "Session Ticket: " + sessionTicket);
 
-                            AssociatedMinistriesService.retrieveAllMinistries(getApplicationContext(), sessionTicket);
+                            if (!ministriesDownloaded)
+                            {
+                                AssociatedMinistriesService.retrieveAllMinistries(getApplicationContext(), sessionTicket);
+                            }
                             
                             break;
                         case TRAINING:
                             Log.i(TAG, "Training search complete and training saved");
+                            
+                            trainingDownloaded = true;
                             
                             TrainingDao trainingDao = TrainingDao.getInstance(context);
                             allTraining = trainingDao.getAllMinistryTraining(currentMinistry.getMinistryId());
@@ -467,6 +479,7 @@ public class MainActivity extends ActionBarActivity
                             {
                                 List<Ministry> allMinistries = (ArrayList<Ministry>) data;
                                 AssociatedMinistriesService.saveAllMinistries(getApplicationContext(), allMinistries);
+                                ministriesDownloaded = true;
                             }
                             else
                             {

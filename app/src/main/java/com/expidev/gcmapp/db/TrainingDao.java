@@ -167,11 +167,12 @@ public class TrainingDao
                     // if size is 0 go ahead an add
                     if (allTraining.size() > 0)
                     {
-                        for (Training trainingAlreadyAdded : allTraining)
+                        boolean exists = false;
+                        for (int j = 0; j < allTraining.size(); j++)
                         {
-                            if (!Training.equals(trainingAlreadyAdded, training))
-                                allTraining.add(training);
+                            if (Training.equals(allTraining.get(j), training)) exists = true;
                         }
+                        if (!exists) allTraining.add(training);
                     }
                     else
                     {
@@ -213,10 +214,12 @@ public class TrainingDao
                     // if size is 0, go ahead and add
                     if (completed.size() > 0)
                     {
-                        for (Training.GCMTrainingCompletions training : completed)
+                        boolean exists = false;
+                        for (int j = 0; j < completed.size(); j++)
                         {
-                            if (!Training.GCMTrainingCompletions.equals(training, completedTraining)) completed.add(completedTraining);
+                            if (Training.GCMTrainingCompletions.equals(completed.get(j), completedTraining)) exists = true;
                         }
+                        if (!exists) completed.add(completedTraining);
                     }
                     else
                     {
