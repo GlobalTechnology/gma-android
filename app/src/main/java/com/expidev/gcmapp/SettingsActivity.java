@@ -17,7 +17,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.expidev.gcmapp.model.AssociatedMinistry;
-import com.expidev.gcmapp.service.AssociatedMinistriesService;
+import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.Type;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
@@ -73,8 +73,7 @@ public class SettingsActivity extends PreferenceActivity
     {
         super.onStart();
         setupBroadcastReceivers();
-
-        AssociatedMinistriesService.retrieveMinistries(this);
+        MinistriesService.retrieveMinistries(this);
     }
 
     private void setupBroadcastReceivers()

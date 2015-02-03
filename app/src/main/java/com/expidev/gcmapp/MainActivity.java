@@ -31,7 +31,7 @@ import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.model.User;
-import com.expidev.gcmapp.service.AssociatedMinistriesService;
+import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
@@ -422,7 +422,7 @@ public class MainActivity extends ActionBarActivity
 
                             if (!ministriesDownloaded)
                             {
-                                AssociatedMinistriesService.retrieveAllMinistries(getApplicationContext(), sessionTicket);
+                                MinistriesService.retrieveAllMinistries(getApplicationContext(), sessionTicket);
                             }
                             
                             break;
@@ -443,7 +443,7 @@ public class MainActivity extends ActionBarActivity
                             if(data != null)
                             {
                                 List<Ministry> allMinistries = (ArrayList<Ministry>) data;
-                                AssociatedMinistriesService.saveAllMinistries(getApplicationContext(), allMinistries);
+                                MinistriesService.saveAllMinistries(getApplicationContext(), allMinistries);
                                 ministriesDownloaded = true;
                             }
                             else

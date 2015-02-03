@@ -33,13 +33,13 @@ import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 /**
  * Created by William.Randall on 1/22/2015.
  */
-public class AssociatedMinistriesService extends IntentService
+public class MinistriesService extends IntentService
 {
-    private static final String TAG = AssociatedMinistriesService.class.getSimpleName();
+    private static final String TAG = MinistriesService.class.getSimpleName();
 
     private LocalBroadcastManager broadcastManager;
 
-    public AssociatedMinistriesService()
+    public MinistriesService()
     {
         super("AssociatedMinistriesService");
     }
@@ -90,7 +90,7 @@ public class AssociatedMinistriesService extends IntentService
     ////////////////////////////////////////////////////
     private static Intent baseIntent(final Context context, Bundle extras)
     {
-        final Intent intent = new Intent(context, AssociatedMinistriesService.class);
+        final Intent intent = new Intent(context, MinistriesService.class);
 
         if(extras != null)
         {

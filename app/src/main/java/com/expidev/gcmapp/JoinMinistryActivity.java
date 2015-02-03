@@ -19,7 +19,7 @@ import android.widget.AutoCompleteTextView;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
-import com.expidev.gcmapp.service.AssociatedMinistriesService;
+import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.Type;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
@@ -55,7 +55,7 @@ public class JoinMinistryActivity extends ActionBarActivity
         super.onStart();
 
         setupBroadcastReceivers();
-        AssociatedMinistriesService.loadAllMinistriesFromLocalStorage(this);
+        MinistriesService.loadAllMinistriesFromLocalStorage(this);
     }
 
     private void setupBroadcastReceivers()
@@ -145,7 +145,7 @@ public class JoinMinistryActivity extends ActionBarActivity
         assignment.setId(UUID.randomUUID().toString());  //TODO: What should go here?
         assignment.setMinistry(chosenMinistry);
 
-        AssociatedMinistriesService.assignUserToMinistry(this, assignment);
+        MinistriesService.assignUserToMinistry(this, assignment);
 
         AlertDialog alertDialog = new AlertDialog.Builder(this)
             .setTitle("Join Ministry")

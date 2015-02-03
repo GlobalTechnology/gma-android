@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
-import com.expidev.gcmapp.model.Ministry;
 
 import java.util.ArrayList;
 import java.util.List;
