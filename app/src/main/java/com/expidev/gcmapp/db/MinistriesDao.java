@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.expidev.gcmapp.model.Assignment;
+import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
@@ -78,12 +79,7 @@ public class MinistriesDao
 
                 for(int i = 0; i < cursor.getCount(); i++)
                 {
-                    Ministry ministry = new Ministry();
-                    ministry.setMinistryId(cursor.getString(cursor.getColumnIndex("ministry_id")));
-                    ministry.setName(cursor.getString(cursor.getColumnIndex("name")));
-
-                    allMinistries.add(ministry);
-
+                    allMinistries.add(buildMinistryFromCursor(cursor, null));
                     cursor.moveToNext();
                 }
             }
@@ -118,12 +114,12 @@ public class MinistriesDao
         return null;
     }
 
-    public List<Ministry> retrieveAssociatedMinistriesList()
+    public List<AssociatedMinistry> retrieveAssociatedMinistriesList()
     {
         Log.i(TAG, "Retrieving associated ministries");
         
         Cursor cursor = null;
-        List<Ministry> ministryList = new ArrayList<Ministry>();
+        List<AssociatedMinistry> ministryList = new ArrayList<AssociatedMinistry>();
 
         try
         {
@@ -136,7 +132,7 @@ public class MinistriesDao
                 cursor.moveToFirst();
                 for(int i = 0; i < cursor.getCount(); i++)
                 {
-                    ministryList.add(buildMinistryFromCursor(cursor, null));
+                    ministryList.add(buildAssociatedMinistryFromCursor(cursor));
                     cursor.moveToNext();
                 }
             }
@@ -156,7 +152,7 @@ public class MinistriesDao
         return ministryList;
     }
     
-    public Assignment retrieveCurrentAssignment(Ministry ministry)
+    public Assignment retrieveCurrentAssignment(AssociatedMinistry ministry)
     {
         Cursor cursor = null;
         Log.i(TAG, "Looking for assignment with ministryId: " + ministry.getMinistryId());
@@ -190,7 +186,22 @@ public class MinistriesDao
         return null;
     }
 
-    private Assignment buildAssignmentFromCursor(Cursor cursor, Ministry ministry)
+    private AssociatedMinistry buildAssociatedMinistryFromCursor(Cursor cursor)
+    {
+        AssociatedMinistry associatedMinistry = new AssociatedMinistry();
+        associatedMinistry.setName(cursor.getString(cursor.getColumnIndex("name")));
+        associatedMinistry.setMinistryId(cursor.getString(cursor.getColumnIndex("ministry_id")));
+        associatedMinistry.setMinistryCode(cursor.getString(cursor.getColumnIndex("min_code")));
+        associatedMinistry.setHasGcm(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_gcm"))));
+        associatedMinistry.setHasSlm(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_slm"))));
+        associatedMinistry.setHasDs(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_ds"))));
+        associatedMinistry.setHasLlm(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_llm"))));
+        associatedMinistry.setSubMinistries(retrieveMinistriesWithParent(associatedMinistry.getMinistryId()));
+
+        return associatedMinistry;
+    }
+
+    private Assignment buildAssignmentFromCursor(Cursor cursor, AssociatedMinistry ministry)
     {
         Assignment assignment = new Assignment();
         assignment.setId(cursor.getString(cursor.getColumnIndex("ministry_id")));
@@ -208,23 +219,17 @@ public class MinistriesDao
         Ministry ministry = new Ministry();
         ministry.setName(cursor.getString(cursor.getColumnIndex("name")));
         ministry.setMinistryId(cursor.getString(cursor.getColumnIndex("ministry_id")));
-        ministry.setMinistryCode(cursor.getString(cursor.getColumnIndex("min_code")));
-        ministry.setHasGcm(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_gcm"))));
-        ministry.setHasSlm(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_slm"))));
-        ministry.setHasDs(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_ds"))));
-        ministry.setHasLlm(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_llm"))));
-        ministry.setSubMinistries(retrieveMinistriesWithParent(ministry.getMinistryId()));
-        
+
         if (parentId != null) ministry.setParentId(parentId);
 
         return ministry;
     }
 
-    public List<Ministry> retrieveMinistriesWithParent(String parentMinistryId)
+    public List<AssociatedMinistry> retrieveMinistriesWithParent(String parentMinistryId)
     {
         final SQLiteDatabase database = databaseHelper.getReadableDatabase();
         Cursor cursor = null;
-        List<Ministry> ministryList = null;
+        List<AssociatedMinistry> ministryList = null;
 
         try
         {
@@ -239,11 +244,11 @@ public class MinistriesDao
 
             if(cursor != null && cursor.getCount() > 0)
             {
-                ministryList = new ArrayList<Ministry>();
+                ministryList = new ArrayList<AssociatedMinistry>();
                 cursor.moveToFirst();
                 for(int i = 0; i < cursor.getCount(); i++)
                 {
-                    ministryList.add(buildMinistryFromCursor(cursor, parentMinistryId));
+                    ministryList.add(buildAssociatedMinistryFromCursor(cursor));
                     cursor.moveToNext();
                 }
             }
@@ -327,13 +332,13 @@ public class MinistriesDao
                 // We need to insert associations that don't yet exist, and update those that do
                 for(Assignment assignment : assignmentList)
                 {
-                    Ministry associatedMinistry = assignment.getMinistry();
+                    AssociatedMinistry associatedMinistry = assignment.getMinistry();
 
                     ContentValues assignmentValues = buildAssignmentValues(assignment);
 
                     if(assignmentExistsInDatabase(assignment.getId(), existingAssignments))
                     {
-                        insertOrUpdateMinistry(associatedMinistry, null, database, existingAssociations);
+                        insertOrUpdateAssociatedMinistry(associatedMinistry, null, database, existingAssociations);
 
                         String[] whereArgs = { associatedMinistry.getMinistryId() };
 
@@ -345,7 +350,7 @@ public class MinistriesDao
                     }
                     else
                     {
-                        insertOrUpdateMinistry(associatedMinistry, null, database, existingAssociations);
+                        insertOrUpdateAssociatedMinistry(associatedMinistry, null, database, existingAssociations);
                         database.insert(TableNames.ASSIGNMENTS.getTableName(), null, assignmentValues);
                     }
                 }
@@ -354,11 +359,11 @@ public class MinistriesDao
             {
                 for(Assignment assignment : assignmentList)
                 {
-                    Ministry associatedMinistry = assignment.getMinistry();
+                    AssociatedMinistry associatedMinistry = assignment.getMinistry();
 
                     ContentValues assignmentValues = buildAssignmentValues(assignment);
 
-                    insertOrUpdateMinistry(associatedMinistry, null, database, existingAssociations);
+                    insertOrUpdateAssociatedMinistry(associatedMinistry, null, database, existingAssociations);
                     database.insert(TableNames.ASSIGNMENTS.getTableName(), null, assignmentValues);
                 }
             }
@@ -376,27 +381,31 @@ public class MinistriesDao
         }
     }
 
-    void insertOrUpdateMinistry(
-        Ministry ministry,
+    void insertOrUpdateAssociatedMinistry(
+        AssociatedMinistry associatedMinistry,
         String parentMinistryId,
         SQLiteDatabase database,
         Cursor existingAssociatedMinistries)
     {
-        if(ministry.getSubMinistries() != null)
+        if(associatedMinistry.getSubMinistries() != null)
         {
-            for(Ministry subMinistry : ministry.getSubMinistries())
+            for(AssociatedMinistry subMinistry : associatedMinistry.getSubMinistries())
             {
-                insertOrUpdateMinistry(subMinistry, ministry.getMinistryId(), database, existingAssociatedMinistries);
+                insertOrUpdateAssociatedMinistry(
+                    subMinistry,
+                    associatedMinistry.getMinistryId(),
+                    database,
+                    existingAssociatedMinistries);
             }
         }
 
-        ContentValues subMinistryValues = buildAssociationValues(ministry);
+        ContentValues subMinistryValues = buildAssociationValues(associatedMinistry);
         subMinistryValues.put("parent_ministry_id", parentMinistryId);
 
         // If the ministry already exists in the database, update it, otherwise insert it
-        if(ministryExistsInDatabase(ministry.getMinistryId(), existingAssociatedMinistries))
+        if(ministryExistsInDatabase(associatedMinistry.getMinistryId(), existingAssociatedMinistries))
         {
-            String[] whereArgs = { ministry.getMinistryId() };
+            String[] whereArgs = { associatedMinistry.getMinistryId() };
             database.update(
                 TableNames.ASSOCIATED_MINISTRIES.getTableName(),
                 subMinistryValues,
@@ -456,7 +465,7 @@ public class MinistriesDao
         return intValue == 1;
     }
 
-    private ContentValues buildAssociationValues(Ministry associatedMinistry)
+    private ContentValues buildAssociationValues(AssociatedMinistry associatedMinistry)
     {
         ContentValues associationValues = new ContentValues();
 

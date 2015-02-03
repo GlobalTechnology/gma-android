@@ -11,6 +11,7 @@ import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.AssignmentsJsonParser;
 import com.expidev.gcmapp.model.Assignment;
+import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 
 import org.json.JSONArray;
@@ -61,7 +62,7 @@ public class AssociatedMinistriesService extends IntentService
         switch(type)
         {
             case RETRIEVE_ASSOCIATED_MINISTRIES:
-                retrieveMinistries();
+                retrieveAssociatedMinistries();
                 break;
             case RETRIEVE_ALL_MINISTRIES:
                 retrieveAllMinistries(intent);
@@ -167,13 +168,13 @@ public class AssociatedMinistriesService extends IntentService
     /////////////////////////////////////////////////////
     //           Actions                              //
     ////////////////////////////////////////////////////
-    private void retrieveMinistries()
+    private void retrieveAssociatedMinistries()
     {
         MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
-        List<Ministry> associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
+        List<AssociatedMinistry> associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
         Log.i(TAG, "Retrieved associated ministries");
 
-        broadcastManager.sendBroadcast(associatedMinistriesReceivedBroadcast((ArrayList<Ministry>) associatedMinistries));
+        broadcastManager.sendBroadcast(associatedMinistriesReceivedBroadcast((ArrayList<AssociatedMinistry>) associatedMinistries));
     }
 
     private void retrieveAllMinistries(final Intent intent)

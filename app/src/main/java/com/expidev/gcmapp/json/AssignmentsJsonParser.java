@@ -3,7 +3,7 @@ package com.expidev.gcmapp.json;
 import android.util.Log;
 
 import com.expidev.gcmapp.model.Assignment;
-import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.model.AssociatedMinistry;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -40,12 +40,12 @@ public class AssignmentsJsonParser
                     assignment.setLocationZoom(assignmentJson.optInt("location_zoom"));
                 }
 
-                Ministry ministry = MinistryJsonParser.parseMinistry(assignmentJson);
+                AssociatedMinistry ministry = MinistryJsonParser.parseAssociatedMinistry(assignmentJson);
 
                 if(assignmentJson.has("sub_ministries"))
                 {
                     JSONArray subMinistriesJson = assignmentJson.getJSONArray("sub_ministries");
-                    List<Ministry> subMinistries = MinistryJsonParser.parseMinistriesJson(subMinistriesJson);
+                    List<AssociatedMinistry> subMinistries = MinistryJsonParser.parseAssociatedMinistriesJson(subMinistriesJson);
                     ministry.setSubMinistries(subMinistries);
                 }
 

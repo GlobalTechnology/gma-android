@@ -3,6 +3,7 @@ package com.expidev.gcmapp.utils;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.TrainingService;
@@ -82,7 +83,7 @@ public final class BroadcastUtils
         return intent;
     }
 
-    public static Intent associatedMinistriesReceivedBroadcast(ArrayList<Ministry> associatedMinistries)
+    public static Intent associatedMinistriesReceivedBroadcast(ArrayList<AssociatedMinistry> associatedMinistries)
     {
         Intent intent = stopBroadcast(Type.RETRIEVE_ASSOCIATED_MINISTRIES);
         intent.putExtra("associatedMinistries", associatedMinistries);

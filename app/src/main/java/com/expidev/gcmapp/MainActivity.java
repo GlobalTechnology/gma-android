@@ -27,6 +27,7 @@ import com.expidev.gcmapp.db.UserDao;
 import com.expidev.gcmapp.map.MarkerRender;
 import com.expidev.gcmapp.map.GcmMarker;
 import com.expidev.gcmapp.model.Assignment;
+import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.model.User;
@@ -79,7 +80,7 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences mapPreferences;
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
-    private List<Ministry> associatedMinistries;
+    private List<AssociatedMinistry> associatedMinistries;
     
     // try to cut down on api calls
     private boolean trainingDownloaded = false;
@@ -88,7 +89,7 @@ public class MainActivity extends ActionBarActivity
     private GoogleMap map;
     private ClusterManager<GcmMarker> clusterManager;
 
-    private Ministry currentMinistry;
+    private AssociatedMinistry currentMinistry;
     private Assignment currentAssignment;
     private boolean currentAssignmentSet = false;
     
@@ -542,7 +543,7 @@ public class MainActivity extends ActionBarActivity
                     }
                     else
                     {
-                        for (Ministry ministry : associatedMinistries)
+                        for (AssociatedMinistry ministry : associatedMinistries)
                         {
                             if (ministry.getName().equals(currentMinistryName))
                             {
