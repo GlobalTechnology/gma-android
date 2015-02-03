@@ -5,6 +5,8 @@
     <string name="app_name">GCM App</string>
     <string name="title_activity_main">GCM App</string>
     <string name="title_activity_join_ministry">GCM App</string>
+    <string name="title_activity_map_settings">MapSettings</string>
+    <string name="title_activity_measurements">Measurements</string>
 
     <!-- Main Activity -->
     <string name="logout">Logout</string>
@@ -26,8 +28,7 @@
     <!-- Messages -->
     <string name="no_internet">No network connection detected</string>
     <string name="logout_message">Are you sure you want to logout?</string>
-    <string name="title_activity_map_settings">MapSettings</string>
-    
+
     <!-- Map Settings -->
     <string name="map_settings">Map Settings</string>
     <string name="info">Show/Hide Icons</string>
@@ -37,5 +38,11 @@
     <string name="multiplying_churches">Multiplying Churches</string>
     <string name="training_activities">Training Activities</string>
     <string name="campuses">Campuses</string>
+
+    <!-- Measurements Activity -->
+    <string name="ministry_name_placeholder">Ministry Name</string>
+    <string name="period_placeholder">2015–01</string>
+    <string name="period_left">"&#60;&#60;</string>
+    <string name="period_right">&#62;&#62;</string>
 
 </resources>
