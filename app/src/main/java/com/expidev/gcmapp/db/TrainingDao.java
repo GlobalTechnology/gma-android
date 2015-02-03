@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.expidev.gcmapp.model.Training;
@@ -51,7 +52,27 @@ public class TrainingDao extends AbstractDao
         
         return instance;
     }
-    
+
+    @NonNull
+    @Override
+    protected String getTable(@NonNull final Class<?> clazz) {
+        if (Training.class.equals(clazz)) {
+            return Contract.Training.TABLE_NAME;
+        }
+
+        return super.getTable(clazz);
+    }
+
+    @NonNull
+    @Override
+    protected String[] getFullProjection(@NonNull final Class<?> clazz) {
+        if (Training.class.equals(clazz)) {
+            return Contract.Training.PROJECTION_ALL;
+        }
+
+        return super.getFullProjection(clazz);
+    }
+
     public Cursor retrieveTrainingCursor(String tableName)
     {
         final SQLiteDatabase database = databaseHelper.getReadableDatabase();
