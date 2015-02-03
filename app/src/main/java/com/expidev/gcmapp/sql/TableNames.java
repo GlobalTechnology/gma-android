@@ -7,7 +7,7 @@ import com.expidev.gcmapp.db.Contract;
  */
 public enum TableNames
 {
-    ASSOCIATED_MINISTRIES("associated_ministries"),
+    ASSOCIATED_MINISTRIES(Contract.AssociatedMinistry.TABLE_NAME),
     SESSION("session"),
     USER("user"),
     TRAINING(Contract.Training.TABLE_NAME),

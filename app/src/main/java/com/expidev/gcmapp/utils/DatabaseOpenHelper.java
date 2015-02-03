@@ -60,16 +60,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      */
     private void createAssociatedMinistryTable(SQLiteDatabase db)
     {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.ASSOCIATED_MINISTRIES.getTableName() + "(" +
-            "ministry_id TEXT PRIMARY KEY, " +
-            "name TEXT, " +
-            "min_code TEXT, " +
-            "has_slm INTEGER, " +               // This is really a boolean (0 = false, 1 = true)
-            "has_llm INTEGER, " +
-            "has_ds INTEGER, " +
-            "has_gcm INTEGER, " +
-            "parent_ministry_id TEXT, " +       // This will be populated if this ministry is a sub ministry
-            "last_synced TEXT);");              // Last time this information was synced with the web
+        db.execSQL(Contract.AssociatedMinistry.SQL_CREATE_TABLE);
     }
 
     /**

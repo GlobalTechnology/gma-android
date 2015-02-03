@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by William.Randall on 1/9/2015.
  */
-public class Ministry implements Serializable
+public class Ministry extends Base implements Serializable
 {
     private static final long serialVersionUID = 0L;
 
