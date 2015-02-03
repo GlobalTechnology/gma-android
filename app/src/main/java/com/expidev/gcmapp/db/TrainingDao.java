@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.Pair;
@@ -35,8 +34,6 @@ public class TrainingDao extends AbstractDao
 {
     private final String TAG = getClass().getSimpleName();
     
-    private final SQLiteOpenHelper databaseHelper;
-
     private static final Mapper<Training> TRAINING_MAPPER = new TrainingMapper();
 
     private static final Object instanceLock = new Object();
@@ -45,7 +42,6 @@ public class TrainingDao extends AbstractDao
     private TrainingDao(final Context context)
     {
         super(DatabaseOpenHelper.getInstance(context));
-        this.databaseHelper = this.dbHelper;
     }
     
     public static TrainingDao getInstance(Context context)
@@ -123,7 +119,7 @@ public class TrainingDao extends AbstractDao
 
     public Cursor retrieveTrainingCursor(String tableName)
     {
-        final SQLiteDatabase database = databaseHelper.getReadableDatabase();
+        final SQLiteDatabase database = dbHelper.getReadableDatabase();
         
         try
         {
@@ -139,7 +135,7 @@ public class TrainingDao extends AbstractDao
     
     public Cursor retrieveCompletedTrainingCursor(String tableName)
     {
-        final SQLiteDatabase database = databaseHelper.getReadableDatabase();
+        final SQLiteDatabase database = dbHelper.getReadableDatabase();
         
         try
         {
@@ -170,7 +166,7 @@ public class TrainingDao extends AbstractDao
     
     public Cursor retrieveTrainingCursorByMinistry(String ministryId)
     {
-        final SQLiteDatabase database = databaseHelper.getReadableDatabase();
+        final SQLiteDatabase database = dbHelper.getReadableDatabase();
         String where = "ministry_id = ?";
         String[] whereArgs = {ministryId};
         
@@ -187,7 +183,7 @@ public class TrainingDao extends AbstractDao
     
     public Cursor retrieveCompletedTrainingCursor(int trainingId)
     {
-        final SQLiteDatabase database = databaseHelper.getReadableDatabase();
+        final SQLiteDatabase database = dbHelper.getReadableDatabase();
         String whereCondition = "training_id = ?";
         String[] whereArgs = {String.valueOf(trainingId)};
         
@@ -319,7 +315,7 @@ public class TrainingDao extends AbstractDao
     
     public void saveTrainingFromAPI(JSONArray jsonArray)
     {
-        final SQLiteDatabase database = databaseHelper.getWritableDatabase();
+        final SQLiteDatabase database = dbHelper.getWritableDatabase();
         
         try
         {
@@ -395,7 +391,7 @@ public class TrainingDao extends AbstractDao
     
     public void saveTraining(Training training)
     {
-        final SQLiteDatabase database = databaseHelper.getWritableDatabase();
+        final SQLiteDatabase database = dbHelper.getWritableDatabase();
         
         try
         {
@@ -449,7 +445,7 @@ public class TrainingDao extends AbstractDao
 
     void deleteAllData()
     {
-        final SQLiteDatabase database = databaseHelper.getWritableDatabase();
+        final SQLiteDatabase database = this.dbHelper.getWritableDatabase();
 
         database.beginTransaction();
 
