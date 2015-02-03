@@ -35,6 +35,11 @@ android {
         buildConfigField "long", "THEKEY_CLIENTID", "7439283632057308L"
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
