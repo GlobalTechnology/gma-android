@@ -18,7 +18,6 @@ public class Training extends Base
     private double latitude;
     private double longitude;
     private List<GCMTrainingCompletions> completions;
-    private Timestamp synced;
     
     public static boolean equals(Training first, Training second)
     {
@@ -119,16 +118,6 @@ public class Training extends Base
     public void setCompletions(List<GCMTrainingCompletions> completions)
     {
         this.completions = completions;
-    }
-
-    public Timestamp getSynced()
-    {
-        return synced;
-    }
-
-    public void setSynced(Timestamp synced)
-    {
-        this.synced = synced;
     }
 
     public static class GCMTrainingCompletions

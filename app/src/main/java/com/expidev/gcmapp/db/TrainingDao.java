@@ -15,6 +15,7 @@ import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.Mapper;
+import org.ccci.gto.android.common.util.CursorUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -517,23 +518,13 @@ public class TrainingDao extends AbstractDao
         training.setMcc(cursor.getString(cursor.getColumnIndex("mcc")));
         training.setLatitude(cursor.getDouble(cursor.getColumnIndex("latitude")));
         training.setLongitude(cursor.getDouble(cursor.getColumnIndex("longitude")));
-        
+        training.setLastSynced(CursorUtils.getLong(cursor, Contract.Training.COLUMN_LAST_SYNCED));
+
         if (completed != null && completed.size() > 0)
         {
             training.setCompletions(completed);
         }
         
-        if (!cursor.getString(cursor.getColumnIndex("synced")).isEmpty())
-        {
-            try
-            {
-                training.setSynced(Timestamp.valueOf(cursor.getString(cursor.getColumnIndex("synced"))));
-            }
-            catch (Exception e)
-            {
-                Log.i(TAG, "Could not parse Timestamp");
-            }
-        }
         Log.i(TAG, "Returning new training: " + training.getId());
         return training;
     }
