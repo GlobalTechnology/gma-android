@@ -234,9 +234,9 @@ public class TrainingDao
                     if (completed.size() > 0)
                     {
                         boolean exists = false;
-                        for (int j = 0; j < completed.size(); j++)
+                        for (Training.GCMTrainingCompletions trainingAlreadyAdded : completed)
                         {
-                            if (Training.GCMTrainingCompletions.equals(completed.get(j), completedTraining)) exists = true;
+                            if (Training.GCMTrainingCompletions.equals(trainingAlreadyAdded, completedTraining)) exists = true;
                         }
                         if (!exists) completed.add(completedTraining);
                     }
