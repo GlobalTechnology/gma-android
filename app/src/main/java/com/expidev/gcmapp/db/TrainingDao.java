@@ -7,12 +7,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.util.Pair;
 
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
 import org.ccci.gto.android.common.db.AbstractDao;
+import org.ccci.gto.android.common.db.Mapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -32,7 +34,9 @@ public class TrainingDao extends AbstractDao
     private final String TAG = getClass().getSimpleName();
     
     private final SQLiteOpenHelper databaseHelper;
-    
+
+    private static final Mapper<Training> TRAINING_MAPPER = new TrainingMapper();
+
     private static final Object instanceLock = new Object();
     private static TrainingDao instance;
     
@@ -71,6 +75,48 @@ public class TrainingDao extends AbstractDao
         }
 
         return super.getFullProjection(clazz);
+    }
+
+    @NonNull
+    @Override
+    @SuppressWarnings("unchecked")
+    protected <T> Mapper<T> getMapper(@NonNull final Class<T> clazz) {
+        if (Training.class.equals(clazz)) {
+            return (Mapper<T>) TRAINING_MAPPER;
+        }
+
+        return super.getMapper(clazz);
+    }
+
+    @NonNull
+    @Override
+    protected Pair<String, String[]> getPrimaryKeyWhere(@NonNull final Class<?> clazz, @NonNull final Object... key) {
+        final String where;
+        if (Training.class.equals(clazz)) {
+            if (key.length != 1) {
+                throw new IllegalArgumentException("invalid key for " + clazz);
+            }
+            where = Contract.Training.SQL_WHERE_PRIMARY_KEY;
+        } else {
+            return super.getPrimaryKeyWhere(clazz, key);
+        }
+        final String[] whereBindValues = new String[key.length];
+        for (int i = 0; i < key.length; i++) {
+            whereBindValues[i] = key[i].toString();
+        }
+
+        // return where clause pair
+        return Pair.create(where, whereBindValues);
+    }
+
+    @NonNull
+    @Override
+    protected Pair<String, String[]> getPrimaryKeyWhere(@NonNull final Object obj) {
+        if (obj instanceof Training) {
+            return this.getPrimaryKeyWhere(Training.class, ((Training) obj).getId());
+        }
+
+        return super.getPrimaryKeyWhere(obj);
     }
 
     public Cursor retrieveTrainingCursor(String tableName)
