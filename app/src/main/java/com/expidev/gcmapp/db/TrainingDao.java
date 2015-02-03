@@ -412,22 +412,11 @@ public class TrainingDao extends AbstractDao
         {
             database.beginTransaction();
 
-            String trainingTable = TableNames.TRAINING.getTableName();
+            this.updateOrInsert(training, Contract.Training.PROJECTION_ALL);
+
             String completedTrainingTable = TableNames.TRAINING_COMPLETIONS.getTableName();
 
-            Cursor existingTraining = this.getCursor(Training.class);
             Cursor existingCompletedTraining = retrieveCompletedTrainingCursor(completedTrainingTable);
-            
-            ContentValues trainingToInsert = new ContentValues();
-            trainingToInsert.put("id", training.getId());
-            trainingToInsert.put("ministry_id", training.getMinistryId().toString());
-            trainingToInsert.put("name", training.getName());
-            trainingToInsert.put("date", dateToString(training.getDate()));
-            trainingToInsert.put("type", training.getType());
-            trainingToInsert.put("mcc", training.getMcc());
-            trainingToInsert.put("latitude", training.getLatitude());
-            trainingToInsert.put("longitude", training.getLongitude());
-            trainingToInsert.put("synced", training.getSynced().toString());
             
             if (training.getCompletions() != null && training.getCompletions().size() > 0)
             {
@@ -454,16 +443,6 @@ public class TrainingDao extends AbstractDao
                 }
             }
 
-            if (!trainingExistsInDatabase(training.getId(), existingTraining))
-            {
-                database.insert(trainingTable, null, trainingToInsert);
-                Log.i(TAG, "Inserted training: " + training.getId());
-            }
-            else
-            {
-                database.update(trainingTable, trainingToInsert, null, null);
-                Log.i(TAG, "Updated training: " + training.getId());
-            }
 
             database.setTransactionSuccessful();
         }
