@@ -132,7 +132,7 @@ public class MinistriesDao
                 cursor.moveToFirst();
                 for(int i = 0; i < cursor.getCount(); i++)
                 {
-                    ministryList.add(buildMinistryFromCursor(cursor));
+                    ministryList.add(buildMinistryFromCursor(cursor, null));
                     cursor.moveToNext();
                 }
             }
@@ -191,7 +191,7 @@ public class MinistriesDao
         return assignment;
     }
 
-    private Ministry buildMinistryFromCursor(Cursor cursor)
+    private Ministry buildMinistryFromCursor(Cursor cursor, String parentId)
     {
         Ministry ministry = new Ministry();
         ministry.setName(cursor.getString(cursor.getColumnIndex("name")));
@@ -202,6 +202,8 @@ public class MinistriesDao
         ministry.setHasDs(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_ds"))));
         ministry.setHasLlm(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_llm"))));
         ministry.setSubMinistries(retrieveMinistriesWithParent(ministry.getMinistryId()));
+        
+        if (parentId != null) ministry.setParentId(parentId);
 
         return ministry;
     }
@@ -229,7 +231,7 @@ public class MinistriesDao
                 cursor.moveToFirst();
                 for(int i = 0; i < cursor.getCount(); i++)
                 {
-                    ministryList.add(buildMinistryFromCursor(cursor));
+                    ministryList.add(buildMinistryFromCursor(cursor, parentMinistryId));
                     cursor.moveToNext();
                 }
             }
