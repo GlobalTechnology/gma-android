@@ -175,22 +175,20 @@ public class TrainingDao
             cursor = retrieveTrainingCursorByMinistry(ministry_id);
             if (cursor != null && cursor.getCount() > 0)
             {
-                Log.i(TAG, "Trainings found: " + cursor.getCount());
                 cursor.moveToFirst();
                 for (int i = 0; i < cursor.getCount(); i++)
                 {
-                    Log.i(TAG, "Working with data row with id: " + cursor.getInt(cursor.getColumnIndex("id")));
-                    
-                    List<Training.GCMTrainingCompletions> completed = getCompletedTrainingByTrainingId(cursor.getInt(cursor.getColumnIndex("id")));
+                    int id = cursor.getInt(cursor.getColumnIndex("id"));
+                    List<Training.GCMTrainingCompletions> completed = getCompletedTrainingByTrainingId(id);
                     Training training = setTrainingFromCursor(cursor, completed);
                     
                     // if size is 0 go ahead an add
                     if (allTraining.size() > 0)
                     {
                         boolean exists = false;
-                        for (int j = 0; j < allTraining.size(); j++)
+                        for (Training trainingAlreadyAdded : allTraining)
                         {
-                            if (Training.equals(allTraining.get(j), training)) exists = true;
+                            if (Training.equals(trainingAlreadyAdded, training)) exists = true;
                         }
                         if (!exists) allTraining.add(training);
                     }
