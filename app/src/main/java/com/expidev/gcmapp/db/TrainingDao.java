@@ -98,13 +98,9 @@ public class TrainingDao extends AbstractDao
         } else {
             return super.getPrimaryKeyWhere(clazz, key);
         }
-        final String[] whereBindValues = new String[key.length];
-        for (int i = 0; i < key.length; i++) {
-            whereBindValues[i] = key[i].toString();
-        }
 
         // return where clause pair
-        return Pair.create(where, whereBindValues);
+        return Pair.create(where, this.getBindValues(key));
     }
 
     @NonNull
