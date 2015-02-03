@@ -319,7 +319,17 @@ public class MainActivity extends ActionBarActivity
             if (chosenMinistry == null)
             {
                 SharedPreferences.Editor editor = preferences.edit();
+                
+                int i = 0;
+                boolean parent = false;
+                do
+                {
+                    if (associatedMinistries.get(i).getParentId() == null) parent = true;
+                }while (!parent);
+                    
+                currentMinistry = associatedMinistries.get(i);
                 currentMinistry = associatedMinistries.get(1);
+                
                 chosenMinistry = currentMinistry.getName();
                 editor.putString("chosen_ministry", chosenMinistry);
 
@@ -360,7 +370,7 @@ public class MainActivity extends ActionBarActivity
             String mccDisplay = "";
             if (mcc != null) mccDisplay = " (" + mcc +")";
             mapOverlayText.setText(currentMinistry.getName() + mccDisplay);
-            
+
             if (!trainingDownloaded)
             {
                 trainingSearch(currentMinistry.getMinistryId(), mcc);

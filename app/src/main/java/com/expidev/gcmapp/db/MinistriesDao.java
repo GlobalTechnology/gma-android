@@ -137,6 +137,10 @@ public class MinistriesDao
                 }
             }
         }
+        catch (Exception e)
+        {
+            Log.e(TAG, e.getMessage(), e);
+        }
         finally
         {
             if(cursor != null)
@@ -169,6 +173,10 @@ public class MinistriesDao
                     }
                 }
             }
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, e.getMessage(), e);
         }
         finally
         {
