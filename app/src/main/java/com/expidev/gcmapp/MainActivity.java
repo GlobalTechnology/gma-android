@@ -22,6 +22,8 @@ import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.db.TrainingDao;
 import com.expidev.gcmapp.db.UserDao;
+import com.expidev.gcmapp.map.MarkerRender;
+import com.expidev.gcmapp.map.GcmMarker;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
@@ -39,9 +41,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterManager;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -83,6 +84,7 @@ public class MainActivity extends ActionBarActivity
     private boolean ministriesDownloaded = false;
     
     private GoogleMap map;
+    private ClusterManager<GcmMarker> clusterManager;
     
     private Ministry currentMinistry;
     private Assignment currentAssignment;
@@ -387,6 +389,11 @@ public class MainActivity extends ActionBarActivity
     {
         Log.i(TAG, "On Map Ready");
         this.map = googleMap;
+        
+        clusterManager = new ClusterManager<GcmMarker>(this, map);
+        clusterManager.setRenderer(new MarkerRender(this, map, clusterManager));
+        map.setOnCameraChangeListener(clusterManager);
+        map.setOnMarkerClickListener(clusterManager);
     }
 
     private void zoomToLocation()
@@ -402,20 +409,14 @@ public class MainActivity extends ActionBarActivity
     {
         // do not show training activities if turned off in map settings
         if (map != null && trainingActivities)
-        {
-            Log.i(TAG, "Adding Training to map. Number of trainings: " + allTraining.size());
-            
+        {   
             for (Training training : allTraining)
             {
-                Log.i(TAG, "Adding training marker id: " + training.getId() + " at: " + training.getLatitude() + ", " + training.getLongitude());
-                
-                map.addMarker(new MarkerOptions()
-                .position(new LatLng(training.getLatitude(), training.getLongitude()))
-                .title(training.getName())
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.training)));
+                GcmMarker marker = new GcmMarker(training.getName(), training.getLatitude(), training.getLongitude());
+                clusterManager.addItem(marker);
             }
+            clusterManager.cluster();
         }
-        
     }
 
     private void setupBroadcastReceivers()
