@@ -106,10 +106,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      */
     private void createAllMinistriesTable(SQLiteDatabase db)
     {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.ALL_MINISTRIES.getTableName() + "( " +
-            "ministry_id TEXT, " +
-            "name TEXT, " +
-            "last_synced TEXT);");
+        db.execSQL(Contract.Ministry.SQL_CREATE_TABLE);
     }
 
     private void deleteAllTables(SQLiteDatabase db)
