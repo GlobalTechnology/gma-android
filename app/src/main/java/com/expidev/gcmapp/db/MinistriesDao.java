@@ -34,9 +34,9 @@ public class MinistriesDao
 
     public static MinistriesDao getInstance(Context context)
     {
-        if(instance == null)
+        synchronized(instanceLock)
         {
-            synchronized(instanceLock)
+            if(instance == null)
             {
                 instance = new MinistriesDao(context.getApplicationContext());
             }
