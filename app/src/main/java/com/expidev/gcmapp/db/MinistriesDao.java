@@ -4,8 +4,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
 import android.util.Log;
+import android.util.Pair;
 
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
@@ -13,24 +14,28 @@ import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
+import org.ccci.gto.android.common.db.AbstractDao;
+import org.ccci.gto.android.common.db.Mapper;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by William.Randall on 1/21/2015.
  */
-public class MinistriesDao
+public class MinistriesDao extends AbstractDao
 {
     private final String TAG = getClass().getSimpleName();
-
-    private final SQLiteOpenHelper databaseHelper;
 
     private static final Object instanceLock = new Object();
     private static MinistriesDao instance;
 
+    private static final Mapper<Ministry> ALL_MINISTRIES_MAPPER = new MinistriesMapper();
+    private static final Mapper<AssociatedMinistry> ASSOCIATED_MINISTRIES_MAPPER = new AssociatedMinistriesMapper();
+
     private MinistriesDao(final Context context)
     {
-        this.databaseHelper = DatabaseOpenHelper.getInstance(context);
+        super(DatabaseOpenHelper.getInstance(context));
     }
 
     public static MinistriesDao getInstance(Context context)
@@ -46,72 +51,100 @@ public class MinistriesDao
         return instance;
     }
 
-    public Cursor retrieveAllMinistriesCursor()
+    @NonNull
+    @Override
+    protected String getTable(@NonNull final Class<?> clazz)
     {
-        final SQLiteDatabase database = databaseHelper.getReadableDatabase();
-
-        try
+        if(Ministry.class.equals(clazz))
         {
-            return database.query(TableNames.ALL_MINISTRIES.getTableName(), null, null, null, null, null, null);
+            return Contract.Ministry.TABLE_NAME;
         }
-        catch(Exception e)
+        else if(AssociatedMinistry.class.equals(clazz))
         {
-            Log.e(TAG, "Failed to retrieve all ministries: " + e.getMessage());
+            return Contract.AssociatedMinistry.TABLE_NAME;
         }
 
-        return null;
+        return super.getTable(clazz);
     }
 
-    public List<Ministry> retrieveAllMinistries()
+    @NonNull
+    @Override
+    protected String[] getFullProjection(@NonNull final Class<?> clazz)
     {
-        Cursor cursor = null;
-        List<Ministry> allMinistries = new ArrayList<Ministry>();
-
-        try
+        if(Ministry.class.equals(clazz))
         {
-            cursor = retrieveAllMinistriesCursor();
-
-            if(cursor != null && cursor.getCount() > 0)
-            {
-
-
-                cursor.moveToFirst();
-
-                for(int i = 0; i < cursor.getCount(); i++)
-                {
-                    allMinistries.add(buildMinistryFromCursor(cursor, null));
-                    cursor.moveToNext();
-                }
-            }
+            return Contract.Ministry.PROJECTION_ALL;
         }
-        catch(Exception e)
+        else if(AssociatedMinistry.class.equals(clazz))
         {
-            Log.e(TAG, e.getMessage());
-        }
-        finally
-        {
-            if(cursor != null)
-            {
-                cursor.close();
-            }
+            return Contract.AssociatedMinistry.PROJECTION_ALL;
         }
 
-        return allMinistries;
+        return super.getFullProjection(clazz);
     }
 
-    public Cursor retrieveAssociatedMinistriesCursor()
+    @NonNull
+    @Override
+    @SuppressWarnings("unchecked")
+    protected <T> Mapper<T> getMapper(@NonNull final Class<T> clazz)
     {
-        final SQLiteDatabase database = databaseHelper.getReadableDatabase();
-        try
+        if(Ministry.class.equals(clazz))
         {
-            return database.query(TableNames.ASSOCIATED_MINISTRIES.getTableName(), null, null, null, null, null, null);
+            return (Mapper<T>) ALL_MINISTRIES_MAPPER;
         }
-        catch(Exception e)
+        else if(AssociatedMinistry.class.equals(clazz))
         {
-            Log.e(TAG, "Failed to retrieve associated ministries: " + e.getMessage());
+            return (Mapper<T>) ASSOCIATED_MINISTRIES_MAPPER;
         }
 
-        return null;
+        return super.getMapper(clazz);
+    }
+
+    @NonNull
+    @Override
+    protected Pair<String, String[]> getPrimaryKeyWhere(@NonNull final Class<?> clazz, @NonNull final Object... key)
+    {
+        final String where;
+
+        if(Ministry.class.equals(clazz))
+        {
+            if (key.length != 1)
+            {
+                throw new IllegalArgumentException("invalid key for " + clazz);
+            }
+            where = Contract.Ministry.SQL_WHERE_PRIMARY_KEY;
+        }
+        else if(AssociatedMinistry.class.equals(clazz))
+        {
+            if (key.length != 1)
+            {
+                throw new IllegalArgumentException("invalid key for " + clazz);
+            }
+            where = Contract.AssociatedMinistry.SQL_WHERE_PRIMARY_KEY;
+        }
+        else
+        {
+            return super.getPrimaryKeyWhere(clazz, key);
+        }
+
+        // return where clause pair
+        return Pair.create(where, this.getBindValues(key));
+    }
+
+    @NonNull
+    @Override
+    protected Pair<String, String[]> getPrimaryKeyWhere(@NonNull final Object obj)
+    {
+        if(obj instanceof AssociatedMinistry)
+        {
+            return getPrimaryKeyWhere(AssociatedMinistry.class, ((AssociatedMinistry) obj).getMinistryId());
+        }
+        else if(obj instanceof Ministry)
+        {
+            return getPrimaryKeyWhere(Ministry.class, ((Ministry) obj).getMinistryId());
+        }
+
+        return super.getPrimaryKeyWhere(obj);
     }
 
     public List<AssociatedMinistry> retrieveAssociatedMinistriesList()
@@ -123,11 +156,9 @@ public class MinistriesDao
 
         try
         {
-            cursor = retrieveAssociatedMinistriesCursor();
+            cursor = getCursor(AssociatedMinistry.class);
 
-            Log.i(TAG, "Associated Ministries found: " + cursor.getCount());
-            
-            if(cursor != null && cursor.getCount() > 0)
+            if(cursor.getCount() > 0)
             {
                 cursor.moveToFirst();
                 for(int i = 0; i < cursor.getCount(); i++)
@@ -227,7 +258,7 @@ public class MinistriesDao
 
     public List<AssociatedMinistry> retrieveMinistriesWithParent(String parentMinistryId)
     {
-        final SQLiteDatabase database = databaseHelper.getReadableDatabase();
+        final SQLiteDatabase database = dbHelper.getReadableDatabase();
         Cursor cursor = null;
         List<AssociatedMinistry> ministryList = null;
 
@@ -274,9 +305,9 @@ public class MinistriesDao
 
         try
         {
-            cursor = retrieveAssociatedMinistriesCursor();
+            cursor = getCursor(AssociatedMinistry.class);
 
-            if(cursor != null && cursor.getCount() > 0)
+            if(cursor.getCount() > 0)
             {
                 List<String> associatedMinistries = new ArrayList<String>(cursor.getCount());
 
@@ -303,7 +334,7 @@ public class MinistriesDao
 
     public Cursor retrieveAssignmentsCursor()
     {
-        final SQLiteDatabase database = databaseHelper.getReadableDatabase();
+        final SQLiteDatabase database = dbHelper.getReadableDatabase();
         try
         {
             return database.query(TableNames.ASSIGNMENTS.getTableName(), null, null, null, null, null, null);
@@ -318,14 +349,14 @@ public class MinistriesDao
 
     public void saveAssociatedMinistries(List<Assignment> assignmentList)
     {
-        final SQLiteDatabase database = databaseHelper.getWritableDatabase();
+        final SQLiteDatabase database = dbHelper.getWritableDatabase();
 
         try
         {
             database.beginTransaction();
 
             Cursor existingAssignments = retrieveAssignmentsCursor();
-            Cursor existingAssociations = retrieveAssociatedMinistriesCursor();
+            Cursor existingAssociations = getCursor(AssociatedMinistry.class);
 
             if(existingAssignments != null && existingAssignments.getCount() > 0)
             {
@@ -496,7 +527,7 @@ public class MinistriesDao
 
     void deleteAllData()
     {
-        final SQLiteDatabase database = databaseHelper.getWritableDatabase();
+        final SQLiteDatabase database = dbHelper.getWritableDatabase();
 
         database.beginTransaction();
 
@@ -519,46 +550,9 @@ public class MinistriesDao
 
     public void saveAllMinistries(List<Ministry> allMinistries)
     {
-        final SQLiteDatabase database = databaseHelper.getWritableDatabase();
-
-        database.beginTransaction();
-        Cursor existingMinistries = retrieveAllMinistriesCursor();
-
-        try
+        for(Ministry ministry : allMinistries)
         {
-            for(Ministry ministry : allMinistries)
-            {
-                ContentValues ministryValues = new ContentValues();
-                ministryValues.put("ministry_id", ministry.getMinistryId());
-                ministryValues.put("name", ministry.getName());
-
-                if(ministryExistsInDatabase(ministry.getMinistryId(), existingMinistries))
-                {
-                    database.update(
-                        TableNames.ALL_MINISTRIES.getTableName(),
-                        ministryValues,
-                        "ministry_id = ?",
-                        new String[] { ministry.getMinistryId() });
-                }
-                else
-                {
-                    database.insert(
-                        TableNames.ALL_MINISTRIES.getTableName(),
-                        null,
-                        ministryValues
-                    );
-                }
-            }
-            database.setTransactionSuccessful();
-        }
-        catch(Exception e)
-        {
-            Log.e(TAG, e.getMessage());
-        }
-        finally
-        {
-            database.endTransaction();
-            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (saveAllMinistries)");
+            updateOrInsert(ministry, Contract.Ministry.PROJECTION_ALL);
         }
     }
     

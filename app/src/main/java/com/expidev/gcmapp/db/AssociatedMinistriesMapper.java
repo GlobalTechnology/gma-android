@@ -1,0 +1,84 @@
+package com.expidev.gcmapp.db;
+
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.support.annotation.NonNull;
+
+import com.expidev.gcmapp.model.AssociatedMinistry;
+
+/**
+ * Created by William.Randall on 2/3/2015.
+ */
+public class AssociatedMinistriesMapper extends BaseMapper<AssociatedMinistry>
+{
+    @NonNull
+    @Override
+    public ContentValues toContentValues(@NonNull final AssociatedMinistry ministry)
+    {
+        return this.toContentValues(ministry, Contract.AssociatedMinistry.PROJECTION_ALL);
+    }
+
+    @Override
+    protected void mapField(
+        @NonNull final ContentValues values,
+        @NonNull final String field,
+        @NonNull final AssociatedMinistry ministry)
+    {
+        switch (field)
+        {
+            case Contract.AssociatedMinistry.COLUMN_MINISTRY_ID:
+                values.put(field, ministry.getMinistryId());
+                break;
+            case Contract.AssociatedMinistry.COLUMN_NAME:
+                values.put(field, ministry.getName());
+                break;
+            case Contract.AssociatedMinistry.COLUMN_MIN_CODE:
+                values.put(field, ministry.getMinistryCode());
+                break;
+            case Contract.AssociatedMinistry.COLUMN_HAS_SLM:
+                values.put(field, ministry.hasSlm());
+                break;
+            case Contract.AssociatedMinistry.COLUMN_HAS_LLM:
+                values.put(field, ministry.hasLlm());
+                break;
+            case Contract.AssociatedMinistry.COLUMN_HAS_DS:
+                values.put(field, ministry.hasDs());
+                break;
+            case Contract.AssociatedMinistry.COLUMN_HAS_GCM:
+                values.put(field, ministry.hasGcm());
+                break;
+            case Contract.AssociatedMinistry.COLUMN_PARENT_MINISTRY_ID:
+                //TODO: Handle sub ministries
+                break;
+            default:
+                super.mapField(values, field, ministry);
+                break;
+        }
+        super.mapField(values, field, ministry);
+    }
+
+    @NonNull
+    @Override
+    protected AssociatedMinistry newObject(@NonNull final Cursor cursor)
+    {
+        return new AssociatedMinistry();
+    }
+
+    @NonNull
+    @Override
+    public AssociatedMinistry toObject(@NonNull final Cursor cursor)
+    {
+        final AssociatedMinistry ministry = new AssociatedMinistry();
+
+        ministry.setMinistryId(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_MINISTRY_ID, "NO ID"));
+        ministry.setName(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_NAME));
+        ministry.setMinistryCode(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_MIN_CODE));
+        ministry.setHasGcm(this.getBool(cursor, Contract.AssociatedMinistry.COLUMN_HAS_GCM, false));
+        ministry.setHasSlm(this.getBool(cursor, Contract.AssociatedMinistry.COLUMN_HAS_SLM, false));
+        ministry.setHasDs(this.getBool(cursor, Contract.AssociatedMinistry.COLUMN_HAS_DS, false));
+        ministry.setHasLlm(this.getBool(cursor, Contract.AssociatedMinistry.COLUMN_HAS_LLM, false));
+        //TODO: Handle sub ministries
+
+        return ministry;
+    }
+}

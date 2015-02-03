@@ -41,7 +41,7 @@ public class MinistriesService extends IntentService
 
     public MinistriesService()
     {
-        super("AssociatedMinistriesService");
+        super("MinistriesService");
     }
 
     /////////////////////////////////////////////////////
@@ -194,7 +194,7 @@ public class MinistriesService extends IntentService
     private void loadAllMinistriesFromLocalStorage()
     {
         MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
-        List<Ministry> allMinistries = ministriesDao.retrieveAllMinistries();
+        List<Ministry> allMinistries = ministriesDao.get(Ministry.class);
 
         broadcastManager.sendBroadcast(allMinistriesLoadedBroadcast((ArrayList<Ministry>) allMinistries));
     }
