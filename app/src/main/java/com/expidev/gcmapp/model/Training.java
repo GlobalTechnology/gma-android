@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by matthewfrederick on 1/26/15.
  */
-public class Training
+public class Training extends Base
 {
     private int id;
     private String ministryId;
