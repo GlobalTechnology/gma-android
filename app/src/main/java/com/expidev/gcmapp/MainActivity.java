@@ -390,7 +390,7 @@ public class MainActivity extends ActionBarActivity
         Log.i(TAG, "On Map Ready");
         this.map = googleMap;
         
-        clusterManager = new ClusterManager<GcmMarker>(this, map);
+        clusterManager = new ClusterManager<>(this, map);
         clusterManager.setRenderer(new MarkerRender(this, map, clusterManager));
         map.setOnCameraChangeListener(clusterManager);
         map.setOnMarkerClickListener(clusterManager);
