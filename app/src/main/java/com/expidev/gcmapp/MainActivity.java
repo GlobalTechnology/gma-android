@@ -319,10 +319,10 @@ public class MainActivity extends ActionBarActivity
             if (chosenMinistry == null)
             {
                 SharedPreferences.Editor editor = preferences.edit();
-                editor.putString("chosen_ministry", associatedMinistries.get(1).getName());
-                chosenMinistry = associatedMinistries.get(1).getName();
-
                 currentMinistry = associatedMinistries.get(1);
+                chosenMinistry = currentMinistry.getName();
+                editor.putString("chosen_ministry", chosenMinistry);
+
                 currentAssignment = ministriesDao.retrieveCurrentAssignment(currentMinistry);
             }
             else
