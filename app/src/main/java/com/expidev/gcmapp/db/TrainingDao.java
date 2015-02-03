@@ -153,13 +153,11 @@ public class TrainingDao extends AbstractDao
     
     public Cursor retrieveTrainingCursorById(int id)
     {
-        final SQLiteDatabase database = databaseHelper.getReadableDatabase();
-        String whereCondition = "id = ?";
-        String[] whereArgs = {String.valueOf(id)};
-
         try
         {
-            return database.query(TableNames.TRAINING.getTableName(), null, whereCondition, whereArgs, null, null, null);
+            return this.getCursor(Training.class, Contract.Training.SQL_WHERE_PRIMARY_KEY,
+                                  new String[] {String.valueOf(id)},
+                                  null);
         }
         catch (Exception e)
         {
@@ -339,7 +337,7 @@ public class TrainingDao extends AbstractDao
             String trainingTable = TableNames.TRAINING.getTableName();
             String trainingCompleteTable = TableNames.TRAINING_COMPLETIONS.getTableName();
             
-            Cursor existingTraining = retrieveTrainingCursor(trainingTable);
+            Cursor existingTraining = this.getCursor(Training.class);
             Cursor existingCompletedTraining = retrieveTrainingCursor(trainingCompleteTable);
 
             Log.i(TAG, "API returned: " + jsonArray.length());
@@ -428,7 +426,7 @@ public class TrainingDao extends AbstractDao
             String trainingTable = TableNames.TRAINING.getTableName();
             String completedTrainingTable = TableNames.TRAINING_COMPLETIONS.getTableName();
 
-            Cursor existingTraining = retrieveTrainingCursor(trainingTable);
+            Cursor existingTraining = this.getCursor(Training.class);
             Cursor existingCompletedTraining = retrieveCompletedTrainingCursor(completedTrainingTable);
             
             ContentValues trainingToInsert = new ContentValues();
