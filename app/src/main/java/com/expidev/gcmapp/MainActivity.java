@@ -78,6 +78,7 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
     private String chosenMinistry;
+    private List<Ministry> associatedMinistries;
     
     // try to cut down on api calls
     private boolean trainingDownloaded = false;
@@ -118,7 +119,7 @@ public class MainActivity extends ActionBarActivity
         // This call at times will create a null pointer. However, this is no big deal since it is call
         // again later. It could be removed here; however, this does help a returning user retrieve
         // their saved information a little quicker.
-        getChosenMinistry();
+        getCurrentAssignment();
 
         if (Device.isConnected(getApplicationContext()))
         {
@@ -186,8 +187,9 @@ public class MainActivity extends ActionBarActivity
     protected void onPostResume()
     {
         super.onPostResume();
+        if (map != null) map.clear();
         getMapPreferences();
-        getChosenMinistry();
+        getCurrentAssignment();
     }
 
     @Override
@@ -295,48 +297,55 @@ public class MainActivity extends ActionBarActivity
         }
     }
     
-    private void getChosenMinistry()
+    private void getCurrentAssignment()
     {
-        chosenMinistry = preferences.getString("chosen_ministry", null);
-        MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
-        List<Ministry> associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
-        
-        if (associatedMinistries == null || associatedMinistries.size() == 0)
+        if (currentAssignment == null)
         {
-            Log.w(TAG, "No Associated Ministries");
-            return;
-        }
-        
-        if (chosenMinistry == null)
-        {
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("chosen_ministry", associatedMinistries.get(1).getName());
-            chosenMinistry = associatedMinistries.get(1).getName();
+            MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
             
-            currentMinistry = associatedMinistries.get(1);
-            currentAssignment = ministriesDao.retrieveCurrentAssignment(currentMinistry);
-
-            if (currentAssignment != null)
-            Log.i(TAG, "current assignment: " + currentAssignment.toString());
-                
-        }
-        else
-        {
-            for (Ministry ministry : associatedMinistries)
+            if (associatedMinistries == null)
             {
-                if (ministry.getName().equals(chosenMinistry))
+                chosenMinistry = preferences.getString("chosen_ministry", null);
+                
+                associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
+            }
+
+            if (associatedMinistries == null || associatedMinistries.size() == 0)
+            {
+                Log.w(TAG, "No Associated Ministries");
+                return;
+            }
+
+            if (chosenMinistry == null)
+            {
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString("chosen_ministry", associatedMinistries.get(1).getName());
+                chosenMinistry = associatedMinistries.get(1).getName();
+
+                currentMinistry = associatedMinistries.get(1);
+                currentAssignment = ministriesDao.retrieveCurrentAssignment(currentMinistry);
+            }
+            else
+            {
+                if (currentAssignment != null)
                 {
-                    currentMinistry = ministry;
-                    currentAssignment = ministriesDao.retrieveCurrentAssignment(ministry);
-                    
-                    if (currentAssignment != null)
+                    for (Ministry ministry : associatedMinistries)
                     {
-                        Log.i(TAG, "current assignment: " + currentAssignment.toString());
+                        if (ministry.getName().equals(chosenMinistry))
+                        {
+                            currentMinistry = ministry;
+                            currentAssignment = ministriesDao.retrieveCurrentAssignment(ministry);
+
+                            if (currentAssignment != null)
+                            {
+                                Log.i(TAG, "current assignment: " + currentAssignment.toString());
+                            }
+                        }
                     }
                 }
             }
         }
-        
+
         if (map != null && currentAssignment != null) zoomToLocation();
 
         if (currentMinistry != null)
@@ -356,7 +365,14 @@ public class MainActivity extends ActionBarActivity
             {
                 trainingSearch(currentMinistry.getMinistryId(), mcc);
             }
+            
+            addTrainingMakersToMap();
         }
+    }
+    
+    private void setUpMap()
+    {   
+        if (trainingDownloaded) addTrainingMakersToMap();
     }
 
     private boolean checkPlayServices()
@@ -389,6 +405,8 @@ public class MainActivity extends ActionBarActivity
     {
         Log.i(TAG, "On Map Ready");
         this.map = googleMap;
+        
+        setUpMap();
         
         clusterManager = new ClusterManager<>(this, map);
         clusterManager.setRenderer(new MarkerRender(this, map, clusterManager));
@@ -488,7 +506,7 @@ public class MainActivity extends ActionBarActivity
                             Log.i(TAG, "All ministries saved to local storage");
                             break;
                         case SAVE_ASSOCIATED_MINISTRIES:
-                            getChosenMinistry();
+                            getCurrentAssignment();
                             break;
                         default:
                             Log.i(TAG, "Unhandled Type: " + type);
