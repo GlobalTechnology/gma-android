@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by matthewfrederick on 1/26/15.
@@ -324,32 +325,32 @@ public class TrainingDao extends AbstractDao
         {
             database.beginTransaction();
 
-            String trainingTable = TableNames.TRAINING.getTableName();
             String trainingCompleteTable = TableNames.TRAINING_COMPLETIONS.getTableName();
             
-            Cursor existingTraining = this.getCursor(Training.class);
             Cursor existingCompletedTraining = retrieveTrainingCursor(trainingCompleteTable);
 
             Log.i(TAG, "API returned: " + jsonArray.length());
             
             for (int i = 0; i < jsonArray.length(); i++)
-            {   
-                JSONObject training = jsonArray.getJSONObject(i);
-                int id = training.getInt("id");
-                Log.i(TAG, "Saving id: " + id);
-                
-                ContentValues trainingToInsert = new ContentValues();
-                trainingToInsert.put("id", id);
-                trainingToInsert.put("ministry_id", training.getString("ministry_id"));
-                trainingToInsert.put("name", training.getString("name"));
-                trainingToInsert.put("date", training.getString("date"));
-                trainingToInsert.put("type", training.getString("type"));
-                trainingToInsert.put("mcc", training.getString("mcc"));
-                trainingToInsert.put("latitude", training.getDouble("latitude"));
-                trainingToInsert.put("longitude", training.getDouble("longitude"));
-                trainingToInsert.put("synced", new Timestamp(new Date().getTime()).toString());
-                
-                JSONArray trainingCompletedArray = training.getJSONArray("gcm_training_completions");
+            {
+                final JSONObject json = jsonArray.getJSONObject(i);
+
+                // build training object
+                final Training training = new Training();
+                training.setId(json.getInt("id"));
+                training.setMinistryId(json.getString("ministry_id"));
+                training.setName(json.getString("name"));
+                training.setDate(stringToDate(json.getString("date")));
+                training.setType(json.getString("type"));
+                training.setMcc(json.getString("mcc"));
+                training.setLatitude(json.getDouble("latitude"));
+                training.setLongitude(json.getDouble("longitude"));
+                training.setLastSynced(new Date());
+
+                // update or insert training object
+                this.updateOrInsert(training, Contract.Training.PROJECTION_ALL);
+
+                JSONArray trainingCompletedArray = json.getJSONArray("gcm_training_completions");
                 
                 for (int j = 0; j < trainingCompletedArray.length(); j++)
                 {
@@ -375,19 +376,6 @@ public class TrainingDao extends AbstractDao
 
                     Log.i(TAG, "Inserted/Updated completed training: " + completedId);
                     
-                }
-                
-                if (!trainingExistsInDatabase(id, existingTraining))
-                {
-                    database.insert(trainingTable, null, trainingToInsert);
-                    Log.i(TAG, "Inserted training: " + trainingToInsert.getAsString("id"));
-                }
-                else
-                {
-                    String where = "id = ?";
-                    String[] args = {trainingToInsert.getAsString("id")};
-                    database.update(trainingTable, trainingToInsert, where, args);
-                    Log.i(TAG, "Updated training: " + trainingToInsert.getAsString("id"));
                 }
             }
 
@@ -496,7 +484,7 @@ public class TrainingDao extends AbstractDao
 
     private Date stringToDate(String string) throws ParseException
     {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         return format.parse(string);
     }
 
