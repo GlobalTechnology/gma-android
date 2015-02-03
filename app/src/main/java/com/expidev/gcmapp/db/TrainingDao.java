@@ -202,28 +202,17 @@ public class TrainingDao extends AbstractDao
     
     public Training retrieveTrainingById(int id)
     {
-        // first see if there is any completed training for this training
-        List<Training.GCMTrainingCompletions> complete = getCompletedTrainingByTrainingId(id);
-        
-        Cursor cursor = null;
-        
         try
         {
-            cursor = retrieveTrainingCursorById(id);
-            
-            if (cursor != null && cursor.getCount() == 1)
-            {   
-                cursor.moveToFirst();
-                return setTrainingFromCursor(cursor, complete);                
+            final Training training = this.find(Training.class, id);
+            if (training != null) {
+                training.setCompletions(getCompletedTrainingByTrainingId(training.getId()));
             }
+            return training;
         }
         catch (Exception e)
         {
             Log.e(TAG, e.getMessage(), e);
-        }
-        finally
-        {
-            if (cursor != null) cursor.close();
         }
         return null;
     }
