@@ -11,6 +11,7 @@ import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
+import org.ccci.gto.android.common.db.AbstractDao;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -25,7 +26,7 @@ import java.util.List;
 /**
  * Created by matthewfrederick on 1/26/15.
  */
-public class TrainingDao
+public class TrainingDao extends AbstractDao
 {
     private final String TAG = getClass().getSimpleName();
     
@@ -36,7 +37,8 @@ public class TrainingDao
     
     private TrainingDao(final Context context)
     {
-        this.databaseHelper = DatabaseOpenHelper.getInstance(context);
+        super(DatabaseOpenHelper.getInstance(context));
+        this.databaseHelper = this.dbHelper;
     }
     
     public static TrainingDao getInstance(Context context)
