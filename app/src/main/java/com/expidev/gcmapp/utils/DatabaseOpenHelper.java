@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.sql.TableNames;
 
 /**
@@ -17,7 +18,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     private static DatabaseOpenHelper instance;
     private Context context;
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "gcm_data.db";
 
     private DatabaseOpenHelper(Context context)
@@ -101,8 +102,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
 
     private void createTrainingTables(SQLiteDatabase db)
     {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.TRAINING.getTableName() +
-            "(id INT, ministry_id TEXT, name TEXT, date TEXT, type TEXT, mcc TEXT, latitude DECIMAL, longitude DECIMAL, synced TEXT);");
+        db.execSQL(Contract.Training.SQL_CREATE_TABLE);
         
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.TRAINING_COMPLETIONS.getTableName() + 
             "(id INT, phase INT, number_completed INT, date TEXT, training_id INT, synced TEXT);");
