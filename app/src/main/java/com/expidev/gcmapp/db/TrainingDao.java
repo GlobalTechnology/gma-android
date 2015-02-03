@@ -43,10 +43,8 @@ public class TrainingDao extends AbstractDao
     
     public static TrainingDao getInstance(Context context)
     {
-        if (instance == null)
-        {
-            synchronized (instanceLock)
-            {
+        synchronized (instanceLock) {
+            if (instance == null) {
                 instance = new TrainingDao(context.getApplicationContext());
             }
         }
