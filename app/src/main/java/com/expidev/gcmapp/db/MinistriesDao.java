@@ -272,7 +272,6 @@ public class MinistriesDao extends AbstractDao
             database.beginTransaction();
 
             Cursor existingAssignments = retrieveAssignmentsCursor();
-            Cursor existingAssociations = getCursor(AssociatedMinistry.class);
 
             if(existingAssignments != null && existingAssignments.getCount() > 0)
             {
@@ -285,7 +284,8 @@ public class MinistriesDao extends AbstractDao
 
                     if(assignmentExistsInDatabase(assignment.getId(), existingAssignments))
                     {
-                        insertOrUpdateAssociatedMinistry(associatedMinistry, null, database, existingAssociations);
+                        associatedMinistry.setParentMinistryId(null);
+                        insertOrUpdateAssociatedMinistry(associatedMinistry);
 
                         String[] whereArgs = { associatedMinistry.getMinistryId() };
 
@@ -297,7 +297,8 @@ public class MinistriesDao extends AbstractDao
                     }
                     else
                     {
-                        insertOrUpdateAssociatedMinistry(associatedMinistry, null, database, existingAssociations);
+                        associatedMinistry.setParentMinistryId(null);
+                        insertOrUpdateAssociatedMinistry(associatedMinistry);
                         database.insert(TableNames.ASSIGNMENTS.getTableName(), null, assignmentValues);
                     }
                 }
@@ -310,7 +311,8 @@ public class MinistriesDao extends AbstractDao
 
                     ContentValues assignmentValues = buildAssignmentValues(assignment);
 
-                    insertOrUpdateAssociatedMinistry(associatedMinistry, null, database, existingAssociations);
+                    associatedMinistry.setParentMinistryId(null);
+                    insertOrUpdateAssociatedMinistry(associatedMinistry);
                     database.insert(TableNames.ASSIGNMENTS.getTableName(), null, assignmentValues);
                 }
             }
@@ -328,62 +330,15 @@ public class MinistriesDao extends AbstractDao
         }
     }
 
-    void insertOrUpdateAssociatedMinistry(
-        AssociatedMinistry associatedMinistry,
-        String parentMinistryId,
-        SQLiteDatabase database,
-        Cursor existingAssociatedMinistries)
-    {
-        if(associatedMinistry.getSubMinistries() != null)
-        {
-            for(AssociatedMinistry subMinistry : associatedMinistry.getSubMinistries())
-            {
-                insertOrUpdateAssociatedMinistry(
-                    subMinistry,
-                    associatedMinistry.getMinistryId(),
-                    database,
-                    existingAssociatedMinistries);
-            }
+    void insertOrUpdateAssociatedMinistry(final AssociatedMinistry ministry) {
+        // insert this AssociatedMinistry
+        this.updateOrInsert(ministry, Contract.AssociatedMinistry.PROJECTION_ALL);
+
+        // process any sub ministries
+        for (final AssociatedMinistry subMinistry : ministry.getSubMinistries()) {
+            subMinistry.setParentMinistryId(ministry.getMinistryId());
+            this.insertOrUpdateAssociatedMinistry(subMinistry);
         }
-
-        ContentValues subMinistryValues = buildAssociationValues(associatedMinistry);
-        subMinistryValues.put("parent_ministry_id", parentMinistryId);
-
-        // If the ministry already exists in the database, update it, otherwise insert it
-        if(ministryExistsInDatabase(associatedMinistry.getMinistryId(), existingAssociatedMinistries))
-        {
-            String[] whereArgs = { associatedMinistry.getMinistryId() };
-            database.update(
-                TableNames.ASSOCIATED_MINISTRIES.getTableName(),
-                subMinistryValues,
-                "ministry_id = ?",
-                whereArgs);
-        }
-        else
-        {
-            database.insert(
-                TableNames.ASSOCIATED_MINISTRIES.getTableName(),
-                null,
-                subMinistryValues);
-        }
-    }
-
-    private boolean ministryExistsInDatabase(String ministryId, Cursor existingAssociatedMinistries)
-    {
-        existingAssociatedMinistries.moveToFirst();
-        for(int i = 0; i < existingAssociatedMinistries.getCount(); i++)
-        {
-            String associatedMinistryId = existingAssociatedMinistries.getString(
-                existingAssociatedMinistries.getColumnIndex("ministry_id"));
-
-            if(ministryId.equalsIgnoreCase(associatedMinistryId))
-            {
-                return true;
-            }
-
-            existingAssociatedMinistries.moveToNext();
-        }
-        return false;
     }
 
     private boolean assignmentExistsInDatabase(String assignmentId, Cursor existingAssignments)
@@ -400,31 +355,6 @@ public class MinistriesDao extends AbstractDao
             existingAssignments.moveToNext();
         }
         return false;
-    }
-
-    private int booleanToInt(boolean booleanValue)
-    {
-        return booleanValue ? 1 : 0;
-    }
-
-    private boolean intToBoolean(int intValue)
-    {
-        return intValue == 1;
-    }
-
-    private ContentValues buildAssociationValues(AssociatedMinistry associatedMinistry)
-    {
-        ContentValues associationValues = new ContentValues();
-
-        associationValues.put("ministry_id", associatedMinistry.getMinistryId());
-        associationValues.put("name", associatedMinistry.getName());
-        associationValues.put("min_code", associatedMinistry.getMinistryCode());
-        associationValues.put("has_slm", booleanToInt(associatedMinistry.hasSlm()));
-        associationValues.put("has_llm", booleanToInt(associatedMinistry.hasLlm()));
-        associationValues.put("has_ds", booleanToInt(associatedMinistry.hasDs()));
-        associationValues.put("has_gcm", booleanToInt(associatedMinistry.hasGcm()));
-
-        return associationValues;
     }
 
     private ContentValues buildAssignmentValues(Assignment assignment)
