@@ -50,6 +50,17 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     {
+        // TODO: implement db upgrade logic once we have actual users with actual data
+        resetDatabase(db);
+    }
+
+    @Override
+    public void onDowngrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
+        // reset the database, don't try and downgrade tables
+        this.resetDatabase(db);
+    }
+
+    private void resetDatabase(final SQLiteDatabase db) {
         deleteAllTables(db);
         onCreate(db);
     }
