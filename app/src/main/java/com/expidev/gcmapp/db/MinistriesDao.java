@@ -17,6 +17,7 @@ import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.Mapper;
+import org.ccci.gto.android.common.util.CursorUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -229,37 +230,22 @@ public class MinistriesDao extends AbstractDao
         return null;
     }
 
+    @NonNull
     public List<String> retrieveAssociatedMinistries()
     {
-        Cursor cursor = null;
+        // fetch the names of all AssociatedMinistries
+        final Cursor c = this.getCursor(AssociatedMinistry.class,
+                                        new String[] {Contract.AssociatedMinistry.COLUMN_NAME}, null, null, null);
 
-        try
-        {
-            cursor = getCursor(AssociatedMinistry.class);
-
-            if(cursor.getCount() > 0)
-            {
-                List<String> associatedMinistries = new ArrayList<String>(cursor.getCount());
-
-                cursor.moveToFirst();
-                for(int i = 0; i < cursor.getCount(); i++)
-                {
-                    associatedMinistries.add(cursor.getString(cursor.getColumnIndex("name")));
-                    cursor.moveToNext();
-                }
-
-                return associatedMinistries;
-            }
+        // process names into a list
+        final List<String> ministries = new ArrayList<>(c.getCount());
+        while (c.moveToNext()) {
+            // XXX: this will currently include null names
+            ministries.add(CursorUtils.getString(c, Contract.AssociatedMinistry.COLUMN_NAME, null));
         }
-        finally
-        {
-            if(cursor != null)
-            {
-                cursor.close();
-            }
-        }
+        c.close();
 
-        return null;
+        return ministries;
     }
 
     public Cursor retrieveAssignmentsCursor()
