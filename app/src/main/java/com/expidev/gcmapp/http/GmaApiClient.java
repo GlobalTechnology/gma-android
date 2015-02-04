@@ -180,6 +180,28 @@ public class GmaApiClient
         return null;
     }
 
+    public JSONArray searchMeasurements(String ministryId, String mcc, String period, String sessionTicket)
+    {
+        try
+        {
+            String urlString = BuildConfig.GCM_BASE_URI +
+                "?token=" + sessionTicket + "&ministry_id=" + ministryId + "&mcc=" + mcc;
+
+            if(period != null)
+            {
+                urlString += "&period=" + period;
+            }
+
+            return new JSONArray(httpGet(new URL(urlString)));
+        }
+        catch(Exception e)
+        {
+            Log.e(TAG, e.getMessage(), e);
+        }
+
+        return null;
+    }
+
     private String httpGet(URL url) throws IOException, JSONException, URISyntaxException
     {
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();

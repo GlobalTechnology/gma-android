@@ -72,6 +72,8 @@
             </intent-filter>
         </receiver>
 
+        <service android:name=".service.MeasurementsService"
+                 android:exported="false"/>
         <service android:name=".service.MinistriesService"
                  android:exported="false"/>
         <service android:name=".service.AuthService"
