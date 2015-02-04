@@ -332,6 +332,7 @@ public class MainActivity extends ActionBarActivity
                 
                 chosenMinistry = currentMinistry.getName();
                 editor.putString("chosen_ministry", chosenMinistry);
+                editor.commit();
 
                 currentAssignment = ministriesDao.retrieveCurrentAssignment(currentMinistry);
             }
