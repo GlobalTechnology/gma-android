@@ -148,40 +148,17 @@ public class MinistriesDao extends AbstractDao
         return super.getPrimaryKeyWhere(obj);
     }
 
+    @NonNull
     public List<AssociatedMinistry> retrieveAssociatedMinistriesList()
     {
-        Log.i(TAG, "Retrieving associated ministries");
-        
-        Cursor cursor = null;
-        List<AssociatedMinistry> ministryList = new ArrayList<AssociatedMinistry>();
+        final List<AssociatedMinistry> ministries = this.get(AssociatedMinistry.class);
 
-        try
-        {
-            cursor = getCursor(AssociatedMinistry.class);
-
-            if(cursor.getCount() > 0)
-            {
-                cursor.moveToFirst();
-                for(int i = 0; i < cursor.getCount(); i++)
-                {
-                    ministryList.add(buildAssociatedMinistryFromCursor(cursor));
-                    cursor.moveToNext();
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
-        }
-        finally
-        {
-            if(cursor != null)
-            {
-                cursor.close();
-            }
+        // populate sub-ministries list
+        for (final AssociatedMinistry ministry : ministries) {
+            ministry.setSubMinistries(this.retrieveMinistriesWithParent(ministry.getMinistryId()));
         }
 
-        return ministryList;
+        return ministries;
     }
     
     public Assignment retrieveCurrentAssignment(AssociatedMinistry ministry)
@@ -216,21 +193,6 @@ public class MinistriesDao extends AbstractDao
         }
         
         return null;
-    }
-
-    private AssociatedMinistry buildAssociatedMinistryFromCursor(Cursor cursor)
-    {
-        AssociatedMinistry associatedMinistry = new AssociatedMinistry();
-        associatedMinistry.setName(cursor.getString(cursor.getColumnIndex("name")));
-        associatedMinistry.setMinistryId(cursor.getString(cursor.getColumnIndex("ministry_id")));
-        associatedMinistry.setMinistryCode(cursor.getString(cursor.getColumnIndex("min_code")));
-        associatedMinistry.setHasGcm(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_gcm"))));
-        associatedMinistry.setHasSlm(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_slm"))));
-        associatedMinistry.setHasDs(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_ds"))));
-        associatedMinistry.setHasLlm(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_llm"))));
-        associatedMinistry.setSubMinistries(retrieveMinistriesWithParent(associatedMinistry.getMinistryId()));
-
-        return associatedMinistry;
     }
 
     private Assignment buildAssignmentFromCursor(Cursor cursor, AssociatedMinistry ministry)
