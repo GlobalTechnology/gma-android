@@ -1,7 +1,9 @@
 package com.expidev.gcmapp;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,6 +13,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.expidev.gcmapp.model.Measurement;
 import com.expidev.gcmapp.model.Ministry;
@@ -18,6 +23,8 @@ import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.Type;
 import com.expidev.gcmapp.utils.BroadcastUtils;
+import com.expidev.gcmapp.utils.ViewUtils;
+import com.expidev.gcmapp.view.TextHeaderView;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,6 +42,7 @@ public class MeasurementsActivity extends ActionBarActivity
     private LocalBroadcastManager broadcastManager;
     private BroadcastReceiver broadcastReceiver;
     private SharedPreferences preferences;
+    private Ministry chosenMinistry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -84,12 +92,7 @@ public class MeasurementsActivity extends ActionBarActivity
                             if(measurementsData != null)
                             {
                                 List<Measurement> measurements = (ArrayList<Measurement>) measurementsData;
-
-                                //TODO: Do stuff with measurements
-                                for(Measurement measurement : measurements)
-                                {
-                                    Log.i(TAG, "Measurements: " + measurement.getName());
-                                }
+                                drawLayout(chosenMinistry, measurements);
                             }
                             else
                             {
@@ -103,8 +106,9 @@ public class MeasurementsActivity extends ActionBarActivity
 
                             if(ministriesData != null)
                             {
+                                //TODO: Handle no chosen ministry (need default somewhere in Main)
                                 List<Ministry> associatedMinistries = (ArrayList<Ministry>) ministriesData;
-                                Ministry chosenMinistry = getMinistryForName(
+                                chosenMinistry = getMinistryForName(
                                     associatedMinistries,
                                     preferences.getString("chosen_ministry", null));
 
@@ -154,6 +158,117 @@ public class MeasurementsActivity extends ActionBarActivity
         return null;
     }
 
+    private void drawLayout(Ministry selectedMinistry, List<Measurement> measurements)
+    {
+        TextView titleView = (TextView) findViewById(R.id.measurement_ministry_name);
+        titleView.setText(selectedMinistry.getName());
+
+        List<Measurement> sortedMeasurements = sortMeasurements(measurements);
+
+        LinearLayout dataContainer = (LinearLayout) findViewById(R.id.measurement_data_Layout);
+
+        String previousColumn = sortedMeasurements.get(0).getColumn();
+        String firstMeasurementId = sortedMeasurements.get(0).getMeasurementId();
+
+        for(Measurement measurement : sortedMeasurements)
+        {
+            String column = measurement.getColumn();
+
+            if(!column.equals(previousColumn) || measurement.getMeasurementId().equals(firstMeasurementId))
+            {
+                // Add the new header and the data
+                TextHeaderView headerView = new TextHeaderView(this);
+                headerView.setText(column);
+                dataContainer.addView(headerView);
+
+                previousColumn = column;
+            }
+            LinearLayout row = createDataRow(
+                measurement.getName(),
+                measurement.getTotal(),
+                measurement);
+
+            dataContainer.addView(row);
+        }
+    }
+
+    private LinearLayout createDataRow(String name, int total, final Measurement measurement)
+    {
+        TextView nameView = createNameView(name);
+        TextView totalView = createTotalView(total);
+        TextView arrowView = createArrowView();
+
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setLayoutParams(new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        row.addView(nameView);
+        row.addView(totalView);
+        row.addView(arrowView);
+        row.setClickable(true);
+        row.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                drillIntoMeasurementDetails(measurement);
+            }
+        });
+
+        return row;
+    }
+
+    private TextView createNameView(String name)
+    {
+        TextView nameView = new TextView(this);
+        nameView.setText(name);
+
+        LinearLayout.LayoutParams nameLayoutParams = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        nameLayoutParams.weight = 1f;
+        nameLayoutParams.setMargins(ViewUtils.dpToPixels(this, 10), 0, 0, 0);
+
+        nameView.setLayoutParams(nameLayoutParams);
+
+        return nameView;
+    }
+
+    private TextView createTotalView(int total)
+    {
+        TextView totalView = new TextView(this);
+        totalView.setText(Integer.toString(total));
+
+        LinearLayout.LayoutParams totalLayoutParams = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        totalLayoutParams.setMargins(0, 0, ViewUtils.dpToPixels(this, 5), 0);
+
+        totalView.setLayoutParams(totalLayoutParams);
+
+        return totalView;
+    }
+
+    private TextView createArrowView()
+    {
+        TextView arrowView = new TextView(this);
+        arrowView.setText(">");
+
+        LinearLayout.LayoutParams arrowLayoutParams = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        arrowLayoutParams.setMargins(0, 0, ViewUtils.dpToPixels(this, 10), 0);
+
+        arrowView.setLayoutParams(arrowLayoutParams);
+
+        return arrowView;
+    }
+
+    private List<Measurement> sortMeasurements(List<Measurement> measurements)
+    {
+        //TODO: Sort such that the sections are together within each column
+        List<Measurement> sortedMeasurements = new ArrayList<>(measurements.size());
+        return measurements;
+    }
+
     @Override
     protected void onStop()
     {
@@ -194,9 +309,22 @@ public class MeasurementsActivity extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
 
-    public void drillIntoMeasurementDetails(View selectedMeasurement)
+    public void drillIntoMeasurementDetails(Measurement measurement)
     {
         //TODO: Integrate measurement details branch
         Log.i(TAG, "drilling into measurement");
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+            .setTitle("Measurement selected")
+            .setMessage("Drilling into measurement: " + measurement.getName())
+            .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener()
+            {
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    dialog.dismiss();
+                }
+            })
+            .create();
+
+        alertDialog.show();
     }
 }

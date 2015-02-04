@@ -32,4 +32,11 @@
             android:text="@string/period_right"
             android:background="#00FFFFFF" />
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/measurement_data_Layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+    </LinearLayout>
 </LinearLayout>
