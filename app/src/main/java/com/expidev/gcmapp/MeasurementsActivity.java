@@ -13,7 +13,9 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.expidev.gcmapp.model.Measurement;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.MeasurementsService;
+import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.Type;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
@@ -49,13 +51,8 @@ public class MeasurementsActivity extends ActionBarActivity
         super.onStart();
 
         setupBroadcastReceivers();
-        //TODO: Get these values from preferences
-        MeasurementsService.searchMeasurements(
-            this,
-            "770ffd2c-d6ac-11e3-9e38-12725f8f377c",
-            "SLM",
-            null,
-            preferences.getString("session_ticket", null));
+        MinistriesService.retrieveMinistries(this);
+
     }
 
     private void setupBroadcastReceivers()
@@ -82,19 +79,49 @@ public class MeasurementsActivity extends ActionBarActivity
                     switch(type)
                     {
                         case SEARCH_MEASUREMENTS:
-                            Serializable data = intent.getSerializableExtra("measurements");
+                            Serializable measurementsData = intent.getSerializableExtra("measurements");
 
-                            if(data != null)
+                            if(measurementsData != null)
                             {
-                                List<Measurement> measurements = (ArrayList<Measurement>) data;
+                                List<Measurement> measurements = (ArrayList<Measurement>) measurementsData;
 
                                 //TODO: Do stuff with measurements
-                                Log.i(TAG, "Measurements: " + measurements.toString());
+                                for(Measurement measurement : measurements)
+                                {
+                                    Log.i(TAG, "Measurements: " + measurement.getName());
+                                }
                             }
                             else
                             {
                                 Log.w(TAG, "No measurement data");
                             }
+                            break;
+                        case RETRIEVE_ASSOCIATED_MINISTRIES:
+                            Log.i(TAG, "Associated Ministries retrieved");
+
+                            Serializable ministriesData = intent.getSerializableExtra("associatedMinistries");
+
+                            if(ministriesData != null)
+                            {
+                                List<Ministry> associatedMinistries = (ArrayList<Ministry>) ministriesData;
+                                Ministry chosenMinistry = getMinistryForName(
+                                    associatedMinistries,
+                                    preferences.getString("chosen_ministry", null));
+
+                                MeasurementsService.searchMeasurements(
+                                    getApplicationContext(),
+                                    chosenMinistry.getMinistryId(),
+                                    preferences.getString("chosen_mcc", null),
+                                    null,
+                                    preferences.getString("session_ticket", null));
+                            }
+                            else
+                            {
+                                Log.w(TAG, "No associated ministries");
+                            }
+
+
+
                             break;
                         default:
                             Log.i(TAG, "Unhandled Type: " + type);
@@ -107,6 +134,24 @@ public class MeasurementsActivity extends ActionBarActivity
         broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
         broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());
         broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.stopFilter());
+    }
+
+    private Ministry getMinistryForName(List<Ministry> ministryList, String ministryName)
+    {
+        if(ministryName == null)
+        {
+            return null;
+        }
+
+        for(Ministry ministry : ministryList)
+        {
+            if(ministryName.equals(ministry.getName()))
+            {
+                return ministry;
+            }
+        }
+
+        return null;
     }
 
     @Override
