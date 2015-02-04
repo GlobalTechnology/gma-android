@@ -1,7 +1,10 @@
 package com.expidev.gcmapp.model;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,7 +19,8 @@ public class AssociatedMinistry extends Ministry
     private boolean hasLlm;
     private boolean hasDs;
     private boolean hasGcm;
-    private List<AssociatedMinistry> subMinistries;
+    @NonNull
+    private final List<AssociatedMinistry> subMinistries = new ArrayList<>();
 
     @Nullable
     public String getParentMinistryId() {
@@ -77,13 +81,16 @@ public class AssociatedMinistry extends Ministry
         this.hasGcm = hasGcm;
     }
 
+    @NonNull
     public List<AssociatedMinistry> getSubMinistries()
     {
-        return subMinistries;
+        return Collections.unmodifiableList(subMinistries);
     }
 
-    public void setSubMinistries(List<AssociatedMinistry> subMinistries)
-    {
-        this.subMinistries = subMinistries;
+    public void setSubMinistries(@Nullable final List<AssociatedMinistry> ministries) {
+        this.subMinistries.clear();
+        if (ministries != null) {
+            this.subMinistries.addAll(ministries);
+        }
     }
 }
