@@ -48,7 +48,7 @@ public class AssociatedMinistriesMapper extends BaseMapper<AssociatedMinistry>
                 values.put(field, ministry.hasGcm());
                 break;
             case Contract.AssociatedMinistry.COLUMN_PARENT_MINISTRY_ID:
-                //TODO: Handle sub ministries
+                values.put(field, ministry.getParentMinistryId());
                 break;
             default:
                 super.mapField(values, field, ministry);
@@ -68,16 +68,16 @@ public class AssociatedMinistriesMapper extends BaseMapper<AssociatedMinistry>
     @Override
     public AssociatedMinistry toObject(@NonNull final Cursor cursor)
     {
-        final AssociatedMinistry ministry = new AssociatedMinistry();
+        final AssociatedMinistry ministry = super.toObject(cursor);
 
         ministry.setMinistryId(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_MINISTRY_ID, "NO ID"));
-        ministry.setName(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_NAME));
-        ministry.setMinistryCode(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_MIN_CODE));
+        ministry.setParentMinistryId(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_PARENT_MINISTRY_ID, null));
+        ministry.setName(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_NAME, null));
+        ministry.setMinistryCode(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_MIN_CODE, null));
         ministry.setHasGcm(this.getBool(cursor, Contract.AssociatedMinistry.COLUMN_HAS_GCM, false));
         ministry.setHasSlm(this.getBool(cursor, Contract.AssociatedMinistry.COLUMN_HAS_SLM, false));
         ministry.setHasDs(this.getBool(cursor, Contract.AssociatedMinistry.COLUMN_HAS_DS, false));
         ministry.setHasLlm(this.getBool(cursor, Contract.AssociatedMinistry.COLUMN_HAS_LLM, false));
-        //TODO: Handle sub ministries
 
         return ministry;
     }

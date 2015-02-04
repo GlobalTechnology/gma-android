@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 
@@ -245,58 +246,25 @@ public class MinistriesDao extends AbstractDao
         return assignment;
     }
 
-    private Ministry buildMinistryFromCursor(Cursor cursor, String parentId)
-    {
-        Ministry ministry = new Ministry();
-        ministry.setName(cursor.getString(cursor.getColumnIndex("name")));
-        ministry.setMinistryId(cursor.getString(cursor.getColumnIndex("ministry_id")));
-
-        if (parentId != null) ministry.setParentId(parentId);
-
-        return ministry;
-    }
-
-    public List<AssociatedMinistry> retrieveMinistriesWithParent(String parentMinistryId)
-    {
-        final SQLiteDatabase database = dbHelper.getReadableDatabase();
-        Cursor cursor = null;
-        List<AssociatedMinistry> ministryList = null;
-
+    @Nullable
+    public List<AssociatedMinistry> retrieveMinistriesWithParent(final String parentMinistryId) {
         try
         {
-            cursor = database.query(
-                TableNames.ASSOCIATED_MINISTRIES.getTableName(),
-                null,
-                "parent_ministry_id = ?",
-                new String[] { parentMinistryId },
-                null,
-                null,
-                null);
+            final List<AssociatedMinistry> ministries =
+                    this.get(AssociatedMinistry.class, Contract.AssociatedMinistry.SQL_WHERE_PARENT,
+                             new String[] {parentMinistryId});
 
-            if(cursor != null && cursor.getCount() > 0)
-            {
-                ministryList = new ArrayList<AssociatedMinistry>();
-                cursor.moveToFirst();
-                for(int i = 0; i < cursor.getCount(); i++)
-                {
-                    ministryList.add(buildAssociatedMinistryFromCursor(cursor));
-                    cursor.moveToNext();
-                }
+            // post process Ministries found to populate sub-ministries
+            for (final AssociatedMinistry ministry : ministries) {
+                ministry.setSubMinistries(this.retrieveMinistriesWithParent(ministry.getMinistryId()));
             }
         }
         catch(Exception e)
         {
             Log.e(TAG, "Failed to retrieve associated ministries: " + e.getMessage());
         }
-        finally
-        {
-            if(cursor != null)
-            {
-                cursor.close();
-            }
-        }
 
-        return ministryList;
+        return null;
     }
 
     public List<String> retrieveAssociatedMinistries()

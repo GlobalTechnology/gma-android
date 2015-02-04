@@ -11,7 +11,6 @@ public class Ministry extends Base implements Serializable
 
     private String ministryId;
     private String name;
-    private String parentId;
 
     public String getMinistryId()
     {
@@ -31,16 +30,6 @@ public class Ministry extends Base implements Serializable
     public void setName(String name)
     {
         this.name = name;
-    }
-
-    public String getParentId()
-    {
-        return parentId;
-    }
-
-    public void setParentId(String parentId)
-    {
-        this.parentId = parentId;
     }
 
     @Override

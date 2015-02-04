@@ -529,7 +529,7 @@ public class MainActivity extends ActionBarActivity
                         boolean parent = false;
                         do
                         {
-                            if (associatedMinistries.get(i).getParentId() == null) parent = true;
+                            parent = associatedMinistries.get(i).getParentMinistryId() == null;
                             i++;
                         } while (!parent);
 

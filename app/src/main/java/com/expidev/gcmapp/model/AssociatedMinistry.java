@@ -1,5 +1,7 @@
 package com.expidev.gcmapp.model;
 
+import android.support.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -7,12 +9,23 @@ import java.util.List;
  */
 public class AssociatedMinistry extends Ministry
 {
+    @Nullable
+    private String parentMinistryId;
     private String ministryCode;
     private boolean hasSlm;
     private boolean hasLlm;
     private boolean hasDs;
     private boolean hasGcm;
     private List<AssociatedMinistry> subMinistries;
+
+    @Nullable
+    public String getParentMinistryId() {
+        return parentMinistryId;
+    }
+
+    public void setParentMinistryId(@Nullable final String parentMinistryId) {
+        this.parentMinistryId = parentMinistryId;
+    }
 
     public String getMinistryCode()
     {
