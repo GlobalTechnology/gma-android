@@ -1,0 +1,5 @@
+.gitignore   text
+*.gradle     text
+*.java       text
+*.properties text
+*.xml        text
