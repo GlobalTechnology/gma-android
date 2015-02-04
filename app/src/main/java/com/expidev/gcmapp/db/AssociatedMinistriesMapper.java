@@ -36,16 +36,16 @@ public class AssociatedMinistriesMapper extends BaseMapper<AssociatedMinistry>
                 values.put(field, ministry.getMinistryCode());
                 break;
             case Contract.AssociatedMinistry.COLUMN_HAS_SLM:
-                values.put(field, ministry.hasSlm());
+                values.put(field, ministry.hasSlm() ? 1 : 0);
                 break;
             case Contract.AssociatedMinistry.COLUMN_HAS_LLM:
-                values.put(field, ministry.hasLlm());
+                values.put(field, ministry.hasLlm() ? 1 : 0);
                 break;
             case Contract.AssociatedMinistry.COLUMN_HAS_DS:
-                values.put(field, ministry.hasDs());
+                values.put(field, ministry.hasDs() ? 1 : 0);
                 break;
             case Contract.AssociatedMinistry.COLUMN_HAS_GCM:
-                values.put(field, ministry.hasGcm());
+                values.put(field, ministry.hasGcm() ? 1 : 0);
                 break;
             case Contract.AssociatedMinistry.COLUMN_PARENT_MINISTRY_ID:
                 values.put(field, ministry.getParentMinistryId());
