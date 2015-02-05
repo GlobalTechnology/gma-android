@@ -1,6 +1,7 @@
 package com.expidev.gcmapp;
 
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -35,6 +36,7 @@ public class MapSettings extends ActionBarActivity implements CheckBox.OnChecked
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map_settings);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         
         ActionBar actionBar = getSupportActionBar();
         // when this is set to true, it reloads the map page, which cuts down on performance
