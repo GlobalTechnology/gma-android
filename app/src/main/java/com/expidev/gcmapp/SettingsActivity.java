@@ -188,7 +188,7 @@ public class SettingsActivity extends PreferenceActivity
                 preferences
                     .edit()
                     .putString("chosen_ministry", ministryName)
-                    .commit();
+                    .apply();
                 return true;
             }
         });

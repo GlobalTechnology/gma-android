@@ -99,7 +99,7 @@ public class GmaApiClient
             if (!stringBuilder.toString().isEmpty())
             {
                 prefEditor.putString("Cookie", stringBuilder.toString());
-                prefEditor.commit();
+                prefEditor.apply();
             }
             
         }

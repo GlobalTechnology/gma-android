@@ -103,7 +103,7 @@ public class AuthService extends IntentService
         Log.i(TAG, "Session Ticket: " + jsonObject.getString("session_ticket"));
         
         prefEditor.putString("session_ticket", jsonObject.getString("session_ticket"));
-        prefEditor.commit();
+        prefEditor.apply();
 
         UserDao userDao = UserDao.getInstance(this);
         userDao.saveUser(jsonObject.getJSONObject("user"));

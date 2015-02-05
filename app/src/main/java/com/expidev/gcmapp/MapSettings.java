@@ -103,6 +103,6 @@ public class MapSettings extends ActionBarActivity implements CheckBox.OnChecked
                 break;
         }
 
-        editor.commit();
+        editor.apply();
     }
 }
