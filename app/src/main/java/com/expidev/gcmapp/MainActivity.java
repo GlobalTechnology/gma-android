@@ -87,7 +87,6 @@ public class MainActivity extends ActionBarActivity
     private GoogleMap map;
     private ClusterManager<GcmMarker> clusterManager;
 
-    private String currentMinistryId;
     private Ministry currentMinistry;
     private Assignment currentAssignment;
     private boolean currentAssignmentSet = false;
@@ -482,19 +481,20 @@ public class MainActivity extends ActionBarActivity
     {
 
         /*
-         * This will allow the current assignment to be retrieve and data for the assignment will be loaded.
+         * This will allow the current assignment to be retrieved and data for the assignment will be loaded.
          * If an assignment is not currently set a random parent associated ministry will be selected.
          * 
          * Definitions:
          * currentMinistry: The ministry associated with the currently selected assignment
          * currentAssignment: currently selected assignment. Selected from associated assignments
-         * currentMinistryId: Id of currentMinistry 
+         * currentMinistryName: Name of currentMinistry 
          */
         
         @Override
         protected Boolean doInBackground(Context... params)
         {
             Context context = params[0];
+            String currentMinistryName;
             
             Log.i(TAG, "Trying to set current Assignment");
             try
@@ -503,7 +503,7 @@ public class MainActivity extends ActionBarActivity
                 if (currentAssignment == null || currentMinistry == null)
                 {
                     MinistriesDao ministriesDao = MinistriesDao.getInstance(context);
-                    currentMinistryId = preferences.getString("chosen_ministry", null);
+                    currentMinistryName = preferences.getString("chosen_ministry", null);
 
                     if (associatedMinistries == null || associatedMinistries.size() == 0)
                     {
@@ -517,7 +517,7 @@ public class MainActivity extends ActionBarActivity
                         return false;
                     }
 
-                    if (currentMinistryId == null)
+                    if (currentMinistryName == null)
                     {
                         Log.i(TAG, "current ministry id needs to be set");
                         SharedPreferences.Editor editor = preferences.edit();
@@ -532,9 +532,9 @@ public class MainActivity extends ActionBarActivity
 
                         currentMinistry = associatedMinistries.get(i);
 
-                        currentMinistryId = currentMinistry.getName();
-                        editor.putString("chosen_ministry", currentMinistryId);
-                        editor.commit();
+                        currentMinistryName = currentMinistry.getName();
+                        editor.putString("chosen_ministry", currentMinistryName);
+                        editor.apply();
 
                         currentAssignment = ministriesDao.retrieveCurrentAssignment(currentMinistry);
                     }
@@ -542,7 +542,7 @@ public class MainActivity extends ActionBarActivity
                     {
                         for (Ministry ministry : associatedMinistries)
                         {
-                            if (ministry.getName().equals(currentMinistryId))
+                            if (ministry.getName().equals(currentMinistryName))
                             {
                                 currentMinistry = ministry;
                                 currentAssignment = ministriesDao.retrieveCurrentAssignment(ministry);
