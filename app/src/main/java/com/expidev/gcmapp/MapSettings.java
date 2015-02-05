@@ -102,8 +102,7 @@ public class MapSettings extends ActionBarActivity implements CheckBox.OnChecked
                 editor.putBoolean("campuses", isChecked);
                 break;
         }
-        
-        // evidently apply works on a background thread so we may want to start using that.
-        editor.apply();
+
+        editor.commit();
     }
 }
