@@ -120,6 +120,8 @@ public class MinistriesDao
 
     public List<Ministry> retrieveAssociatedMinistriesList()
     {
+        Log.i(TAG, "Retrieving associated ministries");
+        
         Cursor cursor = null;
         List<Ministry> ministryList = new ArrayList<Ministry>();
 
@@ -127,6 +129,8 @@ public class MinistriesDao
         {
             cursor = retrieveAssociatedMinistriesCursor();
 
+            Log.i(TAG, "Associated Ministries found: " + cursor.getCount());
+            
             if(cursor != null && cursor.getCount() > 0)
             {
                 cursor.moveToFirst();

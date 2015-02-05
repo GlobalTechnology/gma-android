@@ -37,7 +37,9 @@ public class MapSettings extends ActionBarActivity implements CheckBox.OnChecked
         setContentView(R.layout.map_settings);
         
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        // when this is set to true, it reloads the map page, which cuts down on performance
+        // using the phones back button calls the onPostResume method, which is much better.
+        actionBar.setDisplayHomeAsUpEnabled(false);
         
         targetsCB = (CheckBox) findViewById(R.id.cb_targets);
         groupCB = (CheckBox) findViewById(R.id.cb_groups);

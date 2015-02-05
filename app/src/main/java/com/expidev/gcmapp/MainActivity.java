@@ -189,9 +189,13 @@ public class MainActivity extends ActionBarActivity
     protected void onPostResume()
     {
         super.onPostResume();
+        Log.i(TAG, "Resuming");
+        
         if (map != null) map.clear();
+        
         getMapPreferences();
         getCurrentAssignment();
+        setUpMap();
     }
 
     @Override
@@ -369,6 +373,7 @@ public class MainActivity extends ActionBarActivity
     private void addTrainingMakersToMap()
     {
         // do not show training activities if turned off in map settings
+        Log.i(TAG, "Show training: " + trainingActivities);
         if (map != null && trainingActivities)
         {   
             for (Training training : allTraining)
@@ -583,7 +588,7 @@ public class MainActivity extends ActionBarActivity
                 }
 
 
-                addTrainingMakersToMap();
+                setUpMap();
 
                 return true;
             }
