@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -77,7 +78,6 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences mapPreferences;
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
-    private String chosenMinistry;
     private List<Ministry> associatedMinistries;
     
     // try to cut down on api calls
@@ -86,9 +86,11 @@ public class MainActivity extends ActionBarActivity
     
     private GoogleMap map;
     private ClusterManager<GcmMarker> clusterManager;
-    
+
+    private String currentMinistryId;
     private Ministry currentMinistry;
     private Assignment currentAssignment;
+    private boolean currentAssignmentSet = false;
     
     private TextView mapOverlayText;
     
@@ -298,86 +300,12 @@ public class MainActivity extends ActionBarActivity
     }
     
     private void getCurrentAssignment()
-    {
-        if (currentAssignment == null)
+    {   
+        Log.i(TAG, "Need to get current Assignment: " + !currentAssignmentSet);
+        
+        if (!currentAssignmentSet)
         {
-            MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
-            
-            if (associatedMinistries == null)
-            {
-                chosenMinistry = preferences.getString("chosen_ministry", null);
-                
-                associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
-            }
-
-            if (associatedMinistries == null || associatedMinistries.size() == 0)
-            {
-                Log.w(TAG, "No Associated Ministries");
-                return;
-            }
-
-            if (chosenMinistry == null)
-            {
-                SharedPreferences.Editor editor = preferences.edit();
-                
-                int i = 0;
-                boolean parent = false;
-                do
-                {
-                    if (associatedMinistries.get(i).getParentId() == null) parent = true;
-                }while (!parent);
-                    
-                currentMinistry = associatedMinistries.get(i);
-                currentMinistry = associatedMinistries.get(1);
-                
-                chosenMinistry = currentMinistry.getName();
-                editor.putString("chosen_ministry", chosenMinistry);
-                editor.commit();
-
-                currentAssignment = ministriesDao.retrieveCurrentAssignment(currentMinistry);
-            }
-            else
-            {
-                if (currentAssignment != null)
-                {
-                    for (Ministry ministry : associatedMinistries)
-                    {
-                        if (ministry.getName().equals(chosenMinistry))
-                        {
-                            currentMinistry = ministry;
-                            currentAssignment = ministriesDao.retrieveCurrentAssignment(ministry);
-
-                            if (currentAssignment != null)
-                            {
-                                Log.i(TAG, "current assignment: " + currentAssignment.toString());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (map != null && currentAssignment != null) zoomToLocation();
-
-        if (currentMinistry != null)
-        {
-            Log.i(TAG, "Current Ministry: " + currentMinistry.getName());
-            String mcc = null;
-            if (currentMinistry.hasSlm()) mcc = "slm";
-            else if (currentMinistry.hasDs()) mcc = "ds";
-            else if (currentMinistry.hasGcm()) mcc = "gcm";
-            else if (currentMinistry.hasLlm()) mcc = "llm";
-            
-            String mccDisplay = "";
-            if (mcc != null) mccDisplay = " (" + mcc +")";
-            mapOverlayText.setText(currentMinistry.getName() + mccDisplay);
-
-            if (!trainingDownloaded)
-            {
-                trainingSearch(currentMinistry.getMinistryId(), mcc);
-            }
-            
-            addTrainingMakersToMap();
+           currentAssignmentSet = new SetCurrentMinistry().doInBackground(this);
         }
     }
     
@@ -417,6 +345,8 @@ public class MainActivity extends ActionBarActivity
         Log.i(TAG, "On Map Ready");
         this.map = googleMap;
         
+        if (currentAssignment != null) zoomToLocation();
+        
         setUpMap();
         
         clusterManager = new ClusterManager<>(this, map);
@@ -427,6 +357,8 @@ public class MainActivity extends ActionBarActivity
 
     private void zoomToLocation()
     {
+        Log.i(TAG, "Zooming to: " + currentAssignment.getLatitude() +", " + currentAssignment.getLongitude());
+        
         CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(currentAssignment.getLatitude(), currentAssignment.getLongitude()));
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(currentAssignment.getLocationZoom());
 
@@ -515,6 +447,7 @@ public class MainActivity extends ActionBarActivity
                             break;
                         case SAVE_ALL_MINISTRIES:
                             Log.i(TAG, "All ministries saved to local storage");
+                            getCurrentAssignment();
                             break;
                         case SAVE_ASSOCIATED_MINISTRIES:
                             getCurrentAssignment();
@@ -538,5 +471,128 @@ public class MainActivity extends ActionBarActivity
         manager.unregisterReceiver(gcmBroadcastReceiver);
         broadcastReceiver = null;
         gcmBroadcastReceiver = null;
+    }
+    
+    private class SetCurrentMinistry extends AsyncTask<Context, Void, Boolean> 
+    {
+
+        /*
+         * This will allow the current assignment to be retrieve and data for the assignment will be loaded.
+         * If an assignment is not currently set a random parent associated ministry will be selected.
+         * 
+         * Definitions:
+         * currentMinistry: The ministry associated with the currently selected assignment
+         * currentAssignment: currently selected assignment. Selected from associated assignments
+         * currentMinistryId: Id of currentMinistry 
+         */
+        
+        @Override
+        protected Boolean doInBackground(Context... params)
+        {
+            Context context = params[0];
+            
+            Log.i(TAG, "Trying to set current Assignment");
+            try
+            {
+                // if currentAssignment && currentMinistry is already set, skip getting it
+                if (currentAssignment == null || currentMinistry == null)
+                {
+                    MinistriesDao ministriesDao = MinistriesDao.getInstance(context);
+                    currentMinistryId = preferences.getString("chosen_ministry", null);
+
+                    if (associatedMinistries == null || associatedMinistries.size() == 0)
+                    {
+                        Log.i(TAG, "associated ministries needs to be set");
+                        associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
+                    }
+
+                    if (associatedMinistries == null || associatedMinistries.size() == 0)
+                    {
+                        Log.w(TAG, "No Associated Ministries");
+                        return false;
+                    }
+
+                    if (currentMinistryId == null)
+                    {
+                        Log.i(TAG, "current ministry id needs to be set");
+                        SharedPreferences.Editor editor = preferences.edit();
+
+                        int i = 0;
+                        boolean parent = false;
+                        do
+                        {
+                            if (associatedMinistries.get(i).getParentId() == null) parent = true;
+                            i++;
+                        } while (!parent);
+
+                        currentMinistry = associatedMinistries.get(i);
+
+                        currentMinistryId = currentMinistry.getName();
+                        editor.putString("chosen_ministry", currentMinistryId);
+                        editor.commit();
+
+                        currentAssignment = ministriesDao.retrieveCurrentAssignment(currentMinistry);
+                    }
+                    else
+                    {
+                        for (Ministry ministry : associatedMinistries)
+                        {
+                            if (ministry.getName().equals(currentMinistryId))
+                            {
+                                currentMinistry = ministry;
+                                currentAssignment = ministriesDao.retrieveCurrentAssignment(ministry);
+
+                                if (currentAssignment != null)
+                                {
+                                    Log.i(TAG, "current assignment: " + currentAssignment.toString());
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                if (currentAssignment == null)
+                {
+                    Log.i(TAG, "current ministry is still null");
+                    return false;
+                }
+                else if (currentMinistry == null)
+                {
+                    Log.i(TAG, "current ministry is still null");
+                    return false;
+                }
+                
+                Log.i(TAG, "currentAssignment: " + currentAssignment.getId());
+                Log.i(TAG, "currentMinistry: " + currentMinistry.getName());
+
+                // assignment is set and map is set: zoom to assignment location
+                // if location is null, no big deal. no exception will be thrown and map simply 
+                // will not zoom.
+                if (map != null && currentAssignment != null) zoomToLocation();
+
+                // set map overlay text
+                mapOverlayText.setText(currentMinistry.getName());
+
+                // start adding markers to map
+
+                // download training if not already done
+                if (!trainingDownloaded)
+                {
+                    // todo: change the way MCC is passed
+                    trainingSearch(currentMinistry.getMinistryId(), "slm");
+                }
+
+
+                addTrainingMakersToMap();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.e(TAG, e.getMessage(), e);
+            }
+            
+            return false;
+        }
     }
 }
