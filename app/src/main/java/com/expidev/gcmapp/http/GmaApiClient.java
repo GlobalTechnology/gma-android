@@ -2,6 +2,7 @@ package com.expidev.gcmapp.http;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.expidev.gcmapp.BuildConfig;
@@ -10,12 +11,15 @@ import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.JsonStringReader;
 
 import org.apache.http.HttpStatus;
+import org.ccci.gto.android.common.api.AbstractApi;
+import org.ccci.gto.android.common.api.ApiException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
@@ -30,8 +34,7 @@ import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
 /**
  * Created by matthewfrederick on 1/23/15.
  */
-public class GmaApiClient
-{
+public class GmaApiClient extends AbstractApi<AbstractApi.Request> {
     private final String TAG = getClass().getSimpleName();
 
     private static final String MINISTRIES = "ministries";
@@ -47,13 +50,30 @@ public class GmaApiClient
 
     public GmaApiClient(final Context context)
     {
+        super(BuildConfig.GCM_BASE_URI);
         theKey = TheKeyImpl.getInstance(context, THEKEY_CLIENTID);
         preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         prefEditor = preferences.edit();
     }
 
-    private HttpsURLConnection prepareRequest(HttpsURLConnection connection)
-    {
+    @NonNull
+    @Override
+    protected HttpURLConnection prepareRequest(@NonNull final Request request, @NonNull final HttpURLConnection conn)
+            throws ApiException, IOException {
+        final HttpURLConnection conn2 = prepareRequest(super.prepareRequest(request, conn));
+        conn2.setConnectTimeout(10000);
+        conn2.setReadTimeout(10000);
+        return conn2;
+    }
+
+    @Override
+    protected void processResponse(@NonNull Request request, @NonNull HttpURLConnection conn)
+            throws ApiException, IOException {
+        super.processResponse(request, conn);
+        processResponse(conn);
+    }
+
+    private HttpURLConnection prepareRequest(HttpURLConnection connection) {
         String cookie = preferences.getString("Cookie", "");
         
         if (!cookie.isEmpty())
@@ -69,8 +89,7 @@ public class GmaApiClient
         return connection;
     }
 
-    private HttpsURLConnection processResponse(HttpsURLConnection connection) throws IOException
-    {
+    private HttpURLConnection processResponse(HttpURLConnection connection) throws IOException {
         if (connection.getHeaderFields() != null)
         {
             String headerName;
