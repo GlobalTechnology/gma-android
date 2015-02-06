@@ -13,6 +13,7 @@ import com.expidev.gcmapp.utils.JsonStringReader;
 import org.apache.http.HttpStatus;
 import org.ccci.gto.android.common.api.AbstractApi;
 import org.ccci.gto.android.common.api.ApiException;
+import org.ccci.gto.android.common.util.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,6 +45,8 @@ public class GmaApiClient extends AbstractApi<AbstractApi.Request> {
     private final String PREF_NAME = "gcm_prefs";
 
     private final TheKey theKey;
+
+    private Context context;
     
     private SharedPreferences preferences;
     private SharedPreferences.Editor prefEditor;
@@ -117,23 +120,33 @@ public class GmaApiClient extends AbstractApi<AbstractApi.Request> {
 
     public JSONObject authorizeUser()
     {
+        HttpURLConnection conn = null;
         try
         {
-            String ticket = theKey.getTicket(BuildConfig.GCM_BASE_URI + TOKEN);
+            final String ticket = theKey.getTicket(BuildConfig.GCM_BASE_URI + TOKEN);
             Log.i(TAG, "Ticket: " + ticket);
 
             if (ticket == null) return null;
 
-            String urlString = BuildConfig.GCM_BASE_URI + TOKEN + "?st=" + ticket + "&refresh=true";
-            Log.i(TAG, "URL: " + urlString);
-            
-            URL url = new URL(urlString);
+            // build request
+            final Request request = new Request(TOKEN);
+            request.accept = Request.MediaType.APPLICATION_JSON;
+            request.params.add(param("st", ticket));
+            request.params.add(param("refresh", "true"));
 
-            return new JSONObject(httpGet(url));
+            // send request (tickets are one time use only, so we can't retry)
+            conn = this.sendRequest(request, 0);
+
+            // parse valid responses
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                return new JSONObject(IOUtils.readString(conn.getInputStream()));
+            }
         }
         catch (Exception e)
         {
             Log.e(TAG, e.getMessage(), e);
+        } finally {
+            IOUtils.closeQuietly(conn);
         }
         
         return null;
