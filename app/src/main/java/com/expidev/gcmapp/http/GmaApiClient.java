@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.json.MinistryJsonParser;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.JsonStringReader;
@@ -34,12 +35,9 @@ public class GmaApiClient
 {
     private final String TAG = getClass().getSimpleName();
 
-    private static final String BASE_URL_STAGE = "https://stage.sbr.global-registry.org/api";
-    private static final String BASE_URL_PROD = "https://sbr.global-registry.org/api";
-    private static final String MEASUREMENTS = "/measurements";
-    private static final String MINISTRIES = "/ministries";
-    private static final String TOKEN = "/token";
-    private static final String TRAINING = "/training";
+    private static final String MINISTRIES = "ministries";
+    private static final String TOKEN = "token";
+    private static final String TRAINING = "training";
 
     private final String PREF_NAME = "gcm_prefs";
 
@@ -102,12 +100,12 @@ public class GmaApiClient
     {
         try
         {
-            ticket = theKey.getTicket(BASE_URL_STAGE + MEASUREMENTS + TOKEN);
+            ticket = theKey.getTicket(BuildConfig.GCM_BASE_URI + TOKEN);
             Log.i(TAG, "Ticket: " + ticket);
 
             if (ticket == null) return null;
 
-            String urlString = BASE_URL_STAGE + MEASUREMENTS + TOKEN + "?st=" + ticket + "&refresh=true";
+            String urlString = BuildConfig.GCM_BASE_URI + TOKEN + "?st=" + ticket + "&refresh=true";
             Log.i(TAG, "URL: " + urlString);
             
             URL url = new URL(urlString);
@@ -125,7 +123,7 @@ public class GmaApiClient
     public List<Ministry> getAllMinistries(String sessionToken)
     {
         String reason;
-        String urlString = BASE_URL_STAGE + MEASUREMENTS + MINISTRIES + "?token=" + sessionToken;
+        String urlString = BuildConfig.GCM_BASE_URI + MINISTRIES + "?token=" + sessionToken;
 
         try
         {
@@ -164,7 +162,7 @@ public class GmaApiClient
     {
         try
         {
-            String urlString = BASE_URL_STAGE + MEASUREMENTS +TRAINING +
+            String urlString = BuildConfig.GCM_BASE_URI + TRAINING +
                     "?token=" + sessionTicket + "&ministry_id=" + ministryId +
                     "&mcc=slm";
 

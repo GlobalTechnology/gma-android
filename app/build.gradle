@@ -30,6 +30,7 @@ android {
         versionCode 1
         versionName "1.0"
 
+        buildConfigField "String", "GCM_BASE_URI", "\"https://sbr.global-registry.org/api/measurements/\""
         buildConfigField "String", "NEW_RELIC_API_KEY", "\"AAfd80ddf74e333f27c92d3f89f125be5cecf9c532\""
         buildConfigField "long", "THEKEY_CLIENTID", "7439283632057308L"
     }
@@ -38,6 +39,8 @@ android {
         debug {
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
+
+            buildConfigField "String", "GCM_BASE_URI", "\"https://stage.sbr.global-registry.org/api/measurements/\""
         }
         release {
             minifyEnabled false
