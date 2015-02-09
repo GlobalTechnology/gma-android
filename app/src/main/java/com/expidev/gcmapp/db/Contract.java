@@ -45,6 +45,7 @@ public class Contract {
                 .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME, SQL_COLUMN_DATE,
                         SQL_COLUMN_TYPE, SQL_COLUMN_MCC, SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE,
                         SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
+        public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
         public static final class Completion extends Base {
             public static final String TABLE_NAME = "training_completions";
@@ -74,6 +75,7 @@ public class Contract {
                     .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_TRAINING_ID, SQL_COLUMN_PHASE,
                             SQL_COLUMN_NUMBER_COMPLETED, SQL_COLUMN_DATE, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) +
                     ")";
+            public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
         }
     }
 
@@ -98,6 +100,7 @@ public class Contract {
         public static final String SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" + TextUtils
             .join(",", new Object[] { SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME,
                 SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY }) + ")";
+        public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
     public static final class AssociatedMinistry extends MinistryBase
@@ -129,5 +132,6 @@ public class Contract {
             .join(",", new Object[] { SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME, SQL_COLUMN_MIN_CODE, SQL_COLUMN_HAS_SLM,
                 SQL_COLUMN_HAS_LLM, SQL_COLUMN_HAS_DS, SQL_COLUMN_HAS_GCM, SQL_COLUMN_PARENT_MINISTRY_ID,
                 SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY }) + ")";
+        public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 }
