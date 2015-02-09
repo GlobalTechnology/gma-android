@@ -27,10 +27,14 @@ import com.expidev.gcmapp.utils.ViewUtils;
 import com.expidev.gcmapp.view.TextHeaderView;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by William.Randall on 2/3/2015.
@@ -417,5 +421,69 @@ public class MeasurementsActivity extends ActionBarActivity
             .create();
 
         alertDialog.show();
+    }
+
+    public void goToPreviousPeriod(View view)
+    {
+        TextView periodView = (TextView)findViewById(R.id.currentPeriod);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
+
+        String currentPeriodString = periodView.getText().toString();
+
+        int year = Integer.parseInt(currentPeriodString.substring(0, 4));
+        // subtract 1 because months are 0 based in Calendar, but visually they are 1 based
+        int month = Integer.parseInt(currentPeriodString.substring(5)) - 1;
+
+        Calendar previousMonth = Calendar.getInstance();
+        previousMonth.set(year, month, 1);
+        previousMonth.add(Calendar.MONTH, -1);
+
+        String previousPeriodString = dateFormat.format(previousMonth.getTime());
+
+        // Change the period text to show the new period
+        periodView.setText(previousPeriodString);
+
+        // Clear the data, so the user knows when the new data is up
+        LinearLayout dataContainer = (LinearLayout) findViewById(R.id.measurement_data_Layout);
+        dataContainer.removeAllViews();
+
+        MeasurementsService.searchMeasurements(
+            getApplicationContext(),
+            chosenMinistry.getMinistryId(),
+            chosenMcc,
+            previousPeriodString,
+            preferences.getString("session_ticket", null));
+    }
+
+    public void goToNextPeriod(View view)
+    {
+        TextView periodView = (TextView)findViewById(R.id.currentPeriod);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
+
+        String currentPeriodString = periodView.getText().toString();
+
+        int year = Integer.parseInt(currentPeriodString.substring(0, 4));
+        // subtract 1 because months are 0 based in Calendar, but visually they are 1 based
+        int month = Integer.parseInt(currentPeriodString.substring(5)) - 1;
+
+        Calendar nextMonth = Calendar.getInstance();
+        nextMonth.set(year, month, 1);
+        nextMonth.add(Calendar.MONTH, 1);
+
+        String nextPeriodString = dateFormat.format(nextMonth.getTime());
+
+        // Change the period text to show the new period
+        periodView.setText(nextPeriodString);
+
+        // Clear the data, so the user knows when the new data is up
+        LinearLayout dataContainer = (LinearLayout) findViewById(R.id.measurement_data_Layout);
+        dataContainer.removeAllViews();
+
+        MeasurementsService.searchMeasurements(
+            getApplicationContext(),
+            chosenMinistry.getMinistryId(),
+            chosenMcc,
+            nextPeriodString,
+            preferences.getString("session_ticket", null));
     }
 }

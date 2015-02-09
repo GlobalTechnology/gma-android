@@ -20,8 +20,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/period_left"
-            android:background="#00FFFFFF" />
+            android:background="#00FFFFFF"
+            android:onClick="goToPreviousPeriod" />
         <TextView
+            android:id="@+id/currentPeriod"
             android:layout_width="130dp"
             android:layout_height="wrap_content"
             android:text="@string/period_placeholder"
@@ -30,7 +32,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/period_right"
-            android:background="#00FFFFFF" />
+            android:background="#00FFFFFF"
+            android:onClick="goToNextPeriod" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/measurement_data_Layout"
