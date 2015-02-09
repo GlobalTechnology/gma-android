@@ -1,7 +1,6 @@
 package com.expidev.gcmapp.db;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,7 +16,6 @@ import org.ccci.gto.android.common.db.Mapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -127,55 +125,6 @@ public class TrainingDao extends AbstractDao
         return super.getPrimaryKeyWhere(obj);
     }
 
-    public Cursor retrieveTrainingCursor(String tableName)
-    {
-        final SQLiteDatabase database = dbHelper.getReadableDatabase();
-        
-        try
-        {
-            return database.query(tableName, null, null, null, null, null, null);
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, "Failed to retrieve training: " + e.getMessage(), e);
-        }
-        
-        return null;
-    }
-    
-    public Cursor retrieveCompletedTrainingCursor(String tableName)
-    {
-        final SQLiteDatabase database = dbHelper.getReadableDatabase();
-        
-        try
-        {
-            return database.query(tableName, null, null, null, null, null, null);
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
-        }
-        
-        return null;
-    }
-
-    public Cursor retrieveCompletedTrainingCursor(int trainingId)
-    {
-        final SQLiteDatabase database = dbHelper.getReadableDatabase();
-        String whereCondition = "training_id = ?";
-        String[] whereArgs = {String.valueOf(trainingId)};
-        
-        try
-        {
-            return database.query(TableNames.TRAINING_COMPLETIONS.getTableName(), null, whereCondition, whereArgs, null, null, null);
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
-        }
-        return null;
-    }
-    
     public Training retrieveTrainingById(int id)
     {
         try
@@ -327,47 +276,9 @@ public class TrainingDao extends AbstractDao
         }
     }
 
-    private boolean trainingExistsInDatabase(int id, Cursor existingTraining)
-    {
-        existingTraining.moveToFirst();
-        
-        for (int i = 0; i < existingTraining.getCount(); i++)
-        {
-            int existingId = existingTraining.getInt(existingTraining.getColumnIndex("id"));
-            if (existingId == id) return true;
-            existingTraining.moveToNext();
-        }
-        
-        return false;
-    }
-
     private Date stringToDate(String string) throws ParseException
     {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         return format.parse(string);
-    }
-
-    private Training.GCMTrainingCompletions setCompletedTrainingFromCursor(Cursor cursor) throws ParseException
-    {
-        Training.GCMTrainingCompletions trainingCompletions = new Training.GCMTrainingCompletions();
-        trainingCompletions.setId(cursor.getInt(cursor.getColumnIndex("id")));
-        trainingCompletions.setPhase(cursor.getInt(cursor.getColumnIndex("phase")));
-        trainingCompletions.setNumberCompleted(cursor.getInt(cursor.getColumnIndex("number_completed")));
-        trainingCompletions.setTrainingId(cursor.getInt(cursor.getColumnIndex("training_id")));
-        trainingCompletions.setDate(stringToDate(cursor.getString(cursor.getColumnIndex("date"))));
-        
-        if (!cursor.getString(cursor.getColumnIndex("synced")).isEmpty())
-        {
-            try
-            {
-                trainingCompletions.setSynced(Timestamp.valueOf(cursor.getString(cursor.getColumnIndex("synced"))));
-            }
-            catch (Exception e)
-            {
-                Log.i(TAG, "Could not parse Timestamp");
-            }
-        }
-        
-        return trainingCompletions;
     }
 }
