@@ -215,49 +215,20 @@ public class TrainingDao extends AbstractDao
     {
         Log.i(TAG, "Getting all training for ministry: " + ministry_id);
         
-        Cursor cursor = null;
-        List<Training> allTraining = new ArrayList<>();
-        
         try
         {
-            cursor = retrieveTrainingCursorByMinistry(ministry_id);
-            if (cursor != null && cursor.getCount() > 0)
-            {
-                cursor.moveToFirst();
-                for (int i = 0; i < cursor.getCount(); i++)
-                {
-                    int id = cursor.getInt(cursor.getColumnIndex("id"));
-                    List<Training.GCMTrainingCompletions> completed = getCompletedTrainingByTrainingId(id);
-                    Training training = setTrainingFromCursor(cursor, completed);
-                    
-                    // if size is 0 go ahead an add
-                    if (allTraining.size() > 0)
-                    {
-                        boolean exists = false;
-                        for (Training trainingAlreadyAdded : allTraining)
-                        {
-                            if (Training.equals(trainingAlreadyAdded, training)) exists = true;
-                        }
-                        if (!exists) allTraining.add(training);
-                    }
-                    else
-                    {
-                        allTraining.add(training);
-                    }
-                    cursor.moveToNext();
-                }
+            final List<Training> trainings =
+                    this.get(Training.class, Contract.Training.SQL_WHERE_MINISTRY_ID, this.getBindValues(ministry_id));
+            for (final Training training : trainings) {
+                training.setCompletions(getCompletedTrainingByTrainingId(training.getId()));
             }
-            Log.i(TAG, "Trainings returned: " + allTraining.size());
-            
-            return allTraining;
+            Log.i(TAG, "Trainings returned: " + trainings.size());
+
+            return trainings;
         }
         catch (Exception e)
         {
             Log.e(TAG, e.getMessage(), e);
-        }
-        finally
-        {
-            if (cursor != null) cursor.close();
         }
         return null;
     }
