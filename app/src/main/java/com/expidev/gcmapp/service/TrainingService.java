@@ -13,8 +13,7 @@ import com.expidev.gcmapp.http.GmaApiClient;
 
 import org.json.JSONArray;
 
-import java.util.UUID;
-
+import static com.expidev.gcmapp.service.Type.DOWNLOAD_TRAINING;
 import static com.expidev.gcmapp.service.Type.TRAINING;
 import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
@@ -29,9 +28,7 @@ public class TrainingService extends IntentService
 
     private static final String EXTRA_TYPE = TrainingService.class.getName() + ".EXTRA_TYPE";
     private static final String MINISTRY_ID = TrainingService.class.getName() + ".MINISTRY_ID";
-    
-    private static final int DOWNLOAD_TRAINING = 0;
-    private static final int UPLOAD_TRAINING = 1;
+    private static final String MINISTRY_MCC = TrainingService.class.getName() + ".MCC";
 
     private final String PREF_NAME = "gcm_prefs";
     
@@ -60,14 +57,14 @@ public class TrainingService extends IntentService
         Log.i(TAG, "Handle Intent");
         broadcastManager.sendBroadcast(runningBroadcast());
         
-        final int type = intent.getIntExtra(EXTRA_TYPE, -1);
+        final Type type = (Type) intent.getSerializableExtra(EXTRA_TYPE);
         Log.i(TAG, "Type: " + type);
         try
         {
             switch (type)
             {
                 case DOWNLOAD_TRAINING:
-                    searchTraining(intent.getStringExtra(MINISTRY_ID));
+                    searchTraining(intent.getStringExtra(MINISTRY_ID), intent.getStringExtra(MINISTRY_MCC));
                     break;
             }
         }
@@ -87,23 +84,24 @@ public class TrainingService extends IntentService
         return intent;
     }
     
-    public static void downloadTraining(final Context context, UUID ministryId)
+    public static void downloadTraining(final Context context, String ministryId, String mcc)
     {
-        final Bundle extras = new Bundle(2);
-        extras.putInt(EXTRA_TYPE, DOWNLOAD_TRAINING);
-        extras.putString(MINISTRY_ID, ministryId.toString());
+        final Bundle extras = new Bundle(3);
+        extras.putSerializable(EXTRA_TYPE, DOWNLOAD_TRAINING);
+        extras.putString(MINISTRY_ID, ministryId);
+        extras.putString(MINISTRY_MCC, mcc);
         final Intent intent = baseIntent(context, extras);
         context.startService(intent);
     }
     
-    private void searchTraining(String ministryId)
+    private void searchTraining(String ministryId, String mcc)
     {
         try
         {
             String sessionTicket = sharedPreferences.getString("session_ticket", null);
 
             GmaApiClient gmaApi = new GmaApiClient(this);
-            JSONArray jsonArray = gmaApi.searchTraining(ministryId, sessionTicket);
+            JSONArray jsonArray = gmaApi.searchTraining(ministryId, mcc, sessionTicket);
 
             if (jsonArray != null)
             {

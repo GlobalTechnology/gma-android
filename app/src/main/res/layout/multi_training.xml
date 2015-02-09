@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:padding="2dp"
+             android:layout_width="@dimen/custom_training_image"
+             android:layout_height="@dimen/custom_training_image">
+    
+    <ImageView
+        android:id="@+id/iv_multiTraining"
+        android:layout_width="@dimen/custom_training_image"
+        android:layout_height="@dimen/custom_training_image"/>
+    
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:textAppearance="@style/Bubble.TextAppearance.Light"-->
+        <!--android:background="@android:color/black"-->
+        <!--android:paddingLeft="@dimen/custom_training_padding"-->
+        <!--android:paddingRight="@dimen/custom_training_padding"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:alpha=".8"/>-->
+
+</FrameLayout>

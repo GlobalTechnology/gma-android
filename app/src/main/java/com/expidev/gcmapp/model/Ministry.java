@@ -13,6 +13,7 @@ public class Ministry implements Serializable
     private String ministryId;
     private String name;
     private String ministryCode;
+    private String parentId;
     private boolean hasSlm;
     private boolean hasLlm;
     private boolean hasDs;
@@ -47,6 +48,16 @@ public class Ministry implements Serializable
     public void setMinistryCode(String ministryCode)
     {
         this.ministryCode = ministryCode;
+    }
+
+    public String getParentId()
+    {
+        return parentId;
+    }
+
+    public void setParentId(String parentId)
+    {
+        this.parentId = parentId;
     }
 
     public boolean hasSlm()

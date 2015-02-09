@@ -29,7 +29,7 @@ public class MinistriesDao
 
     private MinistriesDao(final Context context)
     {
-        this.databaseHelper = new DatabaseOpenHelper(context);
+        this.databaseHelper = DatabaseOpenHelper.getInstance(context);
     }
 
     public static MinistriesDao getInstance(Context context)
@@ -120,6 +120,8 @@ public class MinistriesDao
 
     public List<Ministry> retrieveAssociatedMinistriesList()
     {
+        Log.i(TAG, "Retrieving associated ministries");
+        
         Cursor cursor = null;
         List<Ministry> ministryList = new ArrayList<Ministry>();
 
@@ -127,15 +129,21 @@ public class MinistriesDao
         {
             cursor = retrieveAssociatedMinistriesCursor();
 
+            Log.i(TAG, "Associated Ministries found: " + cursor.getCount());
+            
             if(cursor != null && cursor.getCount() > 0)
             {
                 cursor.moveToFirst();
                 for(int i = 0; i < cursor.getCount(); i++)
                 {
-                    ministryList.add(buildMinistryFromCursor(cursor));
+                    ministryList.add(buildMinistryFromCursor(cursor, null));
                     cursor.moveToNext();
                 }
             }
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, e.getMessage(), e);
         }
         finally
         {
@@ -147,8 +155,55 @@ public class MinistriesDao
 
         return ministryList;
     }
+    
+    public Assignment retrieveCurrentAssignment(Ministry ministry)
+    {
+        Cursor cursor = null;
+        Log.i(TAG, "Looking for assignment with ministryId: " + ministry.getMinistryId());
+        
+        try
+        {
+            cursor = retrieveAssignmentsCursor();
+            
+            if (cursor != null && cursor.getCount() > 0)
+            {
+                cursor.moveToFirst();
+                for (int i = 0; i < cursor.getCount(); i++)
+                {
+                    Log.i(TAG, "assignment ministry id: " + cursor.getString(cursor.getColumnIndex("ministry_id")));
+                    if (cursor.getString(cursor.getColumnIndex("ministry_id")).equals(ministry.getMinistryId()))
+                    {
+                        return buildAssignmentFromCursor(cursor, ministry);
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, e.getMessage(), e);
+        }
+        finally
+        {
+            if (cursor != null) cursor.close();
+        }
+        
+        return null;
+    }
 
-    private Ministry buildMinistryFromCursor(Cursor cursor)
+    private Assignment buildAssignmentFromCursor(Cursor cursor, Ministry ministry)
+    {
+        Assignment assignment = new Assignment();
+        assignment.setId(cursor.getString(cursor.getColumnIndex("ministry_id")));
+        assignment.setLatitude(cursor.getDouble(cursor.getColumnIndex("latitude")));
+        assignment.setLongitude(cursor.getDouble(cursor.getColumnIndex("longitude")));
+        assignment.setMinistry(ministry);
+        assignment.setLocationZoom(cursor.getInt(cursor.getColumnIndex("location_zoom")));
+        assignment.setTeamRole(cursor.getString(cursor.getColumnIndex("team_role")));
+        
+        return assignment;
+    }
+
+    private Ministry buildMinistryFromCursor(Cursor cursor, String parentId)
     {
         Ministry ministry = new Ministry();
         ministry.setName(cursor.getString(cursor.getColumnIndex("name")));
@@ -159,6 +214,8 @@ public class MinistriesDao
         ministry.setHasDs(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_ds"))));
         ministry.setHasLlm(intToBoolean(cursor.getInt(cursor.getColumnIndex("has_llm"))));
         ministry.setSubMinistries(retrieveMinistriesWithParent(ministry.getMinistryId()));
+        
+        if (parentId != null) ministry.setParentId(parentId);
 
         return ministry;
     }
@@ -186,7 +243,7 @@ public class MinistriesDao
                 cursor.moveToFirst();
                 for(int i = 0; i < cursor.getCount(); i++)
                 {
-                    ministryList.add(buildMinistryFromCursor(cursor));
+                    ministryList.add(buildMinistryFromCursor(cursor, parentMinistryId));
                     cursor.moveToNext();
                 }
             }
@@ -253,7 +310,6 @@ public class MinistriesDao
 
         return null;
     }
-
 
     public void saveAssociatedMinistries(List<Assignment> assignmentList)
     {
@@ -422,6 +478,9 @@ public class MinistriesDao
         assignmentValues.put("id", assignment.getId());
         assignmentValues.put("team_role", assignment.getTeamRole());
         assignmentValues.put("ministry_id", assignment.getMinistry().getMinistryId());
+        assignmentValues.put("latitude", assignment.getLatitude());
+        assignmentValues.put("longitude", assignment.getLongitude());
+        assignmentValues.put("location_zoom", assignment.getLocationZoom());
 
         return assignmentValues;
     }
@@ -493,4 +552,6 @@ public class MinistriesDao
             if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (saveAllMinistries)");
         }
     }
+    
+    
 }

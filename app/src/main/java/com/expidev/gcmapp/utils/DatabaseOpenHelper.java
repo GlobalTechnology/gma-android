@@ -13,13 +13,26 @@ import com.expidev.gcmapp.sql.TableNames;
 public class DatabaseOpenHelper extends SQLiteOpenHelper
 {
     private final String TAG = getClass().getSimpleName();
+    
+    private static DatabaseOpenHelper instance;
+    private Context context;
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "gcm_data.db";
 
-    public DatabaseOpenHelper(Context context)
+    private DatabaseOpenHelper(Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
+    }
+    
+    public static DatabaseOpenHelper getInstance(Context context)
+    {
+        if (instance == null)
+        {
+            instance = new DatabaseOpenHelper(context.getApplicationContext());
+        }
+        return instance;
     }
 
     @Override
@@ -70,6 +83,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
             "id TEXT PRIMARY KEY, " +
             "team_role TEXT, " +               // Team Role of the current user for this ministry/team
             "ministry_id TEXT, " +
+            "latitude DECIMAL, " +
+            "longitude DECIMAL, " +
+            "location_zoom INTEGER, " +
             "last_synced TEXT, " +             // Last time this information was synced with the web
             "FOREIGN KEY(ministry_id) REFERENCES " + TableNames.ASSOCIATED_MINISTRIES.getTableName() + "(ministry_id));");
     }
@@ -82,7 +98,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.USER.getTableName() +
             "(first_name TEXT, last_name TEXT, cas_username TEXT, person_id TEXT);");
     }
-    
+
     private void createTrainingTables(SQLiteDatabase db)
     {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.TRAINING.getTableName() +
@@ -113,5 +129,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.TRAINING.getTableName());
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.TRAINING_COMPLETIONS.getTableName());
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.ALL_MINISTRIES.getTableName());
+    
+    
     }
 }

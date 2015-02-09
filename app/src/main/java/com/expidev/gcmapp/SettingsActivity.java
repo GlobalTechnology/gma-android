@@ -42,6 +42,8 @@ public class SettingsActivity extends PreferenceActivity
     private BroadcastReceiver broadcastReceiver;
     private final String PREF_NAME = "gcm_prefs";
     private SharedPreferences preferences;
+    
+    private List<Ministry> associatedMinistries;
 
     /**
      * Determines whether to always show the simplified settings UI, where
@@ -71,6 +73,7 @@ public class SettingsActivity extends PreferenceActivity
     {
         super.onStart();
         setupBroadcastReceivers();
+
         AssociatedMinistriesService.retrieveMinistries(this);
     }
 
@@ -101,7 +104,9 @@ public class SettingsActivity extends PreferenceActivity
                     switch(type)
                     {
                         case RETRIEVE_ASSOCIATED_MINISTRIES:
-                            List<Ministry> associatedMinistries =
+                            Log.i(TAG, "Associated Ministries Received");
+                            
+                            associatedMinistries =
                                 (ArrayList<Ministry>) intent.getSerializableExtra("associatedMinistries");
                             populateMinistryListPreference(associatedMinistries);
                             String chosenMinistry = preferences.getString("chosen_ministry", null);
@@ -166,6 +171,7 @@ public class SettingsActivity extends PreferenceActivity
         {
             ministryNames.add(ministry.getName());
         }
+        
         ministryListPreference.setEntries(ministryNames.toArray(new CharSequence[ministryNames.size()]));
         ministryListPreference.setEntryValues(ministryNames.toArray(new CharSequence[ministryNames.size()]));
         bindPreferenceSummaryToValue(ministryListPreference);
@@ -182,7 +188,7 @@ public class SettingsActivity extends PreferenceActivity
                 preferences
                     .edit()
                     .putString("chosen_ministry", ministryName)
-                    .commit();
+                    .apply();
                 return true;
             }
         });

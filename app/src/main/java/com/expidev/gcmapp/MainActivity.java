@@ -6,8 +6,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
@@ -16,12 +17,18 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.expidev.gcmapp.GPSService.GPSTracker;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
+import com.expidev.gcmapp.db.MinistriesDao;
+import com.expidev.gcmapp.db.TrainingDao;
 import com.expidev.gcmapp.db.UserDao;
+import com.expidev.gcmapp.map.MarkerRender;
+import com.expidev.gcmapp.map.GcmMarker;
+import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.model.User;
 import com.expidev.gcmapp.service.AssociatedMinistriesService;
 import com.expidev.gcmapp.service.AuthService;
@@ -37,12 +44,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterManager;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
@@ -64,7 +70,6 @@ public class MainActivity extends ActionBarActivity
     private LocalBroadcastManager manager;
     private GcmBroadcastReceiver gcmBroadcastReceiver;
     private ActionBar actionBar;
-    private GPSTracker gps;
     private boolean targets;
     private boolean groups;
     private boolean churches;
@@ -74,18 +79,37 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences mapPreferences;
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
+    private List<Ministry> associatedMinistries;
+    
+    // try to cut down on api calls
+    private boolean trainingDownloaded = false;
+    private boolean ministriesDownloaded = false;
+    
+    private GoogleMap map;
+    private ClusterManager<GcmMarker> clusterManager;
+
+    private Ministry currentMinistry;
+    private Assignment currentAssignment;
+    private boolean currentAssignmentSet = false;
+    
+    private TextView mapOverlayText;
+    
+    private List<Training> allTraining;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         actionBar = getSupportActionBar();
+        
+        mapOverlayText = (TextView) findViewById(R.id.map_text);
+
+        preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
 
         getMapPreferences();
-        
-        preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         
         setupBroadcastReceivers();
 
@@ -94,6 +118,11 @@ public class MainActivity extends ActionBarActivity
         manager = LocalBroadcastManager.getInstance(getApplicationContext());
         gcmBroadcastReceiver = new GcmBroadcastReceiver(theKey, this);
         gcmBroadcastReceiver.registerReceiver(manager);
+        
+        // This call at times will create a null pointer. However, this is no big deal since it is call
+        // again later. It could be removed here; however, this does help a returning user retrieve
+        // their saved information a little quicker.
+        getCurrentAssignment();
 
         if (Device.isConnected(getApplicationContext()))
         {
@@ -122,14 +151,12 @@ public class MainActivity extends ActionBarActivity
             AuthService.authorizeUser(this);
         }
     }
-
-    // todo: once ministries are saved in database, this will loop through and find training
-    // for each ministry
     
-    private void trainingSearch(String ministryId)
+    private void trainingSearch(String ministryId, String mcc)
     {
-        Log.i(TAG, "Test Training search");
-        TrainingService.downloadTraining(this, UUID.fromString("770ffd2c-d6ac-11e3-9e38-12725f8f377c"));
+        Log.i(TAG, "Training search");
+        if (mcc == null) mcc = "slm";
+        TrainingService.downloadTraining(this, ministryId, mcc);
     }
 
     @Override
@@ -158,12 +185,18 @@ public class MainActivity extends ActionBarActivity
 
         return super.onOptionsItemSelected(item);
     }
-
+    
     @Override
     protected void onPostResume()
     {
         super.onPostResume();
+        Log.i(TAG, "Resuming");
+        
+        if (map != null) map.clear();
+        
         getMapPreferences();
+        getCurrentAssignment();
+        setUpMap();
     }
 
     @Override
@@ -171,7 +204,6 @@ public class MainActivity extends ActionBarActivity
     {
         super.onDestroy();
         removeBroadcastReceivers();
-        gps.stopUsingGPS();
     }
 
     public void joinNewMinistry(MenuItem menuItem)
@@ -254,13 +286,12 @@ public class MainActivity extends ActionBarActivity
     
     private void getMapPreferences()
     {
-        mapPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        targets = mapPreferences.getBoolean("targets", true);
-        groups = mapPreferences.getBoolean("groups", true);
-        churches = mapPreferences.getBoolean("churches", true);
-        multiplyingChurches = mapPreferences.getBoolean("multiplyingChurches", true);
-        trainingActivities = mapPreferences.getBoolean("trainingActivities", true);
-        campuses = mapPreferences.getBoolean("campuses", true);
+        targets = preferences.getBoolean("targets", true);
+        groups = preferences.getBoolean("groups", true);
+        churches = preferences.getBoolean("churches", true);
+        multiplyingChurches = preferences.getBoolean("multiplyingChurches", true);
+        trainingActivities = preferences.getBoolean("trainingActivities", true);
+        campuses = preferences.getBoolean("campuses", true);
     }
     
     private void login()
@@ -271,6 +302,21 @@ public class MainActivity extends ActionBarActivity
             LoginDialogFragment loginDialogFragment = LoginDialogFragment.builder().clientId(THEKEY_CLIENTID).build();
             loginDialogFragment.show(fm.beginTransaction().addToBackStack("loginDialog"), "loginDialog");
         }
+    }
+    
+    private void getCurrentAssignment()
+    {   
+        Log.i(TAG, "Need to get current Assignment: " + !currentAssignmentSet);
+        
+        if (!currentAssignmentSet)
+        {
+           currentAssignmentSet = new SetCurrentMinistry().doInBackground(this);
+        }
+    }
+    
+    private void setUpMap()
+    {   
+        if (trainingDownloaded) addTrainingMakersToMap();
     }
 
     private boolean checkPlayServices()
@@ -302,30 +348,42 @@ public class MainActivity extends ActionBarActivity
     public void onMapReady(GoogleMap googleMap)
     {
         Log.i(TAG, "On Map Ready");
+        this.map = googleMap;
         
-        gps = new GPSTracker(this);
+        if (currentAssignment != null) zoomToLocation();
         
-        if (gps.canGetLocation())
-        {
-            LatLng latLng = new LatLng(gps.getLatitude(), gps.getLongitude());
-            zoomToLocation(latLng, googleMap);
-            googleMap.addMarker(new MarkerOptions()
-                    .position(latLng)
-                    .title("You"));
-        }
-        else
-        {
-            gps.showSettingsAlert();
-        }
+        setUpMap();
+        
+        clusterManager = new ClusterManager<>(this, map);
+        clusterManager.setRenderer(new MarkerRender(this, map, clusterManager));
+        map.setOnCameraChangeListener(clusterManager);
+        map.setOnMarkerClickListener(clusterManager);
     }
-    
-    private void zoomToLocation(LatLng latLng, GoogleMap map)
+
+    private void zoomToLocation()
     {
-        CameraUpdate center = CameraUpdateFactory.newLatLng(latLng);
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+        Log.i(TAG, "Zooming to: " + currentAssignment.getLatitude() +", " + currentAssignment.getLongitude());
+        
+        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(currentAssignment.getLatitude(), currentAssignment.getLongitude()));
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(currentAssignment.getLocationZoom());
 
         map.moveCamera(center);
         map.moveCamera(zoom);
+    }
+    
+    private void addTrainingMakersToMap()
+    {
+        // do not show training activities if turned off in map settings
+        Log.i(TAG, "Show training: " + trainingActivities);
+        if (map != null && trainingActivities)
+        {   
+            for (Training training : allTraining)
+            {
+                GcmMarker marker = new GcmMarker(training.getName(), training.getLatitude(), training.getLongitude());
+                clusterManager.addItem(marker);
+            }
+            clusterManager.cluster();
+        }
     }
 
     private void setupBroadcastReceivers()
@@ -361,12 +419,22 @@ public class MainActivity extends ActionBarActivity
                             String sessionTicket = preferences.getString("session_ticket", null);
                             Log.i(TAG, "Session Ticket: " + sessionTicket);
 
-                            AssociatedMinistriesService.retrieveAllMinistries(getApplicationContext(), sessionTicket);
-                            trainingSearch(null);
+                            if (!ministriesDownloaded)
+                            {
+                                AssociatedMinistriesService.retrieveAllMinistries(getApplicationContext(), sessionTicket);
+                            }
                             
                             break;
                         case TRAINING:
-                            Log.i(TAG, "Training search complete");
+                            Log.i(TAG, "Training search complete and training saved");
+                            
+                            trainingDownloaded = true;
+                            
+                            TrainingDao trainingDao = TrainingDao.getInstance(context);
+                            allTraining = trainingDao.getAllMinistryTraining(currentMinistry.getMinistryId());
+                            
+                            addTrainingMakersToMap();
+                            
                             break;
                         case RETRIEVE_ALL_MINISTRIES:
                             Serializable data = intent.getSerializableExtra("allMinistries");
@@ -375,6 +443,7 @@ public class MainActivity extends ActionBarActivity
                             {
                                 List<Ministry> allMinistries = (ArrayList<Ministry>) data;
                                 AssociatedMinistriesService.saveAllMinistries(getApplicationContext(), allMinistries);
+                                ministriesDownloaded = true;
                             }
                             else
                             {
@@ -384,6 +453,10 @@ public class MainActivity extends ActionBarActivity
                             break;
                         case SAVE_ALL_MINISTRIES:
                             Log.i(TAG, "All ministries saved to local storage");
+                            getCurrentAssignment();
+                            break;
+                        case SAVE_ASSOCIATED_MINISTRIES:
+                            getCurrentAssignment();
                             break;
                         default:
                             Log.i(TAG, "Unhandled Type: " + type);
@@ -404,5 +477,129 @@ public class MainActivity extends ActionBarActivity
         manager.unregisterReceiver(gcmBroadcastReceiver);
         broadcastReceiver = null;
         gcmBroadcastReceiver = null;
+    }
+    
+    private class SetCurrentMinistry extends AsyncTask<Context, Void, Boolean> 
+    {
+
+        /*
+         * This will allow the current assignment to be retrieved and data for the assignment will be loaded.
+         * If an assignment is not currently set a random parent associated ministry will be selected.
+         * 
+         * Definitions:
+         * currentMinistry: The ministry associated with the currently selected assignment
+         * currentAssignment: currently selected assignment. Selected from associated assignments
+         * currentMinistryName: Name of currentMinistry 
+         */
+        
+        @Override
+        protected Boolean doInBackground(Context... params)
+        {
+            Context context = params[0];
+            String currentMinistryName;
+            
+            Log.i(TAG, "Trying to set current Assignment");
+            try
+            {
+                // if currentAssignment && currentMinistry is already set, skip getting it
+                if (currentAssignment == null || currentMinistry == null)
+                {
+                    MinistriesDao ministriesDao = MinistriesDao.getInstance(context);
+                    currentMinistryName = preferences.getString("chosen_ministry", null);
+
+                    if (associatedMinistries == null || associatedMinistries.size() == 0)
+                    {
+                        Log.i(TAG, "associated ministries needs to be set");
+                        associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
+                    }
+
+                    if (associatedMinistries == null || associatedMinistries.size() == 0)
+                    {
+                        Log.w(TAG, "No Associated Ministries");
+                        return false;
+                    }
+
+                    if (currentMinistryName == null)
+                    {
+                        Log.i(TAG, "current ministry id needs to be set");
+                        SharedPreferences.Editor editor = preferences.edit();
+
+                        int i = 0;
+                        boolean parent = false;
+                        do
+                        {
+                            if (associatedMinistries.get(i).getParentId() == null) parent = true;
+                            i++;
+                        } while (!parent);
+
+                        currentMinistry = associatedMinistries.get(i);
+
+                        currentMinistryName = currentMinistry.getName();
+                        editor.putString("chosen_ministry", currentMinistryName);
+                        editor.apply();
+
+                        currentAssignment = ministriesDao.retrieveCurrentAssignment(currentMinistry);
+                    }
+                    else
+                    {
+                        for (Ministry ministry : associatedMinistries)
+                        {
+                            if (ministry.getName().equals(currentMinistryName))
+                            {
+                                currentMinistry = ministry;
+                                currentAssignment = ministriesDao.retrieveCurrentAssignment(ministry);
+
+                                if (currentAssignment != null)
+                                {
+                                    Log.i(TAG, "current assignment: " + currentAssignment.toString());
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                if (currentAssignment == null)
+                {
+                    Log.i(TAG, "current ministry is still null");
+                    return false;
+                }
+                else if (currentMinistry == null)
+                {
+                    Log.i(TAG, "current ministry is still null");
+                    return false;
+                }
+                
+                Log.i(TAG, "currentAssignment: " + currentAssignment.getId());
+                Log.i(TAG, "currentMinistry: " + currentMinistry.getName());
+
+                // assignment is set and map is set: zoom to assignment location
+                // if location is null, no big deal. no exception will be thrown and map simply 
+                // will not zoom.
+                if (map != null && currentAssignment != null) zoomToLocation();
+
+                // set map overlay text
+                mapOverlayText.setText(currentMinistry.getName());
+
+                // start adding markers to map
+
+                // download training if not already done
+                if (!trainingDownloaded)
+                {
+                    // todo: change the way MCC is passed
+                    trainingSearch(currentMinistry.getMinistryId(), "slm");
+                }
+
+
+                setUpMap();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.e(TAG, e.getMessage(), e);
+            }
+            
+            return false;
+        }
     }
 }

@@ -3,7 +3,6 @@ package com.expidev.gcmapp.model;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by matthewfrederick on 1/26/15.
@@ -11,7 +10,7 @@ import java.util.UUID;
 public class Training
 {
     private int id;
-    private UUID ministryId;
+    private String ministryId;
     private String name;
     private Date date;
     private String type;
@@ -20,6 +19,17 @@ public class Training
     private double longitude;
     private List<GCMTrainingCompletions> completions;
     private Timestamp synced;
+    
+    public static boolean equals(Training first, Training second)
+    {
+        // does everything in the object need to be compared?
+        
+        if (first.getId() != second.getId()) return false;
+        if (!first.getName().equals(second.getName())) return false;
+        if (!first.getMinistryId().equals(second.getMinistryId())) return false;
+        
+        return true;
+    }
 
     public int getId()
     {
@@ -31,12 +41,12 @@ public class Training
         this.id = id;
     }
 
-    public UUID getMinistryId()
+    public String getMinistryId()
     {
         return ministryId;
     }
 
-    public void setMinistryId(UUID ministryId)
+    public void setMinistryId(String ministryId)
     {
         this.ministryId = ministryId;
     }
@@ -121,7 +131,7 @@ public class Training
         this.synced = synced;
     }
 
-    public class GCMTrainingCompletions
+    public static class GCMTrainingCompletions
     {
         private int id;
         private int phase;
@@ -129,6 +139,15 @@ public class Training
         private Date date;
         private int trainingId;
         private Timestamp synced;
+        
+        public static boolean equals(GCMTrainingCompletions first, GCMTrainingCompletions second)
+        {
+            if (first.getId() != second.getId()) return false;
+            if (first.getPhase() != second.getPhase()) return false;
+            if (first.getTrainingId() != second.getTrainingId()) return false;
+
+            return true;
+        }
 
         public int getId()
         {

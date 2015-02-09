@@ -66,7 +66,12 @@ public class GmaApiClient
         
         if (!cookie.isEmpty())
         {
+            Log.i(TAG, "Cookie added: " + cookie);
             connection.addRequestProperty("Cookie", cookie);
+        }
+        else
+        {
+            Log.w(TAG, "No Cookies found");
         }
         
         return connection;
@@ -89,8 +94,11 @@ public class GmaApiClient
             }
 
             // cookie store is not retrieving cookie so it will be saved to preferences
-            prefEditor.putString("Cookie", stringBuilder.toString());
-            prefEditor.commit();
+            if (!stringBuilder.toString().isEmpty())
+            {
+                prefEditor.putString("Cookie", stringBuilder.toString());
+                prefEditor.apply();
+            }
             
         }
         return connection;
@@ -158,13 +166,13 @@ public class GmaApiClient
         }
     }
 
-    public JSONArray searchTraining(String ministryId, String sessionTicket)
+    public JSONArray searchTraining(String ministryId, String mcc, String sessionTicket)
     {
         try
         {
             String urlString = BuildConfig.GCM_BASE_URI + TRAINING +
                     "?token=" + sessionTicket + "&ministry_id=" + ministryId +
-                    "&mcc=slm";
+                    "&mcc=" + mcc;
 
             Log.i(TAG, "Url: " + urlString);
 
