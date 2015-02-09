@@ -131,9 +131,6 @@ public class MeasurementsActivity extends ActionBarActivity
                             {
                                 Log.w(TAG, "No associated ministries");
                             }
-
-
-
                             break;
                         default:
                             Log.i(TAG, "Unhandled Type: " + type);

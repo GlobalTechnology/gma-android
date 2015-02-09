@@ -184,13 +184,15 @@ public class GmaApiClient
     {
         try
         {
-            String urlString = BuildConfig.GCM_BASE_URI +
+            String urlString = BuildConfig.GCM_BASE_URI + "measurements" +
                 "?token=" + sessionTicket + "&ministry_id=" + ministryId + "&mcc=" + mcc;
 
             if(period != null)
             {
                 urlString += "&period=" + period;
             }
+
+            Log.i(TAG, "Url: " + urlString);
 
             return new JSONArray(httpGet(new URL(urlString)));
         }
