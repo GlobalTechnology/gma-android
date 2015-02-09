@@ -29,7 +29,6 @@ public class MinistriesMapper extends BaseMapper<Ministry>
                 super.mapField(values, field, ministry);
                 break;
         }
-        super.mapField(values, field, ministry);
     }
 
     @NonNull

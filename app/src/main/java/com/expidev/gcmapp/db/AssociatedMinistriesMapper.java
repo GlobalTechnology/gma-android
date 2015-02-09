@@ -47,7 +47,6 @@ public class AssociatedMinistriesMapper extends BaseMapper<AssociatedMinistry>
                 super.mapField(values, field, ministry);
                 break;
         }
-        super.mapField(values, field, ministry);
     }
 
     @NonNull

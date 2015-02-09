@@ -45,7 +45,6 @@ public class TrainingMapper extends BaseMapper<Training> {
                 super.mapField(values, field, training);
                 break;
         }
-        super.mapField(values, field, training);
     }
 
     @NonNull
