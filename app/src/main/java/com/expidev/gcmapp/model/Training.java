@@ -1,6 +1,11 @@
 package com.expidev.gcmapp.model;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -17,8 +22,9 @@ public class Training extends Base
     private String mcc;
     private double latitude;
     private double longitude;
-    private List<GCMTrainingCompletions> completions;
-    
+    @NonNull
+    private final List<GCMTrainingCompletions> completions = new ArrayList<>();
+
     public static boolean equals(Training first, Training second)
     {
         // does everything in the object need to be compared?
@@ -110,14 +116,17 @@ public class Training extends Base
         this.longitude = longitude;
     }
 
+    @NonNull
     public List<GCMTrainingCompletions> getCompletions()
     {
-        return completions;
+        return Collections.unmodifiableList(completions);
     }
 
-    public void setCompletions(List<GCMTrainingCompletions> completions)
-    {
-        this.completions = completions;
+    public void setCompletions(@Nullable final List<GCMTrainingCompletions> completions) {
+        this.completions.clear();
+        if (completions != null) {
+            this.completions.addAll(completions);
+        }
     }
 
     public static class GCMTrainingCompletions
