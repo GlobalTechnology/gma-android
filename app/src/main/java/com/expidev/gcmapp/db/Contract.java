@@ -45,6 +45,36 @@ public class Contract {
                 .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME, SQL_COLUMN_DATE,
                         SQL_COLUMN_TYPE, SQL_COLUMN_MCC, SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE,
                         SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
+
+        public static final class Completion extends Base {
+            public static final String TABLE_NAME = "training_completions";
+
+            static final String COLUMN_ID = "id";
+            static final String COLUMN_TRAINING_ID = "training_id";
+            static final String COLUMN_PHASE = "phase";
+            static final String COLUMN_NUMBER_COMPLETED = "number_completed";
+            static final String COLUMN_DATE = "date";
+
+            static final String[] PROJECTION_ALL =
+                    {COLUMN_ID, COLUMN_TRAINING_ID, COLUMN_PHASE, COLUMN_NUMBER_COMPLETED, COLUMN_DATE,
+                            COLUMN_LAST_SYNCED};
+
+            private static final String SQL_COLUMN_ID = COLUMN_ID + " INT";
+            private static final String SQL_COLUMN_TRAINING_ID = COLUMN_TRAINING_ID + " INT";
+            private static final String SQL_COLUMN_PHASE = COLUMN_PHASE + " INT";
+            private static final String SQL_COLUMN_NUMBER_COMPLETED = COLUMN_NUMBER_COMPLETED + " INT";
+            private static final String SQL_COLUMN_DATE = COLUMN_DATE + " TEXT";
+
+            private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
+
+            static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
+            static final String SQL_WHERE_TRAINING_ID = COLUMN_TRAINING_ID + " = ?";
+
+            public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
+                    .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_TRAINING_ID, SQL_COLUMN_PHASE,
+                            SQL_COLUMN_NUMBER_COMPLETED, SQL_COLUMN_DATE, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) +
+                    ")";
+        }
     }
 
     public static abstract class MinistryBase extends Base

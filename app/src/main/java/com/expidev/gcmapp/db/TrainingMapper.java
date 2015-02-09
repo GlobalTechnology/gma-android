@@ -3,14 +3,8 @@ package com.expidev.gcmapp.db;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.expidev.gcmapp.model.Training;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 public class TrainingMapper extends BaseMapper<Training> {
     @Override
@@ -66,23 +60,5 @@ public class TrainingMapper extends BaseMapper<Training> {
         training.setLatitude(this.getDouble(c, Contract.Training.COLUMN_LATITUDE, 0));
         training.setLongitude(this.getDouble(c, Contract.Training.COLUMN_LONGITUDE, 0));
         return training;
-    }
-
-    private final static SimpleDateFormat FORMAT_DATE = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-
-    @Nullable
-    private Date stringToDate(@Nullable final String string) {
-        if (string != null) {
-            try {
-                return FORMAT_DATE.parse(string);
-            } catch (final ParseException ignored) {
-            }
-        }
-        return null;
-    }
-
-    @Nullable
-    private String dateToString(@Nullable final Date date) {
-        return date != null ? FORMAT_DATE.format(date) : null;
     }
 }

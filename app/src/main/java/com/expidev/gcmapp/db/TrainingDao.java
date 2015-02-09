@@ -34,6 +34,7 @@ public class TrainingDao extends AbstractDao
     private final String TAG = getClass().getSimpleName();
     
     private static final Mapper<Training> TRAINING_MAPPER = new TrainingMapper();
+    private static final Mapper<Training.GCMTrainingCompletions> COMPLETION_MAPPER = new TrainingCompletionMapper();
 
     private static final Object instanceLock = new Object();
     private static TrainingDao instance;
@@ -59,6 +60,8 @@ public class TrainingDao extends AbstractDao
     protected String getTable(@NonNull final Class<?> clazz) {
         if (Training.class.equals(clazz)) {
             return Contract.Training.TABLE_NAME;
+        } else if (Training.GCMTrainingCompletions.class.equals(clazz)) {
+            return Contract.Training.Completion.TABLE_NAME;
         }
 
         return super.getTable(clazz);
@@ -69,6 +72,8 @@ public class TrainingDao extends AbstractDao
     protected String[] getFullProjection(@NonNull final Class<?> clazz) {
         if (Training.class.equals(clazz)) {
             return Contract.Training.PROJECTION_ALL;
+        } else if (Training.GCMTrainingCompletions.class.equals(clazz)) {
+            return Contract.Training.Completion.PROJECTION_ALL;
         }
 
         return super.getFullProjection(clazz);
@@ -80,6 +85,8 @@ public class TrainingDao extends AbstractDao
     protected <T> Mapper<T> getMapper(@NonNull final Class<T> clazz) {
         if (Training.class.equals(clazz)) {
             return (Mapper<T>) TRAINING_MAPPER;
+        } else if (Training.GCMTrainingCompletions.class.equals(clazz)) {
+            return (Mapper<T>) COMPLETION_MAPPER;
         }
 
         return super.getMapper(clazz);
@@ -88,14 +95,21 @@ public class TrainingDao extends AbstractDao
     @NonNull
     @Override
     protected Pair<String, String[]> getPrimaryKeyWhere(@NonNull final Class<?> clazz, @NonNull final Object... key) {
+        final int keyLength;
         final String where;
         if (Training.class.equals(clazz)) {
-            if (key.length != 1) {
-                throw new IllegalArgumentException("invalid key for " + clazz);
-            }
             where = Contract.Training.SQL_WHERE_PRIMARY_KEY;
+            keyLength = 1;
+        } else if (Training.GCMTrainingCompletions.class.equals(clazz)) {
+            where = Contract.Training.Completion.SQL_WHERE_PRIMARY_KEY;
+            keyLength = 1;
         } else {
             return super.getPrimaryKeyWhere(clazz, key);
+        }
+
+        // throw an error if the provided key is the wrong size
+        if (key.length != keyLength) {
+            throw new IllegalArgumentException("invalid key for " + clazz);
         }
 
         // return where clause pair
@@ -107,6 +121,9 @@ public class TrainingDao extends AbstractDao
     protected Pair<String, String[]> getPrimaryKeyWhere(@NonNull final Object obj) {
         if (obj instanceof Training) {
             return this.getPrimaryKeyWhere(Training.class, ((Training) obj).getId());
+        } else if (obj instanceof Training.GCMTrainingCompletions) {
+            return this.getPrimaryKeyWhere(Training.GCMTrainingCompletions.class,
+                                           ((Training.GCMTrainingCompletions) obj).getId());
         }
 
         return super.getPrimaryKeyWhere(obj);
