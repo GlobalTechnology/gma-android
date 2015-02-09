@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 
@@ -14,12 +15,10 @@ import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.Mapper;
-import org.ccci.gto.android.common.util.CursorUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -144,39 +143,7 @@ public class TrainingDao extends AbstractDao
         
         return null;
     }
-    
-    public Cursor retrieveTrainingCursorById(int id)
-    {
-        try
-        {
-            return this.getCursor(Training.class, Contract.Training.SQL_WHERE_PRIMARY_KEY,
-                                  new String[] {String.valueOf(id)},
-                                  null);
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
-        }
-        return null;
-    }
-    
-    public Cursor retrieveTrainingCursorByMinistry(String ministryId)
-    {
-        final SQLiteDatabase database = dbHelper.getReadableDatabase();
-        String where = "ministry_id = ?";
-        String[] whereArgs = {ministryId};
-        
-        try
-        {
-            return database.query(TableNames.TRAINING.getTableName(), null, where, whereArgs, null, null, null);
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
-        }
-        return null;
-    }
-    
+
     public Cursor retrieveCompletedTrainingCursor(int trainingId)
     {
         final SQLiteDatabase database = dbHelper.getReadableDatabase();
@@ -211,6 +178,7 @@ public class TrainingDao extends AbstractDao
         return null;
     }
     
+    @Nullable
     public List<Training> getAllMinistryTraining(String ministry_id)
     {
         Log.i(TAG, "Getting all training for ministry: " + ministry_id);
@@ -451,35 +419,6 @@ public class TrainingDao extends AbstractDao
         return format.parse(string);
     }
 
-    private String dateToString(Date date)
-    {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        return dateFormat.format(date);
-    }
-    
-    private Training setTrainingFromCursor(Cursor cursor, List<Training.GCMTrainingCompletions> completed) throws ParseException
-    {
-        Log.i(TAG, "Building training");
-        Training training = new Training();
-        training.setId(cursor.getInt(cursor.getColumnIndex("id")));
-        training.setMinistryId(cursor.getString(cursor.getColumnIndex("ministry_id")));
-        training.setName(cursor.getString(cursor.getColumnIndex("name")));
-        training.setDate(stringToDate(cursor.getString(cursor.getColumnIndex("date"))));
-        training.setType(cursor.getString(cursor.getColumnIndex("type")));
-        training.setMcc(cursor.getString(cursor.getColumnIndex("mcc")));
-        training.setLatitude(cursor.getDouble(cursor.getColumnIndex("latitude")));
-        training.setLongitude(cursor.getDouble(cursor.getColumnIndex("longitude")));
-        training.setLastSynced(CursorUtils.getLong(cursor, Contract.Training.COLUMN_LAST_SYNCED));
-
-        if (completed != null && completed.size() > 0)
-        {
-            training.setCompletions(completed);
-        }
-        
-        Log.i(TAG, "Returning new training: " + training.getId());
-        return training;
-    }
-    
     private Training.GCMTrainingCompletions setCompletedTrainingFromCursor(Cursor cursor) throws ParseException
     {
         Training.GCMTrainingCompletions trainingCompletions = new Training.GCMTrainingCompletions();
