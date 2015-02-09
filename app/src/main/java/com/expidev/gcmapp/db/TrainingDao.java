@@ -1,6 +1,5 @@
 package com.expidev.gcmapp.db;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -231,19 +230,12 @@ public class TrainingDao extends AbstractDao
         }
         return null;
     }
-    
+
+    // TODO: this should be handled at either the API or Service layer
     public void saveTrainingFromAPI(JSONArray jsonArray)
     {
-        final SQLiteDatabase database = dbHelper.getWritableDatabase();
-        
         try
         {
-            database.beginTransaction();
-
-            String trainingCompleteTable = TableNames.TRAINING_COMPLETIONS.getTableName();
-            
-            Cursor existingCompletedTraining = retrieveTrainingCursor(trainingCompleteTable);
-
             Log.i(TAG, "API returned: " + jsonArray.length());
             
             for (int i = 0; i < jsonArray.length(); i++)
@@ -262,49 +254,29 @@ public class TrainingDao extends AbstractDao
                 training.setLongitude(json.getDouble("longitude"));
                 training.setLastSynced(new Date());
 
-                // update or insert training object
-                this.updateOrInsert(training, Contract.Training.PROJECTION_ALL);
-
+                // build completion objects for all completed trainings
                 JSONArray trainingCompletedArray = json.getJSONArray("gcm_training_completions");
-                
                 for (int j = 0; j < trainingCompletedArray.length(); j++)
                 {
-                    JSONObject completedTraining = trainingCompletedArray.getJSONObject(j);
-                    int completedId = completedTraining.getInt("id");
-                    
-                    ContentValues completedTrainingToInsert = new ContentValues();
-                    completedTrainingToInsert.put("id", completedId);
-                    completedTrainingToInsert.put("phase", completedTraining.getInt("phase"));
-                    completedTrainingToInsert.put("number_completed", completedTraining.getInt("number_completed"));
-                    completedTrainingToInsert.put("date", completedTraining.getString("date"));
-                    completedTrainingToInsert.put("training_id", completedTraining.getInt("training_id"));
-                    completedTrainingToInsert.put("synced", new Timestamp(new Date().getTime()).toString());
-                    
-                    if (!trainingExistsInDatabase(completedId, existingCompletedTraining))
-                    {
-                        database.insert(trainingCompleteTable, null, completedTrainingToInsert);
-                    }
-                    else
-                    {
-                        database.update(trainingCompleteTable, completedTrainingToInsert, null, null);
-                    }
+                    final JSONObject completionJson = trainingCompletedArray.getJSONObject(j);
 
-                    Log.i(TAG, "Inserted/Updated completed training: " + completedId);
-                    
+                    final Training.GCMTrainingCompletions completion = new Training.GCMTrainingCompletions();
+                    completion.setId(completionJson.getInt("id"));
+                    completion.setTrainingId(completionJson.getInt("training_id"));
+                    completion.setPhase(completionJson.getInt("phase"));
+                    completion.setNumberCompleted(completionJson.getInt("number_completed"));
+                    completion.setDate(stringToDate(completionJson.getString("date")));
+
+                    training.addCompletion(completion);
                 }
-            }
 
-            database.setTransactionSuccessful();
+                // update or insert training object
+                this.saveTraining(training);
+            }
         }
         catch (Exception e)
         {
             Log.e(TAG, e.getMessage(), e);
-        }
-        finally
-        {
-            database.endTransaction();
-
-            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (saveTrainingFromAPI)");
         }
     }
     

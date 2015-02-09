@@ -129,6 +129,10 @@ public class Training extends Base
         }
     }
 
+    public void addCompletion(@NonNull final GCMTrainingCompletions completion) {
+        this.completions.add(completion);
+    }
+
     public static class GCMTrainingCompletions extends Base
     {
         private int id;
