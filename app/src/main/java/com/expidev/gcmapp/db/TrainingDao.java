@@ -311,42 +311,14 @@ public class TrainingDao extends AbstractDao
     public void saveTraining(Training training)
     {
         final SQLiteDatabase database = dbHelper.getWritableDatabase();
-        
         try
         {
             database.beginTransaction();
 
             this.updateOrInsert(training, Contract.Training.PROJECTION_ALL);
-
-            String completedTrainingTable = TableNames.TRAINING_COMPLETIONS.getTableName();
-
-            Cursor existingCompletedTraining = retrieveCompletedTrainingCursor(completedTrainingTable);
-            
-            if (training.getCompletions() != null && training.getCompletions().size() > 0)
-            {
-
-                for (Training.GCMTrainingCompletions completion : training.getCompletions())
-                {
-                    ContentValues completedTrainingToInsert = new ContentValues();
-                    completedTrainingToInsert.put("id", completion.getId());
-                    completedTrainingToInsert.put("phase", completion.getPhase());
-                    completedTrainingToInsert.put("number_completed", completion.getNumberCompleted());
-                    completedTrainingToInsert.put("training_id", completion.getTrainingId());
-                    completedTrainingToInsert.put("synced", completion.getSynced().toString());
-
-                    if (!trainingExistsInDatabase(completion.getId(), existingCompletedTraining))
-                    {
-                        database.insert(completedTrainingTable, null, completedTrainingToInsert);
-                    }
-                    else
-                    {
-                        database.update(completedTrainingTable, completedTrainingToInsert, null, null);
-                    }
-
-                    Log.i(TAG, "Inserted/Updated completed training: " + completion.getId());
-                }
+            for (final Training.GCMTrainingCompletions completion : training.getCompletions()) {
+                this.updateOrInsert(completion, Contract.Training.Completion.PROJECTION_ALL);
             }
-
 
             database.setTransactionSuccessful();
         }
