@@ -28,6 +28,8 @@ import com.expidev.gcmapp.view.TextHeaderView;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -264,11 +266,98 @@ public class MeasurementsActivity extends ActionBarActivity
         return arrowView;
     }
 
-    private List<Measurement> sortMeasurements(List<Measurement> measurements)
+    /**
+     * Group measurements together by column (alphabetically), then
+     * sort within each group by section (win, build, send)
+     */
+    List<Measurement> sortMeasurements(List<Measurement> measurements)
     {
-        //TODO: Sort such that the sections are together within each column
         List<Measurement> sortedMeasurements = new ArrayList<>(measurements.size());
-        return measurements;
+
+        // First create a list of columns
+        List<String> distinctColumns = new ArrayList<>();
+        for(Measurement measurement : measurements)
+        {
+            if(!distinctColumns.contains(measurement.getColumn()))
+            {
+                distinctColumns.add(measurement.getColumn());
+            }
+        }
+
+        // Sort the columns alphabetically
+        Collections.sort(distinctColumns);
+
+        // First group the measurements into their column groups
+        for(String column : distinctColumns)
+        {
+            List<Measurement> measurementGroup = new ArrayList<>();
+
+            for(Measurement measurement : measurements)
+            {
+                if(measurement.getColumn().equals(column))
+                {
+                    measurementGroup.add(measurement);
+                }
+            }
+
+            // Now sort it according to section
+            Collections.sort(measurementGroup, sectionComparator());
+            sortedMeasurements.addAll(measurementGroup);
+        }
+
+        return sortedMeasurements;
+    }
+
+    /**
+     * Sorts measurements first in order of section: win, build, send
+     * Then alphabetically by name, if they have the same section
+     */
+    private Comparator<Measurement> sectionComparator()
+    {
+        return new Comparator<Measurement>()
+        {
+            @Override
+            public int compare(Measurement lhs, Measurement rhs)
+            {
+                if("win".equals(lhs.getSection()))
+                {
+                    if(rhs.getSection().equals("win"))
+                    {
+                        return lhs.getName().compareTo(rhs.getName());
+                    }
+                    else
+                    {
+                        return -1;
+                    }
+                }
+                else if(lhs.getSection().equals("build"))
+                {
+                    if(rhs.getSection().equals("win"))
+                    {
+                        return 1;
+                    }
+                    else if(rhs.getSection().equals("build"))
+                    {
+                        return lhs.getName().compareTo(rhs.getName());
+                    }
+                    else
+                    {
+                        return -1;
+                    }
+                }
+                else
+                {
+                    if(rhs.getSection().equals("send"))
+                    {
+                        return lhs.getName().compareTo(rhs.getName());
+                    }
+                    else
+                    {
+                        return 1;
+                    }
+                }
+            }
+        };
     }
 
     @Override
