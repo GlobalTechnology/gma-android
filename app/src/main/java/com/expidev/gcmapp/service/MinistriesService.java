@@ -4,6 +4,8 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -132,10 +134,10 @@ public class MinistriesService extends IntentService
         context.startService(baseIntent(context, extras));
     }
 
-    public static void saveAssociatedMinistriesFromServer(final Context context, JSONArray assignments)
-    {
-        Log.i(TAG, assignments.toString());
-        
+    public static void saveAssociatedMinistriesFromServer(@NonNull final Context context,
+                                                          @Nullable final JSONArray assignments) {
+        Log.i(TAG, assignments != null ? assignments.toString() : "null");
+
         Bundle extras = new Bundle(1);
         extras.putSerializable("type", SAVE_ASSOCIATED_MINISTRIES);
 
