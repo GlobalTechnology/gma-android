@@ -24,6 +24,7 @@
         </activity>
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,7 +35,10 @@
         <activity
             android:name=".JoinMinistryActivity"
             android:label="@string/title_activity_join_ministry"
-            android:parentActivityName=".MainActivity"> <!-- TODO: backwards compatibility -->
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
         </activity>
         
         <activity
@@ -59,8 +63,6 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".service.SessionService"
-                 android:exported="false"/>
         <service android:name=".service.AssociatedMinistriesService"
                  android:exported="false"/>
         <service android:name=".service.AuthService"
