@@ -129,7 +129,7 @@ public class Training extends Base
         }
     }
 
-    public static class GCMTrainingCompletions
+    public static class GCMTrainingCompletions extends Base
     {
         private int id;
         private int phase;

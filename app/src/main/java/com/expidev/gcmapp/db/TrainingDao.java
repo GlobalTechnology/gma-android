@@ -21,7 +21,6 @@ import org.json.JSONObject;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -217,50 +216,18 @@ public class TrainingDao extends AbstractDao
         }
         return null;
     }
-    
+
+    @Nullable
     public List<Training.GCMTrainingCompletions> getCompletedTrainingByTrainingId(int id)
     {
-        Cursor cursor = null;
-        List<Training.GCMTrainingCompletions> completed =  new ArrayList<>();
-        
         try
         {
-            cursor = retrieveCompletedTrainingCursor(id);
-            
-            if (cursor != null && cursor.getCount() > 0)
-            {
-                cursor.moveToFirst();
-                for (int i = 0; i < cursor.getCount(); i++)
-                {
-                    Training.GCMTrainingCompletions completedTraining = setCompletedTrainingFromCursor(cursor);
-                    
-                    // if size is 0, go ahead and add
-                    if (completed.size() > 0)
-                    {
-                        boolean exists = false;
-                        for (Training.GCMTrainingCompletions trainingAlreadyAdded : completed)
-                        {
-                            if (Training.GCMTrainingCompletions.equals(trainingAlreadyAdded, completedTraining)) exists = true;
-                        }
-                        if (!exists) completed.add(completedTraining);
-                    }
-                    else
-                    {
-                        completed.add(completedTraining);
-                    }
-                    cursor.moveToNext();
-                }
-            }
-            
-            return completed;
+            return this.get(Training.GCMTrainingCompletions.class, Contract.Training.Completion.SQL_WHERE_TRAINING_ID,
+                            this.getBindValues(id));
         }
         catch (Exception e)
         {
             Log.e(TAG, e.getMessage(), e);
-        }
-        finally
-        {
-            if (cursor != null) cursor.close();
         }
         return null;
     }

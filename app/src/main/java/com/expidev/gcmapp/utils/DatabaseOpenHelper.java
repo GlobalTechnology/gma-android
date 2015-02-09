@@ -105,9 +105,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     private void createTrainingTables(SQLiteDatabase db)
     {
         db.execSQL(Contract.Training.SQL_CREATE_TABLE);
-        
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.TRAINING_COMPLETIONS.getTableName() + 
-            "(id INT, phase INT, number_completed INT, date TEXT, training_id INT, synced TEXT);");
+        db.execSQL(Contract.Training.Completion.SQL_CREATE_TABLE);
     }
 
     /**

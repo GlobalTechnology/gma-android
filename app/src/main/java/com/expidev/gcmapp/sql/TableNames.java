@@ -13,7 +13,7 @@ public enum TableNames
     TRAINING(Contract.Training.TABLE_NAME),
     ASSIGNMENTS("assignments"),
     ALL_MINISTRIES(Contract.Ministry.TABLE_NAME),
-    TRAINING_COMPLETIONS("training_completions");
+    TRAINING_COMPLETIONS(Contract.Training.Completion.TABLE_NAME);
 
     private String tableName;
 
