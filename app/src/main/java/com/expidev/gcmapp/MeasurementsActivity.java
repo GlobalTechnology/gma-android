@@ -43,6 +43,7 @@ public class MeasurementsActivity extends ActionBarActivity
     private BroadcastReceiver broadcastReceiver;
     private SharedPreferences preferences;
     private Ministry chosenMinistry;
+    private String chosenMcc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -51,6 +52,7 @@ public class MeasurementsActivity extends ActionBarActivity
         setContentView(R.layout.activity_measurements);
 
         preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        chosenMcc = preferences.getString("chosen_mcc", null);
     }
 
     @Override
@@ -92,7 +94,7 @@ public class MeasurementsActivity extends ActionBarActivity
                             if(measurementsData != null)
                             {
                                 List<Measurement> measurements = (ArrayList<Measurement>) measurementsData;
-                                drawLayout(chosenMinistry, measurements);
+                                drawLayout(chosenMinistry, chosenMcc, measurements);
                             }
                             else
                             {
@@ -115,7 +117,7 @@ public class MeasurementsActivity extends ActionBarActivity
                                 MeasurementsService.searchMeasurements(
                                     getApplicationContext(),
                                     chosenMinistry.getMinistryId(),
-                                    preferences.getString("chosen_mcc", null),
+                                    chosenMcc,
                                     null,
                                     preferences.getString("session_ticket", null));
                             }
@@ -158,10 +160,10 @@ public class MeasurementsActivity extends ActionBarActivity
         return null;
     }
 
-    private void drawLayout(Ministry selectedMinistry, List<Measurement> measurements)
+    private void drawLayout(Ministry selectedMinistry, String mcc, List<Measurement> measurements)
     {
         TextView titleView = (TextView) findViewById(R.id.measurement_ministry_name);
-        titleView.setText(selectedMinistry.getName());
+        titleView.setText(selectedMinistry.getName() + " (" + mcc + ")");
 
         List<Measurement> sortedMeasurements = sortMeasurements(measurements);
 
