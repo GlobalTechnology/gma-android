@@ -11,13 +11,6 @@ import com.expidev.gcmapp.model.Ministry;
  */
 public class MinistriesMapper extends BaseMapper<Ministry>
 {
-    @NonNull
-    @Override
-    public ContentValues toContentValues(@NonNull final Ministry ministry)
-    {
-        return this.toContentValues(ministry, Contract.Ministry.PROJECTION_ALL);
-    }
-
     @Override
     protected void mapField(
         @NonNull final ContentValues values,

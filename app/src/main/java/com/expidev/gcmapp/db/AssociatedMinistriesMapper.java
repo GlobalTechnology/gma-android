@@ -11,13 +11,6 @@ import com.expidev.gcmapp.model.AssociatedMinistry;
  */
 public class AssociatedMinistriesMapper extends BaseMapper<AssociatedMinistry>
 {
-    @NonNull
-    @Override
-    public ContentValues toContentValues(@NonNull final AssociatedMinistry ministry)
-    {
-        return this.toContentValues(ministry, Contract.AssociatedMinistry.PROJECTION_ALL);
-    }
-
     @Override
     protected void mapField(
         @NonNull final ContentValues values,

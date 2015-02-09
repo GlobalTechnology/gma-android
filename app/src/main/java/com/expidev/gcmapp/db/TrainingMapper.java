@@ -13,12 +13,6 @@ import java.util.Date;
 import java.util.Locale;
 
 public class TrainingMapper extends BaseMapper<Training> {
-    @NonNull
-    @Override
-    public ContentValues toContentValues(@NonNull final Training training) {
-        return this.toContentValues(training, Contract.Training.PROJECTION_ALL);
-    }
-
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
                             @NonNull final Training training) {
