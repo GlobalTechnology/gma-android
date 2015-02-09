@@ -3,7 +3,6 @@ package com.expidev.gcmapp.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -140,8 +139,7 @@ public class Training extends Base
         private int numberCompleted;
         private Date date;
         private int trainingId;
-        private Timestamp synced;
-        
+
         public static boolean equals(GCMTrainingCompletions first, GCMTrainingCompletions second)
         {
             if (first.getId() != second.getId()) return false;
@@ -199,16 +197,6 @@ public class Training extends Base
         public void setTrainingId(int trainingId)
         {
             this.trainingId = trainingId;
-        }
-
-        public Timestamp getSynced()
-        {
-            return synced;
-        }
-
-        public void setSynced(Timestamp synced)
-        {
-            this.synced = synced;
         }
     }
 }
