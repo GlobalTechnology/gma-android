@@ -10,7 +10,6 @@ import com.expidev.gcmapp.model.Training;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -95,8 +94,8 @@ public class TrainingDaoTest extends InstrumentationTestCase
         training.setMcc("slm");
         training.setDate(new GregorianCalendar(2014, Calendar.NOVEMBER, 13).getTime());
         training.setName("Test training");
-        training.setSynced(new Timestamp(456789L));
-        
+        training.setLastSynced(456789L);
+
         trainingDao.saveTraining(training);
         
         Training returnedTraining = trainingDao.retrieveTrainingById(1);
@@ -109,7 +108,7 @@ public class TrainingDaoTest extends InstrumentationTestCase
         assertEquals(returnedTraining.getMcc(), training.getMcc());
         assertEquals(returnedTraining.getDate(), training.getDate());
         assertEquals(returnedTraining.getName(), training.getName());
-        assertEquals(returnedTraining.getSynced(), training.getSynced());
+        assertEquals(returnedTraining.getLastSynced(), training.getLastSynced());
     }
     
     private JSONArray createTestData() throws JSONException

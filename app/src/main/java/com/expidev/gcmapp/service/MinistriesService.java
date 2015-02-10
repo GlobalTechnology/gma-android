@@ -4,6 +4,8 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -11,6 +13,7 @@ import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.AssignmentsJsonParser;
 import com.expidev.gcmapp.model.Assignment;
+import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 
 import org.json.JSONArray;
@@ -32,15 +35,15 @@ import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 /**
  * Created by William.Randall on 1/22/2015.
  */
-public class AssociatedMinistriesService extends IntentService
+public class MinistriesService extends IntentService
 {
-    private static final String TAG = AssociatedMinistriesService.class.getSimpleName();
+    private static final String TAG = MinistriesService.class.getSimpleName();
 
     private LocalBroadcastManager broadcastManager;
 
-    public AssociatedMinistriesService()
+    public MinistriesService()
     {
-        super("AssociatedMinistriesService");
+        super("MinistriesService");
     }
 
     /////////////////////////////////////////////////////
@@ -61,7 +64,7 @@ public class AssociatedMinistriesService extends IntentService
         switch(type)
         {
             case RETRIEVE_ASSOCIATED_MINISTRIES:
-                retrieveMinistries();
+                retrieveAssociatedMinistries();
                 break;
             case RETRIEVE_ALL_MINISTRIES:
                 retrieveAllMinistries(intent);
@@ -89,7 +92,7 @@ public class AssociatedMinistriesService extends IntentService
     ////////////////////////////////////////////////////
     private static Intent baseIntent(final Context context, Bundle extras)
     {
-        final Intent intent = new Intent(context, AssociatedMinistriesService.class);
+        final Intent intent = new Intent(context, MinistriesService.class);
 
         if(extras != null)
         {
@@ -131,10 +134,10 @@ public class AssociatedMinistriesService extends IntentService
         context.startService(baseIntent(context, extras));
     }
 
-    public static void saveAssociatedMinistriesFromServer(final Context context, JSONArray assignments)
-    {
-        Log.i(TAG, assignments.toString());
-        
+    public static void saveAssociatedMinistriesFromServer(@NonNull final Context context,
+                                                          @Nullable final JSONArray assignments) {
+        Log.i(TAG, assignments != null ? assignments.toString() : "null");
+
         Bundle extras = new Bundle(1);
         extras.putSerializable("type", SAVE_ASSOCIATED_MINISTRIES);
 
@@ -167,13 +170,13 @@ public class AssociatedMinistriesService extends IntentService
     /////////////////////////////////////////////////////
     //           Actions                              //
     ////////////////////////////////////////////////////
-    private void retrieveMinistries()
+    private void retrieveAssociatedMinistries()
     {
         MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
-        List<Ministry> associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
+        List<AssociatedMinistry> associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
         Log.i(TAG, "Retrieved associated ministries");
 
-        broadcastManager.sendBroadcast(associatedMinistriesReceivedBroadcast((ArrayList<Ministry>) associatedMinistries));
+        broadcastManager.sendBroadcast(associatedMinistriesReceivedBroadcast((ArrayList<AssociatedMinistry>) associatedMinistries));
     }
 
     private void retrieveAllMinistries(final Intent intent)
@@ -193,7 +196,7 @@ public class AssociatedMinistriesService extends IntentService
     private void loadAllMinistriesFromLocalStorage()
     {
         MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
-        List<Ministry> allMinistries = ministriesDao.retrieveAllMinistries();
+        List<Ministry> allMinistries = ministriesDao.get(Ministry.class);
 
         broadcastManager.sendBroadcast(allMinistriesLoadedBroadcast((ArrayList<Ministry>) allMinistries));
     }

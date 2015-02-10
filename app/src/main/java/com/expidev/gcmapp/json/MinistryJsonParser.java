@@ -2,6 +2,7 @@ package com.expidev.gcmapp.json;
 
 import android.util.Log;
 
+import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 
 import org.json.JSONArray;
@@ -29,15 +30,35 @@ public class MinistryJsonParser
             {
                 JSONObject jsonObject = jsonResults.getJSONObject(i);
                 Ministry ministry = parseMinistry(jsonObject);
+                ministryList.add(ministry);
+            }
+        }
+        catch(JSONException e)
+        {
+            Log.e(TAG, "Error parsing JSON: " + e.getMessage(), e);
+        }
+
+        return ministryList;
+    }
+
+    public static List<AssociatedMinistry> parseAssociatedMinistriesJson(JSONArray jsonResults)
+    {
+        List<AssociatedMinistry> ministryList = new ArrayList<AssociatedMinistry>();
+        try
+        {
+            for(int i = 0; i < jsonResults.length(); i++)
+            {
+                JSONObject jsonObject = jsonResults.getJSONObject(i);
+                AssociatedMinistry ministry = parseAssociatedMinistry(jsonObject);
 
                 if(jsonObject.has("sub_ministries"))
                 {
                     JSONArray subMinistriesJson = jsonObject.getJSONArray("sub_ministries");
-                    List<Ministry> subMinistries = new ArrayList<Ministry>();
+                    List<AssociatedMinistry> subMinistries = new ArrayList<AssociatedMinistry>();
 
                     for(int j = 0; j < subMinistriesJson.length(); i++)
                     {
-                        subMinistries.add(parseMinistry(subMinistriesJson.getJSONObject(i)));
+                        subMinistries.add(parseAssociatedMinistry(subMinistriesJson.getJSONObject(i)));
                     }
                     ministry.setSubMinistries(subMinistries);
                 }
@@ -54,19 +75,19 @@ public class MinistryJsonParser
         return ministryList;
     }
 
-    public static List<Ministry> parseMinistriesJsonRecursive(JSONArray jsonResults)
+    public static List<AssociatedMinistry> parseMinistriesJsonRecursive(JSONArray jsonResults)
     {
-        List<Ministry> ministryList = new ArrayList<Ministry>();
+        List<AssociatedMinistry> ministryList = new ArrayList<AssociatedMinistry>();
         try
         {
             for(int i = 0; i < jsonResults.length(); i++)
             {
                 JSONObject jsonObject = jsonResults.getJSONObject(i);
-                Ministry ministry = parseMinistry(jsonObject);
+                AssociatedMinistry ministry = parseAssociatedMinistry(jsonObject);
 
                 if(jsonObject.has("sub_ministries"))
                 {
-                    List<Ministry> subMinistries = parseMinistriesJsonRecursive(jsonObject.getJSONArray("sub_ministries"));
+                    List<AssociatedMinistry> subMinistries = parseMinistriesJsonRecursive(jsonObject.getJSONArray("sub_ministries"));
                     ministry.setSubMinistries(subMinistries);
                 }
 
@@ -82,17 +103,27 @@ public class MinistryJsonParser
         return ministryList;
     }
 
+    public static AssociatedMinistry parseAssociatedMinistry(JSONObject jsonObject) throws JSONException
+    {
+        AssociatedMinistry associatedMinistry = new AssociatedMinistry();
+
+        associatedMinistry.setMinistryId(jsonObject.getString("ministry_id"));
+        associatedMinistry.setName(jsonObject.getString("name"));
+        associatedMinistry.setMinistryCode(jsonObject.optString("min_code"));
+        associatedMinistry.setHasSlm(jsonObject.optBoolean("has_slm"));
+        associatedMinistry.setHasLlm(jsonObject.optBoolean("has_llm"));
+        associatedMinistry.setHasDs(jsonObject.optBoolean("has_ds"));
+        associatedMinistry.setHasGcm(jsonObject.optBoolean("has_gcm"));
+
+        return associatedMinistry;
+    }
+
     public static Ministry parseMinistry(JSONObject jsonObject) throws JSONException
     {
         Ministry ministry = new Ministry();
 
         ministry.setMinistryId(jsonObject.getString("ministry_id"));
         ministry.setName(jsonObject.getString("name"));
-        ministry.setMinistryCode(jsonObject.optString("min_code"));
-        ministry.setHasSlm(jsonObject.optBoolean("has_slm"));
-        ministry.setHasLlm(jsonObject.optBoolean("has_llm"));
-        ministry.setHasDs(jsonObject.optBoolean("has_ds"));
-        ministry.setHasGcm(jsonObject.optBoolean("has_gcm"));
 
         return ministry;
     }

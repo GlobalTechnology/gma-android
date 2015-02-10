@@ -1,13 +1,17 @@
 package com.expidev.gcmapp.model;
 
-import java.sql.Timestamp;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 /**
  * Created by matthewfrederick on 1/26/15.
  */
-public class Training
+public class Training extends Base
 {
     private int id;
     private String ministryId;
@@ -17,9 +21,9 @@ public class Training
     private String mcc;
     private double latitude;
     private double longitude;
-    private List<GCMTrainingCompletions> completions;
-    private Timestamp synced;
-    
+    @NonNull
+    private final List<GCMTrainingCompletions> completions = new ArrayList<>();
+
     public static boolean equals(Training first, Training second)
     {
         // does everything in the object need to be compared?
@@ -111,35 +115,31 @@ public class Training
         this.longitude = longitude;
     }
 
+    @NonNull
     public List<GCMTrainingCompletions> getCompletions()
     {
-        return completions;
+        return Collections.unmodifiableList(completions);
     }
 
-    public void setCompletions(List<GCMTrainingCompletions> completions)
-    {
-        this.completions = completions;
+    public void setCompletions(@Nullable final List<GCMTrainingCompletions> completions) {
+        this.completions.clear();
+        if (completions != null) {
+            this.completions.addAll(completions);
+        }
     }
 
-    public Timestamp getSynced()
-    {
-        return synced;
+    public void addCompletion(@NonNull final GCMTrainingCompletions completion) {
+        this.completions.add(completion);
     }
 
-    public void setSynced(Timestamp synced)
-    {
-        this.synced = synced;
-    }
-
-    public static class GCMTrainingCompletions
+    public static class GCMTrainingCompletions extends Base
     {
         private int id;
         private int phase;
         private int numberCompleted;
         private Date date;
         private int trainingId;
-        private Timestamp synced;
-        
+
         public static boolean equals(GCMTrainingCompletions first, GCMTrainingCompletions second)
         {
             if (first.getId() != second.getId()) return false;
@@ -197,16 +197,6 @@ public class Training
         public void setTrainingId(int trainingId)
         {
             this.trainingId = trainingId;
-        }
-
-        public Timestamp getSynced()
-        {
-            return synced;
-        }
-
-        public void setSynced(Timestamp synced)
-        {
-            this.synced = synced;
         }
     }
 }

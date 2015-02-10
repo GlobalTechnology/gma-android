@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.sql.TableNames;
 
 /**
@@ -17,7 +18,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     private static DatabaseOpenHelper instance;
     private Context context;
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "gcm_data.db";
 
     private DatabaseOpenHelper(Context context)
@@ -49,6 +50,17 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     {
+        // TODO: implement db upgrade logic once we have actual users with actual data
+        resetDatabase(db);
+    }
+
+    @Override
+    public void onDowngrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
+        // reset the database, don't try and downgrade tables
+        this.resetDatabase(db);
+    }
+
+    private void resetDatabase(final SQLiteDatabase db) {
         deleteAllTables(db);
         onCreate(db);
     }
@@ -59,16 +71,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      */
     private void createAssociatedMinistryTable(SQLiteDatabase db)
     {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.ASSOCIATED_MINISTRIES.getTableName() + "(" +
-            "ministry_id TEXT PRIMARY KEY, " +
-            "name TEXT, " +
-            "min_code TEXT, " +
-            "has_slm INTEGER, " +               // This is really a boolean (0 = false, 1 = true)
-            "has_llm INTEGER, " +
-            "has_ds INTEGER, " +
-            "has_gcm INTEGER, " +
-            "parent_ministry_id TEXT, " +       // This will be populated if this ministry is a sub ministry
-            "last_synced TEXT);");              // Last time this information was synced with the web
+        db.execSQL(Contract.AssociatedMinistry.SQL_CREATE_TABLE);
     }
 
     /**
@@ -101,11 +104,8 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
 
     private void createTrainingTables(SQLiteDatabase db)
     {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.TRAINING.getTableName() +
-            "(id INT, ministry_id TEXT, name TEXT, date TEXT, type TEXT, mcc TEXT, latitude DECIMAL, longitude DECIMAL, synced TEXT);");
-        
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.TRAINING_COMPLETIONS.getTableName() + 
-            "(id INT, phase INT, number_completed INT, date TEXT, training_id INT, synced TEXT);");
+        db.execSQL(Contract.Training.SQL_CREATE_TABLE);
+        db.execSQL(Contract.Training.Completion.SQL_CREATE_TABLE);
     }
 
     /**
@@ -115,21 +115,16 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      */
     private void createAllMinistriesTable(SQLiteDatabase db)
     {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.ALL_MINISTRIES.getTableName() + "( " +
-            "ministry_id TEXT, " +
-            "name TEXT, " +
-            "last_synced TEXT);");
+        db.execSQL(Contract.Ministry.SQL_CREATE_TABLE);
     }
 
     private void deleteAllTables(SQLiteDatabase db)
     {
-        db.execSQL("DROP TABLE IF EXISTS " + TableNames.ASSOCIATED_MINISTRIES.getTableName());
+        db.execSQL(Contract.Training.Completion.SQL_DELETE_TABLE);
+        db.execSQL(Contract.Training.SQL_DELETE_TABLE);
+        db.execSQL(Contract.AssociatedMinistry.SQL_DELETE_TABLE);
+        db.execSQL(Contract.Ministry.SQL_DELETE_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.ASSIGNMENTS.getTableName());
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.USER.getTableName());
-        db.execSQL("DROP TABLE IF EXISTS " + TableNames.TRAINING.getTableName());
-        db.execSQL("DROP TABLE IF EXISTS " + TableNames.TRAINING_COMPLETIONS.getTableName());
-        db.execSQL("DROP TABLE IF EXISTS " + TableNames.ALL_MINISTRIES.getTableName());
-    
-    
     }
 }

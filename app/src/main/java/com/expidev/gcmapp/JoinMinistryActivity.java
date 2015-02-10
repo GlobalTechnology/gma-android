@@ -17,8 +17,9 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
 import com.expidev.gcmapp.model.Assignment;
+import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
-import com.expidev.gcmapp.service.AssociatedMinistriesService;
+import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.Type;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
@@ -54,7 +55,7 @@ public class JoinMinistryActivity extends ActionBarActivity
         super.onStart();
 
         setupBroadcastReceivers();
-        AssociatedMinistriesService.loadAllMinistriesFromLocalStorage(this);
+        MinistriesService.loadAllMinistriesFromLocalStorage(this);
     }
 
     private void setupBroadcastReceivers()
@@ -136,7 +137,7 @@ public class JoinMinistryActivity extends ActionBarActivity
         AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView)findViewById(R.id.ministry_team_autocomplete);
 
         String ministryName = autoCompleteTextView.getText().toString();
-        Ministry chosenMinistry = getMinistryByName(ministryTeamList, ministryName);
+        AssociatedMinistry chosenMinistry = getMinistryByName(ministryTeamList, ministryName);
         String ministryId = chosenMinistry.getMinistryId();
 
         Assignment assignment = new Assignment();
@@ -144,7 +145,7 @@ public class JoinMinistryActivity extends ActionBarActivity
         assignment.setId(UUID.randomUUID().toString());  //TODO: What should go here?
         assignment.setMinistry(chosenMinistry);
 
-        AssociatedMinistriesService.assignUserToMinistry(this, assignment);
+        MinistriesService.assignUserToMinistry(this, assignment);
 
         AlertDialog alertDialog = new AlertDialog.Builder(this)
             .setTitle("Join Ministry")
@@ -165,13 +166,17 @@ public class JoinMinistryActivity extends ActionBarActivity
     }
 
     //TODO: Need to get the rest of the data from the API so MCC options will be filled in
-    private Ministry getMinistryByName(List<Ministry> ministryList, String name)
+    private AssociatedMinistry getMinistryByName(List<Ministry> ministryList, String name)
     {
         for(Ministry ministry : ministryList)
         {
             if(ministry.getName().equalsIgnoreCase(name))
             {
-                return ministry;
+                AssociatedMinistry associatedMinistry = new AssociatedMinistry();
+                associatedMinistry.setMinistryId(ministry.getMinistryId());
+                associatedMinistry.setName(ministry.getName());
+                associatedMinistry.setLastSynced(ministry.getLastSynced());
+                return associatedMinistry;
             }
         }
         return null;

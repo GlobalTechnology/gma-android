@@ -1,17 +1,19 @@
 package com.expidev.gcmapp.sql;
 
+import com.expidev.gcmapp.db.Contract;
+
 /**
  * Created by William.Randall on 1/19/2015.
  */
 public enum TableNames
 {
-    ASSOCIATED_MINISTRIES("associated_ministries"),
+    ASSOCIATED_MINISTRIES(Contract.AssociatedMinistry.TABLE_NAME),
     SESSION("session"),
     USER("user"),
-    TRAINING("training"),
+    TRAINING(Contract.Training.TABLE_NAME),
     ASSIGNMENTS("assignments"),
-    ALL_MINISTRIES("all_ministries"),
-    TRAINING_COMPLETIONS("training_completions");
+    ALL_MINISTRIES(Contract.Ministry.TABLE_NAME),
+    TRAINING_COMPLETIONS(Contract.Training.Completion.TABLE_NAME);
 
     private String tableName;
 

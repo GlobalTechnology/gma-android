@@ -11,7 +11,7 @@ public class Assignment implements Serializable
 
     private String id;
     private String teamRole;
-    private Ministry ministry;
+    private AssociatedMinistry ministry;
     private double latitude;
     private double longitude;
     private int locationZoom;
@@ -36,12 +36,12 @@ public class Assignment implements Serializable
         this.teamRole = teamRole;
     }
 
-    public Ministry getMinistry()
+    public AssociatedMinistry getMinistry()
     {
         return ministry;
     }
 
-    public void setMinistry(Ministry ministry)
+    public void setMinistry(AssociatedMinistry ministry)
     {
         this.ministry = ministry;
     }

@@ -27,10 +27,11 @@ import com.expidev.gcmapp.db.UserDao;
 import com.expidev.gcmapp.map.MarkerRender;
 import com.expidev.gcmapp.map.GcmMarker;
 import com.expidev.gcmapp.model.Assignment;
+import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.model.User;
-import com.expidev.gcmapp.service.AssociatedMinistriesService;
+import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
@@ -79,7 +80,7 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences mapPreferences;
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
-    private List<Ministry> associatedMinistries;
+    private List<AssociatedMinistry> associatedMinistries;
     
     // try to cut down on api calls
     private boolean trainingDownloaded = false;
@@ -88,7 +89,7 @@ public class MainActivity extends ActionBarActivity
     private GoogleMap map;
     private ClusterManager<GcmMarker> clusterManager;
 
-    private Ministry currentMinistry;
+    private AssociatedMinistry currentMinistry;
     private Assignment currentAssignment;
     private boolean currentAssignmentSet = false;
     
@@ -421,7 +422,7 @@ public class MainActivity extends ActionBarActivity
 
                             if (!ministriesDownloaded)
                             {
-                                AssociatedMinistriesService.retrieveAllMinistries(getApplicationContext(), sessionTicket);
+                                MinistriesService.retrieveAllMinistries(getApplicationContext(), sessionTicket);
                             }
                             
                             break;
@@ -442,7 +443,7 @@ public class MainActivity extends ActionBarActivity
                             if(data != null)
                             {
                                 List<Ministry> allMinistries = (ArrayList<Ministry>) data;
-                                AssociatedMinistriesService.saveAllMinistries(getApplicationContext(), allMinistries);
+                                MinistriesService.saveAllMinistries(getApplicationContext(), allMinistries);
                                 ministriesDownloaded = true;
                             }
                             else
@@ -528,7 +529,7 @@ public class MainActivity extends ActionBarActivity
                         boolean parent = false;
                         do
                         {
-                            if (associatedMinistries.get(i).getParentId() == null) parent = true;
+                            parent = associatedMinistries.get(i).getParentMinistryId() == null;
                             i++;
                         } while (!parent);
 
@@ -542,7 +543,7 @@ public class MainActivity extends ActionBarActivity
                     }
                     else
                     {
-                        for (Ministry ministry : associatedMinistries)
+                        for (AssociatedMinistry ministry : associatedMinistries)
                         {
                             if (ministry.getName().equals(currentMinistryName))
                             {

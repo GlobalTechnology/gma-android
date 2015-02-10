@@ -16,8 +16,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.expidev.gcmapp.model.Ministry;
-import com.expidev.gcmapp.service.AssociatedMinistriesService;
+import com.expidev.gcmapp.model.AssociatedMinistry;
+import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.Type;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
@@ -43,7 +43,7 @@ public class SettingsActivity extends PreferenceActivity
     private final String PREF_NAME = "gcm_prefs";
     private SharedPreferences preferences;
     
-    private List<Ministry> associatedMinistries;
+    private List<AssociatedMinistry> associatedMinistries;
 
     /**
      * Determines whether to always show the simplified settings UI, where
@@ -73,8 +73,7 @@ public class SettingsActivity extends PreferenceActivity
     {
         super.onStart();
         setupBroadcastReceivers();
-
-        AssociatedMinistriesService.retrieveMinistries(this);
+        MinistriesService.retrieveMinistries(this);
     }
 
     private void setupBroadcastReceivers()
@@ -107,7 +106,7 @@ public class SettingsActivity extends PreferenceActivity
                             Log.i(TAG, "Associated Ministries Received");
                             
                             associatedMinistries =
-                                (ArrayList<Ministry>) intent.getSerializableExtra("associatedMinistries");
+                                (ArrayList<AssociatedMinistry>) intent.getSerializableExtra("associatedMinistries");
                             populateMinistryListPreference(associatedMinistries);
                             String chosenMinistry = preferences.getString("chosen_ministry", null);
                             if(chosenMinistry != null)
@@ -161,13 +160,13 @@ public class SettingsActivity extends PreferenceActivity
         addPreferencesFromResource(R.xml.pref_general);
     }
 
-    private void populateMinistryListPreference(final List<Ministry> associatedMinistries)
+    private void populateMinistryListPreference(final List<AssociatedMinistry> associatedMinistries)
     {
         ListPreference ministryListPreference = (ListPreference) findPreference("ministry_team_list");
 
         List<String> ministryNames = new ArrayList<String>(associatedMinistries.size());
 
-        for(Ministry ministry : associatedMinistries)
+        for(AssociatedMinistry ministry : associatedMinistries)
         {
             ministryNames.add(ministry.getName());
         }
@@ -195,7 +194,7 @@ public class SettingsActivity extends PreferenceActivity
     }
 
     private void populateMissionCriticalComponentsPreference(
-        List<Ministry> associatedMinistries,
+        List<AssociatedMinistry> associatedMinistries,
         String chosenMinistryName)
     {
         ListPreference mccListPreference = (ListPreference) findPreference("mcc_list");
@@ -203,8 +202,8 @@ public class SettingsActivity extends PreferenceActivity
 
         if(chosenMinistryName != null)
         {
-            Ministry chosenMinistry = null;
-            for(Ministry ministry : associatedMinistries)
+            AssociatedMinistry chosenMinistry = null;
+            for(AssociatedMinistry ministry : associatedMinistries)
             {
                 if(chosenMinistryName.equalsIgnoreCase(ministry.getName()))
                 {

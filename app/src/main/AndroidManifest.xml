@@ -63,7 +63,7 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".service.AssociatedMinistriesService"
+        <service android:name=".service.MinistriesService"
                  android:exported="false"/>
         <service android:name=".service.AuthService"
                  android:exported="false" />
