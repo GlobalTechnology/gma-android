@@ -178,6 +178,9 @@ public class MeasurementsActivity extends ActionBarActivity
 
         LinearLayout dataContainer = (LinearLayout) findViewById(R.id.measurement_data_Layout);
 
+        // Clear out the data container in case the user is coming back from the measurement details page
+        dataContainer.removeAllViews();
+
         String previousColumn = sortedMeasurements.get(0).getColumn();
         String firstMeasurementId = sortedMeasurements.get(0).getMeasurementId();
 
