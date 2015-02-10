@@ -57,6 +57,9 @@ public class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Se
 
     private static final String PREF_NAME = "gcm_prefs";
 
+    private static final Object LOCK_INSTANCE = new Object();
+    private static GmaApiClient INSTANCE;
+
     private SharedPreferences preferences;
     private SharedPreferences.Editor prefEditor;
 
@@ -66,6 +69,16 @@ public class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Se
 
         preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         prefEditor = preferences.edit();
+    }
+
+    public static GmaApiClient getInstance(final Context context) {
+        synchronized (LOCK_INSTANCE) {
+            if(INSTANCE == null) {
+                INSTANCE = new GmaApiClient(context.getApplicationContext());
+            }
+        }
+
+        return INSTANCE;
     }
 
     @Override

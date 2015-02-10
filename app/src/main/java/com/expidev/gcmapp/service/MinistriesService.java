@@ -39,6 +39,8 @@ public class MinistriesService extends IntentService
 {
     private static final String TAG = MinistriesService.class.getSimpleName();
 
+    @NonNull
+    private GmaApiClient mApi;
     private LocalBroadcastManager broadcastManager;
 
     public MinistriesService()
@@ -53,6 +55,7 @@ public class MinistriesService extends IntentService
     public void onCreate()
     {
         super.onCreate();
+        mApi = GmaApiClient.getInstance(this);
         broadcastManager = LocalBroadcastManager.getInstance(this);
     }
 
