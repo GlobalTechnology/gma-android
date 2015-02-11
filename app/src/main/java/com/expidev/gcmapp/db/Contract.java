@@ -29,7 +29,7 @@ public class Contract {
                 {COLUMN_ID, COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_DATE, COLUMN_TYPE, COLUMN_MCC, COLUMN_LATITUDE,
                         COLUMN_LONGITUDE, COLUMN_LAST_SYNCED};
 
-        private static final String SQL_COLUMN_ID = COLUMN_ID + " INT";
+        private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
         private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
         private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_DATE = COLUMN_DATE + " TEXT";
@@ -61,10 +61,10 @@ public class Contract {
                     {COLUMN_ID, COLUMN_TRAINING_ID, COLUMN_PHASE, COLUMN_NUMBER_COMPLETED, COLUMN_DATE,
                             COLUMN_LAST_SYNCED};
 
-            private static final String SQL_COLUMN_ID = COLUMN_ID + " INT";
-            private static final String SQL_COLUMN_TRAINING_ID = COLUMN_TRAINING_ID + " INT";
-            private static final String SQL_COLUMN_PHASE = COLUMN_PHASE + " INT";
-            private static final String SQL_COLUMN_NUMBER_COMPLETED = COLUMN_NUMBER_COMPLETED + " INT";
+            private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
+            private static final String SQL_COLUMN_TRAINING_ID = COLUMN_TRAINING_ID + " INTEGER";
+            private static final String SQL_COLUMN_PHASE = COLUMN_PHASE + " INTEGER";
+            private static final String SQL_COLUMN_NUMBER_COMPLETED = COLUMN_NUMBER_COMPLETED + " INTEGER";
             private static final String SQL_COLUMN_DATE = COLUMN_DATE + " TEXT";
 
             private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
