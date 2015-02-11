@@ -1,12 +1,13 @@
 package com.expidev.gcmapp.db;
 
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 public class Contract {
     private Contract() {
     }
 
-    public static abstract class Base {
+    public static abstract class Base implements BaseColumns {
         static final String COLUMN_LAST_SYNCED = "lastSynced";
 
         static final String SQL_COLUMN_LAST_SYNCED = COLUMN_LAST_SYNCED + " INTEGER";
@@ -15,7 +16,7 @@ public class Contract {
     public static final class Training extends Base {
         public static final String TABLE_NAME = "training";
 
-        static final String COLUMN_ID = "id";
+        static final String COLUMN_ID = _ID;
         static final String COLUMN_MINISTRY_ID = "ministry_id";
         static final String COLUMN_NAME = "name";
         static final String COLUMN_DATE = "date";
@@ -50,7 +51,7 @@ public class Contract {
         public static final class Completion extends Base {
             public static final String TABLE_NAME = "training_completions";
 
-            static final String COLUMN_ID = "id";
+            static final String COLUMN_ID = _ID;
             static final String COLUMN_TRAINING_ID = "training_id";
             static final String COLUMN_PHASE = "phase";
             static final String COLUMN_NUMBER_COMPLETED = "number_completed";
