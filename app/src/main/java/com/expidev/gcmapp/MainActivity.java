@@ -528,7 +528,10 @@ public class MainActivity extends ActionBarActivity
                         do
                         {
                             parent = associatedMinistries.get(i).getParentMinistryId() == null;
-                            i++;
+                            if(!parent)
+                            {
+                                i++;
+                            }
                         } while (!parent);
 
                         currentMinistry = associatedMinistries.get(i);
@@ -559,7 +562,7 @@ public class MainActivity extends ActionBarActivity
                 
                 if (currentAssignment == null)
                 {
-                    Log.i(TAG, "current ministry is still null");
+                    Log.i(TAG, "current assignment is still null");
                     return false;
                 }
                 else if (currentMinistry == null)
