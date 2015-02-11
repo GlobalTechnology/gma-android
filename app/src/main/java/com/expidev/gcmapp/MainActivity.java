@@ -94,6 +94,7 @@ public class MainActivity extends ActionBarActivity
     private AssociatedMinistry currentMinistry;
     private Assignment currentAssignment;
     private boolean currentAssignmentSet = false;
+    private boolean refreshAssignment;
     private String chosenMcc;
     
     private TextView mapOverlayText;
@@ -212,7 +213,7 @@ public class MainActivity extends ActionBarActivity
         if (map != null) map.clear();
         
         getMapPreferences();
-        getCurrentAssignment();
+        refreshCurrentAssignment();
         setUpMap();
     }
 
@@ -341,6 +342,19 @@ public class MainActivity extends ActionBarActivity
         {
            currentAssignmentSet = new SetCurrentMinistry().doInBackground(this);
         }
+    }
+
+    private void refreshCurrentAssignment()
+    {
+        String chosenMinistry = preferences.getString("chosen_ministry", null);
+
+        if(chosenMinistry == null || currentMinistry == null || chosenMinistry.equals(currentMinistry.getName()))
+        {
+            return;
+        }
+
+        refreshAssignment = true;
+        refreshAssignment = !new SetCurrentMinistry().doInBackground(this);
     }
     
     private void setUpMap()
@@ -495,17 +509,16 @@ public class MainActivity extends ActionBarActivity
         protected Boolean doInBackground(Context... params)
         {
             Context context = params[0];
-            String currentMinistryName;
-            
+
             Log.i(TAG, "Trying to set current Assignment");
             try
             {
+                MinistriesDao ministriesDao = MinistriesDao.getInstance(context);
+                String currentMinistryName = preferences.getString("chosen_ministry", null);
+
                 // if currentAssignment && currentMinistry is already set, skip getting it
                 if (currentAssignment == null || currentMinistry == null)
                 {
-                    MinistriesDao ministriesDao = MinistriesDao.getInstance(context);
-                    currentMinistryName = preferences.getString("chosen_ministry", null);
-
                     if (associatedMinistries == null || associatedMinistries.size() == 0)
                     {
                         Log.i(TAG, "associated ministries needs to be set");
@@ -544,20 +557,16 @@ public class MainActivity extends ActionBarActivity
                     }
                     else
                     {
-                        for (AssociatedMinistry ministry : associatedMinistries)
-                        {
-                            if (ministry.getName().equals(currentMinistryName))
-                            {
-                                currentMinistry = ministry;
-                                currentAssignment = ministriesDao.retrieveAssignmentForMinistry(ministry);
-
-                                if (currentAssignment != null)
-                                {
-                                    Log.i(TAG, "current assignment: " + currentAssignment.toString());
-                                }
-                            }
-                        }
+                        setMinistryAndAssignment(associatedMinistries, currentMinistryName, ministriesDao);
                     }
+                }
+                else if(refreshAssignment)
+                {
+                    setMinistryAndAssignment(associatedMinistries, currentMinistryName, ministriesDao);
+
+                    // If we are changing assignments/ministries, we need to reload the training
+                    TrainingDao trainingDao = TrainingDao.getInstance(context);
+                    allTraining = trainingDao.getAllMinistryTraining(currentMinistry.getMinistryId());
                 }
                 
                 if (currentAssignment == null)
@@ -570,7 +579,7 @@ public class MainActivity extends ActionBarActivity
                     Log.i(TAG, "current ministry is still null");
                     return false;
                 }
-                
+
                 Log.i(TAG, "currentAssignment: " + currentAssignment.getId());
                 Log.i(TAG, "currentMinistry: " + currentMinistry.getName());
 
@@ -606,11 +615,34 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
+    private void setMinistryAndAssignment(
+        List<AssociatedMinistry> associatedMinistries,
+        String ministryName,
+        MinistriesDao ministriesDao)
+    {
+        for (AssociatedMinistry ministry : associatedMinistries)
+        {
+            if (ministry.getName().equals(ministryName))
+            {
+                currentMinistry = ministry;
+                currentAssignment = ministriesDao.retrieveAssignmentForMinistry(ministry);
+
+                if (currentAssignment != null)
+                {
+                    Log.i(TAG, "current assignment: " + currentAssignment.toString());
+                }
+                break;
+            }
+        }
+    }
+
     private void setChosenMcc()
     {
+        if(currentMinistry == null) return;
+
         chosenMcc = preferences.getString("chosen_mcc", null);
 
-        if(chosenMcc == null)
+        if(chosenMcc == null || "No MCC Options".equals(chosenMcc))
         {
             if(currentMinistry.hasSlm()) chosenMcc = "SLM";
             else if(currentMinistry.hasGcm()) chosenMcc = "GCM";
