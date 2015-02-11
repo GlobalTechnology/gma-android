@@ -8,8 +8,10 @@ public class Contract {
     }
 
     public static abstract class Base implements BaseColumns {
+        public static final String COLUMN_ROWID = _ID;
         static final String COLUMN_LAST_SYNCED = "lastSynced";
 
+        static final String SQL_COLUMN_ROWID = COLUMN_ROWID + " INTEGER PRIMARY KEY";
         static final String SQL_COLUMN_LAST_SYNCED = COLUMN_LAST_SYNCED + " INTEGER";
     }
 
@@ -87,7 +89,7 @@ public class Contract {
 
         static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
         static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
-        static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_MINISTRY_ID + ")";
+        static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_MINISTRY_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_MINISTRY_ID + " = ?";
     }
@@ -99,8 +101,8 @@ public class Contract {
         static final String[] PROJECTION_ALL = { COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_LAST_SYNCED };
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" + TextUtils
-            .join(",", new Object[] { SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME,
-                SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY }) + ")";
+                .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME,
+                        SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
@@ -130,9 +132,9 @@ public class Contract {
         static final String SQL_WHERE_PARENT = COLUMN_PARENT_MINISTRY_ID + " = ?";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" + TextUtils
-            .join(",", new Object[] { SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME, SQL_COLUMN_MIN_CODE, SQL_COLUMN_HAS_SLM,
-                SQL_COLUMN_HAS_LLM, SQL_COLUMN_HAS_DS, SQL_COLUMN_HAS_GCM, SQL_COLUMN_PARENT_MINISTRY_ID,
-                SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY }) + ")";
+                .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME, SQL_COLUMN_MIN_CODE,
+                        SQL_COLUMN_HAS_SLM, SQL_COLUMN_HAS_LLM, SQL_COLUMN_HAS_DS, SQL_COLUMN_HAS_GCM,
+                        SQL_COLUMN_PARENT_MINISTRY_ID, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 }
