@@ -94,6 +94,7 @@ public class MainActivity extends ActionBarActivity
     private AssociatedMinistry currentMinistry;
     private Assignment currentAssignment;
     private boolean currentAssignmentSet = false;
+    private String chosenMcc;
     
     private TextView mapOverlayText;
     
@@ -451,7 +452,6 @@ public class MainActivity extends ActionBarActivity
                             
                             break;
                         case RETRIEVE_ALL_MINISTRIES:
-                            Log.i(TAG, "All ministries loaded & saved to local storage");
                             getCurrentAssignment();
                             break;
                         case SAVE_ASSOCIATED_MINISTRIES:
@@ -571,6 +571,8 @@ public class MainActivity extends ActionBarActivity
                 Log.i(TAG, "currentAssignment: " + currentAssignment.getId());
                 Log.i(TAG, "currentMinistry: " + currentMinistry.getName());
 
+                setChosenMcc();
+
                 // assignment is set and map is set: zoom to assignment location
                 // if location is null, no big deal. no exception will be thrown and map simply 
                 // will not zoom.
@@ -584,8 +586,7 @@ public class MainActivity extends ActionBarActivity
                 // download training if not already done
                 if (!trainingDownloaded)
                 {
-                    // todo: change the way MCC is passed
-                    trainingSearch(currentMinistry.getMinistryId(), "slm");
+                    trainingSearch(currentMinistry.getMinistryId(), chosenMcc);
                 }
 
 
@@ -599,6 +600,21 @@ public class MainActivity extends ActionBarActivity
             }
             
             return false;
+        }
+    }
+
+    private void setChosenMcc()
+    {
+        chosenMcc = preferences.getString("chosen_mcc", null);
+
+        if(chosenMcc == null)
+        {
+            if(currentMinistry.hasSlm()) chosenMcc = "SLM";
+            else if(currentMinistry.hasGcm()) chosenMcc = "GCM";
+            else if(currentMinistry.hasLlm()) chosenMcc = "LLM";
+            else if(currentMinistry.hasDs()) chosenMcc = "DS";
+
+            preferences.edit().putString("chosen_mcc", chosenMcc).apply();
         }
     }
 
