@@ -540,7 +540,7 @@ public class MainActivity extends ActionBarActivity
                         editor.putString("chosen_ministry", currentMinistryName);
                         editor.apply();
 
-                        currentAssignment = ministriesDao.retrieveCurrentAssignment(currentMinistry);
+                        currentAssignment = ministriesDao.retrieveAssignmentForMinistry(currentMinistry);
                     }
                     else
                     {
@@ -549,7 +549,7 @@ public class MainActivity extends ActionBarActivity
                             if (ministry.getName().equals(currentMinistryName))
                             {
                                 currentMinistry = ministry;
-                                currentAssignment = ministriesDao.retrieveCurrentAssignment(ministry);
+                                currentAssignment = ministriesDao.retrieveAssignmentForMinistry(ministry);
 
                                 if (currentAssignment != null)
                                 {

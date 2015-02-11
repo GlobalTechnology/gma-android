@@ -174,7 +174,7 @@ public class MinistriesDao extends AbstractDao
     }
 
     @Nullable
-    public Assignment retrieveCurrentAssignment(@NonNull final AssociatedMinistry ministry) {
+    public Assignment retrieveAssignmentForMinistry(@NonNull final AssociatedMinistry ministry) {
         Log.i(TAG, "Looking for assignment with ministryId: " + ministry.getMinistryId());
         
         try
