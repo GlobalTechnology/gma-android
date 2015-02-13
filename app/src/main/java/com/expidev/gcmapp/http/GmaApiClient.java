@@ -47,6 +47,7 @@ import me.thekey.android.lib.TheKeyImpl;
 public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Session>, Session> {
     private final String TAG = getClass().getSimpleName();
 
+    private static final String MEASUREMENTS = "measurements";
     private static final String MINISTRIES = "ministries";
     private static final String TOKEN = "token";
     private static final String TRAINING = "training";
@@ -231,6 +232,37 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Nullable
+    public JSONArray searchMeasurements(@NonNull final String ministryId, @NonNull final String mcc,
+                                        @Nullable final String period) throws ApiException {
+        // build request
+        final Request<Session> request = new Request<>(MEASUREMENTS);
+        request.params.add(param("ministry_id", ministryId));
+        request.params.add(param("mcc", mcc));
+        if (period != null) {
+            request.params.add(param("period", period));
+        }
+
+        // process request
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+
+            // is this a successful response?
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                return new JSONArray(IOUtils.readString(conn.getInputStream()));
+            }
+        } catch (final JSONException e) {
+            Log.e(TAG, "error parsing getAllMinistries response", e);
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+
+        return null;
+    }
+
+    @Nullable
     public JSONArray searchTraining(@NonNull final String ministryId, @NonNull final String mcc) throws ApiException {
         // build request
         final Request<Session> request = new Request<>(TRAINING);
@@ -253,30 +285,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             throw new ApiSocketException(e);
         } finally {
             IOUtils.closeQuietly(conn);
-        }
-
-        return null;
-    }
-
-    public JSONArray searchMeasurements(String ministryId, String mcc, String period, String sessionTicket)
-    {
-        try
-        {
-            String urlString = BuildConfig.GCM_BASE_URI + "measurements" +
-                "?token=" + sessionTicket + "&ministry_id=" + ministryId + "&mcc=" + mcc;
-
-            if(period != null)
-            {
-                urlString += "&period=" + period;
-            }
-
-            Log.i(TAG, "Url: " + urlString);
-
-            return new JSONArray(httpGet(new URL(urlString)));
-        }
-        catch(Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
         }
 
         return null;

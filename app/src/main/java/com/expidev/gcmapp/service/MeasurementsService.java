@@ -12,6 +12,7 @@ import com.expidev.gcmapp.json.MeasurementsJsonParser;
 import com.expidev.gcmapp.model.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 
+import org.ccci.gto.android.common.api.ApiException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -57,17 +58,20 @@ public class MeasurementsService extends IntentService
         broadcastManager.sendBroadcast(runningBroadcast());
         final Type type = (Type) intent.getSerializableExtra("type");
 
-        switch(type)
-        {
-            case SEARCH_MEASUREMENTS:
-                searchMeasurements(intent);
-                break;
-            case RETRIEVE_MEASUREMENT_DETAILS:
-                retrieveDetailsForMeasurement(intent);
-                break;
-            default:
-                Log.i(TAG, "Unhandled Type: " + type);
-                break;
+        try {
+            switch (type) {
+                case SEARCH_MEASUREMENTS:
+                    searchMeasurements(intent);
+                    break;
+                case RETRIEVE_MEASUREMENT_DETAILS:
+                    retrieveDetailsForMeasurement(intent);
+                    break;
+                default:
+                    Log.i(TAG, "Unhandled Type: " + type);
+                    break;
+            }
+        } catch (final ApiException e) {
+            // XXX: ignore for now, maybe eventually broadcast something on specific ApiExceptions
         }
     }
 
@@ -135,7 +139,7 @@ public class MeasurementsService extends IntentService
     /////////////////////////////////////////////////////
     //           Actions                              //
     ////////////////////////////////////////////////////
-    private void searchMeasurements(Intent intent)
+    private void searchMeasurements(Intent intent) throws ApiException
     {
         String ministryId = intent.getStringExtra("ministryId");
         String mcc = intent.getStringExtra("mcc");
@@ -143,7 +147,7 @@ public class MeasurementsService extends IntentService
         String sessionTicket = intent.getStringExtra("sessionTicket");
 
         final GmaApiClient apiClient = GmaApiClient.getInstance(this);
-        JSONArray results = apiClient.searchMeasurements(ministryId, mcc, period, sessionTicket);
+        JSONArray results = apiClient.searchMeasurements(ministryId, mcc, period);
 
         if(results == null)
         {
