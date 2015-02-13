@@ -161,7 +161,7 @@ public class MeasurementsService extends IntentService
         }
     }
 
-    private void retrieveDetailsForMeasurement(Intent intent)
+    private void retrieveDetailsForMeasurement(Intent intent) throws ApiException
     {
         String measurementId = intent.getStringExtra("measurementId");
         String sessionTicket = intent.getStringExtra("sessionTicket");
@@ -170,7 +170,7 @@ public class MeasurementsService extends IntentService
         String period = intent.getStringExtra("period");
 
         GmaApiClient apiClient = GmaApiClient.getInstance(this);
-        JSONObject json = apiClient.getDetailsForMeasurement(measurementId, sessionTicket, ministryId, mcc, period);
+        JSONObject json = apiClient.getDetailsForMeasurement(measurementId, ministryId, mcc, period);
 
         if(json == null)
         {

@@ -263,6 +263,38 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Nullable
+    public JSONObject getDetailsForMeasurement(@NonNull final String measurementId, @NonNull final String ministryId,
+                                               @NonNull final String mcc, @Nullable final String period)
+            throws ApiException {
+        // build request
+        final Request<Session> request = new Request<>(MEASUREMENTS + "/" + measurementId);
+        request.params.add(param("ministry_id", ministryId));
+        request.params.add(param("mcc", mcc));
+        if (period != null) {
+            request.params.add(param("period", period));
+        }
+
+        // process request
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+
+            // is this a successful response?
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                return new JSONObject(IOUtils.readString(conn.getInputStream()));
+            }
+        } catch (final JSONException e) {
+            Log.e(TAG, "error parsing getAllMinistries response", e);
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+
+        return null;
+    }
+
+    @Nullable
     public JSONArray searchTraining(@NonNull final String ministryId, @NonNull final String mcc) throws ApiException {
         // build request
         final Request<Session> request = new Request<>(TRAINING);
@@ -290,37 +322,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         return null;
     }
 
-    public JSONObject getDetailsForMeasurement(
-        String measurementId,
-        String sessionTicket,
-        String ministryId,
-        String mcc,
-        String period)
-    {
-        try
-        {
-            String urlString = BuildConfig.GCM_BASE_URI + "measurements/" + measurementId +
-                "?token=" + sessionTicket +
-                "&ministry_id=" + ministryId +
-                "&mcc=" + mcc;
-
-            if(period != null)
-            {
-                urlString += "&period=" + period;
-            }
-
-            Log.i(TAG, "Url: " + urlString);
-
-            return new JSONObject(httpGet(new URL(urlString)));
-        }
-        catch(Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
-        }
-
-        return null;
-    }
-    
     protected static class Session extends AbstractTheKeyApi.Session {
         @NonNull
         final Set<String> cookies;
