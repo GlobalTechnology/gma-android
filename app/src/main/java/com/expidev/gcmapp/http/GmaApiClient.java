@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
@@ -147,10 +148,9 @@ public class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Se
         conn.setReadTimeout(10000);
 
         // attach cookies when using the session
+        // XXX: this should go away once we remove the cookie requirement on the API
         if (request.useSession && request.session != null) {
-            for (final String cookie : request.session.cookies) {
-                conn.addRequestProperty("Cookie", cookie);
-            }
+            conn.addRequestProperty("Cookie", TextUtils.join("; ", request.session.cookies));
         }
     }
 
