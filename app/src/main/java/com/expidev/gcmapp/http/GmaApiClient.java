@@ -51,7 +51,7 @@ import me.thekey.android.lib.TheKeyImpl;
 /**
  * Created by matthewfrederick on 1/23/15.
  */
-public class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Session>, Session> {
+public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Session>, Session> {
     private final String TAG = getClass().getSimpleName();
 
     private static final String MINISTRIES = "ministries";
@@ -66,8 +66,7 @@ public class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Se
     private SharedPreferences preferences;
     private SharedPreferences.Editor prefEditor;
 
-    public GmaApiClient(final Context context)
-    {
+    private GmaApiClient(final Context context) {
         super(context, TheKeyImpl.getInstance(context, THEKEY_CLIENTID), BuildConfig.GCM_BASE_URI, "gcm_api_sessions");
 
         // set an initial service, we may update this based on responses from the API

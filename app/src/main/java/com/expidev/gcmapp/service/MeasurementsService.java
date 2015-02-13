@@ -142,7 +142,7 @@ public class MeasurementsService extends IntentService
         String period = intent.getStringExtra("period");
         String sessionTicket = intent.getStringExtra("sessionTicket");
 
-        GmaApiClient apiClient = new GmaApiClient(this);
+        final GmaApiClient apiClient = GmaApiClient.getInstance(this);
         JSONArray results = apiClient.searchMeasurements(ministryId, mcc, period, sessionTicket);
 
         if(results == null)
@@ -165,7 +165,7 @@ public class MeasurementsService extends IntentService
         String mcc = intent.getStringExtra("mcc");
         String period = intent.getStringExtra("period");
 
-        GmaApiClient apiClient = new GmaApiClient(this);
+        GmaApiClient apiClient = GmaApiClient.getInstance(this);
         JSONObject json = apiClient.getDetailsForMeasurement(measurementId, sessionTicket, ministryId, mcc, period);
 
         if(json == null)

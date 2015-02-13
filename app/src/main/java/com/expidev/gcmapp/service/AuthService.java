@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -31,6 +32,8 @@ public class AuthService extends IntentService
     private final String TAG = this.getClass().getSimpleName();
     private final String PREF_NAME = "gcm_prefs";
 
+    @NonNull
+    private GmaApiClient mApi;
     private LocalBroadcastManager broadcastManager;
     private TheKey theKey;
     private SharedPreferences sharedPreferences;
@@ -49,6 +52,7 @@ public class AuthService extends IntentService
     public void onCreate()
     {
         super.onCreate();
+        mApi = GmaApiClient.getInstance(this);
 
         Log.i(TAG, "on Create");
         this.broadcastManager = LocalBroadcastManager.getInstance(this);
@@ -97,9 +101,8 @@ public class AuthService extends IntentService
     
     private void authorizeUser() throws JSONException
     {
-        GmaApiClient gmaApi = new GmaApiClient(this);
-        JSONObject jsonObject = gmaApi.authorizeUser();
-        
+        JSONObject jsonObject = mApi.authorizeUser();
+
         Log.i(TAG, "Session Ticket: " + jsonObject.getString("session_ticket"));
         
         prefEditor.putString("session_ticket", jsonObject.getString("session_ticket"));

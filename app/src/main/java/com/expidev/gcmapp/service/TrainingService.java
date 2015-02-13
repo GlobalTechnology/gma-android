@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -31,7 +32,9 @@ public class TrainingService extends IntentService
     private static final String MINISTRY_MCC = TrainingService.class.getName() + ".MCC";
 
     private final String PREF_NAME = "gcm_prefs";
-    
+
+    @NonNull
+    private GmaApiClient mApi;
     private LocalBroadcastManager broadcastManager;
     private SharedPreferences sharedPreferences;
     
@@ -44,6 +47,7 @@ public class TrainingService extends IntentService
     public void onCreate()
     {
         super.onCreate();
+        mApi = GmaApiClient.getInstance(this);
         broadcastManager = LocalBroadcastManager.getInstance(this);
 
         sharedPreferences = this.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -100,8 +104,7 @@ public class TrainingService extends IntentService
         {
             String sessionTicket = sharedPreferences.getString("session_ticket", null);
 
-            GmaApiClient gmaApi = new GmaApiClient(this);
-            JSONArray jsonArray = gmaApi.searchTraining(ministryId, mcc, sessionTicket);
+            JSONArray jsonArray = mApi.searchTraining(ministryId, mcc, sessionTicket);
 
             if (jsonArray != null)
             {
