@@ -2,6 +2,7 @@ package com.expidev.gcmapp.http;
 
 import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -415,6 +416,7 @@ public class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Se
             this.cookies = Collections.unmodifiableSet(new HashSet<>(cookies));
         }
 
+        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
         Session(@NonNull final SharedPreferences prefs, @NonNull final String guid) {
             super(prefs, guid);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -436,6 +438,7 @@ public class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Se
         }
 
         @Override
+        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
         protected void save(@NonNull final SharedPreferences.Editor prefs) {
             super.save(prefs);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
