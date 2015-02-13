@@ -155,7 +155,7 @@ public class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Se
     }
 
     private String getService() {
-        return mBaseUri.buildUpon().path(TOKEN).toString();
+        return mBaseUri.buildUpon().appendPath(TOKEN).toString();
     }
 
     @Nullable
