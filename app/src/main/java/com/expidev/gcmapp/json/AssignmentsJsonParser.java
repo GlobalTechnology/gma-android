@@ -30,8 +30,8 @@ public class AssignmentsJsonParser
                 Assignment assignment = new Assignment();
 
                 assignment.setId(assignmentJson.getString("id"));
-                assignment.setTeamRole(assignmentJson.getString("team_role"));
-                
+                assignment.setRole(assignmentJson.getString("team_role"));
+
                 JSONObject location = assignmentJson.optJSONObject("location");
                 if(location != null)
                 {

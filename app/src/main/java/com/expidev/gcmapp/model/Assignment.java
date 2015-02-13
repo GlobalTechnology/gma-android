@@ -1,5 +1,8 @@
 package com.expidev.gcmapp.model;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.Serializable;
 
 /**
@@ -9,8 +12,46 @@ public class Assignment implements Serializable
 {
     private static final long serialVersionUID = 0L;
 
+    private static final String ROLE_LEADER = "leader";
+    private static final String ROLE_INHERITED_LEADER = "inherited_leader";
+    private static final String ROLE_MEMBER = "member";
+    private static final String ROLE_SELF_ASSIGNED = "self_assigned";
+    private static final String ROLE_BLOCKED = "blocked";
+    public enum Role {
+        LEADER(ROLE_LEADER), INHERITED_LEADER(ROLE_INHERITED_LEADER), MEMBER(ROLE_MEMBER),
+        SELF_ASSIGNED(ROLE_SELF_ASSIGNED), BLOCKED(ROLE_BLOCKED), UNKNOWN(null);
+
+        @Nullable
+        public final String raw;
+
+        private Role(final String raw) {
+            this.raw = raw;
+        }
+
+        @NonNull
+        public static Role fromRaw(@Nullable final String raw) {
+            if (raw != null) {
+                switch (raw) {
+                    case ROLE_LEADER:
+                        return LEADER;
+                    case ROLE_INHERITED_LEADER:
+                        return INHERITED_LEADER;
+                    case ROLE_MEMBER:
+                        return MEMBER;
+                    case ROLE_SELF_ASSIGNED:
+                        return SELF_ASSIGNED;
+                    case ROLE_BLOCKED:
+                        return BLOCKED;
+                }
+            }
+
+            return UNKNOWN;
+        }
+    }
+
     private String id;
-    private String teamRole;
+    @NonNull
+    private Role role = Role.UNKNOWN;
     private AssociatedMinistry ministry;
     private double latitude;
     private double longitude;
@@ -26,14 +67,17 @@ public class Assignment implements Serializable
         this.id = id;
     }
 
-    public String getTeamRole()
-    {
-        return teamRole;
+    @NonNull
+    public Role getRole() {
+        return role;
     }
 
-    public void setTeamRole(String teamRole)
-    {
-        this.teamRole = teamRole;
+    public void setRole(@Nullable final String role) {
+        this.role = Role.fromRaw(role);
+    }
+
+    public void setRole(@NonNull final Role role) {
+        this.role = role;
     }
 
     public AssociatedMinistry getMinistry()
