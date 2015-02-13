@@ -1,7 +1,6 @@
 package com.expidev.gcmapp.http;
 
 import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -40,7 +39,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -71,6 +69,9 @@ public class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Se
     public GmaApiClient(final Context context)
     {
         super(context, TheKeyImpl.getInstance(context, THEKEY_CLIENTID), BuildConfig.GCM_BASE_URI, "gcm_api_sessions");
+
+        // set an initial service, we may update this based on responses from the API
+        this.setService(mBaseUri.buildUpon().appendPath(TOKEN).toString());
 
         preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         prefEditor = preferences.edit();
@@ -133,36 +134,6 @@ public class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Se
     }
 
     @Override
-    protected boolean isSessionInvalid(@NonNull final HttpURLConnection conn, @NonNull final Request<Session> request)
-            throws IOException {
-        // short-circuit if we already know the session is invalid
-        if (super.isSessionInvalid(conn, request)) {
-            return true;
-        }
-
-        // Check 401 Unauthorized responses to see if it's because of needing CAS authentication
-        if (conn.getResponseCode() == HTTP_UNAUTHORIZED) {
-            String auth = conn.getHeaderField("WWW-Authenticate");
-            if (auth != null) {
-                auth = auth.trim();
-                int i = auth.indexOf(" ");
-                if (i != -1) {
-                    auth = auth.substring(0, i);
-                }
-                auth = auth.toUpperCase(Locale.US);
-            } else {
-                // there isn't an auth header, so assume it is the CAS scheme
-                auth = "CAS";
-            }
-
-            // the 401 is requesting CAS auth, assume session is invalid
-            return "CAS".equals(auth);
-        }
-
-        return false;
-    }
-
-    @Override
     protected void onPrepareUri(@NonNull final Uri.Builder uri, @NonNull final Request<Session> request)
             throws ApiException {
         super.onPrepareUri(uri, request);
@@ -185,10 +156,6 @@ public class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Se
         if (request.useSession && request.session != null) {
             conn.addRequestProperty("Cookie", TextUtils.join("; ", request.session.cookies));
         }
-    }
-
-    private String getService() {
-        return mBaseUri.buildUpon().appendPath(TOKEN).toString();
     }
 
     @Nullable
