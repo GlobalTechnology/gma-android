@@ -16,6 +16,7 @@ import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 
+import org.ccci.gto.android.common.api.ApiException;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
@@ -64,28 +65,31 @@ public class MinistriesService extends IntentService
     {
         final Type type = (Type)intent.getSerializableExtra("type");
 
-        switch(type)
-        {
-            case RETRIEVE_ASSOCIATED_MINISTRIES:
-                retrieveAssociatedMinistries();
-                break;
-            case RETRIEVE_ALL_MINISTRIES:
-                retrieveAllMinistries(intent);
-                break;
-            case SAVE_ASSOCIATED_MINISTRIES:
-                saveAssociatedMinistriesFromServer(intent);
-                break;
-            case SAVE_ASSIGNMENT:
-                assignUserToMinistry(intent);
-                break;
-            case SAVE_ALL_MINISTRIES:
-                saveAllMinistries(intent);
-                break;
-            case LOAD_ALL_MINISTRIES:
-                loadAllMinistriesFromLocalStorage();
-                break;
-            default:
-                break;
+        try {
+            switch (type) {
+                case RETRIEVE_ASSOCIATED_MINISTRIES:
+                    retrieveAssociatedMinistries();
+                    break;
+                case RETRIEVE_ALL_MINISTRIES:
+                    retrieveAllMinistries(intent);
+                    break;
+                case SAVE_ASSOCIATED_MINISTRIES:
+                    saveAssociatedMinistriesFromServer(intent);
+                    break;
+                case SAVE_ASSIGNMENT:
+                    assignUserToMinistry(intent);
+                    break;
+                case SAVE_ALL_MINISTRIES:
+                    saveAllMinistries(intent);
+                    break;
+                case LOAD_ALL_MINISTRIES:
+                    loadAllMinistriesFromLocalStorage();
+                    break;
+                default:
+                    break;
+            }
+        } catch (final ApiException e) {
+            // XXX: ignore for now, maybe eventually broadcast something on specific ApiExceptions
         }
     }
 
@@ -182,10 +186,9 @@ public class MinistriesService extends IntentService
         broadcastManager.sendBroadcast(associatedMinistriesReceivedBroadcast((ArrayList<AssociatedMinistry>) associatedMinistries));
     }
 
-    private void retrieveAllMinistries(final Intent intent)
-    {
+    private void retrieveAllMinistries(final Intent intent) throws ApiException {
         GmaApiClient apiClient = new GmaApiClient(this);
-        List<Ministry> ministryList = apiClient.getAllMinistries(intent.getStringExtra("sessionTicket"));
+        List<Ministry> ministryList = apiClient.getAllMinistries();
 
         if(ministryList == null)
         {

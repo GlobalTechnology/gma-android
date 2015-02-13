@@ -21,6 +21,7 @@ import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.JsonStringReader;
 
 import org.apache.http.HttpStatus;
+import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
 import org.ccci.gto.android.common.api.AbstractTheKeyApi;
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.api.ApiSocketException;
@@ -201,7 +202,7 @@ public class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Se
             if (ticket != null && ticket.attributes.getGuid() != null) {
                 // build request
                 final Request<Session> request = new Request<>(TOKEN);
-                request.accept = Request.MediaType.APPLICATION_JSON;
+                request.accept = MediaType.APPLICATION_JSON;
                 request.params.add(param("st", ticket.ticket));
                 request.params.add(param("refresh", refresh));
                 request.useSession = false;
@@ -291,42 +292,33 @@ public class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Se
         return null;
     }
 
-    public List<Ministry> getAllMinistries(String sessionToken)
-    {
-        String reason;
-        String urlString = BuildConfig.GCM_BASE_URI + MINISTRIES + "?token=" + sessionToken;
+    @Nullable
+    public List<Ministry> getAllMinistries() throws ApiException {
+        // build request
+        final Request<Session> request = new Request<>(MINISTRIES);
 
+        // process request
+        HttpURLConnection conn = null;
         try
         {
-            String json = httpGet(new URL(urlString));
+            conn = this.sendRequest(request);
 
-            if(json == null)
-            {
-                Log.e(TAG, "Failed to retrieve ministries, most likely cause is a bad session ticket");
-                return null;
+            Log.i(TAG, "response code: " + Integer.toString(conn.getResponseCode()));
+
+            // is this a successful response?
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                final JSONArray json = new JSONArray(IOUtils.readString(conn.getInputStream()));
+                return MinistryJsonParser.parseMinistriesJson(json);
             }
-            else
-            {
-                if(json.startsWith("["))
-                {
-                    JSONArray jsonArray = new JSONArray(json);
-                    return MinistryJsonParser.parseMinistriesJson(jsonArray);
-                }
-                else
-                {
-                    JSONObject jsonObject = new JSONObject(json);
-                    reason = jsonObject.optString("reason");
-                    Log.e(TAG, reason);
-                    return null;
-                }
-            }
+        } catch (final JSONException e) {
+            Log.e(TAG, "error parsing getAllMinistries response", e);
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
         }
-        catch(Exception e)
-        {
-            reason = e.getMessage();
-            Log.e(TAG, "Problem occurred while retrieving ministries: " + reason);
-            return null;
-        }
+
+        return null;
     }
 
     public JSONArray searchTraining(String ministryId, String mcc, String sessionTicket)
