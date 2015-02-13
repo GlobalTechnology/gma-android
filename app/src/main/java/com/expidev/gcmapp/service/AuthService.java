@@ -1,9 +1,13 @@
 package com.expidev.gcmapp.service;
 
+import static com.expidev.gcmapp.service.Type.AUTH;
+import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
+
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
@@ -15,29 +19,16 @@ import com.expidev.gcmapp.http.GmaApiClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import me.thekey.android.TheKey;
-import me.thekey.android.lib.TheKeyImpl;
-
-import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
-import static com.expidev.gcmapp.service.Type.AUTH;
-import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
-
 /**
  * Created by matthewfrederick on 1/23/15.
  */
 public class AuthService extends IntentService
 {
     private final String TAG = this.getClass().getSimpleName();
-    private final String PREF_NAME = "gcm_prefs";
 
     @NonNull
     private GmaApiClient mApi;
     private LocalBroadcastManager broadcastManager;
-    private TheKey theKey;
-    private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor prefEditor;
 
     private static final String EXTRA_TYPE = AuthService.class.getName() + ".EXTRA_TYPE";
 
@@ -56,12 +47,6 @@ public class AuthService extends IntentService
 
         Log.i(TAG, "on Create");
         this.broadcastManager = LocalBroadcastManager.getInstance(this);
-
-        theKey = TheKeyImpl.getInstance(getApplicationContext(), THEKEY_CLIENTID);
-
-        // set shared preferences that can be accessed throughout the application
-        sharedPreferences = this.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        prefEditor = sharedPreferences.edit();
 
         this.broadcastManager.sendBroadcast(startBroadcast());
     }
@@ -102,11 +87,6 @@ public class AuthService extends IntentService
     private void authorizeUser() throws JSONException
     {
         JSONObject jsonObject = mApi.authorizeUser();
-
-        Log.i(TAG, "Session Ticket: " + jsonObject.getString("session_ticket"));
-        
-        prefEditor.putString("session_ticket", jsonObject.getString("session_ticket"));
-        prefEditor.apply();
 
         UserDao userDao = UserDao.getInstance(this);
         userDao.saveUser(jsonObject.getJSONObject("user"));

@@ -447,12 +447,9 @@ public class MainActivity extends ActionBarActivity
                     switch (type)
                     {
                         case AUTH:
-                            String sessionTicket = preferences.getString("session_ticket", null);
-                            Log.i(TAG, "Session Ticket: " + sessionTicket);
-
                             if (!ministriesDownloaded)
                             {
-                                MinistriesService.retrieveAllMinistries(getApplicationContext(), sessionTicket);
+                                MinistriesService.retrieveAllMinistries(getApplicationContext());
                             }
                             
                             break;

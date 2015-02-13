@@ -124,11 +124,9 @@ public class MinistriesService extends IntentService
     /**
      * Retrieve all ministries from the GCM API
      */
-    public static void retrieveAllMinistries(final Context context, String sessionTicket)
-    {
-        Bundle extras = new Bundle(2);
+    public static void retrieveAllMinistries(final Context context) {
+        Bundle extras = new Bundle(1);
         extras.putSerializable("type", RETRIEVE_ALL_MINISTRIES);
-        extras.putString("sessionTicket", sessionTicket);
 
         context.startService(baseIntent(context, extras));
     }
