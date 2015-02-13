@@ -187,8 +187,7 @@ public class MinistriesService extends IntentService
     }
 
     private void retrieveAllMinistries(final Intent intent) throws ApiException {
-        GmaApiClient apiClient = new GmaApiClient(this);
-        List<Ministry> ministryList = apiClient.getAllMinistries();
+        final List<Ministry> ministryList = mApi.getAllMinistries();
 
         if(ministryList == null)
         {
