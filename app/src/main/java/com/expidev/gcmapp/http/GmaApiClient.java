@@ -16,8 +16,10 @@ import android.util.Pair;
 import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.http.GmaApiClient.Session;
 import com.expidev.gcmapp.json.MinistryJsonParser;
+import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 
+import org.ccci.gto.android.common.api.AbstractApi;
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
 import org.ccci.gto.android.common.api.AbstractTheKeyApi;
 import org.ccci.gto.android.common.api.ApiException;
@@ -32,6 +34,7 @@ import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +50,7 @@ import me.thekey.android.lib.TheKeyImpl;
 public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Session>, Session> {
     private final String TAG = getClass().getSimpleName();
 
+    private static final String ASSIGNMENTS = "assignments";
     private static final String MEASUREMENTS = "measurements";
     private static final String MINISTRIES = "ministries";
     private static final String TOKEN = "token";
@@ -296,6 +300,40 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             Log.e(TAG, "error parsing getAllMinistries response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public JSONObject createAssignment(@NonNull final String userEmail, @NonNull final String ministryId,
+                                       @NonNull final Assignment.Role role) throws ApiException {
+        // build request
+        final Request<Session> request = new Request<>(ASSIGNMENTS);
+        request.method = AbstractApi.Request.Method.POST;
+
+        // generate POST data
+        final Map<String, Object> data = new HashMap<>();
+        data.put("username", userEmail);
+        data.put("ministry_id", ministryId);
+        data.put("team_role", role.raw);
+        request.setContent(new JSONObject(data));
+
+        // issue request and process response
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+
+            // if successful return parsed response
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
+                return new JSONObject(IOUtils.readString(conn.getInputStream()));
+            }
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } catch (final JSONException e) {
+            Log.i(TAG, "invalid response json for createAssignment", e);
         } finally {
             IOUtils.closeQuietly(conn);
         }
