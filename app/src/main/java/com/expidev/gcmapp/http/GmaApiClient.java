@@ -17,9 +17,7 @@ import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.http.GmaApiClient.Session;
 import com.expidev.gcmapp.json.MinistryJsonParser;
 import com.expidev.gcmapp.model.Ministry;
-import com.expidev.gcmapp.utils.JsonStringReader;
 
-import org.apache.http.HttpStatus;
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
 import org.ccci.gto.android.common.api.AbstractTheKeyApi;
 import org.ccci.gto.android.common.api.ApiException;
@@ -30,19 +28,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeySocketException;
@@ -58,22 +51,14 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     private static final String TOKEN = "token";
     private static final String TRAINING = "training";
 
-    private static final String PREF_NAME = "gcm_prefs";
-
     private static final Object LOCK_INSTANCE = new Object();
     private static GmaApiClient INSTANCE;
-
-    private SharedPreferences preferences;
-    private SharedPreferences.Editor prefEditor;
 
     private GmaApiClient(final Context context) {
         super(context, TheKeyImpl.getInstance(context, THEKEY_CLIENTID), BuildConfig.GCM_BASE_URI, "gcm_api_sessions");
 
         // set an initial service, we may update this based on responses from the API
         this.setService(mBaseUri.buildUpon().appendPath(TOKEN).toString());
-
-        preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        prefEditor = preferences.edit();
     }
 
     public static GmaApiClient getInstance(final Context context) {
@@ -194,48 +179,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         return null;
     }
 
-    private HttpURLConnection prepareRequest(HttpURLConnection connection) {
-        String cookie = preferences.getString("Cookie", "");
-
-        if (!cookie.isEmpty())
-        {
-            Log.i(TAG, "Cookie added: " + cookie);
-            connection.addRequestProperty("Cookie", cookie);
-        }
-        else
-        {
-            Log.w(TAG, "No Cookies found");
-        }
-        
-        return connection;
-    }
-
-    private HttpURLConnection processResponse(HttpURLConnection connection) throws IOException {
-        if (connection.getHeaderFields() != null)
-        {
-            String headerName;
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 1; (headerName = connection.getHeaderFieldKey(i)) != null; i++)
-            {
-                if (headerName.equals("Set-Cookie"))
-                {
-                    String cookie = connection.getHeaderField(i);
-                    cookie = cookie.split("\\;")[0] + "; ";
-                    stringBuilder.append(cookie);
-                }
-            }
-
-            // cookie store is not retrieving cookie so it will be saved to preferences
-            if (!stringBuilder.toString().isEmpty())
-            {
-                prefEditor.putString("Cookie", stringBuilder.toString());
-                prefEditor.apply();
-            }
-            
-        }
-        return connection;
-    }
-
     @Nullable
     public JSONObject authorizeUser()
     {
@@ -287,23 +230,29 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         return null;
     }
 
-    public JSONArray searchTraining(String ministryId, String mcc, String sessionTicket)
-    {
+    @Nullable
+    public JSONArray searchTraining(@NonNull final String ministryId, @NonNull final String mcc) throws ApiException {
+        // build request
+        final Request<Session> request = new Request<>(TRAINING);
+        request.params.add(param("ministry_id", ministryId));
+        request.params.add(param("mcc", mcc));
+
+        // process request
+        HttpURLConnection conn = null;
         try
         {
-            String urlString = BuildConfig.GCM_BASE_URI + TRAINING +
-                    "?token=" + sessionTicket + "&ministry_id=" + ministryId +
-                    "&mcc=" + mcc;
+            conn = this.sendRequest(request);
 
-            Log.i(TAG, "Url: " + urlString);
-
-            URL url = new URL(urlString);
-
-            return new JSONArray(httpGet(url));
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
+            // is this a successful response?
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                return new JSONArray(IOUtils.readString(conn.getInputStream()));
+            }
+        } catch (final JSONException e) {
+            Log.e(TAG, "error parsing searchTraining response", e);
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
         }
 
         return null;
@@ -364,39 +313,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         return null;
     }
     
-    private String httpGet(URL url) throws IOException, JSONException, URISyntaxException
-    {
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-        prepareRequest(connection);
-
-        connection.setReadTimeout(10000);
-        connection.setConnectTimeout(10000);
-
-        connection.connect();
-        processResponse(connection);
-
-        if (connection.getResponseCode() == HttpStatus.SC_OK)
-        {
-            InputStream inputStream = connection.getInputStream();
-
-            if (inputStream != null)
-            {
-                String jsonAsString = JsonStringReader.readFully(inputStream, "UTF-8");
-                Log.i(TAG, jsonAsString);
-
-                // instead of returning a JSONObject, a string will be returned. This is
-                // because some endpoints return an object and some return an array.
-                return jsonAsString;
-            }
-        }
-        else
-        {
-            Log.d(TAG, "Status: " + connection.getResponseCode());
-        }
-
-        return null;
-    }
-
     protected static class Session extends AbstractTheKeyApi.Session {
         @NonNull
         final Set<String> cookies;

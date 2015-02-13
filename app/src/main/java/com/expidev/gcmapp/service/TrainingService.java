@@ -102,9 +102,7 @@ public class TrainingService extends IntentService
     {
         try
         {
-            String sessionTicket = sharedPreferences.getString("session_ticket", null);
-
-            JSONArray jsonArray = mApi.searchTraining(ministryId, mcc, sessionTicket);
+            JSONArray jsonArray = mApi.searchTraining(ministryId, mcc);
 
             if (jsonArray != null)
             {
