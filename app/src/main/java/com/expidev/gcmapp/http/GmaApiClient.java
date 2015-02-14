@@ -308,6 +308,37 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Nullable
+    public JSONArray getAssignments() throws ApiException {
+        return this.getAssignments(false);
+    }
+
+    @Nullable
+    public JSONArray getAssignments(final boolean refresh) throws ApiException {
+        // build request
+        final Request<Session> request = new Request<>(ASSIGNMENTS);
+        request.params.add(param("refresh", refresh));
+
+        // process request
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+
+            // is this a successful response?
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                return new JSONArray(IOUtils.readString(conn.getInputStream()));
+            }
+        } catch (final JSONException e) {
+            Log.e(TAG, "error parsing getAllMinistries response", e);
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+
+        return null;
+    }
+
+    @Nullable
     public JSONObject createAssignment(@NonNull final String userEmail, @NonNull final String ministryId,
                                        @NonNull final Assignment.Role role) throws ApiException {
         // build request
