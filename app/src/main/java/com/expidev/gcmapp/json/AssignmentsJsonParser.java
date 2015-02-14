@@ -50,6 +50,7 @@ public class AssignmentsJsonParser
                 }
 
                 assignment.setMinistry(ministry);
+                assignment.setMinistryId(ministry.getMinistryId());
                 assignments.add(assignment);
             }
         }

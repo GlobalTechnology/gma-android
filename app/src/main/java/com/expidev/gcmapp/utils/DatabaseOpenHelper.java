@@ -18,7 +18,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     private static DatabaseOpenHelper instance;
     private Context context;
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
     private static final String DATABASE_NAME = "gcm_data.db";
 
     private DatabaseOpenHelper(Context context)
@@ -82,15 +82,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      */
     private void createAssignmentsTable(SQLiteDatabase db)
     {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.ASSIGNMENTS.getTableName() + "( " +
-            "id TEXT PRIMARY KEY, " +
-            "team_role TEXT, " +               // Team Role of the current user for this ministry/team
-            "ministry_id TEXT, " +
-            "latitude DECIMAL, " +
-            "longitude DECIMAL, " +
-            "location_zoom INTEGER, " +
-            "last_synced TEXT, " +             // Last time this information was synced with the web
-            "FOREIGN KEY(ministry_id) REFERENCES " + TableNames.ASSOCIATED_MINISTRIES.getTableName() + "(ministry_id));");
+        db.execSQL(Contract.Assignment.SQL_CREATE_TABLE);
     }
 
     /**
@@ -124,7 +116,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL(Contract.Training.SQL_DELETE_TABLE);
         db.execSQL(Contract.AssociatedMinistry.SQL_DELETE_TABLE);
         db.execSQL(Contract.Ministry.SQL_DELETE_TABLE);
-        db.execSQL("DROP TABLE IF EXISTS " + TableNames.ASSIGNMENTS.getTableName());
+        db.execSQL(Contract.Assignment.SQL_DELETE_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.USER.getTableName());
     }
 }
