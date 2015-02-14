@@ -57,9 +57,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
     private GmaApiClient(final Context context) {
         super(context, TheKeyImpl.getInstance(context, THEKEY_CLIENTID), BuildConfig.GCM_BASE_URI, "gcm_api_sessions");
-
-        // set an initial service, we may update this based on responses from the API
-        this.setService(mBaseUri.buildUpon().appendPath(TOKEN).toString());
     }
 
     public static GmaApiClient getInstance(final Context context) {
@@ -70,6 +67,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
 
         return INSTANCE;
+    }
+
+    @Nullable
+    @Override
+    protected String getDefaultService() {
+        return mBaseUri.buildUpon().appendPath(TOKEN).toString();
     }
 
     @Override
@@ -148,7 +151,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         HttpURLConnection conn = null;
         boolean successful = false;
         try {
-            final TheKey.TicketAttributesPair ticket = mTheKey.getTicketAndAttributes(getService());
+            final String service = getService();
+            final TheKey.TicketAttributesPair ticket = mTheKey.getTicketAndAttributes(service);
 
             // issue request only if we have a ticket
             if (ticket != null && ticket.attributes.getGuid() != null) {
@@ -166,6 +170,11 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
                 if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     successful = true;
                     return Pair.create(conn, ticket.attributes.getGuid());
+                } else {
+                    // authentication with the ticket failed, let's clear the cached service in case that caused the issue
+                    if (service != null && service.equals(getCachedService())) {
+                        setCachedService(null);
+                    }
                 }
             }
         } catch (final TheKeySocketException | IOException e) {
