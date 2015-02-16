@@ -1,43 +1,44 @@
 package com.expidev.gcmapp;
 
+import static org.ccci.gto.android.common.util.ViewUtils.findView;
+
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.FilterQueryProvider;
 
+import com.expidev.gcmapp.db.Contract;
+import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
-import com.expidev.gcmapp.service.MinistriesService;
-import com.expidev.gcmapp.service.Type;
 import com.expidev.gcmapp.tasks.CreateAssignmentTask;
-import com.expidev.gcmapp.utils.BroadcastUtils;
 
-import java.io.Serializable;
-import java.util.ArrayList;
+import org.ccci.gto.android.common.util.CursorUtils;
+
 import java.util.List;
 
 
 public class JoinMinistryActivity extends ActionBarActivity
 {
     private final String TAG = this.getClass().getSimpleName();
-    private final String PREF_NAME = "gcm_prefs";
 
-    List<Ministry> ministryTeamList;
-    private LocalBroadcastManager manager;
-    private BroadcastReceiver broadcastReceiver;
-    private SharedPreferences preferences;
+    private MinistriesDao mDao;
+
+    private AutoCompleteTextView mMinistriesTextView = null;
+    SimpleCursorAdapter mMinistriesAdapter = null;
 
     /* BEGIN lifecycle */
 
@@ -46,94 +47,47 @@ public class JoinMinistryActivity extends ActionBarActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_ministry);
-
-        manager = LocalBroadcastManager.getInstance(getApplicationContext());
-        preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        mDao = MinistriesDao.getInstance(this);
+        findViews();
+        setupAdapters();
     }
 
     @Override
-    public void onStart()
-    {
-        super.onStart();
-
-        setupBroadcastReceivers();
-        MinistriesService.loadAllMinistriesFromLocalStorage(this);
-    }
-
-    private void setupBroadcastReceivers()
-    {
-        Log.i(TAG, "Setting up broadcast receivers");
-
-        broadcastReceiver = new BroadcastReceiver()
-        {
-            @Override
-            public void onReceive(Context context, Intent intent)
-            {
-                if (BroadcastUtils.ACTION_START.equals(intent.getAction()))
-                {
-                    Log.i(TAG, "Action Started");
-                }
-                else if (BroadcastUtils.ACTION_RUNNING.equals(intent.getAction()))
-                {
-                    Log.i(TAG, "Action Running");
-                }
-                else if (BroadcastUtils.ACTION_STOP.equals(intent.getAction()))
-                {
-                    Type type = (Type) intent.getSerializableExtra(BroadcastUtils.ACTION_TYPE);
-
-                    switch(type)
-                    {
-                        case LOAD_ALL_MINISTRIES:
-                            Serializable data = intent.getSerializableExtra("allMinistries");
-
-                            if(data != null)
-                            {
-                                ministryTeamList = (ArrayList<Ministry>) data;
-                                ArrayAdapter<Ministry> ministryTeamAdapter = new ArrayAdapter<Ministry>(
-                                    getApplicationContext(),
-                                    android.R.layout.simple_dropdown_item_1line,
-                                    ministryTeamList
-                                );
-
-                                AutoCompleteTextView ministryTeamAutoComplete =
-                                    (AutoCompleteTextView) findViewById(R.id.ministry_team_autocomplete);
-                                ministryTeamAutoComplete.setAdapter(ministryTeamAdapter);
-                            }
-                            else
-                            {
-                                //TODO: Should we try to load from the API in this case?
-                                Log.e(TAG, "Failed to retrieve ministries");
-                                finish();
-                            }
-                            break;
-                        case SAVE_ASSIGNMENT:
-                            Log.i(TAG, "Added user to assignment");
-                            break;
-                        default:
-                            Log.i(TAG, "Unhandled Type: " + type);
-                    }
-                }
-            }
-        };
-        manager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
-        manager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());
-        manager.registerReceiver(broadcastReceiver, BroadcastUtils.stopFilter());
-    }
-
-    @Override
-    public void onStop()
-    {
-        super.onStop();
-        cleanupBroadcastReceivers();
+    protected void onDestroy() {
+        super.onDestroy();
+        cleanupAdapters();
+        clearViews();
     }
 
     /* END lifecycle */
 
-    private void cleanupBroadcastReceivers()
-    {
-        Log.i(TAG, "Cleaning up broadcast receivers");
-        manager.unregisterReceiver(broadcastReceiver);
-        broadcastReceiver = null;
+    private void findViews() {
+        mMinistriesTextView = findView(this, AutoCompleteTextView.class, R.id.ministry_team_autocomplete);
+    }
+
+    private void setupAdapters() {
+        if (mMinistriesTextView != null) {
+            // create & attach adapter
+            mMinistriesAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_dropdown_item_1line, null,
+                                                         new String[] {Contract.Ministry.COLUMN_NAME},
+                                                         new int[] {android.R.id.text1}, 0);
+            final MinistriesCursorProvider provider = new MinistriesCursorProvider(this);
+            mMinistriesAdapter.setFilterQueryProvider(provider);
+            mMinistriesAdapter.setCursorToStringConverter(provider);
+            mMinistriesTextView.setAdapter(mMinistriesAdapter);
+        }
+    }
+
+    private void cleanupAdapters() {
+        if (mMinistriesTextView != null) {
+            mMinistriesTextView.setAdapter(null);
+        }
+
+        mMinistriesAdapter = null;
+    }
+
+    private void clearViews() {
+        mMinistriesTextView = null;
     }
 
     public void joinMinistry(View view)
@@ -141,8 +95,8 @@ public class JoinMinistryActivity extends ActionBarActivity
         AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView)findViewById(R.id.ministry_team_autocomplete);
 
         String ministryName = autoCompleteTextView.getText().toString();
-        AssociatedMinistry chosenMinistry = getMinistryByName(ministryTeamList, ministryName);
-        String ministryId = chosenMinistry.getMinistryId();
+        AssociatedMinistry chosenMinistry = getMinistryByName(ministryName);
+        String ministryId = chosenMinistry != null ? chosenMinistry.getMinistryId() : null;
 
         new CreateAssignmentTask(this, ministryId, Assignment.Role.SELF_ASSIGNED) {
             @Override
@@ -169,19 +123,20 @@ public class JoinMinistryActivity extends ActionBarActivity
         }.execute();
     }
 
-    private AssociatedMinistry getMinistryByName(List<Ministry> ministryList, String name)
-    {
-        for(Ministry ministry : ministryList)
-        {
-            if(ministry.getName().equalsIgnoreCase(name))
-            {
-                AssociatedMinistry associatedMinistry = new AssociatedMinistry();
-                associatedMinistry.setMinistryId(ministry.getMinistryId());
-                associatedMinistry.setName(ministry.getName());
-                associatedMinistry.setLastSynced(ministry.getLastSynced());
-                return associatedMinistry;
-            }
+    @Nullable
+    private AssociatedMinistry getMinistryByName(final String name) {
+        //TODO: we shouldn't be using the DB on the UI Thread
+        final List<Ministry> ministries =
+                mDao.get(Ministry.class, Contract.Ministry.COLUMN_NAME + "=?", new String[] {name});
+        if (ministries.size() > 0) {
+            final Ministry ministry = ministries.get(0);
+            AssociatedMinistry associatedMinistry = new AssociatedMinistry();
+            associatedMinistry.setMinistryId(ministry.getMinistryId());
+            associatedMinistry.setName(ministry.getName());
+            associatedMinistry.setLastSynced(ministry.getLastSynced());
+            return associatedMinistry;
         }
+
         return null;
     }
 
@@ -215,5 +170,35 @@ public class JoinMinistryActivity extends ActionBarActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private static final class MinistriesCursorProvider implements FilterQueryProvider,
+            SimpleCursorAdapter.CursorToStringConverter {
+        @NonNull
+        private final MinistriesDao mDao;
+
+        private MinistriesCursorProvider(final Context context) {
+            mDao = MinistriesDao.getInstance(context);
+        }
+
+        private static final String[] PROJECTION_FIELDS =
+                new String[] {Contract.Ministry.COLUMN_ROWID, Contract.Ministry.COLUMN_NAME};
+        private static final String ORDER_BY_NAME = Contract.Ministry.COLUMN_NAME;
+        private static final String WHERE_NAME_LIKE = Contract.Ministry.COLUMN_NAME + " LIKE ?";
+
+        @Override
+        public Cursor runQuery(final CharSequence constraint) {
+            if (TextUtils.isEmpty(constraint)) {
+                return mDao.getCursor(Ministry.class, PROJECTION_FIELDS, null, null, ORDER_BY_NAME);
+            } else {
+                return mDao.getCursor(Ministry.class, PROJECTION_FIELDS, WHERE_NAME_LIKE,
+                                      new String[] {"%" + constraint + "%"}, ORDER_BY_NAME);
+            }
+        }
+
+        @Override
+        public CharSequence convertToString(final Cursor cursor) {
+            return CursorUtils.getString(cursor, Contract.Ministry.COLUMN_NAME, "");
+        }
     }
 }
