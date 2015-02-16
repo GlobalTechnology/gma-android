@@ -320,14 +320,4 @@ public class MinistriesDao extends AbstractDao
             if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (deleteAllData)");
         }
     }
-
-    public void saveAllMinistries(List<Ministry> allMinistries)
-    {
-        for(Ministry ministry : allMinistries)
-        {
-            updateOrInsert(ministry, Contract.Ministry.PROJECTION_ALL);
-        }
-    }
-    
-    
 }
