@@ -243,11 +243,7 @@ public class MinistriesDao extends AbstractDao
             database.beginTransaction();
 
             for (final Assignment assignment : assignmentList) {
-                final AssociatedMinistry associatedMinistry = assignment.getMinistry();
-                associatedMinistry.setParentMinistryId(null);
-                insertOrUpdateAssociatedMinistry(associatedMinistry);
-
-                this.updateOrInsert(assignment);
+                this.updateOrInsertAssignment(assignment);
             }
 
             database.setTransactionSuccessful();
@@ -260,6 +256,25 @@ public class MinistriesDao extends AbstractDao
         {
             database.endTransaction();
             if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (saveAssociatedMinistries)");
+        }
+    }
+
+    public void updateOrInsertAssignment(@NonNull final Assignment assignment) {
+        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+        try {
+            db.beginTransaction();
+
+            // first store the associated ministries
+            final AssociatedMinistry associatedMinistry = assignment.getMinistry();
+            associatedMinistry.setParentMinistryId(null);
+            insertOrUpdateAssociatedMinistry(associatedMinistry);
+
+            // then store the assignment
+            this.updateOrInsert(assignment);
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
     }
 
