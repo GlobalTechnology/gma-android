@@ -37,7 +37,15 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -246,12 +254,39 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         renderer.clearXTextLabels();
 
+        List<String> labels = new ArrayList<>();
+        labels.addAll(months);
+        Collections.sort(labels, dateLabelComparator());
+
         double xIndex = 0.0d;
-        for(String month : months)
+        for(String month : labels)
         {
             renderer.addXTextLabel(xIndex, month);
             xIndex++;
         }
+    }
+
+    private Comparator<String> dateLabelComparator()
+    {
+        return new Comparator<String>()
+        {
+            @Override
+            public int compare(String lhs, String rhs)
+            {
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
+
+                try
+                {
+                    Date leftDate = dateFormat.parse(lhs);
+                    Date rightDate = dateFormat.parse(rhs);
+                    return leftDate.compareTo(rightDate);
+                }
+                catch(ParseException e)
+                {
+                    return 0;
+                }
+            }
+        };
     }
 
     private void initializeSeriesData(MeasurementDetails measurementDetails)
