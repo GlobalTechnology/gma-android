@@ -1,5 +1,7 @@
 package com.expidev.gcmapp;
 
+import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
+
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -9,7 +11,11 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -23,16 +29,14 @@ import android.widget.Toast;
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.db.TrainingDao;
-import com.expidev.gcmapp.db.UserDao;
-import com.expidev.gcmapp.map.MarkerRender;
 import com.expidev.gcmapp.map.GcmMarker;
+import com.expidev.gcmapp.map.MarkerRender;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
-import com.expidev.gcmapp.model.User;
-import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.AuthService;
+import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
 import com.expidev.gcmapp.utils.BroadcastUtils;
@@ -47,15 +51,16 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterManager;
 
+import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
+import me.thekey.android.lib.support.v4.content.AttributesLoader;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
-
-import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
 
 
 public class MainActivity extends ActionBarActivity
@@ -63,11 +68,13 @@ public class MainActivity extends ActionBarActivity
 {
     private final String TAG = this.getClass().getSimpleName();
 
+    private static final int LOADER_THEKEY_ATTRIBUTES = 1;
+
     private final String PREF_NAME = "gcm_prefs";
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
-    private TheKey theKey;
+    TheKey theKey;
     private LocalBroadcastManager manager;
     private GcmBroadcastReceiver gcmBroadcastReceiver;
     private ActionBar actionBar;
@@ -96,6 +103,8 @@ public class MainActivity extends ActionBarActivity
     private TextView mapOverlayText;
     
     private List<Training> allTraining;
+
+    /* BEGIN lifecycle */
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -169,6 +178,12 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        startLoaders();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
         // Handle action bar item clicks here. The action bar will
@@ -186,7 +201,14 @@ public class MainActivity extends ActionBarActivity
 
         return super.onOptionsItemSelected(item);
     }
-    
+
+    void onLoadAttributes(@Nullable final TheKey.Attributes attrs) {
+        final ActionBar actionBar = getSupportActionBar();
+        //TODO: what should be the default text until attributes have been loaded
+        actionBar.setTitle(
+                "Welcome" + (attrs != null && attrs.getFirstName() != null ? " " + attrs.getFirstName() : ""));
+    }
+
     @Override
     protected void onPostResume()
     {
@@ -205,6 +227,13 @@ public class MainActivity extends ActionBarActivity
     {
         super.onDestroy();
         removeBroadcastReceivers();
+    }
+
+    /* END lifecycle */
+
+    private void startLoaders() {
+        final LoaderManager manager = this.getSupportLoaderManager();
+        manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, new AttributesLoaderCallbacks());
     }
 
     public void joinNewMinistry(MenuItem menuItem)
@@ -418,10 +447,6 @@ public class MainActivity extends ActionBarActivity
                     switch (type)
                     {
                         case AUTH:
-                            UserDao userDao = UserDao.getInstance(context);
-                            User user = userDao.retrieveUser();
-                            actionBar.setTitle("Welcome " + user.getFirstName());
-
                             String sessionTicket = preferences.getString("session_ticket", null);
                             Log.i(TAG, "Session Ticket: " + sessionTicket);
 
@@ -606,6 +631,28 @@ public class MainActivity extends ActionBarActivity
             }
             
             return false;
+        }
+    }
+
+    private class AttributesLoaderCallbacks extends SimpleLoaderCallbacks<TheKey.Attributes> {
+        @Override
+        public Loader<TheKey.Attributes> onCreateLoader(final int id, final Bundle args) {
+            switch (id) {
+                case LOADER_THEKEY_ATTRIBUTES:
+                    return new AttributesLoader(MainActivity.this, theKey);
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull final Loader<TheKey.Attributes> loader,
+                                   @Nullable final TheKey.Attributes attrs) {
+            switch (loader.getId()) {
+                case LOADER_THEKEY_ATTRIBUTES:
+                    onLoadAttributes(attrs);
+                    break;
+            }
         }
     }
 }
