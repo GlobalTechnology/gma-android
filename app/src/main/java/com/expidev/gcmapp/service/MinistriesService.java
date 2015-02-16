@@ -23,7 +23,9 @@ import org.ccci.gto.android.common.db.AbstractDao.Transaction;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.expidev.gcmapp.service.Type.LOAD_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
@@ -188,11 +190,25 @@ public class MinistriesService extends IntentService
             try {
                 tx.begin();
 
+                // load current ministries
+                final Map<String, Ministry> current = new HashMap<>();
+                for (final Ministry ministry : mDao.get(Ministry.class)) {
+                    current.put(ministry.getMinistryId(), ministry);
+                }
+
                 // update all the ministry names
                 for(final Ministry ministry : ministries) {
                     // this is only a very minimal update, so don't log last synced for new ministries
                     ministry.setLastSynced(0);
                     mDao.updateOrInsert(ministry, new String[] {Contract.Ministry.COLUMN_NAME});
+
+                    // remove from the list of current ministries
+                    current.remove(ministry.getMinistryId());
+                }
+
+                // remove any current ministries we didn't see, we can do this because we just retrieved a complete list
+                for (final Ministry ministry : current.values()) {
+                    mDao.delete(ministry);
                 }
 
                 tx.setSuccessful();
