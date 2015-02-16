@@ -59,6 +59,15 @@
                 android:value="com.expidev.gcmapp.MainActivity" />
         </activity>
 
+        <activity
+            android:name=".MeasurementDetailsActivity"
+            android:label="@string/title_activity_measurement_details"
+            android:parentActivityName=".MeasurementsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.expidev.gcmapp.MeasurementsActivity" />
+        </activity>
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

@@ -107,6 +107,20 @@ public class JoinMinistryActivity extends ActionBarActivity
                         case SAVE_ASSIGNMENT:
                             Log.i(TAG, "Added user to assignment");
                             break;
+                        case RETRIEVE_ALL_MINISTRIES:
+                            Serializable ministriesToSave = intent.getSerializableExtra("allMinistries");
+
+                            if(ministriesToSave != null)
+                            {
+                                List<Ministry> allMinistries = (ArrayList<Ministry>) ministriesToSave;
+                                MinistriesService.saveAllMinistries(getApplicationContext(), allMinistries);
+                            }
+                            else
+                            {
+                                Log.e(TAG, "Failed to retrieve ministries");
+                                finish();
+                            }
+                            break;
                         default:
                             Log.i(TAG, "Unhandled Type: " + type);
                     }
@@ -207,6 +221,7 @@ public class JoinMinistryActivity extends ActionBarActivity
         //noinspection SimplifiableIfStatement
         if(id == R.id.action_settings)
         {
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 

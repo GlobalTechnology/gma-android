@@ -6,6 +6,7 @@ import android.content.IntentFilter;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Measurement;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
@@ -95,6 +96,13 @@ public final class BroadcastUtils
     {
         Intent intent = stopBroadcast(Type.SEARCH_MEASUREMENTS);
         intent.putExtra("measurements", measurements);
+        return intent;
+    }
+
+    public static Intent measurementDetailsReceivedBroadcast(MeasurementDetails measurementDetails)
+    {
+        Intent intent = stopBroadcast(Type.RETRIEVE_MEASUREMENT_DETAILS);
+        intent.putExtra("measurementDetails", measurementDetails);
         return intent;
     }
 }

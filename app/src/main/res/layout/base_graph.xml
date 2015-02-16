@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent">
+
+    <LinearLayout
+        android:id="@+id/md_chart"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/md_chart_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.expidev.gcmapp.view.TextHeaderView
+            android:id="@+id/md_total_number_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/local"
+                android:layout_weight="1"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp" />
+            <EditText
+                android:id="@+id/md_local_number"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="0"
+                android:layout_marginRight="20dp"
+                android:layout_marginEnd="20dp" />
+
+        </LinearLayout>
+        <com.expidev.gcmapp.view.TextHeaderView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/team_members_title" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/you_label"
+                android:layout_weight="1"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp" />
+            <EditText
+                android:id="@+id/md_you_number"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="0"
+                android:layout_marginRight="20dp"
+                android:layout_marginEnd="20dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

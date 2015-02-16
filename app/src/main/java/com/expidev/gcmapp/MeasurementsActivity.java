@@ -1,9 +1,7 @@
 package com.expidev.gcmapp;
 
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -50,6 +48,7 @@ public class MeasurementsActivity extends ActionBarActivity
     private SharedPreferences preferences;
     private Ministry chosenMinistry;
     private String chosenMcc;
+    private String currentPeriod = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -66,6 +65,7 @@ public class MeasurementsActivity extends ActionBarActivity
     {
         super.onStart();
 
+        currentPeriod = preferences.getString("currentPeriod", null);
         setupBroadcastReceivers();
         MinistriesService.retrieveMinistries(this);
 
@@ -124,16 +124,13 @@ public class MeasurementsActivity extends ActionBarActivity
                                     getApplicationContext(),
                                     chosenMinistry.getMinistryId(),
                                     chosenMcc,
-                                    null,
+                                    currentPeriod,
                                     preferences.getString("session_ticket", null));
                             }
                             else
                             {
                                 Log.w(TAG, "No associated ministries");
                             }
-
-
-
                             break;
                         default:
                             Log.i(TAG, "Unhandled Type: " + type);
@@ -171,9 +168,18 @@ public class MeasurementsActivity extends ActionBarActivity
         TextView titleView = (TextView) findViewById(R.id.measurement_ministry_name);
         titleView.setText(selectedMinistry.getName() + " (" + mcc + ")");
 
+        if(currentPeriod != null)
+        {
+            TextView periodView = (TextView) findViewById(R.id.currentPeriod);
+            periodView.setText(currentPeriod);
+        }
+
         List<Measurement> sortedMeasurements = sortMeasurements(measurements);
 
         LinearLayout dataContainer = (LinearLayout) findViewById(R.id.measurement_data_Layout);
+
+        // Clear out the data container in case the user is coming back from the measurement details page
+        dataContainer.removeAllViews();
 
         String previousColumn = sortedMeasurements.get(0).getColumn();
         String firstMeasurementId = sortedMeasurements.get(0).getMeasurementId();
@@ -406,21 +412,19 @@ public class MeasurementsActivity extends ActionBarActivity
 
     public void drillIntoMeasurementDetails(Measurement measurement)
     {
-        //TODO: Integrate measurement details branch
-        Log.i(TAG, "drilling into measurement");
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-            .setTitle("Measurement selected")
-            .setMessage("Drilling into measurement: " + measurement.getName())
-            .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int which)
-                {
-                    dialog.dismiss();
-                }
-            })
-            .create();
+        Intent goToMeasurementDetails = new Intent(this, MeasurementDetailsActivity.class);
+        goToMeasurementDetails.putExtra("measurementId", measurement.getMeasurementId());
+        goToMeasurementDetails.putExtra("ministryId", chosenMinistry.getMinistryId());
+        goToMeasurementDetails.putExtra("ministryName", chosenMinistry.getName());
+        goToMeasurementDetails.putExtra("mcc", chosenMcc);
+        goToMeasurementDetails.putExtra("measurementName", measurement.getName());
 
-        alertDialog.show();
+        if(currentPeriod != null)
+        {
+            goToMeasurementDetails.putExtra("period", currentPeriod);
+        }
+
+        startActivity(goToMeasurementDetails);
     }
 
     public void goToPreviousPeriod(View view)
@@ -442,6 +446,8 @@ public class MeasurementsActivity extends ActionBarActivity
 
         // Change the period text to show the new period
         periodView.setText(previousPeriodString);
+        currentPeriod = previousPeriodString;
+        preferences.edit().putString("currentPeriod", currentPeriod).apply();
 
         // Clear the data, so the user knows when the new data is up
         LinearLayout dataContainer = (LinearLayout) findViewById(R.id.measurement_data_Layout);
@@ -474,6 +480,8 @@ public class MeasurementsActivity extends ActionBarActivity
 
         // Change the period text to show the new period
         periodView.setText(nextPeriodString);
+        currentPeriod = nextPeriodString;
+        preferences.edit().putString("currentPeriod", currentPeriod).apply();
 
         // Clear the data, so the user knows when the new data is up
         LinearLayout dataContainer = (LinearLayout) findViewById(R.id.measurement_data_Layout);
