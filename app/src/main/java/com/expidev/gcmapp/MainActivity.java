@@ -33,7 +33,6 @@ import com.expidev.gcmapp.map.GcmMarker;
 import com.expidev.gcmapp.map.MarkerRender;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
-import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.MinistriesService;
@@ -53,8 +52,6 @@ import com.google.maps.android.clustering.ClusterManager;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 import me.thekey.android.TheKey;
@@ -159,6 +156,11 @@ public class MainActivity extends ActionBarActivity
         else
         {
             AuthService.authorizeUser(this);
+
+            // trigger background syncing of all the ministries
+            if (!ministriesDownloaded) {
+                MinistriesService.syncAllMinistries(getApplicationContext());
+            }
         }
     }
     
@@ -446,13 +448,6 @@ public class MainActivity extends ActionBarActivity
                     
                     switch (type)
                     {
-                        case AUTH:
-                            if (!ministriesDownloaded)
-                            {
-                                MinistriesService.retrieveAllMinistries(getApplicationContext());
-                            }
-                            
-                            break;
                         case TRAINING:
                             Log.i(TAG, "Training search complete and training saved");
                             
@@ -465,22 +460,8 @@ public class MainActivity extends ActionBarActivity
                             
                             break;
                         case RETRIEVE_ALL_MINISTRIES:
-                            Serializable data = intent.getSerializableExtra("allMinistries");
-
-                            if(data != null)
-                            {
-                                List<Ministry> allMinistries = (ArrayList<Ministry>) data;
-                                MinistriesService.saveAllMinistries(getApplicationContext(), allMinistries);
-                                ministriesDownloaded = true;
-                            }
-                            else
-                            {
-                                Log.e(TAG, "Failed to retrieve ministries");
-                                finish();
-                            }
-                            break;
-                        case SAVE_ALL_MINISTRIES:
-                            Log.i(TAG, "All ministries saved to local storage");
+                            ministriesDownloaded = true;
+                            Log.i(TAG, "All ministries loaded & saved to local storage");
                             getCurrentAssignment();
                             break;
                         case SAVE_ASSOCIATED_MINISTRIES:

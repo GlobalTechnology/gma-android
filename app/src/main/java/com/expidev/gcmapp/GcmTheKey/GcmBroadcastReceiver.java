@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.expidev.gcmapp.service.AuthService;
+import com.expidev.gcmapp.service.MinistriesService;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
@@ -31,6 +32,7 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
         Log.i(TAG, "On Login");
 
         AuthService.authorizeUser(context);
+        MinistriesService.syncAllMinistries(context);
     }
 
     @Override

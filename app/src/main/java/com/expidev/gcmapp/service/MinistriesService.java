@@ -9,14 +9,17 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.AssignmentsJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.ccci.gto.android.common.api.ApiException;
+import org.ccci.gto.android.common.db.AbstractDao.Transaction;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
@@ -25,7 +28,6 @@ import java.util.List;
 import static com.expidev.gcmapp.service.Type.LOAD_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_ASSOCIATED_MINISTRIES;
-import static com.expidev.gcmapp.service.Type.SAVE_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.SAVE_ASSIGNMENT;
 import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesLoadedBroadcast;
@@ -42,6 +44,8 @@ public class MinistriesService extends IntentService
 
     @NonNull
     private GmaApiClient mApi;
+    @NonNull
+    private MinistriesDao mDao;
     private LocalBroadcastManager broadcastManager;
 
     public MinistriesService()
@@ -57,6 +61,7 @@ public class MinistriesService extends IntentService
     {
         super.onCreate();
         mApi = GmaApiClient.getInstance(this);
+        mDao = MinistriesDao.getInstance(this);
         broadcastManager = LocalBroadcastManager.getInstance(this);
     }
 
@@ -71,16 +76,13 @@ public class MinistriesService extends IntentService
                     retrieveAssociatedMinistries();
                     break;
                 case RETRIEVE_ALL_MINISTRIES:
-                    retrieveAllMinistries(intent);
+                    syncAllMinistries(intent);
                     break;
                 case SAVE_ASSOCIATED_MINISTRIES:
                     saveAssociatedMinistriesFromServer(intent);
                     break;
                 case SAVE_ASSIGNMENT:
                     assignUserToMinistry(intent);
-                    break;
-                case SAVE_ALL_MINISTRIES:
-                    saveAllMinistries(intent);
                     break;
                 case LOAD_ALL_MINISTRIES:
                     loadAllMinistriesFromLocalStorage();
@@ -124,7 +126,7 @@ public class MinistriesService extends IntentService
     /**
      * Retrieve all ministries from the GCM API
      */
-    public static void retrieveAllMinistries(final Context context) {
+    public static void syncAllMinistries(final Context context) {
         Bundle extras = new Bundle(1);
         extras.putSerializable("type", RETRIEVE_ALL_MINISTRIES);
 
@@ -163,14 +165,6 @@ public class MinistriesService extends IntentService
         context.startService(baseIntent(context, extras));
     }
 
-    public static void saveAllMinistries(final Context context, List<Ministry> allMinistries)
-    {
-        Bundle extras = new Bundle(2);
-        extras.putSerializable("type", SAVE_ALL_MINISTRIES);
-        extras.putSerializable("allMinistries", (ArrayList<Ministry>) allMinistries);
-        context.startService(baseIntent(context, extras));
-    }
-
 
     /////////////////////////////////////////////////////
     //           Actions                              //
@@ -184,16 +178,32 @@ public class MinistriesService extends IntentService
         broadcastManager.sendBroadcast(associatedMinistriesReceivedBroadcast((ArrayList<AssociatedMinistry>) associatedMinistries));
     }
 
-    private void retrieveAllMinistries(final Intent intent) throws ApiException {
-        final List<Ministry> ministryList = mApi.getAllMinistries();
+    private void syncAllMinistries(final Intent intent) throws ApiException {
+        //TODO: use SharedPreferences to track all ministries sync time to reduce server load
+        final List<Ministry> ministries = mApi.getAllMinistries();
 
-        if(ministryList == null)
-        {
-            Log.e(TAG, "Empty ministry list from API");
-            return;
+        if(ministries != null) {
+            // save all ministries to the database
+            final Transaction tx = mDao.newTransaction();
+            try {
+                tx.begin();
+
+                // update all the ministry names
+                for(final Ministry ministry : ministries) {
+                    // this is only a very minimal update, so don't log last synced for new ministries
+                    ministry.setLastSynced(0);
+                    mDao.updateOrInsert(ministry, new String[] {Contract.Ministry.COLUMN_NAME});
+                }
+
+                tx.setSuccessful();
+            } finally {
+                tx.end();
+            }
+
+            // send broadcasts that data has been updated in the database
+            broadcastManager.sendBroadcast(BroadcastUtils.updateMinistriesBroadcast());
+            broadcastManager.sendBroadcast(allMinistriesReceivedBroadcast((ArrayList<Ministry>) ministries));
         }
-
-        broadcastManager.sendBroadcast(allMinistriesReceivedBroadcast((ArrayList<Ministry>) ministryList));
     }
 
     private void loadAllMinistriesFromLocalStorage()
@@ -223,14 +233,5 @@ public class MinistriesService extends IntentService
         ministriesDao.saveAssociatedMinistries(assignments);
 
         broadcastManager.sendBroadcast(stopBroadcast(SAVE_ASSIGNMENT));
-    }
-
-    private void saveAllMinistries(Intent intent)
-    {
-        List<Ministry> allMinistries = (ArrayList<Ministry>) intent.getSerializableExtra("allMinistries");
-
-        MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
-        ministriesDao.saveAllMinistries(allMinistries);
-        broadcastManager.sendBroadcast(stopBroadcast(SAVE_ALL_MINISTRIES));
     }
 }
