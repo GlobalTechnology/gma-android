@@ -83,8 +83,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         measurementName = getIntent().getStringExtra("measurementName");
         ministryName = getIntent().getStringExtra("ministryName");
 
-        MeasurementsService.retrieveDetailsForMeasurement(
-            this, measurementId, preferences.getString("session_ticket", null), ministryId, mcc, period);
+        MeasurementsService.retrieveDetailsForMeasurement(this, measurementId, ministryId, mcc, period);
     }
 
     @Override

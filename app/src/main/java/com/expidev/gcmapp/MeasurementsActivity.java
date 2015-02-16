@@ -124,8 +124,7 @@ public class MeasurementsActivity extends ActionBarActivity
                                     getApplicationContext(),
                                     chosenMinistry.getMinistryId(),
                                     chosenMcc,
-                                    currentPeriod,
-                                    preferences.getString("session_ticket", null));
+                                    currentPeriod);
                             }
                             else
                             {
@@ -457,8 +456,7 @@ public class MeasurementsActivity extends ActionBarActivity
             getApplicationContext(),
             chosenMinistry.getMinistryId(),
             chosenMcc,
-            previousPeriodString,
-            preferences.getString("session_ticket", null));
+            previousPeriodString);
     }
 
     public void goToNextPeriod(View view)
@@ -491,7 +489,6 @@ public class MeasurementsActivity extends ActionBarActivity
             getApplicationContext(),
             chosenMinistry.getMinistryId(),
             chosenMcc,
-            nextPeriodString,
-            preferences.getString("session_ticket", null));
+            nextPeriodString);
     }
 }
