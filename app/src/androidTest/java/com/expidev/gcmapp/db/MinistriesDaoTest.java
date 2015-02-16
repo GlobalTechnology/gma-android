@@ -66,7 +66,7 @@ public class MinistriesDaoTest extends InstrumentationTestCase
 
         ArrayList<Assignment> assignments = getTestAssignments();
         Assignment testAssignment = assignments.get(0);
-        testAssignment.setTeamRole("leader");
+        testAssignment.setRole(Assignment.Role.LEADER);
 
         ministriesDao.saveAssociatedMinistries(assignments);
 
@@ -89,7 +89,7 @@ public class MinistriesDaoTest extends InstrumentationTestCase
         Assignment assignemnt1 = new Assignment();
         assignemnt1.setId("A1");
         assignemnt1.setMinistry(mockMinistry());
-        assignemnt1.setTeamRole("self-assigned");
+        assignemnt1.setRole(Assignment.Role.SELF_ASSIGNED);
 
         assignments.add(assignemnt1);
 

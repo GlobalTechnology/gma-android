@@ -204,7 +204,7 @@ public class MinistriesDao extends AbstractDao
         assignment.setLongitude(cursor.getDouble(cursor.getColumnIndex("longitude")));
         assignment.setMinistry(ministry);
         assignment.setLocationZoom(cursor.getInt(cursor.getColumnIndex("location_zoom")));
-        assignment.setTeamRole(cursor.getString(cursor.getColumnIndex("team_role")));
+        assignment.setRole(cursor.getString(cursor.getColumnIndex("team_role")));
         
         return assignment;
     }
@@ -362,7 +362,7 @@ public class MinistriesDao extends AbstractDao
         ContentValues assignmentValues = new ContentValues();
 
         assignmentValues.put("id", assignment.getId());
-        assignmentValues.put("team_role", assignment.getTeamRole());
+        assignmentValues.put("team_role", assignment.getRole().raw);
         assignmentValues.put("ministry_id", assignment.getMinistry().getMinistryId());
         assignmentValues.put("latitude", assignment.getLatitude());
         assignmentValues.put("longitude", assignment.getLongitude());

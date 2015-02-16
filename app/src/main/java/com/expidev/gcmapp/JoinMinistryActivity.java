@@ -155,7 +155,7 @@ public class JoinMinistryActivity extends ActionBarActivity
         String ministryId = chosenMinistry.getMinistryId();
 
         Assignment assignment = new Assignment();
-        assignment.setTeamRole("self_assigned");
+        assignment.setRole(Assignment.Role.SELF_ASSIGNED);
         assignment.setId(UUID.randomUUID().toString());  //TODO: What should go here?
         assignment.setMinistry(chosenMinistry);
 
