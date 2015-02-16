@@ -263,14 +263,23 @@ public class MinistriesDao extends AbstractDao
         }
     }
 
-    void insertOrUpdateAssociatedMinistry(final AssociatedMinistry ministry) {
-        // insert this AssociatedMinistry
-        this.updateOrInsert(ministry, Contract.AssociatedMinistry.PROJECTION_ALL);
+    public void insertOrUpdateAssociatedMinistry(@NonNull final AssociatedMinistry ministry) {
+        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+        try {
+            db.beginTransaction();
 
-        // process any sub ministries
-        for (final AssociatedMinistry subMinistry : ministry.getSubMinistries()) {
-            subMinistry.setParentMinistryId(ministry.getMinistryId());
-            this.insertOrUpdateAssociatedMinistry(subMinistry);
+            // insert this AssociatedMinistry
+            this.updateOrInsert(ministry, Contract.AssociatedMinistry.PROJECTION_ALL);
+
+            // process any sub ministries
+            for (final AssociatedMinistry subMinistry : ministry.getSubMinistries()) {
+                subMinistry.setParentMinistryId(ministry.getMinistryId());
+                this.insertOrUpdateAssociatedMinistry(subMinistry);
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
     }
 
