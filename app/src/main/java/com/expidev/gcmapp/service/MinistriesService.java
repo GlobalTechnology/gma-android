@@ -2,7 +2,6 @@ package com.expidev.gcmapp.service;
 
 import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_ASSOCIATED_MINISTRIES;
-import static com.expidev.gcmapp.service.Type.SAVE_ASSIGNMENT;
 import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.associatedMinistriesReceivedBroadcast;
@@ -91,9 +90,6 @@ public class MinistriesService extends ThreadedIntentService {
                 case SAVE_ASSOCIATED_MINISTRIES:
                     saveAssociatedMinistriesFromServer(intent);
                     break;
-                case SAVE_ASSIGNMENT:
-                    assignUserToMinistry(intent);
-                    break;
                 default:
                     break;
             }
@@ -158,14 +154,6 @@ public class MinistriesService extends ThreadedIntentService {
             extras.putSerializable("assignments", (ArrayList<Assignment>) assignmentList);
         }
 
-        context.startService(baseIntent(context, extras));
-    }
-
-    public static void assignUserToMinistry(final Context context, Assignment assignment)
-    {
-        Bundle extras = new Bundle(2);
-        extras.putSerializable("type", SAVE_ASSIGNMENT);
-        extras.putSerializable("assignment", assignment);
         context.startService(baseIntent(context, extras));
     }
 
@@ -244,16 +232,5 @@ public class MinistriesService extends ThreadedIntentService {
         ministriesDao.saveAssociatedMinistries(assignments);
 
         broadcastManager.sendBroadcast(stopBroadcast(SAVE_ASSOCIATED_MINISTRIES));
-    }
-
-    private void assignUserToMinistry(Intent intent)
-    {
-        List<Assignment> assignments = new ArrayList<Assignment>();
-        assignments.add((Assignment) intent.getSerializableExtra("assignment"));
-
-        MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
-        ministriesDao.saveAssociatedMinistries(assignments);
-
-        broadcastManager.sendBroadcast(stopBroadcast(SAVE_ASSIGNMENT));
     }
 }
