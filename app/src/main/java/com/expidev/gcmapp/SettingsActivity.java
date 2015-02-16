@@ -235,6 +235,22 @@ public class SettingsActivity extends PreferenceActivity
 
         mccListPreference.setPersistent(true);
         bindPreferenceSummaryToValue(mccListPreference);
+        mccListPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
+        {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue)
+            {
+                String mcc = newValue.toString();
+                bindPreferenceSummaryToValue(preference, mcc);
+
+                preferences
+                    .edit()
+                    .putString("chosen_mcc", mcc)
+                    .apply();
+
+                return true;
+            }
+        });
     }
 
     @Override

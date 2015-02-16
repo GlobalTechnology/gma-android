@@ -7,6 +7,11 @@
         android:orderInCategory="1"
         app:showAsAction="never"
         android:onClick="joinNewMinistry" />
+    <item android:id="@+id/action_measurements"
+          android:title="@string/title_activity_measurements"
+          android:orderInCategory="2"
+          app:showAsAction="never"
+          android:onClick="goToMeasurements" />
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_reset"

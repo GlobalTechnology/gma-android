@@ -2,7 +2,6 @@ package com.expidev.gcmapp.http;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.expidev.gcmapp.BuildConfig;
@@ -43,19 +42,12 @@ public class GmaApiClient
 
     private final TheKey theKey;
     
-    private String ticket;
-    private Context context;
-    private LocalBroadcastManager broadcastManager;
-    
     private SharedPreferences preferences;
     private SharedPreferences.Editor prefEditor;
 
     public GmaApiClient(final Context context)
     {
         theKey = TheKeyImpl.getInstance(context, THEKEY_CLIENTID);
-        this.context = context;
-        broadcastManager = LocalBroadcastManager.getInstance(context);
-
         preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         prefEditor = preferences.edit();
     }
@@ -108,7 +100,7 @@ public class GmaApiClient
     {
         try
         {
-            ticket = theKey.getTicket(BuildConfig.GCM_BASE_URI + TOKEN);
+            String ticket = theKey.getTicket(BuildConfig.GCM_BASE_URI + TOKEN);
             Log.i(TAG, "Ticket: " + ticket);
 
             if (ticket == null) return null;
@@ -181,6 +173,28 @@ public class GmaApiClient
             return new JSONArray(httpGet(url));
         }
         catch (Exception e)
+        {
+            Log.e(TAG, e.getMessage(), e);
+        }
+
+        return null;
+    }
+
+    public JSONArray searchMeasurements(String ministryId, String mcc, String period, String sessionTicket)
+    {
+        try
+        {
+            String urlString = BuildConfig.GCM_BASE_URI +
+                "?token=" + sessionTicket + "&ministry_id=" + ministryId + "&mcc=" + mcc;
+
+            if(period != null)
+            {
+                urlString += "&period=" + period;
+            }
+
+            return new JSONArray(httpGet(new URL(urlString)));
+        }
+        catch(Exception e)
         {
             Log.e(TAG, e.getMessage(), e);
         }

@@ -50,6 +50,15 @@
                 android:value="com.expidev.gcmapp.MainActivity" />
         </activity>
 
+        <activity
+            android:name=".MeasurementsActivity"
+            android:label="@string/title_activity_measurements"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.expidev.gcmapp.MainActivity" />
+        </activity>
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -63,6 +72,8 @@
             </intent-filter>
         </receiver>
 
+        <service android:name=".service.MeasurementsService"
+                 android:exported="false"/>
         <service android:name=".service.MinistriesService"
                  android:exported="false"/>
         <service android:name=".service.AuthService"

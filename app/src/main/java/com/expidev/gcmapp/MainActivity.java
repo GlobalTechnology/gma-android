@@ -240,6 +240,11 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
+    public void goToMeasurements(MenuItem menuItem)
+    {
+        startActivity(new Intent(getApplicationContext(), MeasurementsActivity.class));
+    }
+
     public void reset(MenuItem menuItem)
     {
         //TODO: implement reset: clear local data-model, download from server
