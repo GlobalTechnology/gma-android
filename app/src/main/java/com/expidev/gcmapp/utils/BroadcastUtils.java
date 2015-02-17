@@ -106,13 +106,6 @@ public final class BroadcastUtils
         return intent;
     }
 
-    public static Intent allMinistriesLoadedBroadcast(ArrayList<Ministry> allMinistries)
-    {
-        Intent intent = stopBroadcast(Type.LOAD_ALL_MINISTRIES);
-        intent.putExtra("allMinistries", allMinistries);
-        return intent;
-    }
-
     public static Intent associatedMinistriesReceivedBroadcast(ArrayList<AssociatedMinistry> associatedMinistries)
     {
         Intent intent = stopBroadcast(Type.RETRIEVE_ASSOCIATED_MINISTRIES);

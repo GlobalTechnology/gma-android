@@ -1,5 +1,13 @@
 package com.expidev.gcmapp.service;
 
+import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
+import static com.expidev.gcmapp.service.Type.RETRIEVE_ASSOCIATED_MINISTRIES;
+import static com.expidev.gcmapp.service.Type.SAVE_ASSIGNMENT;
+import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
+import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesReceivedBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.associatedMinistriesReceivedBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
+
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
@@ -26,16 +34,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.expidev.gcmapp.service.Type.LOAD_ALL_MINISTRIES;
-import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
-import static com.expidev.gcmapp.service.Type.RETRIEVE_ASSOCIATED_MINISTRIES;
-import static com.expidev.gcmapp.service.Type.SAVE_ASSIGNMENT;
-import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
-import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesLoadedBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesReceivedBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.associatedMinistriesReceivedBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 
 /**
  * Created by William.Randall on 1/22/2015.
@@ -86,9 +84,6 @@ public class MinistriesService extends IntentService
                 case SAVE_ASSIGNMENT:
                     assignUserToMinistry(intent);
                     break;
-                case LOAD_ALL_MINISTRIES:
-                    loadAllMinistriesFromLocalStorage();
-                    break;
                 default:
                     break;
             }
@@ -131,14 +126,6 @@ public class MinistriesService extends IntentService
     public static void syncAllMinistries(final Context context) {
         Bundle extras = new Bundle(1);
         extras.putSerializable("type", RETRIEVE_ALL_MINISTRIES);
-
-        context.startService(baseIntent(context, extras));
-    }
-
-    public static void loadAllMinistriesFromLocalStorage(final Context context)
-    {
-        Bundle extras = new Bundle(1);
-        extras.putSerializable("type", LOAD_ALL_MINISTRIES);
 
         context.startService(baseIntent(context, extras));
     }
@@ -220,14 +207,6 @@ public class MinistriesService extends IntentService
             broadcastManager.sendBroadcast(BroadcastUtils.updateMinistriesBroadcast());
             broadcastManager.sendBroadcast(allMinistriesReceivedBroadcast((ArrayList<Ministry>) ministries));
         }
-    }
-
-    private void loadAllMinistriesFromLocalStorage()
-    {
-        MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
-        List<Ministry> allMinistries = ministriesDao.get(Ministry.class);
-
-        broadcastManager.sendBroadcast(allMinistriesLoadedBroadcast((ArrayList<Ministry>) allMinistries));
     }
 
     private void saveAssociatedMinistriesFromServer(Intent intent)
