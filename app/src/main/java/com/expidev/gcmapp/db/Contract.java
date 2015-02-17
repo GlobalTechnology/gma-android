@@ -170,4 +170,43 @@ public class Contract {
                         SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY, SQL_FOREIGN_KEY_MINISTRIES}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
+
+    ///////////////////////////////////////////////////////////////
+    //              Measurement Contracts                       //
+    //////////////////////////////////////////////////////////////
+
+    public static final class Measurement extends Base
+    {
+        public static final String TABLE_NAME = "measurements";
+
+        static final String COLUMN_MEASUREMENT_ID = "measurement_id";
+        static final String COLUMN_NAME = "name";
+        static final String COLUMN_PERM_LINK = "perm_link";
+        static final String COLUMN_CUSTOM = "custom";
+        static final String COLUMN_SECTION = "section";
+        static final String COLUMN_COLUMN = "measurement_column";
+        static final String COLUMN_TOTAL = "total";
+
+        static final String[] PROJECTION_ALL = {
+            COLUMN_MEASUREMENT_ID, COLUMN_NAME, COLUMN_PERM_LINK, COLUMN_CUSTOM,
+            COLUMN_SECTION, COLUMN_COLUMN, COLUMN_TOTAL, COLUMN_LAST_SYNCED
+        };
+
+        private static final String SQL_COLUMN_MEASUREMENT_ID = COLUMN_MEASUREMENT_ID + " TEXT";
+        private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
+        private static final String SQL_COLUMN_PERM_LINK = COLUMN_PERM_LINK + " TEXT";
+        private static final String SQL_COLUMN_CUSTOM = COLUMN_CUSTOM + " INTEGER";
+        private static final String SQL_COLUMN_SECTION= COLUMN_SECTION + " TEXT";
+        private static final String SQL_COLUMN_COLUMN = COLUMN_COLUMN + " TEXT";
+        private static final String SQL_COLUMN_TOTAL = COLUMN_TOTAL + " INTEGER";
+
+        private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_MEASUREMENT_ID + ")";
+        static final String SQL_WHERE_PRIMARY_KEY = COLUMN_MEASUREMENT_ID + " = ?";
+
+        public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
+            .join(",", new Object[]{ SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_NAME, SQL_COLUMN_PERM_LINK,
+                SQL_COLUMN_CUSTOM, SQL_COLUMN_SECTION, SQL_COLUMN_COLUMN, SQL_COLUMN_TOTAL, SQL_COLUMN_LAST_SYNCED,
+                SQL_PRIMARY_KEY }) + ");";
+        public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
 }
