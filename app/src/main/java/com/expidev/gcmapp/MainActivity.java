@@ -34,7 +34,6 @@ import com.expidev.gcmapp.map.MarkerRender;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Training;
-import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
@@ -154,8 +153,6 @@ public class MainActivity extends ActionBarActivity
         }
         else
         {
-            AuthService.authorizeUser(this);
-
             // trigger background syncing of data
             MinistriesService.syncAllMinistries(this);
             MinistriesService.syncAssignments(this);

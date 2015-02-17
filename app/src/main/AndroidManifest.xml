@@ -85,8 +85,6 @@
                  android:exported="false"/>
         <service android:name=".service.MinistriesService"
                  android:exported="false"/>
-        <service android:name=".service.AuthService"
-                 android:exported="false" />
         <service android:name=".service.TrainingService"
                  android:exported="false" />
 

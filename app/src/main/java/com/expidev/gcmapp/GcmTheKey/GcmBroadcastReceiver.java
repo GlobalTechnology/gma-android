@@ -3,7 +3,6 @@ package com.expidev.gcmapp.GcmTheKey;
 import android.content.Context;
 import android.util.Log;
 
-import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.MinistriesService;
 
 import me.thekey.android.TheKey;
@@ -31,7 +30,6 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
     {
         Log.i(TAG, "On Login");
 
-        AuthService.authorizeUser(context);
         MinistriesService.syncAllMinistries(context);
         MinistriesService.syncAssignments(context);
     }

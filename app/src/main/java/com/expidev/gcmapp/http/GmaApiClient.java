@@ -194,28 +194,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Nullable
-    public JSONObject authorizeUser()
-    {
-        HttpURLConnection conn = null;
-        try
-        {
-            final Pair<HttpURLConnection, String> tokenPair = this.getTokenInternal(true);
-            if (tokenPair != null) {
-                conn = tokenPair.first;
-                return new JSONObject(IOUtils.readString(conn.getInputStream()));
-            }
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
-        } finally {
-            IOUtils.closeQuietly(conn);
-        }
-        
-        return null;
-    }
-
-    @Nullable
     public List<Ministry> getAllMinistries() throws ApiException {
         return this.getAllMinistries(false);
     }

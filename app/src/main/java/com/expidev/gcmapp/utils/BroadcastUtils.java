@@ -9,7 +9,6 @@ import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Measurement;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
-import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
@@ -33,7 +32,6 @@ public final class BroadcastUtils
     
     public static final String ACTION_TYPE = BroadcastUtils.class.getName() + ".ACTION_TYPE";
 
-    public static final String TICKET_RECEIVED = AuthService.class.getName() + ".TICKET_RECEIVED";
     public static final String TRAINING_RECEIVED = TrainingService.class.getName() + ".TRAINING_RECEIVED";
 
     private static Uri assignmentsUri() {
@@ -93,13 +91,6 @@ public final class BroadcastUtils
         return new IntentFilter(ACTION_STOP);
     }
 
-    public static Intent ticketReceivedBroadcast(String ticket)
-    {
-        Intent intent = new Intent(ACTION_STOP);
-        intent.putExtra("ticket", ticket);
-        return intent;
-    }
-    
     public static Intent trainingReceivedBroadcast()
     {
         return new Intent(TRAINING_RECEIVED);
