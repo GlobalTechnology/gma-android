@@ -11,6 +11,7 @@ import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -41,6 +42,16 @@ import java.util.Map;
 public class MinistriesService extends IntentService
 {
     private static final String TAG = MinistriesService.class.getSimpleName();
+
+    private static final String PREFS_SYNC = "gma_sync";
+    private static final String PREF_SYNC_TIME_MINISTRIES = "last_synced.ministries";
+
+    public static final String EXTRA_FORCE = MinistriesService.class.getName() + ".EXTRA_FORCE";
+
+    // various stale data durations
+    private static final long HOUR_IN_MS = 60 * 60 * 1000;
+    private static final long DAY_IN_MS = 24 * HOUR_IN_MS;
+    private static final long STALE_DURATION_MINISTRIES = 7 * DAY_IN_MS;
 
     @NonNull
     private GmaApiClient mApi;
@@ -124,8 +135,13 @@ public class MinistriesService extends IntentService
      * Retrieve all ministries from the GCM API
      */
     public static void syncAllMinistries(final Context context) {
-        Bundle extras = new Bundle(1);
+        syncAllMinistries(context, false);
+    }
+
+    public static void syncAllMinistries(final Context context, final boolean force) {
+        Bundle extras = new Bundle(2);
         extras.putSerializable("type", RETRIEVE_ALL_MINISTRIES);
+        extras.putBoolean(EXTRA_FORCE, force);
 
         context.startService(baseIntent(context, extras));
     }
@@ -168,44 +184,56 @@ public class MinistriesService extends IntentService
     }
 
     private void syncAllMinistries(final Intent intent) throws ApiException {
-        //TODO: use SharedPreferences to track all ministries sync time to reduce server load
-        final List<Ministry> ministries = mApi.getAllMinistries();
+        final SharedPreferences prefs = this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE);
+        final boolean force = intent.getBooleanExtra(EXTRA_FORCE, false);
+        final boolean stale =
+                System.currentTimeMillis() - prefs.getLong(PREF_SYNC_TIME_MINISTRIES, 0) > STALE_DURATION_MINISTRIES;
 
-        if(ministries != null) {
-            // save all ministries to the database
-            final Transaction tx = mDao.newTransaction();
-            try {
-                tx.begin();
+        // only sync if being forced or the data is stale
+        if (force || stale) {
+            // refresh the list of ministries if the load is being forced
+            final List<Ministry> ministries = mApi.getAllMinistries(force);
 
-                // load current ministries
-                final Map<String, Ministry> current = new HashMap<>();
-                for (final Ministry ministry : mDao.get(Ministry.class)) {
-                    current.put(ministry.getMinistryId(), ministry);
+            // only update the saved ministries if we received any back
+            if (ministries != null) {
+                // save all ministries to the database
+                final Transaction tx = mDao.newTransaction();
+                try {
+                    tx.begin();
+
+                    // load current ministries
+                    final Map<String, Ministry> current = new HashMap<>();
+                    for (final Ministry ministry : mDao.get(Ministry.class)) {
+                        current.put(ministry.getMinistryId(), ministry);
+                    }
+
+                    // update all the ministry names
+                    for (final Ministry ministry : ministries) {
+                        // this is only a very minimal update, so don't log last synced for new ministries
+                        ministry.setLastSynced(0);
+                        mDao.updateOrInsert(ministry, new String[] {Contract.Ministry.COLUMN_NAME});
+
+                        // remove from the list of current ministries
+                        current.remove(ministry.getMinistryId());
+                    }
+
+                    // remove any current ministries we didn't see, we can do this because we just retrieved a complete list
+                    for (final Ministry ministry : current.values()) {
+                        mDao.delete(ministry);
+                    }
+
+                    tx.setSuccessful();
+                } finally {
+                    tx.end();
                 }
 
-                // update all the ministry names
-                for(final Ministry ministry : ministries) {
-                    // this is only a very minimal update, so don't log last synced for new ministries
-                    ministry.setLastSynced(0);
-                    mDao.updateOrInsert(ministry, new String[] {Contract.Ministry.COLUMN_NAME});
+                // update the synced time
+                prefs.edit().putLong(PREF_SYNC_TIME_MINISTRIES, System.currentTimeMillis()).apply();
 
-                    // remove from the list of current ministries
-                    current.remove(ministry.getMinistryId());
-                }
-
-                // remove any current ministries we didn't see, we can do this because we just retrieved a complete list
-                for (final Ministry ministry : current.values()) {
-                    mDao.delete(ministry);
-                }
-
-                tx.setSuccessful();
-            } finally {
-                tx.end();
+                // send broadcasts that data has been updated in the database
+                broadcastManager.sendBroadcast(BroadcastUtils.updateMinistriesBroadcast());
+                broadcastManager.sendBroadcast(allMinistriesReceivedBroadcast((ArrayList<Ministry>) ministries));
             }
-
-            // send broadcasts that data has been updated in the database
-            broadcastManager.sendBroadcast(BroadcastUtils.updateMinistriesBroadcast());
-            broadcastManager.sendBroadcast(allMinistriesReceivedBroadcast((ArrayList<Ministry>) ministries));
         }
     }
 
