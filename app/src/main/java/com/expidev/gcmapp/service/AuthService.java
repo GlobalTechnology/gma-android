@@ -87,13 +87,14 @@ public class AuthService extends IntentService
     private void authorizeUser() throws JSONException
     {
         JSONObject jsonObject = mApi.authorizeUser();
+        if (jsonObject != null) {
+            UserDao userDao = UserDao.getInstance(this);
+            userDao.saveUser(jsonObject.getJSONObject("user"));
 
-        UserDao userDao = UserDao.getInstance(this);
-        userDao.saveUser(jsonObject.getJSONObject("user"));
+            MinistriesService.saveAssociatedMinistriesFromServer(
+                    getApplicationContext(), jsonObject.optJSONArray("assignments"));
+        }
 
-        MinistriesService.saveAssociatedMinistriesFromServer(
-            getApplicationContext(), jsonObject.optJSONArray("assignments"));
-        
         broadcastManager.sendBroadcast(stopBroadcast(AUTH));
     }
 
