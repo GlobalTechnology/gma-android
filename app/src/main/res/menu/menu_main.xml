@@ -19,6 +19,11 @@
         android:orderInCategory="101"
         app:showAsAction="never"
         android:onClick="reset" />
+    <item
+        android:id="@+id/action_refresh"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        android:title="@string/menu_refresh"/>
     <item android:id="@+id/action_logout"
         android:title="@string/logout"
         android:orderInCategory="102"
