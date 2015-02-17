@@ -179,7 +179,7 @@ public class MinistriesService extends ThreadedIntentService {
         // only sync if being forced or the data is stale
         if (force || stale) {
             // refresh the list of ministries if the load is being forced
-            final List<Ministry> ministries = mApi.getAllMinistries(force);
+            final List<Ministry> ministries = mApi.getAllMinistries();
 
             // only update the saved ministries if we received any back
             if (ministries != null) {
