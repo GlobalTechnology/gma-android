@@ -95,14 +95,12 @@ public class MeasurementsService extends IntentService
         final Context context,
         String ministryId,
         String mcc,
-        String period,
-        String sessionTicket)
+        String period)
     {
         Bundle extras = new Bundle(4);
         extras.putSerializable("type", SEARCH_MEASUREMENTS);
         extras.putString("ministryId", ministryId);
         extras.putString("mcc", mcc);
-        extras.putString("sessionTicket", sessionTicket);
 
         if(period != null)
         {
@@ -115,7 +113,6 @@ public class MeasurementsService extends IntentService
     public static void retrieveDetailsForMeasurement(
         final Context context,
         String measurementId,
-        String sessionTicket,
         String ministryId,
         String mcc,
         String period)
@@ -123,7 +120,6 @@ public class MeasurementsService extends IntentService
         Bundle extras = new Bundle(5);
         extras.putSerializable("type", RETRIEVE_MEASUREMENT_DETAILS);
         extras.putString("measurementId", measurementId);
-        extras.putString("sessionTicket", sessionTicket);
         extras.putString("ministryId", ministryId);
         extras.putString("mcc", mcc);
 
@@ -144,7 +140,6 @@ public class MeasurementsService extends IntentService
         String ministryId = intent.getStringExtra("ministryId");
         String mcc = intent.getStringExtra("mcc");
         String period = intent.getStringExtra("period");
-        String sessionTicket = intent.getStringExtra("sessionTicket");
 
         final GmaApiClient apiClient = GmaApiClient.getInstance(this);
         JSONArray results = apiClient.searchMeasurements(ministryId, mcc, period);
@@ -164,7 +159,6 @@ public class MeasurementsService extends IntentService
     private void retrieveDetailsForMeasurement(Intent intent) throws ApiException
     {
         String measurementId = intent.getStringExtra("measurementId");
-        String sessionTicket = intent.getStringExtra("sessionTicket");
         String ministryId = intent.getStringExtra("ministryId");
         String mcc = intent.getStringExtra("mcc");
         String period = intent.getStringExtra("period");
