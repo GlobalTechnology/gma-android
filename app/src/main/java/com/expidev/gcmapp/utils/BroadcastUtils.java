@@ -6,7 +6,7 @@ import android.net.Uri;
 import android.os.PatternMatcher;
 
 import com.expidev.gcmapp.model.AssociatedMinistry;
-import com.expidev.gcmapp.model.Measurement;
+import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.service.MinistriesService;

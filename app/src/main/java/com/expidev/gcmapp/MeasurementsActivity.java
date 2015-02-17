@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.expidev.gcmapp.model.Measurement;
+import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.MinistriesService;

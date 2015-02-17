@@ -9,7 +9,7 @@ import android.util.Log;
 
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
-import com.expidev.gcmapp.model.Measurement;
+import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 
 import org.ccci.gto.android.common.api.ApiException;

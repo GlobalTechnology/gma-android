@@ -4,7 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
-import com.expidev.gcmapp.model.Measurement;
+import com.expidev.gcmapp.model.measurement.Measurement;
 
 /**
  * Created by William.Randall on 2/11/2015.

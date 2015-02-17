@@ -1,4 +1,6 @@
-package com.expidev.gcmapp.model;
+package com.expidev.gcmapp.model.measurement;
+
+import com.expidev.gcmapp.model.Base;
 
 import java.io.Serializable;
 

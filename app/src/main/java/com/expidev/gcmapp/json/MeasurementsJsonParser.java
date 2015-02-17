@@ -2,7 +2,7 @@ package com.expidev.gcmapp.json;
 
 import android.util.Log;
 
-import com.expidev.gcmapp.model.Measurement;
+import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.model.measurement.MeasurementTypeIds;
 import com.expidev.gcmapp.model.measurement.SubMinistryDetails;
