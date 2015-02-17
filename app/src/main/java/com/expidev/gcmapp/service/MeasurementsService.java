@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.expidev.gcmapp.db.MeasurementDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
 import com.expidev.gcmapp.model.measurement.Measurement;
@@ -19,12 +20,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.SEARCH_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_MEASUREMENT_DETAILS;
 import static com.expidev.gcmapp.utils.BroadcastUtils.measurementDetailsReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.measurementsReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 
 /**
  * Created by William.Randall on 2/4/2015.
@@ -65,6 +68,9 @@ public class MeasurementsService extends IntentService
                     break;
                 case RETRIEVE_MEASUREMENT_DETAILS:
                     retrieveDetailsForMeasurement(intent);
+                    break;
+                case SAVE_MEASUREMENTS:
+                    saveMeasurementsToDatabase(intent);
                     break;
                 default:
                     Log.i(TAG, "Unhandled Type: " + type);
@@ -131,6 +137,14 @@ public class MeasurementsService extends IntentService
         context.startService(baseIntent(context, extras));
     }
 
+    public static void saveMeasurementsToDatabase(final Context context, List<Measurement> measurements)
+    {
+        Bundle extras = new Bundle(2);
+        extras.putSerializable("type", SAVE_MEASUREMENTS);
+        extras.putSerializable("measurements", (ArrayList<Measurement>) measurements);
+        context.startService(baseIntent(context, extras));
+    }
+
 
     /////////////////////////////////////////////////////
     //           Actions                              //
@@ -175,5 +189,18 @@ public class MeasurementsService extends IntentService
             MeasurementDetails measurementDetails = MeasurementsJsonParser.parseMeasurementDetails(json);
             broadcastManager.sendBroadcast(measurementDetailsReceivedBroadcast(measurementDetails));
         }
+    }
+
+    private void saveMeasurementsToDatabase(Intent intent)
+    {
+        MeasurementDao measurementDao = MeasurementDao.getInstance(this);
+        List<Measurement> measurements = (ArrayList<Measurement>) intent.getSerializableExtra("measurements");
+
+        for(Measurement measurement : measurements)
+        {
+            measurementDao.saveMeasurement(measurement);
+        }
+
+        broadcastManager.sendBroadcast(stopBroadcast(SAVE_MEASUREMENTS));
     }
 }

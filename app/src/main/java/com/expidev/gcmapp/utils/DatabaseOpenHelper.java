@@ -45,6 +45,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         createAssignmentsTable(db);
         createAllMinistriesTable(db);
         createTrainingTables(db);
+        db.execSQL(Contract.Measurement.SQL_CREATE_TABLE);
     }
 
     @Override
@@ -117,6 +118,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL(Contract.AssociatedMinistry.SQL_DELETE_TABLE);
         db.execSQL(Contract.Ministry.SQL_DELETE_TABLE);
         db.execSQL(Contract.Assignment.SQL_DELETE_TABLE);
+        db.execSQL(Contract.Measurement.SQL_DELETE_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.USER.getTableName());
     }
 }
