@@ -393,7 +393,7 @@ public class MainActivity extends ActionBarActivity
         Log.i(TAG, "On Map Ready");
         this.map = googleMap;
         
-        if (currentAssignment != null) zoomToLocation();
+        zoomToLocation();
         
         setUpMap();
         
@@ -405,13 +405,16 @@ public class MainActivity extends ActionBarActivity
 
     private void zoomToLocation()
     {
-        Log.i(TAG, "Zooming to: " + currentMinistry.getLatitude() +", " + currentMinistry.getLongitude());
-        
-        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(currentMinistry.getLatitude(), currentMinistry.getLongitude()));
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(currentMinistry.getLocationZoom());
+        if(map != null && currentMinistry != null) {
+            Log.i(TAG, "Zooming to: " + currentMinistry.getLatitude() + ", " + currentMinistry.getLongitude());
 
-        map.moveCamera(center);
-        map.moveCamera(zoom);
+            CameraUpdate center = CameraUpdateFactory
+                    .newLatLng(new LatLng(currentMinistry.getLatitude(), currentMinistry.getLongitude()));
+            CameraUpdate zoom = CameraUpdateFactory.zoomTo(currentMinistry.getLocationZoom());
+
+            map.moveCamera(center);
+            map.moveCamera(zoom);
+        }
     }
     
     private void addTrainingMakersToMap()
@@ -588,7 +591,7 @@ public class MainActivity extends ActionBarActivity
                 // assignment is set and map is set: zoom to assignment location
                 // if location is null, no big deal. no exception will be thrown and map simply 
                 // will not zoom.
-                if (map != null && currentAssignment != null) zoomToLocation();
+                zoomToLocation();
 
                 // set map overlay text
                 mapOverlayText.setText(currentMinistry.getName());
