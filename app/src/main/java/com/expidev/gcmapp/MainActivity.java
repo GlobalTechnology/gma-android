@@ -33,9 +33,7 @@ import com.expidev.gcmapp.map.GcmMarker;
 import com.expidev.gcmapp.map.MarkerRender;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
-import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
-import com.expidev.gcmapp.service.AuthService;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
@@ -53,8 +51,6 @@ import com.google.maps.android.clustering.ClusterManager;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 import me.thekey.android.TheKey;
@@ -91,8 +87,7 @@ public class MainActivity extends ActionBarActivity
     
     // try to cut down on api calls
     private boolean trainingDownloaded = false;
-    private boolean ministriesDownloaded = false;
-    
+
     private GoogleMap map;
     private ClusterManager<GcmMarker> clusterManager;
 
@@ -158,7 +153,9 @@ public class MainActivity extends ActionBarActivity
         }
         else
         {
-            AuthService.authorizeUser(this);
+            // trigger background syncing of data
+            MinistriesService.syncAllMinistries(this);
+            MinistriesService.syncAssignments(this);
         }
     }
     
@@ -184,21 +181,17 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings)
-        {
-            Intent goToSettings = new Intent(this, SettingsActivity.class);
-            startActivity(goToSettings);
-            return true;
+    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                Intent goToSettings = new Intent(this, SettingsActivity.class);
+                startActivity(goToSettings);
+                return true;
+            case R.id.action_refresh:
+                MinistriesService.syncAllMinistries(this, true);
+                MinistriesService.syncAssignments(this, true);
+                return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -446,13 +439,6 @@ public class MainActivity extends ActionBarActivity
                     
                     switch (type)
                     {
-                        case AUTH:
-                            if (!ministriesDownloaded)
-                            {
-                                MinistriesService.retrieveAllMinistries(getApplicationContext());
-                            }
-                            
-                            break;
                         case TRAINING:
                             Log.i(TAG, "Training search complete and training saved");
                             
@@ -465,22 +451,7 @@ public class MainActivity extends ActionBarActivity
                             
                             break;
                         case RETRIEVE_ALL_MINISTRIES:
-                            Serializable data = intent.getSerializableExtra("allMinistries");
-
-                            if(data != null)
-                            {
-                                List<Ministry> allMinistries = (ArrayList<Ministry>) data;
-                                MinistriesService.saveAllMinistries(getApplicationContext(), allMinistries);
-                                ministriesDownloaded = true;
-                            }
-                            else
-                            {
-                                Log.e(TAG, "Failed to retrieve ministries");
-                                finish();
-                            }
-                            break;
-                        case SAVE_ALL_MINISTRIES:
-                            Log.i(TAG, "All ministries saved to local storage");
+                            Log.i(TAG, "All ministries loaded & saved to local storage");
                             getCurrentAssignment();
                             break;
                         case SAVE_ASSOCIATED_MINISTRIES:

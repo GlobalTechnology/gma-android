@@ -9,6 +9,9 @@
     <string name="title_activity_measurements">Measurements</string>
     <string name="title_activity_measurement_details">Measurement Details</string>
 
+    <!-- Menu items -->
+    <string name="menu_refresh">Refresh</string>
+
     <!-- Main Activity -->
     <string name="logout">Logout</string>
     <string name="hello_world">Welcome to the GCM App!</string>
