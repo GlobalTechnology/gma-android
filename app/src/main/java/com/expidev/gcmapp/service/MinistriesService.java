@@ -8,7 +8,6 @@ import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesReceivedBroad
 import static com.expidev.gcmapp.utils.BroadcastUtils.associatedMinistriesReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 
-import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,6 +27,7 @@ import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.ccci.gto.android.common.api.ApiException;
+import org.ccci.gto.android.common.app.ThreadedIntentService;
 import org.ccci.gto.android.common.db.AbstractDao.Transaction;
 import org.json.JSONArray;
 
@@ -39,8 +39,7 @@ import java.util.Map;
 /**
  * Created by William.Randall on 1/22/2015.
  */
-public class MinistriesService extends IntentService
-{
+public class MinistriesService extends ThreadedIntentService {
     private static final String TAG = MinistriesService.class.getSimpleName();
 
     private static final String PREFS_SYNC = "gma_sync";
@@ -61,7 +60,7 @@ public class MinistriesService extends IntentService
 
     public MinistriesService()
     {
-        super("MinistriesService");
+        super("MinistriesService", 5);
     }
 
     /////////////////////////////////////////////////////
