@@ -1,10 +1,14 @@
 package com.expidev.gcmapp.model;
 
+import java.io.Serializable;
+
 /**
  * Created by William.Randall on 2/4/2015.
  */
-public class Measurement
+public class Measurement extends Base implements Serializable
 {
+    private static final long serialVersionUID = 0L;
+
     private String name;
     private String measurementId;
     private String permLink;
