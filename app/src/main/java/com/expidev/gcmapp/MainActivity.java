@@ -405,10 +405,10 @@ public class MainActivity extends ActionBarActivity
 
     private void zoomToLocation()
     {
-        Log.i(TAG, "Zooming to: " + currentAssignment.getLatitude() +", " + currentAssignment.getLongitude());
+        Log.i(TAG, "Zooming to: " + currentMinistry.getLatitude() +", " + currentMinistry.getLongitude());
         
-        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(currentAssignment.getLatitude(), currentAssignment.getLongitude()));
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(currentAssignment.getLocationZoom());
+        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(currentMinistry.getLatitude(), currentMinistry.getLongitude()));
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(currentMinistry.getLocationZoom());
 
         map.moveCamera(center);
         map.moveCamera(zoom);

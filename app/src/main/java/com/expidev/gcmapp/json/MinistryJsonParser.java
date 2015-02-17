@@ -115,6 +115,25 @@ public class MinistryJsonParser
         associatedMinistry.setHasDs(jsonObject.optBoolean("has_ds"));
         associatedMinistry.setHasGcm(jsonObject.optBoolean("has_gcm"));
 
+        // load location data
+        double latitude = jsonObject.optDouble("latitude");
+        double longitude = jsonObject.optDouble("longitude");
+        final JSONObject location = jsonObject.optJSONObject("location");
+        if (location != null) {
+            // location JSON currently broke in getMinistry
+            latitude = location.optDouble("latitude", latitude);
+            longitude = location.optDouble("longitude", longitude);
+        }
+        associatedMinistry.setLatitude(latitude);
+        associatedMinistry.setLongitude(longitude);
+        associatedMinistry.setLocationZoom(jsonObject.optInt("location_zoom"));
+
+        // parse any sub ministries
+        final JSONArray subMinistries = jsonObject.optJSONArray("sub_ministries");
+        if (subMinistries != null) {
+            associatedMinistry.setSubMinistries(MinistryJsonParser.parseAssociatedMinistriesJson(subMinistries));
+        }
+
         return associatedMinistry;
     }
 

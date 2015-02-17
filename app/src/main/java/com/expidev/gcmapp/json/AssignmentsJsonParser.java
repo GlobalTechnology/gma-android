@@ -28,23 +28,9 @@ public class AssignmentsJsonParser
         assignment.setRole(json.getString("team_role"));
         assignment.setMinistryId(json.getString("ministry_id"));
 
-        // load location data
-        final JSONObject location = json.optJSONObject("location");
-        if (location != null) {
-            assignment.setLatitude(location.getDouble("latitude"));
-            assignment.setLongitude(location.getDouble("longitude"));
-            assignment.setLocationZoom(json.optInt("location_zoom"));
-        }
-
-        // parse the ministry
+        // parse the embedded ministry
         final AssociatedMinistry ministry = MinistryJsonParser.parseAssociatedMinistry(json);
         assignment.setMinistry(ministry);
-
-        // parse any sub ministries
-        final JSONArray subMinistries = json.optJSONArray("sub_ministries");
-        if (subMinistries != null) {
-            ministry.setSubMinistries(MinistryJsonParser.parseAssociatedMinistriesJson(subMinistries));
-        }
 
         // return the assignment
         return assignment;

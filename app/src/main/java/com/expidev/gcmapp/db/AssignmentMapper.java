@@ -22,15 +22,6 @@ public class AssignmentMapper extends BaseMapper<Assignment> {
             case Contract.Assignment.COLUMN_MINISTRY_ID:
                 values.put(field, assignment.getMinistryId());
                 break;
-            case Contract.Assignment.COLUMN_LATITUDE:
-                values.put(field, assignment.getLatitude());
-                break;
-            case Contract.Assignment.COLUMN_LONGITUDE:
-                values.put(field, assignment.getLongitude());
-                break;
-            case Contract.Assignment.COLUMN_LOCATION_ZOOM:
-                values.put(field, assignment.getLocationZoom());
-                break;
             default:
                 super.mapField(values, field, assignment);
                 break;
@@ -50,9 +41,6 @@ public class AssignmentMapper extends BaseMapper<Assignment> {
         assignment.setId(this.getString(c, Contract.Assignment.COLUMN_ID, null));
         assignment.setRole(this.getString(c, Contract.Assignment.COLUMN_ROLE, null));
         assignment.setMinistryId(this.getString(c, Contract.Assignment.COLUMN_MINISTRY_ID, null));
-        assignment.setLatitude(this.getDouble(c, Contract.Assignment.COLUMN_LATITUDE, 0));
-        assignment.setLongitude(this.getDouble(c, Contract.Assignment.COLUMN_LONGITUDE, 0));
-        assignment.setLocationZoom(this.getInt(c, Contract.Assignment.COLUMN_LOCATION_ZOOM));
         return assignment;
     }
 }
