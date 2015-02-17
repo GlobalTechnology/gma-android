@@ -11,7 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Pair;
 
 import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.http.GmaApiClient.Session;
@@ -89,31 +88,52 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     protected Session establishSession(@NonNull final Request<Session> request) throws ApiException {
         HttpURLConnection conn = null;
         try {
-            final Pair<HttpURLConnection, String> tokenPair = this.getTokenInternal(false);
-            if (tokenPair != null) {
-                conn = tokenPair.first;
+            final String service = getService();
+            if (service != null) {
+                // issue request only if we get a ticket
+                final TheKey.TicketAttributesPair ticket = mTheKey.getTicketAndAttributes(service);
+                if (ticket != null && ticket.attributes.getGuid() != null) {
+                    // build login request
+                    final Request<Session> login = new Request<>(TOKEN);
+                    login.accept = MediaType.APPLICATION_JSON;
+                    login.params.add(param("st", ticket.ticket));
+                    login.params.add(param("refresh", false));
+                    login.useSession = false;
 
-                // extract cookies
-                // XXX: this won't be needed once Jon removes the cookie requirement from the API
-                final Set<String> cookies = new HashSet<>();
-                for (final Map.Entry<String, List<String>> header : conn.getHeaderFields().entrySet()) {
-                    final String key = header.getKey();
-                    if ("Set-Cookie".equalsIgnoreCase(key) || "Set-Cookie2".equals(key)) {
-                        for (final String value : header.getValue()) {
-                            for (final HttpCookie cookie : HttpCookie.parse(value)) {
-                                if (cookie != null) {
-                                    cookies.add(cookie.toString());
+                    // send request (tickets are one time use only, so we can't retry)
+                    conn = this.sendRequest(login, 0);
+
+                    // parse valid responses
+                    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                        // extract cookies
+                        // XXX: this won't be needed once Jon removes the cookie requirement from the API
+                        final Set<String> cookies = new HashSet<>();
+                        for (final Map.Entry<String, List<String>> header : conn.getHeaderFields().entrySet()) {
+                            final String key = header.getKey();
+                            if ("Set-Cookie".equalsIgnoreCase(key) || "Set-Cookie2".equals(key)) {
+                                for (final String value : header.getValue()) {
+                                    for (final HttpCookie cookie : HttpCookie.parse(value)) {
+                                        if (cookie != null) {
+                                            cookies.add(cookie.toString());
+                                        }
+                                    }
                                 }
                             }
                         }
+
+                        // create session object
+                        final JSONObject json = new JSONObject(IOUtils.readString(conn.getInputStream()));
+                        return new Session(json.optString("session_ticket", null), cookies,
+                                           ticket.attributes.getGuid());
+                    } else {
+                        // authentication with the ticket failed, let's clear the cached service in case that caused the issue
+                        if (service.equals(getCachedService())) {
+                            setCachedService(null);
+                        }
                     }
                 }
-
-                // create session object
-                final JSONObject json = new JSONObject(IOUtils.readString(conn.getInputStream()));
-                return new Session(json.optString("session_ticket", null), cookies, tokenPair.second);
             }
-        } catch (final IOException e) {
+        } catch (final TheKeySocketException | IOException e) {
             throw new ApiSocketException(e);
         } catch (final JSONException e) {
             Log.i(TAG, "invalid json for getToken", e);
@@ -148,49 +168,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         if (request.useSession && request.session != null) {
             conn.addRequestProperty("Cookie", TextUtils.join("; ", request.session.cookies));
         }
-    }
-
-    @Nullable
-    private Pair<HttpURLConnection, String> getTokenInternal(final boolean refresh) throws ApiException {
-        HttpURLConnection conn = null;
-        boolean successful = false;
-        try {
-            final String service = getService();
-            final TheKey.TicketAttributesPair ticket = mTheKey.getTicketAndAttributes(service);
-
-            // issue request only if we have a ticket
-            if (ticket != null && ticket.attributes.getGuid() != null) {
-                // build request
-                final Request<Session> request = new Request<>(TOKEN);
-                request.accept = MediaType.APPLICATION_JSON;
-                request.params.add(param("st", ticket.ticket));
-                request.params.add(param("refresh", refresh));
-                request.useSession = false;
-
-                // send request (tickets are one time use only, so we can't retry)
-                conn = this.sendRequest(request, 0);
-
-                // parse valid responses
-                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    successful = true;
-                    return Pair.create(conn, ticket.attributes.getGuid());
-                } else {
-                    // authentication with the ticket failed, let's clear the cached service in case that caused the issue
-                    if (service != null && service.equals(getCachedService())) {
-                        setCachedService(null);
-                    }
-                }
-            }
-        } catch (final TheKeySocketException | IOException e) {
-            throw new ApiSocketException(e);
-        } finally {
-            if (!successful) {
-                IOUtils.closeQuietly(conn);
-            }
-        }
-
-        // error retrieving token
-        return null;
     }
 
     @Nullable
