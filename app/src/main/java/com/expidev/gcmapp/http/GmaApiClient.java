@@ -17,6 +17,7 @@ import com.expidev.gcmapp.http.GmaApiClient.Session;
 import com.expidev.gcmapp.json.MinistryJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.service.MinistriesService;
 
 import org.ccci.gto.android.common.api.AbstractApi;
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
@@ -58,8 +59,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     private static final Object LOCK_INSTANCE = new Object();
     private static GmaApiClient INSTANCE;
 
+    // XXX: temporary until mContext from AbstractApi is visible
+    private final Context mContext;
+
     private GmaApiClient(final Context context) {
         super(context, TheKeyImpl.getInstance(context, THEKEY_CLIENTID), BuildConfig.GCM_BASE_URI, "gcm_api_sessions");
+        mContext = context;
     }
 
     public static GmaApiClient getInstance(final Context context) {
@@ -121,8 +126,15 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
                             }
                         }
 
-                        // create session object
+                        // parse response JSON
                         final JSONObject json = new JSONObject(IOUtils.readString(conn.getInputStream()));
+
+                        // save the returned associated ministries
+                        // XXX: this isn't ideal and crosses logical components, but I can't think of a cleaner way to do it currently -DF
+                        MinistriesService
+                                .saveAssociatedMinistriesFromServer(mContext, json.optJSONArray("assignments"));
+
+                        // create session object
                         return new Session(json.optString("session_ticket", null), cookies,
                                            ticket.attributes.getGuid());
                     } else {
