@@ -1,11 +1,13 @@
 package com.expidev.gcmapp.model.measurement;
 
+import com.expidev.gcmapp.model.Base;
+
 import java.io.Serializable;
 
 /**
  * Created by William.Randall on 1/29/2015.
  */
-public class MeasurementTypeIds implements Serializable
+public class MeasurementTypeIds extends MeasurementDetailsData implements Serializable
 {
     private static final long serialVersionUID = 0L;
 

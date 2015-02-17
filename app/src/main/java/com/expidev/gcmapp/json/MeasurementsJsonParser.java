@@ -2,9 +2,11 @@ package com.expidev.gcmapp.json;
 
 import android.util.Log;
 
+import com.expidev.gcmapp.model.measurement.BreakdownData;
 import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.model.measurement.MeasurementTypeIds;
+import com.expidev.gcmapp.model.measurement.SixMonthAmounts;
 import com.expidev.gcmapp.model.measurement.SubMinistryDetails;
 import com.expidev.gcmapp.model.measurement.TeamMemberDetails;
 
@@ -13,9 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by William.Randall on 2/4/2015.
@@ -54,14 +54,14 @@ public class MeasurementsJsonParser
         try
         {
             measurementDetails.setMeasurementTypeIds(parseMeasurementTypeIds(json.getJSONObject("measurement_type_ids")));
-            measurementDetails.setSixMonthTotalAmounts(parseMeasurementMap(json.getJSONObject("total")));
-            measurementDetails.setSixMonthLocalAmounts(parseMeasurementMap(json.getJSONObject("local")));
-            measurementDetails.setSixMonthPersonalAmounts(parseMeasurementMap(json.getJSONObject("my_measurements")));
-            measurementDetails.setLocalBreakdown(parseMeasurementMap(json.getJSONObject("local_breakdown")));
-            measurementDetails.setSelfBreakdown(parseMeasurementMap(json.getJSONObject("self_breakdown")));
+            measurementDetails.setSixMonthTotalAmounts(parseSixMonthsAmounts(json.getJSONObject("total"), "total"));
+            measurementDetails.setSixMonthLocalAmounts(parseSixMonthsAmounts(json.getJSONObject("local"), "local"));
+            measurementDetails.setSixMonthPersonalAmounts(parseSixMonthsAmounts(json.getJSONObject("my_measurements"), "personal"));
+            measurementDetails.setLocalBreakdown(parseBreakdownData(json.getJSONObject("local_breakdown"), "local"));
+            measurementDetails.setSelfBreakdown(parseBreakdownData(json.getJSONObject("self_breakdown"), "self"));
             measurementDetails.setSubMinistryDetails(parseSubMinistryDetails(json.getJSONArray("sub_ministries")));
-            measurementDetails.setTeamMemberDetails(parseTeamDetails(json.getJSONArray("team")));
-            measurementDetails.setSelfAssignedDetails(parseTeamDetails(json.getJSONArray("self_assigned")));
+            measurementDetails.setTeamMemberDetails(parseTeamDetails(json.getJSONArray("team"), "team"));
+            measurementDetails.setSelfAssignedDetails(parseTeamDetails(json.getJSONArray("self_assigned"), "self"));
 
             return measurementDetails;
         }
@@ -97,18 +97,38 @@ public class MeasurementsJsonParser
         return measurementTypeIds;
     }
 
-    private static Map<String, Integer> parseMeasurementMap(JSONObject json) throws JSONException
+    private static List<SixMonthAmounts> parseSixMonthsAmounts(JSONObject json, String type) throws JSONException
     {
-        Map<String, Integer> measurementMap = new HashMap<String, Integer>();
+        List<SixMonthAmounts> sixMonthAmountsList = new ArrayList<>();
 
         JSONArray names = json.names();
         for(int i = 0; i < names.length(); i++)
         {
-            String key = names.getString(i);
-            measurementMap.put(key, json.getInt(key));
+            SixMonthAmounts row = new SixMonthAmounts();
+            row.setPeriod(names.getString(i));
+            row.setAmount(json.getInt(row.getPeriod()));
+            row.setAmountType(type);
+            sixMonthAmountsList.add(row);
         }
 
-        return measurementMap;
+        return sixMonthAmountsList;
+    }
+
+    private static List<BreakdownData> parseBreakdownData(JSONObject json, String type) throws JSONException
+    {
+        List<BreakdownData> breakdownDataList = new ArrayList<>();
+
+        JSONArray names = json.names();
+        for(int i = 0; i < names.length(); i++)
+        {
+            BreakdownData row = new BreakdownData();
+            row.setSource(names.getString(i));
+            row.setAmount(json.getInt(row.getSource()));
+            row.setType(type);
+            breakdownDataList.add(row);
+        }
+
+        return breakdownDataList;
     }
 
     private static List<SubMinistryDetails> parseSubMinistryDetails(JSONArray json) throws JSONException
@@ -130,7 +150,7 @@ public class MeasurementsJsonParser
         return subMinistryDetailsList;
     }
 
-    private static List<TeamMemberDetails> parseTeamDetails(JSONArray json) throws JSONException
+    private static List<TeamMemberDetails> parseTeamDetails(JSONArray json, String type) throws JSONException
     {
         List<TeamMemberDetails> teamMemberDetailsList = new ArrayList<TeamMemberDetails>();
 
@@ -145,6 +165,7 @@ public class MeasurementsJsonParser
             teamMemberDetails.setLastName(teamMemberDetailsJson.getString("last_name"));
             teamMemberDetails.setPersonId(teamMemberDetailsJson.getString("person_id"));
             teamMemberDetails.setTotal(teamMemberDetailsJson.getInt("total"));
+            teamMemberDetails.setType(type);
 
             teamMemberDetailsList.add(teamMemberDetails);
         }

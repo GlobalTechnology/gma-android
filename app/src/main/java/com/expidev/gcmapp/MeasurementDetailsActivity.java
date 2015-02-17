@@ -18,7 +18,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.expidev.gcmapp.model.measurement.BreakdownData;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
+import com.expidev.gcmapp.model.measurement.SixMonthAmounts;
 import com.expidev.gcmapp.model.measurement.SubMinistryDetails;
 import com.expidev.gcmapp.model.measurement.TeamMemberDetails;
 import com.expidev.gcmapp.service.MeasurementsService;
@@ -37,6 +39,7 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
 import java.io.Serializable;
+import java.util.LinkedHashSet;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -46,7 +49,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -134,7 +136,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                                 Log.i(TAG, "Measurement details retrieved");
                                 MeasurementDetails measurementDetails = (MeasurementDetails) data;
 
-                                initializeRenderer(measurementDetails.getSixMonthTotalAmounts().keySet());
+                                initializeRenderer(getPeriodsForLabels(measurementDetails.getSixMonthTotalAmounts()));
                                 initializeSeriesData(measurementDetails);
                                 renderGraph();
                                 initializeDataSection(measurementDetails);
@@ -156,6 +158,23 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
         broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());
         broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.stopFilter());
+    }
+
+    private Set<String> getPeriodsForLabels(List<SixMonthAmounts> sixMonthAmountsList)
+    {
+        Set<String> periods = new LinkedHashSet<>();
+
+        for(SixMonthAmounts row : sixMonthAmountsList)
+        {
+            String period = row.getPeriod();
+
+            if(!periods.contains(period))
+            {
+                periods.add(period);
+            }
+        }
+
+        return periods;
     }
 
     @Override
@@ -296,30 +315,29 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         initializeMySeries(measurementDetails.getSixMonthPersonalAmounts());
     }
 
-    private void initializeTotalSeries(Map<String, Integer> data)
+    private void initializeTotalSeries(List<SixMonthAmounts> totalAmounts)
     {
         currentSeries = new XYSeries(legendTitleWithPadding("Total"));
 
         double xPoint = 0.0d;
-        for(int dataValue : data.values())
+        for(SixMonthAmounts point : totalAmounts)
         {
-            currentSeries.add(xPoint, dataValue);
+            currentSeries.add(xPoint, point.getAmount());
             xPoint++;
         }
 
         dataset.addSeries(currentSeries);
-
         initializeSeriesRenderer(Color.BLUE);
     }
 
-    private void initializeLocalSeries(Map<String, Integer> data)
+    private void initializeLocalSeries(List<SixMonthAmounts> localAmounts)
     {
         currentSeries = new XYSeries(legendTitleWithPadding("Local"));
 
         double xPoint = 0.0d;
-        for(int dataValue : data.values())
+        for(SixMonthAmounts point : localAmounts)
         {
-            currentSeries.add(xPoint, dataValue);
+            currentSeries.add(xPoint, point.getAmount());
             xPoint++;
         }
 
@@ -328,14 +346,14 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         initializeSeriesRenderer(Color.RED);
     }
 
-    private void initializeMySeries(Map<String, Integer> data)
+    private void initializeMySeries(List<SixMonthAmounts> personalAmounts)
     {
         currentSeries = new XYSeries("Me");
 
         double xPoint = 0.0d;
-        for(int dataValue : data.values())
+        for(SixMonthAmounts point : personalAmounts)
         {
-            currentSeries.add(xPoint, dataValue);
+            currentSeries.add(xPoint, point.getAmount());
             xPoint++;
         }
 
@@ -411,18 +429,18 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         LinearLayout dataSection = (LinearLayout) findViewById(R.id.md_chart_data);
 
-        Map<String, Integer> localBreakdown = measurementDetails.getLocalBreakdown();
+        List<BreakdownData> localBreakdown = measurementDetails.getLocalBreakdown();
 
         int layoutPosition = 1;
-        for(Map.Entry<String, Integer> localDataSource : localBreakdown.entrySet())
+        for(BreakdownData localDataSource : localBreakdown)
         {
             //TODO: Should we skip 0 value rows?
-            if(localDataSource.getKey().equals("total")) // || localDataSource.getValue() == 0)
+            if("total".equals(localDataSource.getSource())) // || localDataSource.getSource() == 0)
             {
                 continue;
             }
 
-            LinearLayout row = createRow(localDataSource.getKey(), localDataSource.getValue());
+            LinearLayout row = createRow(localDataSource.getSource(), localDataSource.getAmount());
             dataSection.addView(row, layoutPosition);
             layoutPosition++;
 

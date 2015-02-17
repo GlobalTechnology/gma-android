@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created by William.Randall on 1/29/2015.
  */
-public class SubMinistryDetails implements Serializable
+public class SubMinistryDetails extends MeasurementDetailsData implements Serializable
 {
     private static final long serialVersionUID = 0L;
 

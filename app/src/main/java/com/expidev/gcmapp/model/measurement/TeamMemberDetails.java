@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created by William.Randall on 1/29/2015.
  */
-public class TeamMemberDetails implements Serializable
+public class TeamMemberDetails extends MeasurementDetailsData implements Serializable
 {
     private static final long serialVersionUID = 0L;
 
@@ -15,6 +15,7 @@ public class TeamMemberDetails implements Serializable
     private String lastName;
     private String personId;
     private int total;
+    private String type; // self vs team
 
     public String getAssignmentId()
     {
@@ -74,5 +75,15 @@ public class TeamMemberDetails implements Serializable
     public void setTotal(int total)
     {
         this.total = total;
+    }
+
+    public String getType()
+    {
+        return type;
+    }
+
+    public void setType(String type)
+    {
+        this.type = type;
     }
 }
