@@ -31,7 +31,6 @@ import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.db.TrainingDao;
 import com.expidev.gcmapp.map.GcmMarker;
 import com.expidev.gcmapp.map.MarkerRender;
-import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.service.MinistriesService;
@@ -92,7 +91,6 @@ public class MainActivity extends ActionBarActivity
     private ClusterManager<GcmMarker> clusterManager;
 
     private AssociatedMinistry currentMinistry;
-    private Assignment currentAssignment;
     private boolean currentAssignmentSet = false;
     private boolean refreshAssignment;
     private String chosenMcc;
@@ -519,9 +517,8 @@ public class MainActivity extends ActionBarActivity
                 MinistriesDao ministriesDao = MinistriesDao.getInstance(context);
                 String currentMinistryName = preferences.getString("chosen_ministry", null);
 
-                // if currentAssignment && currentMinistry is already set, skip getting it
-                if (currentAssignment == null || currentMinistry == null)
-                {
+                // if currentMinistry is already set, skip getting it
+                if (currentMinistry == null) {
                     if (associatedMinistries == null || associatedMinistries.size() == 0)
                     {
                         Log.i(TAG, "associated ministries needs to be set");
@@ -555,35 +552,27 @@ public class MainActivity extends ActionBarActivity
                         currentMinistryName = currentMinistry.getName();
                         editor.putString("chosen_ministry", currentMinistryName);
                         editor.apply();
-
-                        currentAssignment = ministriesDao.retrieveAssignmentForMinistry(currentMinistry);
                     }
                     else
                     {
-                        setMinistryAndAssignment(associatedMinistries, currentMinistryName, ministriesDao);
+                        setMinistry(associatedMinistries, currentMinistryName);
                     }
                 }
                 else if(refreshAssignment)
                 {
-                    setMinistryAndAssignment(associatedMinistries, currentMinistryName, ministriesDao);
+                    setMinistry(associatedMinistries, currentMinistryName);
 
                     // If we are changing assignments/ministries, we need to reload the training
                     TrainingDao trainingDao = TrainingDao.getInstance(context);
                     allTraining = trainingDao.getAllMinistryTraining(currentMinistry.getMinistryId());
                 }
                 
-                if (currentAssignment == null)
-                {
-                    Log.i(TAG, "current assignment is still null");
-                    return false;
-                }
-                else if (currentMinistry == null)
+                if (currentMinistry == null)
                 {
                     Log.i(TAG, "current ministry is still null");
                     return false;
                 }
 
-                Log.i(TAG, "currentAssignment: " + currentAssignment.getId());
                 Log.i(TAG, "currentMinistry: " + currentMinistry.getName());
 
                 setChosenMcc();
@@ -618,22 +607,14 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
-    private void setMinistryAndAssignment(
-        List<AssociatedMinistry> associatedMinistries,
-        String ministryName,
-        MinistriesDao ministriesDao)
-    {
+    private void setMinistry(
+            final List<AssociatedMinistry> associatedMinistries,
+            final String ministryName) {
         for (AssociatedMinistry ministry : associatedMinistries)
         {
             if (ministry.getName().equals(ministryName))
             {
                 currentMinistry = ministry;
-                currentAssignment = ministriesDao.retrieveAssignmentForMinistry(ministry);
-
-                if (currentAssignment != null)
-                {
-                    Log.i(TAG, "current assignment: " + currentAssignment.toString());
-                }
                 break;
             }
         }
