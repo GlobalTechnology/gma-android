@@ -167,11 +167,17 @@ public class MeasurementsActivity extends ActionBarActivity
         TextView titleView = (TextView) findViewById(R.id.measurement_ministry_name);
         titleView.setText(selectedMinistry.getName() + " (" + mcc + ")");
 
-        if(currentPeriod != null)
+        TextView periodView = (TextView) findViewById(R.id.currentPeriod);
+        if(currentPeriod == null)
         {
-            TextView periodView = (TextView) findViewById(R.id.currentPeriod);
-            periodView.setText(currentPeriod);
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
+            Calendar thisMonth = Calendar.getInstance();
+
+            currentPeriod = dateFormat.format(thisMonth.getTime());
+            preferences.edit().putString("currentPeriod", currentPeriod).apply();
         }
+
+        periodView.setText(currentPeriod);
 
         List<Measurement> sortedMeasurements = sortMeasurements(measurements);
 
