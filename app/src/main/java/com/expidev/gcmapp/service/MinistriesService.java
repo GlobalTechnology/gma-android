@@ -44,7 +44,8 @@ public class MinistriesService extends ThreadedIntentService {
     private static final String PREFS_SYNC = "gma_sync";
     private static final String PREF_SYNC_TIME_MINISTRIES = "last_synced.ministries";
 
-    public static final String EXTRA_FORCE = MinistriesService.class.getName() + ".EXTRA_FORCE";
+    private static final String EXTRA_SYNCTYPE = "type";
+    private static final String EXTRA_FORCE = MinistriesService.class.getName() + ".EXTRA_FORCE";
 
     // various stale data durations
     private static final long HOUR_IN_MS = 60 * 60 * 1000;
@@ -77,7 +78,7 @@ public class MinistriesService extends ThreadedIntentService {
     @Override
     public void onHandleIntent(Intent intent)
     {
-        final Type type = (Type)intent.getSerializableExtra("type");
+        final Type type = (Type) intent.getSerializableExtra(EXTRA_SYNCTYPE);
 
         try {
             switch (type) {
@@ -121,7 +122,7 @@ public class MinistriesService extends ThreadedIntentService {
     public static void retrieveMinistries(final Context context)
     {
         Bundle extras = new Bundle(1);
-        extras.putSerializable("type", RETRIEVE_ASSOCIATED_MINISTRIES);
+        extras.putSerializable(EXTRA_SYNCTYPE, RETRIEVE_ASSOCIATED_MINISTRIES);
 
         context.startService(baseIntent(context, extras));
     }
@@ -135,7 +136,7 @@ public class MinistriesService extends ThreadedIntentService {
 
     public static void syncAllMinistries(final Context context, final boolean force) {
         Bundle extras = new Bundle(2);
-        extras.putSerializable("type", RETRIEVE_ALL_MINISTRIES);
+        extras.putSerializable(EXTRA_SYNCTYPE, RETRIEVE_ALL_MINISTRIES);
         extras.putBoolean(EXTRA_FORCE, force);
 
         context.startService(baseIntent(context, extras));
@@ -146,7 +147,7 @@ public class MinistriesService extends ThreadedIntentService {
         Log.i(TAG, assignments != null ? assignments.toString() : "null");
 
         Bundle extras = new Bundle(1);
-        extras.putSerializable("type", SAVE_ASSOCIATED_MINISTRIES);
+        extras.putSerializable(EXTRA_SYNCTYPE, SAVE_ASSOCIATED_MINISTRIES);
 
         if(assignments != null)
         {
