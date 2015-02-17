@@ -18,7 +18,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     private static DatabaseOpenHelper instance;
     private Context context;
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
     private static final String DATABASE_NAME = "gcm_data.db";
 
     private DatabaseOpenHelper(Context context)

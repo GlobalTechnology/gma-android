@@ -141,7 +141,7 @@ public class Contract {
     public static final class Assignment extends Base {
         public static final String TABLE_NAME = "assignments";
 
-        static final String COLUMN_ID = "id";
+        static final String COLUMN_ID = "assignment_id";
         public static final String COLUMN_ROLE = "team_role";
         public static final String COLUMN_MINISTRY_ID = "ministry_id";
         static final String COLUMN_LATITUDE = "latitude";
