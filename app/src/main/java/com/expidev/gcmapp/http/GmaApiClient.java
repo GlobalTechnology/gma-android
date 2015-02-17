@@ -95,36 +95,18 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         try {
             final String service = getService();
             if (service != null) {
-                // issue request only if we get a ticket
+                // issue request only if we get a ticket for the user making this request
                 final TheKey.TicketAttributesPair ticket = mTheKey.getTicketAndAttributes(service);
-                if (ticket != null && ticket.attributes.getGuid() != null) {
-                    // build login request
-                    final Request<Session> login = new Request<>(TOKEN);
-                    login.accept = MediaType.APPLICATION_JSON;
-                    login.params.add(param("st", ticket.ticket));
-                    login.params.add(param("refresh", false));
-                    login.useSession = false;
-
-                    // send request (tickets are one time use only, so we can't retry)
-                    conn = this.sendRequest(login, 0);
+                assert request.guid != null;
+                if (ticket != null && request.guid.equals(ticket.attributes.getGuid())) {
+                    // issue getToken request
+                    conn = this.getToken(ticket.ticket, false);
 
                     // parse valid responses
                     if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                         // extract cookies
                         // XXX: this won't be needed once Jon removes the cookie requirement from the API
-                        final Set<String> cookies = new HashSet<>();
-                        for (final Map.Entry<String, List<String>> header : conn.getHeaderFields().entrySet()) {
-                            final String key = header.getKey();
-                            if ("Set-Cookie".equalsIgnoreCase(key) || "Set-Cookie2".equals(key)) {
-                                for (final String value : header.getValue()) {
-                                    for (final HttpCookie cookie : HttpCookie.parse(value)) {
-                                        if (cookie != null) {
-                                            cookies.add(cookie.toString());
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        final Set<String> cookies = this.extractCookies(conn);
 
                         // parse response JSON
                         final JSONObject json = new JSONObject(IOUtils.readString(conn.getInputStream()));
@@ -157,6 +139,24 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         return null;
     }
 
+    @NonNull
+    private Set<String> extractCookies(@NonNull final HttpURLConnection conn) {
+        final Set<String> cookies = new HashSet<>();
+        for (final Map.Entry<String, List<String>> header : conn.getHeaderFields().entrySet()) {
+            final String key = header.getKey();
+            if ("Set-Cookie".equalsIgnoreCase(key) || "Set-Cookie2".equals(key)) {
+                for (final String value : header.getValue()) {
+                    for (final HttpCookie cookie : HttpCookie.parse(value)) {
+                        if (cookie != null) {
+                            cookies.add(cookie.toString());
+                        }
+                    }
+                }
+            }
+        }
+        return cookies;
+    }
+
     @Override
     protected void onPrepareUri(@NonNull final Uri.Builder uri, @NonNull final Request<Session> request)
             throws ApiException {
@@ -180,6 +180,21 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         if (request.useSession && request.session != null) {
             conn.addRequestProperty("Cookie", TextUtils.join("; ", request.session.cookies));
         }
+    }
+
+    /* API methods */
+
+    @NonNull
+    private HttpURLConnection getToken(@NonNull final String ticket, final boolean refresh) throws ApiException {
+        // build login request
+        final Request<Session> login = new Request<>(TOKEN);
+        login.accept = MediaType.APPLICATION_JSON;
+        login.params.add(param("st", ticket));
+        login.params.add(param("refresh", refresh));
+        login.useSession = false;
+
+        // send request (tickets are one time use only, so we can't retry)
+        return this.sendRequest(login, 0);
     }
 
     @Nullable
