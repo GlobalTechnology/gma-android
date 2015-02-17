@@ -88,8 +88,7 @@ public class MainActivity extends ActionBarActivity
     
     // try to cut down on api calls
     private boolean trainingDownloaded = false;
-    private boolean ministriesDownloaded = false;
-    
+
     private GoogleMap map;
     private ClusterManager<GcmMarker> clusterManager;
 
@@ -158,9 +157,7 @@ public class MainActivity extends ActionBarActivity
             AuthService.authorizeUser(this);
 
             // trigger background syncing of all the ministries
-            if (!ministriesDownloaded) {
-                MinistriesService.syncAllMinistries(getApplicationContext());
-            }
+            MinistriesService.syncAllMinistries(getApplicationContext());
         }
     }
     
@@ -460,7 +457,6 @@ public class MainActivity extends ActionBarActivity
                             
                             break;
                         case RETRIEVE_ALL_MINISTRIES:
-                            ministriesDownloaded = true;
                             Log.i(TAG, "All ministries loaded & saved to local storage");
                             getCurrentAssignment();
                             break;
