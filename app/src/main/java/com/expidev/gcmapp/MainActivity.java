@@ -156,8 +156,9 @@ public class MainActivity extends ActionBarActivity
         {
             AuthService.authorizeUser(this);
 
-            // trigger background syncing of all the ministries
-            MinistriesService.syncAllMinistries(getApplicationContext());
+            // trigger background syncing of data
+            MinistriesService.syncAllMinistries(this);
+            MinistriesService.syncAssignments(this);
         }
     }
     
@@ -191,6 +192,7 @@ public class MainActivity extends ActionBarActivity
                 return true;
             case R.id.action_refresh:
                 MinistriesService.syncAllMinistries(this, true);
+                MinistriesService.syncAssignments(this, true);
                 return true;
         }
         return super.onOptionsItemSelected(item);

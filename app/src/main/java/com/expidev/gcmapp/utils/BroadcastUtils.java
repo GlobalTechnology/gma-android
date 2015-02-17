@@ -21,8 +21,10 @@ import java.util.ArrayList;
  */
 public final class BroadcastUtils
 {
+    private static final Uri URI_ASSIGNMENTS = Uri.parse("gma://assignments/");
     private static final Uri URI_MINISTRIES = Uri.parse("gma://ministries/");
 
+    private static final String ACTION_UPDATE_ASSIGNMENTS = MinistriesService.class.getName() + ".ACTION_UPDATE_ASSIGNMENTS";
     private static final String ACTION_UPDATE_MINISTRIES = MinistriesService.class.getName() + ".ACTION_UPDATE_MINISTRIES";
 
     public static final String ACTION_START = BroadcastUtils.class.getName() + ".ACTION_START";
@@ -33,6 +35,10 @@ public final class BroadcastUtils
 
     public static final String TICKET_RECEIVED = AuthService.class.getName() + ".TICKET_RECEIVED";
     public static final String TRAINING_RECEIVED = TrainingService.class.getName() + ".TRAINING_RECEIVED";
+
+    private static Uri assignmentsUri() {
+        return URI_ASSIGNMENTS;
+    }
 
     private static Uri ministriesUri() {
         return URI_MINISTRIES;
@@ -127,8 +133,18 @@ public final class BroadcastUtils
         return intent;
     }
 
+    public static Intent updateAssignmentsBroadcast() {
+        return new Intent(ACTION_UPDATE_ASSIGNMENTS, assignmentsUri());
+    }
+
     public static Intent updateMinistriesBroadcast() {
         return new Intent(ACTION_UPDATE_MINISTRIES, ministriesUri());
+    }
+
+    public static IntentFilter updateAssignmentsFilter() {
+        final IntentFilter filter = new IntentFilter(ACTION_UPDATE_ASSIGNMENTS);
+        addDataUri(filter, assignmentsUri(), PatternMatcher.PATTERN_LITERAL);
+        return filter;
     }
 
     public static IntentFilter updateMinistriesFilter() {

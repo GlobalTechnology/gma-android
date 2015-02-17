@@ -9,7 +9,7 @@ public class Contract {
 
     public static abstract class Base implements BaseColumns {
         public static final String COLUMN_ROWID = _ID;
-        static final String COLUMN_LAST_SYNCED = "lastSynced";
+        public static final String COLUMN_LAST_SYNCED = "lastSynced";
 
         static final String SQL_COLUMN_ROWID = COLUMN_ROWID + " INTEGER PRIMARY KEY";
         static final String SQL_COLUMN_LAST_SYNCED = COLUMN_LAST_SYNCED + " INTEGER";
@@ -142,8 +142,8 @@ public class Contract {
         public static final String TABLE_NAME = "assignments";
 
         static final String COLUMN_ID = "id";
-        static final String COLUMN_ROLE = "team_role";
-        static final String COLUMN_MINISTRY_ID = "ministry_id";
+        public static final String COLUMN_ROLE = "team_role";
+        public static final String COLUMN_MINISTRY_ID = "ministry_id";
         static final String COLUMN_LATITUDE = "latitude";
         static final String COLUMN_LONGITUDE = "longitude";
         static final String COLUMN_LOCATION_ZOOM = "location_zoom";

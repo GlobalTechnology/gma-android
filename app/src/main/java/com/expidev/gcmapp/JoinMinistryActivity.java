@@ -24,6 +24,7 @@ import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.tasks.CreateAssignmentTask;
 
 import org.ccci.gto.android.common.util.CursorUtils;
@@ -104,6 +105,9 @@ public class JoinMinistryActivity extends ActionBarActivity
                 super.onPostExecute(assignment);
 
                 if (assignment != null) {
+                    // trigger a forced background sync of all assignments
+                    MinistriesService.syncAssignments(JoinMinistryActivity.this, true);
+
                     // display dialog on success
                     // TODO: we should display the dialog when starting and change state to complete when we finish
                     final AssociatedMinistry ministry = assignment.getMinistry();

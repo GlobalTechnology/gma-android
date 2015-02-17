@@ -33,6 +33,7 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
 
         AuthService.authorizeUser(context);
         MinistriesService.syncAllMinistries(context);
+        MinistriesService.syncAssignments(context);
     }
 
     @Override
