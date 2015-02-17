@@ -18,6 +18,8 @@ public class Measurement extends Base implements Serializable
     private String section;
     private String column;
     private int total;
+    private MeasurementDetails measurementDetails;
+    private String period; // The period passed in to the API
 
     public String getName()
     {
@@ -87,5 +89,25 @@ public class Measurement extends Base implements Serializable
     public void setTotal(int total)
     {
         this.total = total;
+    }
+
+    public MeasurementDetails getMeasurementDetails()
+    {
+        return measurementDetails;
+    }
+
+    public void setMeasurementDetails(MeasurementDetails measurementDetails)
+    {
+        this.measurementDetails = measurementDetails;
+    }
+
+    public String getPeriod()
+    {
+        return period;
+    }
+
+    public void setPeriod(String period)
+    {
+        this.period = period;
     }
 }
