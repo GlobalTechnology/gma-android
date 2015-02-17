@@ -137,4 +137,39 @@ public class Contract {
                         SQL_COLUMN_PARENT_MINISTRY_ID, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
+
+    public static final class Assignment extends Base {
+        public static final String TABLE_NAME = "assignments";
+
+        static final String COLUMN_ID = "assignment_id";
+        static final String COLUMN_ROLE = "team_role";
+        static final String COLUMN_MINISTRY_ID = "ministry_id";
+        static final String COLUMN_LATITUDE = "latitude";
+        static final String COLUMN_LONGITUDE = "longitude";
+        static final String COLUMN_LOCATION_ZOOM = "location_zoom";
+
+        static final String[] PROJECTION_ALL =
+                {COLUMN_ID, COLUMN_ROLE, COLUMN_MINISTRY_ID, COLUMN_LATITUDE, COLUMN_LONGITUDE, COLUMN_LOCATION_ZOOM,
+                        COLUMN_LAST_SYNCED};
+
+        private static final String SQL_COLUMN_ID = COLUMN_ID + " TEXT";
+        private static final String SQL_COLUMN_ROLE = COLUMN_ROLE + " TEXT";
+        private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
+        private static final String SQL_COLUMN_LATITUDE = COLUMN_LATITUDE + " DECIMAL";
+        private static final String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
+        private static final String SQL_COLUMN_LOCATION_ZOOM = COLUMN_LOCATION_ZOOM + " INTEGER";
+        private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_ID + ")";
+        private static final String SQL_FOREIGN_KEY_MINISTRIES =
+                "FOREIGN KEY(" + COLUMN_MINISTRY_ID + ") REFERENCES " + AssociatedMinistry.TABLE_NAME + "(" +
+                        AssociatedMinistry.COLUMN_MINISTRY_ID + ")";
+
+        static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
+        static final String SQL_WHERE_MINISTRY = COLUMN_MINISTRY_ID + " = ?";
+
+        public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
+                .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_ID, SQL_COLUMN_ROLE, SQL_COLUMN_MINISTRY_ID,
+                        SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE, SQL_COLUMN_LOCATION_ZOOM, SQL_COLUMN_LAST_SYNCED,
+                        SQL_PRIMARY_KEY, SQL_FOREIGN_KEY_MINISTRIES}) + ")";
+        public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
 }

@@ -1,6 +1,5 @@
 package com.expidev.gcmapp.db;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -32,6 +31,7 @@ public class MinistriesDao extends AbstractDao
     private static final Object instanceLock = new Object();
     private static MinistriesDao instance;
 
+    private static final Mapper<Assignment> ASSIGNMENT_MAPPER = new AssignmentMapper();
     private static final Mapper<Ministry> ALL_MINISTRIES_MAPPER = new MinistriesMapper();
     private static final Mapper<AssociatedMinistry> ASSOCIATED_MINISTRIES_MAPPER = new AssociatedMinistriesMapper();
 
@@ -64,6 +64,8 @@ public class MinistriesDao extends AbstractDao
         else if(AssociatedMinistry.class.equals(clazz))
         {
             return Contract.AssociatedMinistry.TABLE_NAME;
+        } else if (Assignment.class.equals(clazz)) {
+            return Contract.Assignment.TABLE_NAME;
         }
 
         return super.getTable(clazz);
@@ -80,6 +82,8 @@ public class MinistriesDao extends AbstractDao
         else if(AssociatedMinistry.class.equals(clazz))
         {
             return Contract.AssociatedMinistry.PROJECTION_ALL;
+        } else if (Assignment.class.equals(clazz)) {
+            return Contract.Assignment.PROJECTION_ALL;
         }
 
         return super.getFullProjection(clazz);
@@ -97,6 +101,8 @@ public class MinistriesDao extends AbstractDao
         else if(AssociatedMinistry.class.equals(clazz))
         {
             return (Mapper<T>) ASSOCIATED_MINISTRIES_MAPPER;
+        } else if (Assignment.class.equals(clazz)) {
+            return (Mapper<T>) ASSIGNMENT_MAPPER;
         }
 
         return super.getMapper(clazz);
@@ -106,27 +112,30 @@ public class MinistriesDao extends AbstractDao
     @Override
     protected Pair<String, String[]> getPrimaryKeyWhere(@NonNull final Class<?> clazz, @NonNull final Object... key)
     {
+        final int keyLength;
         final String where;
 
         if(Ministry.class.equals(clazz))
         {
-            if (key.length != 1)
-            {
-                throw new IllegalArgumentException("invalid key for " + clazz);
-            }
+            keyLength = 1;
             where = Contract.Ministry.SQL_WHERE_PRIMARY_KEY;
         }
         else if(AssociatedMinistry.class.equals(clazz))
         {
-            if (key.length != 1)
-            {
-                throw new IllegalArgumentException("invalid key for " + clazz);
-            }
+            keyLength = 1;
             where = Contract.AssociatedMinistry.SQL_WHERE_PRIMARY_KEY;
+        } else if (Assignment.class.equals(clazz)) {
+            keyLength = 1;
+            where = Contract.Assignment.SQL_WHERE_PRIMARY_KEY;
         }
         else
         {
             return super.getPrimaryKeyWhere(clazz, key);
+        }
+
+        // throw an error if the provided key is the wrong size
+        if (key.length != keyLength) {
+            throw new IllegalArgumentException("invalid key for " + clazz);
         }
 
         // return where clause pair
@@ -144,6 +153,8 @@ public class MinistriesDao extends AbstractDao
         else if(obj instanceof Ministry)
         {
             return getPrimaryKeyWhere(Ministry.class, ((Ministry) obj).getMinistryId());
+        } else if (obj instanceof Assignment) {
+            return getPrimaryKeyWhere(Assignment.class, ((Assignment) obj).getId());
         }
 
         return super.getPrimaryKeyWhere(obj);
@@ -161,52 +172,27 @@ public class MinistriesDao extends AbstractDao
 
         return ministries;
     }
-    
-    public Assignment retrieveCurrentAssignment(AssociatedMinistry ministry)
-    {
-        Cursor cursor = null;
+
+    @Nullable
+    public Assignment retrieveCurrentAssignment(@NonNull final AssociatedMinistry ministry) {
         Log.i(TAG, "Looking for assignment with ministryId: " + ministry.getMinistryId());
         
         try
         {
-            cursor = retrieveAssignmentsCursor();
-            
-            if (cursor != null && cursor.getCount() > 0)
-            {
-                cursor.moveToFirst();
-                for (int i = 0; i < cursor.getCount(); i++)
-                {
-                    Log.i(TAG, "assignment ministry id: " + cursor.getString(cursor.getColumnIndex("ministry_id")));
-                    if (cursor.getString(cursor.getColumnIndex("ministry_id")).equals(ministry.getMinistryId()))
-                    {
-                        return buildAssignmentFromCursor(cursor, ministry);
-                    }
-                }
+            final List<Assignment> assignments = this.get(Assignment.class, Contract.Assignment.SQL_WHERE_MINISTRY,
+                                                          new String[] {ministry.getMinistryId()});
+            if (assignments.size() > 0) {
+                final Assignment assignment = assignments.get(0);
+                assignment.setMinistry(ministry);
+                return assignment;
             }
         }
         catch (Exception e)
         {
             Log.e(TAG, e.getMessage(), e);
         }
-        finally
-        {
-            if (cursor != null) cursor.close();
-        }
-        
-        return null;
-    }
 
-    private Assignment buildAssignmentFromCursor(Cursor cursor, AssociatedMinistry ministry)
-    {
-        Assignment assignment = new Assignment();
-        assignment.setId(cursor.getString(cursor.getColumnIndex("ministry_id")));
-        assignment.setLatitude(cursor.getDouble(cursor.getColumnIndex("latitude")));
-        assignment.setLongitude(cursor.getDouble(cursor.getColumnIndex("longitude")));
-        assignment.setMinistry(ministry);
-        assignment.setLocationZoom(cursor.getInt(cursor.getColumnIndex("location_zoom")));
-        assignment.setRole(cursor.getString(cursor.getColumnIndex("team_role")));
-        
-        return assignment;
+        return null;
     }
 
     @Nullable
@@ -248,21 +234,6 @@ public class MinistriesDao extends AbstractDao
         return ministries;
     }
 
-    public Cursor retrieveAssignmentsCursor()
-    {
-        final SQLiteDatabase database = dbHelper.getReadableDatabase();
-        try
-        {
-            return database.query(TableNames.ASSIGNMENTS.getTableName(), null, null, null, null, null, null);
-        }
-        catch(Exception e)
-        {
-            Log.e(TAG, "Failed to retrieve associated ministries: " + e.getMessage());
-        }
-
-        return null;
-    }
-
     public void saveAssociatedMinistries(List<Assignment> assignmentList)
     {
         final SQLiteDatabase database = dbHelper.getWritableDatabase();
@@ -271,50 +242,8 @@ public class MinistriesDao extends AbstractDao
         {
             database.beginTransaction();
 
-            Cursor existingAssignments = retrieveAssignmentsCursor();
-
-            if(existingAssignments != null && existingAssignments.getCount() > 0)
-            {
-                // We need to insert associations that don't yet exist, and update those that do
-                for(Assignment assignment : assignmentList)
-                {
-                    AssociatedMinistry associatedMinistry = assignment.getMinistry();
-
-                    ContentValues assignmentValues = buildAssignmentValues(assignment);
-
-                    if(assignmentExistsInDatabase(assignment.getId(), existingAssignments))
-                    {
-                        associatedMinistry.setParentMinistryId(null);
-                        insertOrUpdateAssociatedMinistry(associatedMinistry);
-
-                        String[] whereArgs = { associatedMinistry.getMinistryId() };
-
-                        database.update(
-                            TableNames.ASSIGNMENTS.getTableName(),
-                            assignmentValues,
-                            "ministry_id = ?",
-                            whereArgs);
-                    }
-                    else
-                    {
-                        associatedMinistry.setParentMinistryId(null);
-                        insertOrUpdateAssociatedMinistry(associatedMinistry);
-                        database.insert(TableNames.ASSIGNMENTS.getTableName(), null, assignmentValues);
-                    }
-                }
-            }
-            else
-            {
-                for(Assignment assignment : assignmentList)
-                {
-                    AssociatedMinistry associatedMinistry = assignment.getMinistry();
-
-                    ContentValues assignmentValues = buildAssignmentValues(assignment);
-
-                    associatedMinistry.setParentMinistryId(null);
-                    insertOrUpdateAssociatedMinistry(associatedMinistry);
-                    database.insert(TableNames.ASSIGNMENTS.getTableName(), null, assignmentValues);
-                }
+            for (final Assignment assignment : assignmentList) {
+                this.updateOrInsertAssignment(assignment);
             }
 
             database.setTransactionSuccessful();
@@ -330,45 +259,43 @@ public class MinistriesDao extends AbstractDao
         }
     }
 
-    void insertOrUpdateAssociatedMinistry(final AssociatedMinistry ministry) {
-        // insert this AssociatedMinistry
-        this.updateOrInsert(ministry, Contract.AssociatedMinistry.PROJECTION_ALL);
+    public void updateOrInsertAssignment(@NonNull final Assignment assignment) {
+        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+        try {
+            db.beginTransaction();
 
-        // process any sub ministries
-        for (final AssociatedMinistry subMinistry : ministry.getSubMinistries()) {
-            subMinistry.setParentMinistryId(ministry.getMinistryId());
-            this.insertOrUpdateAssociatedMinistry(subMinistry);
+            // first store the associated ministries
+            final AssociatedMinistry associatedMinistry = assignment.getMinistry();
+            associatedMinistry.setParentMinistryId(null);
+            insertOrUpdateAssociatedMinistry(associatedMinistry);
+
+            // then store the assignment
+            this.updateOrInsert(assignment);
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
     }
 
-    private boolean assignmentExistsInDatabase(String assignmentId, Cursor existingAssignments)
-    {
-        existingAssignments.moveToFirst();
-        for(int i = 0; i < existingAssignments.getCount(); i++)
-        {
-            String existingAssignmentId = existingAssignments.getString(existingAssignments.getColumnIndex("id"));
-            if(assignmentId.equalsIgnoreCase(existingAssignmentId))
-            {
-                return true;
+    public void insertOrUpdateAssociatedMinistry(@NonNull final AssociatedMinistry ministry) {
+        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+        try {
+            db.beginTransaction();
+
+            // insert this AssociatedMinistry
+            this.updateOrInsert(ministry, Contract.AssociatedMinistry.PROJECTION_ALL);
+
+            // process any sub ministries
+            for (final AssociatedMinistry subMinistry : ministry.getSubMinistries()) {
+                subMinistry.setParentMinistryId(ministry.getMinistryId());
+                this.insertOrUpdateAssociatedMinistry(subMinistry);
             }
 
-            existingAssignments.moveToNext();
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
-        return false;
-    }
-
-    private ContentValues buildAssignmentValues(Assignment assignment)
-    {
-        ContentValues assignmentValues = new ContentValues();
-
-        assignmentValues.put("id", assignment.getId());
-        assignmentValues.put("team_role", assignment.getRole().raw);
-        assignmentValues.put("ministry_id", assignment.getMinistry().getMinistryId());
-        assignmentValues.put("latitude", assignment.getLatitude());
-        assignmentValues.put("longitude", assignment.getLongitude());
-        assignmentValues.put("location_zoom", assignment.getLocationZoom());
-
-        return assignmentValues;
     }
 
     void deleteAllData()

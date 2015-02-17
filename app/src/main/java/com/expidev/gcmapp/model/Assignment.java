@@ -8,8 +8,7 @@ import java.io.Serializable;
 /**
  * Created by William.Randall on 1/23/2015.
  */
-public class Assignment implements Serializable
-{
+public class Assignment extends Base implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private static final String ROLE_LEADER = "leader";
@@ -52,6 +51,8 @@ public class Assignment implements Serializable
     private String id;
     @NonNull
     private Role role = Role.UNKNOWN;
+    @Nullable
+    private String ministryId;
     private AssociatedMinistry ministry;
     private double latitude;
     private double longitude;
@@ -78,6 +79,15 @@ public class Assignment implements Serializable
 
     public void setRole(@NonNull final Role role) {
         this.role = role;
+    }
+
+    @Nullable
+    public String getMinistryId() {
+        return ministryId;
+    }
+
+    public void setMinistryId(@Nullable final String ministryId) {
+        this.ministryId = ministryId;
     }
 
     public AssociatedMinistry getMinistry()

@@ -21,12 +21,12 @@ import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.Type;
+import com.expidev.gcmapp.tasks.CreateAssignmentTask;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 
 public class JoinMinistryActivity extends ActionBarActivity
@@ -38,6 +38,8 @@ public class JoinMinistryActivity extends ActionBarActivity
     private LocalBroadcastManager manager;
     private BroadcastReceiver broadcastReceiver;
     private SharedPreferences preferences;
+
+    /* BEGIN lifecycle */
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -139,6 +141,8 @@ public class JoinMinistryActivity extends ActionBarActivity
         cleanupBroadcastReceivers();
     }
 
+    /* END lifecycle */
+
     private void cleanupBroadcastReceivers()
     {
         Log.i(TAG, "Cleaning up broadcast receivers");
@@ -154,32 +158,31 @@ public class JoinMinistryActivity extends ActionBarActivity
         AssociatedMinistry chosenMinistry = getMinistryByName(ministryTeamList, ministryName);
         String ministryId = chosenMinistry.getMinistryId();
 
-        Assignment assignment = new Assignment();
-        assignment.setRole(Assignment.Role.SELF_ASSIGNED);
-        assignment.setId(UUID.randomUUID().toString());  //TODO: What should go here?
-        assignment.setMinistry(chosenMinistry);
+        new CreateAssignmentTask(this, ministryId, Assignment.Role.SELF_ASSIGNED) {
+            @Override
+            protected void onPostExecute(final Assignment assignment) {
+                super.onPostExecute(assignment);
 
-        MinistriesService.assignUserToMinistry(this, assignment);
-
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-            .setTitle("Join Ministry")
-            .setMessage("You have joined " + ministryName + " with a ministry ID of: " + ministryId)
-            .setNeutralButton("OK", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int which)
-                {
-                    dialog.dismiss();
-                    finish();
+                if (assignment != null) {
+                    // display dialog on success
+                    // TODO: we should display the dialog when starting and change state to complete when we finish
+                    final AssociatedMinistry ministry = assignment.getMinistry();
+                    new AlertDialog.Builder(JoinMinistryActivity.this).setTitle("Join Ministry")
+                            .setMessage("You have joined " + ministry.getName() + " with a ministry ID of: " +
+                                                assignment.getMinistryId()).setNeutralButton(
+                            "OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    finish();
+                                }
+                            }).create().show();
                 }
-            })
-            .create();
 
-        alertDialog.show();
-
-        //TODO: Send request to join this ministry
+                // TODO: we need to handle failed requests
+            }
+        }.execute();
     }
 
-    //TODO: Need to get the rest of the data from the API so MCC options will be filled in
     private AssociatedMinistry getMinistryByName(List<Ministry> ministryList, String name)
     {
         for(Ministry ministry : ministryList)

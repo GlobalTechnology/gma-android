@@ -11,7 +11,7 @@ public enum TableNames
     SESSION("session"),
     USER("user"),
     TRAINING(Contract.Training.TABLE_NAME),
-    ASSIGNMENTS("assignments"),
+    ASSIGNMENTS(Contract.Assignment.TABLE_NAME),
     ALL_MINISTRIES(Contract.Ministry.TABLE_NAME),
     TRAINING_COMPLETIONS(Contract.Training.Completion.TABLE_NAME);
 

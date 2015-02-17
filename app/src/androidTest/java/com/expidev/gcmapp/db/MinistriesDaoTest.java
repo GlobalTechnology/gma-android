@@ -50,7 +50,7 @@ public class MinistriesDaoTest extends InstrumentationTestCase
         assertTrue(ministryNames.contains("Sub Ministry 4"));
         assertTrue(ministryNames.contains("Sub Ministry 5"));
 
-        Cursor cursor = ministriesDao.retrieveAssignmentsCursor();
+        final Cursor cursor = ministriesDao.getCursor(Assignment.class);
         int count = cursor.getCount();
 
         assertEquals(1, count);
@@ -73,7 +73,7 @@ public class MinistriesDaoTest extends InstrumentationTestCase
         List<AssociatedMinistry> ministryList = ministriesDao.retrieveAssociatedMinistriesList();
         assertEquals(6, ministryList.size());
 
-        Cursor cursor = ministriesDao.retrieveAssignmentsCursor();
+        final Cursor cursor = ministriesDao.getCursor(Assignment.class);
         assertNotNull(cursor);
         assertEquals(1, cursor.getCount());
 
@@ -89,6 +89,7 @@ public class MinistriesDaoTest extends InstrumentationTestCase
         Assignment assignemnt1 = new Assignment();
         assignemnt1.setId("A1");
         assignemnt1.setMinistry(mockMinistry());
+        assignemnt1.setMinistryId(assignemnt1.getMinistry().getMinistryId());
         assignemnt1.setRole(Assignment.Role.SELF_ASSIGNED);
 
         assignments.add(assignemnt1);
