@@ -95,6 +95,24 @@ public class MeasurementsActivity extends ActionBarActivity
                     switch(type)
                     {
                         case LOAD_MEASUREMENTS:
+                            List<Measurement> loadedMeasurementsData =
+                                (ArrayList<Measurement>) intent.getSerializableExtra("measurements");
+
+                            if(!loadedMeasurementsData.isEmpty())
+                            {
+                                drawLayout(chosenMinistry, chosenMcc, loadedMeasurementsData);
+                            }
+                            else
+                            {
+                                Log.w(TAG, "No measurement data in local database, try searching from API");
+
+                                MeasurementsService.searchMeasurements(
+                                    MeasurementsActivity.this,
+                                    intent.getStringExtra("ministryId"),
+                                    intent.getStringExtra("mcc"),
+                                    intent.getStringExtra("period"));
+                            }
+                            break;
                         case SEARCH_MEASUREMENTS:
                             Serializable measurementsData = intent.getSerializableExtra("measurements");
 
@@ -121,7 +139,7 @@ public class MeasurementsActivity extends ActionBarActivity
                                     preferences.getString("chosen_ministry", null));
 
                                 MeasurementsService.loadMeasurementsFromDatabase(
-                                    getApplicationContext(),
+                                    MeasurementsActivity.this,
                                     chosenMinistry.getMinistryId(),
                                     chosenMcc,
                                     currentPeriod);
@@ -458,8 +476,8 @@ public class MeasurementsActivity extends ActionBarActivity
         LinearLayout dataContainer = (LinearLayout) findViewById(R.id.measurement_data_Layout);
         dataContainer.removeAllViews();
 
-        MeasurementsService.searchMeasurements(
-            getApplicationContext(),
+        MeasurementsService.loadMeasurementsFromDatabase(
+            MeasurementsActivity.this,
             chosenMinistry.getMinistryId(),
             chosenMcc,
             previousPeriodString);
@@ -491,8 +509,8 @@ public class MeasurementsActivity extends ActionBarActivity
         LinearLayout dataContainer = (LinearLayout) findViewById(R.id.measurement_data_Layout);
         dataContainer.removeAllViews();
 
-        MeasurementsService.searchMeasurements(
-            getApplicationContext(),
+        MeasurementsService.loadMeasurementsFromDatabase(
+            MeasurementsActivity.this,
             chosenMinistry.getMinistryId(),
             chosenMcc,
             nextPeriodString);

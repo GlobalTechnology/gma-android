@@ -357,6 +357,6 @@ public class MeasurementsService extends IntentService
             Contract.Measurement.SQL_WHERE_MINISTRY_MCC_PERIOD,
             new String[] { ministryId, mcc, period });
 
-        broadcastManager.sendBroadcast(measurementsLoaded(measurements));
+        broadcastManager.sendBroadcast(measurementsLoaded(measurements, ministryId, mcc, period));
     }
 }

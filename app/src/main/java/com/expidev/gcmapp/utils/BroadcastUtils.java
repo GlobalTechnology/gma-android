@@ -158,10 +158,15 @@ public final class BroadcastUtils
         return new Intent(ACTION_UPDATE_MEASUREMENTS, measurementsUri());
     }
 
-    public static Intent measurementsLoaded(List<Measurement> measurements)
+    public static Intent measurementsLoaded(List<Measurement> measurements, String ministryId, String mcc, String period)
     {
         Intent intent = stopBroadcast(Type.LOAD_MEASUREMENTS);
         intent.putExtra("measurements", (ArrayList<Measurement>) measurements);
+
+        // We put the search values here in case there are 0 results and we need to search from the API
+        intent.putExtra("ministryId", ministryId);
+        intent.putExtra("mcc", mcc);
+        intent.putExtra("period", period);
         return intent;
     }
 }
