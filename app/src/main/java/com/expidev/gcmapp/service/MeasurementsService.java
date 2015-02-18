@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MeasurementDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
@@ -21,16 +22,22 @@ import org.ccci.gto.android.common.db.AbstractDao;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
+import static com.expidev.gcmapp.service.Type.LOAD_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.SEARCH_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_MEASUREMENT_DETAILS;
 import static com.expidev.gcmapp.service.Type.SYNC_MEASUREMENTS;
 import static com.expidev.gcmapp.utils.BroadcastUtils.measurementDetailsReceivedBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.measurementsLoaded;
 import static com.expidev.gcmapp.utils.BroadcastUtils.measurementsReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
@@ -94,6 +101,9 @@ public class MeasurementsService extends IntentService
                     break;
                 case SYNC_MEASUREMENTS:
                     syncMeasurements(intent);
+                    break;
+                case LOAD_MEASUREMENTS:
+                    loadMeasurementsFromDatabase(intent);
                     break;
                 default:
                     Log.i(TAG, "Unhandled Type: " + type);
@@ -182,6 +192,29 @@ public class MeasurementsService extends IntentService
         context.startService(baseIntent(context, extras));
     }
 
+    public static void loadMeasurementsFromDatabase(final Context context, String ministryId, String mcc, String period)
+    {
+        Bundle extras = new Bundle(4);
+
+        extras.putSerializable("type", LOAD_MEASUREMENTS);
+        extras.putString("ministryId", ministryId);
+        extras.putString("mcc", mcc);
+        extras.putString("period", setPeriodToCurrentIfNecessary(period));
+
+        context.startService(baseIntent(context, extras));
+    }
+
+    private static String setPeriodToCurrentIfNecessary(String period)
+    {
+        if(period == null)
+        {
+            Calendar calendar = Calendar.getInstance();
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
+            period = dateFormat.format(calendar.getTime());
+        }
+        return period;
+    }
+
 
     /////////////////////////////////////////////////////
     //           Actions                              //
@@ -207,6 +240,7 @@ public class MeasurementsService extends IntentService
     private List<Measurement> searchMeasurements(String ministryId, String mcc, String period) throws ApiException
     {
         final GmaApiClient apiClient = GmaApiClient.getInstance(this);
+        period = setPeriodToCurrentIfNecessary(period);
         JSONArray results = apiClient.searchMeasurements(ministryId, mcc, period);
 
         if(results == null)
@@ -310,5 +344,19 @@ public class MeasurementsService extends IntentService
         {
             transaction.end();
         }
+    }
+
+    private void loadMeasurementsFromDatabase(Intent intent)
+    {
+        String ministryId = intent.getStringExtra("ministryId");
+        String mcc = intent.getStringExtra("mcc");
+        String period = intent.getStringExtra("period");
+
+        List<Measurement> measurements = measurementDao.get(
+            Measurement.class,
+            Contract.Measurement.SQL_WHERE_MINISTRY_MCC_PERIOD,
+            new String[] { ministryId, mcc, period });
+
+        broadcastManager.sendBroadcast(measurementsLoaded(measurements));
     }
 }

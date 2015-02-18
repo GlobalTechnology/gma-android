@@ -94,6 +94,7 @@ public class MeasurementsActivity extends ActionBarActivity
 
                     switch(type)
                     {
+                        case LOAD_MEASUREMENTS:
                         case SEARCH_MEASUREMENTS:
                             Serializable measurementsData = intent.getSerializableExtra("measurements");
 
@@ -114,13 +115,12 @@ public class MeasurementsActivity extends ActionBarActivity
 
                             if(ministriesData != null)
                             {
-                                //TODO: Handle no chosen ministry (need default somewhere in Main)
                                 List<Ministry> associatedMinistries = (ArrayList<Ministry>) ministriesData;
                                 chosenMinistry = getMinistryForName(
                                     associatedMinistries,
                                     preferences.getString("chosen_ministry", null));
 
-                                MeasurementsService.searchMeasurements(
+                                MeasurementsService.loadMeasurementsFromDatabase(
                                     getApplicationContext(),
                                     chosenMinistry.getMinistryId(),
                                     chosenMcc,

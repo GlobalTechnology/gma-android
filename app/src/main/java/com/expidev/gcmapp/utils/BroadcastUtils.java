@@ -15,6 +15,7 @@ import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by matthewfrederick on 1/23/15.
@@ -155,5 +156,12 @@ public final class BroadcastUtils
     public static Intent updateMeasurementsBroadcast()
     {
         return new Intent(ACTION_UPDATE_MEASUREMENTS, measurementsUri());
+    }
+
+    public static Intent measurementsLoaded(List<Measurement> measurements)
+    {
+        Intent intent = stopBroadcast(Type.LOAD_MEASUREMENTS);
+        intent.putExtra("measurements", (ArrayList<Measurement>) measurements);
+        return intent;
     }
 }
