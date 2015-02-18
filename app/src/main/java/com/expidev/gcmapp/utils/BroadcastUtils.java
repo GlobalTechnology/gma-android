@@ -9,6 +9,7 @@ import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
+import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
@@ -22,9 +23,11 @@ public final class BroadcastUtils
 {
     private static final Uri URI_ASSIGNMENTS = Uri.parse("gma://assignments/");
     private static final Uri URI_MINISTRIES = Uri.parse("gma://ministries/");
+    private static final Uri URI_MEASUREMENTS = Uri.parse("gma://measurements/");
 
     private static final String ACTION_UPDATE_ASSIGNMENTS = MinistriesService.class.getName() + ".ACTION_UPDATE_ASSIGNMENTS";
     private static final String ACTION_UPDATE_MINISTRIES = MinistriesService.class.getName() + ".ACTION_UPDATE_MINISTRIES";
+    private static final String ACTION_UPDATE_MEASUREMENTS = MeasurementsService.class.getName() + ".ACTION_UPDATE_MEASUREMENTS";
 
     public static final String ACTION_START = BroadcastUtils.class.getName() + ".ACTION_START";
     public static final String ACTION_RUNNING = BroadcastUtils.class.getName() + ".ACTION_RUNNING";
@@ -40,6 +43,11 @@ public final class BroadcastUtils
 
     private static Uri ministriesUri() {
         return URI_MINISTRIES;
+    }
+
+    private static Uri measurementsUri()
+    {
+        return URI_MEASUREMENTS;
     }
 
     /* Intent Filter generation methods */
@@ -142,5 +150,10 @@ public final class BroadcastUtils
         final IntentFilter filter = new IntentFilter(ACTION_UPDATE_MINISTRIES);
         addDataUri(filter, ministriesUri(), PatternMatcher.PATTERN_LITERAL);
         return filter;
+    }
+
+    public static Intent updateMeasurementsBroadcast()
+    {
+        return new Intent(ACTION_UPDATE_MEASUREMENTS, measurementsUri());
     }
 }

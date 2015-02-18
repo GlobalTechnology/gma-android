@@ -1,8 +1,5 @@
 package com.expidev.gcmapp;
 
-import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
-import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
-
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -60,6 +57,9 @@ import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.content.AttributesLoader;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
+
+import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
+import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
 
 
 public class MainActivity extends ActionBarActivity
@@ -152,6 +152,7 @@ public class MainActivity extends ActionBarActivity
             // trigger background syncing of data
             MinistriesService.syncAllMinistries(this);
             MinistriesService.syncAssignments(this);
+            MeasurementsService.syncMeasurements(this);
         }
     }
 
@@ -179,6 +180,7 @@ public class MainActivity extends ActionBarActivity
             case R.id.action_refresh:
                 MinistriesService.syncAllMinistries(this, true);
                 MinistriesService.syncAssignments(this, true);
+                MeasurementsService.syncMeasurements(this, true);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -498,20 +500,20 @@ public class MainActivity extends ActionBarActivity
 
                             break;
                         case SEARCH_MEASUREMENTS:
-                            Serializable measurementsData = intent.getSerializableExtra("measurements");
+                                Serializable measurementsData = intent.getSerializableExtra("measurements");
 
-                            if(measurementsData != null)
-                            {
-                                Log.i(TAG, "Measurements downloaded");
-                                List<Measurement> measurements = (ArrayList<Measurement>) measurementsData;
-                                MeasurementsService.saveMeasurementsToDatabase(getApplicationContext(), measurements);
-                                measurementsDownloaded = true;
-                            }
-                            else
-                            {
-                                Log.w(TAG, "No measurement data");
-                            }
-                            break;
+                                if(measurementsData != null)
+                                {
+                                    Log.i(TAG, "Measurements downloaded");
+                                    List<Measurement> measurements = (ArrayList<Measurement>) measurementsData;
+                                    MeasurementsService.saveMeasurementsToDatabase(getApplicationContext(), measurements);
+                                    measurementsDownloaded = true;
+                                }
+                                else
+                                {
+                                    Log.w(TAG, "No measurement data");
+                                }
+                                break;
                         case SAVE_MEASUREMENTS:
                             Log.i(TAG, "Measurements saved to local storage");
                             break;
