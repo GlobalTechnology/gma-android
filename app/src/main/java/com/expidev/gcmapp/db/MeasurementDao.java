@@ -171,8 +171,8 @@ public class MeasurementDao extends AbstractDao
 
         if(Measurement.class.equals(clazz))
         {
-            keyLength = 1;
-            where = Contract.Measurement.SQL_WHERE_PRIMARY_KEY;
+            keyLength = 4;
+            where = Contract.Measurement.SQL_WHERE_UNIQUE;
         }
         else if(MeasurementDetails.class.equals(clazz))
         {
@@ -206,15 +206,22 @@ public class MeasurementDao extends AbstractDao
     {
         if(obj instanceof Measurement)
         {
-            return getPrimaryKeyWhere(Measurement.class, ((Measurement) obj).getMeasurementId());
+            String mcc = ((Measurement) obj).getMcc();
+            return getPrimaryKeyWhere(
+                Measurement.class,
+                ((Measurement) obj).getMeasurementId(),
+                ((Measurement) obj).getMinistryId(),
+                mcc != null ? mcc : "SLM",
+                ((Measurement) obj).getPeriod());
         }
         else if(obj instanceof MeasurementDetails)
         {
+            String mcc = ((MeasurementDetails) obj).getMcc();
             return getPrimaryKeyWhere(
                 MeasurementDetails.class,
                 ((MeasurementDetails) obj).getMeasurementId(),
                 ((MeasurementDetails) obj).getMinistryId(),
-                ((MeasurementDetails) obj).getMcc(),
+                mcc != null ? mcc : "SLM",
                 ((MeasurementDetails) obj).getPeriod());
         }
         else if(obj instanceof MeasurementDetailsData)

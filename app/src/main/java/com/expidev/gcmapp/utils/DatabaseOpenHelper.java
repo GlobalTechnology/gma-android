@@ -45,7 +45,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         createAssignmentsTable(db);
         createAllMinistriesTable(db);
         createTrainingTables(db);
-        db.execSQL(Contract.Measurement.SQL_CREATE_TABLE);
+        createMeasurementsTables(db);
     }
 
     @Override
@@ -109,6 +109,15 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     private void createAllMinistriesTable(SQLiteDatabase db)
     {
         db.execSQL(Contract.Ministry.SQL_CREATE_TABLE);
+    }
+
+    /**
+     * These tables hold measurement and measurement details data
+     */
+    private void createMeasurementsTables(SQLiteDatabase db)
+    {
+        db.execSQL(Contract.Measurement.SQL_CREATE_TABLE);
+        db.execSQL(Contract.Measurement.SQL_CREATE_INDEX);
     }
 
     private void deleteAllTables(SQLiteDatabase db)
