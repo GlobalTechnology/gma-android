@@ -206,8 +206,12 @@ public class MainActivity extends ActionBarActivity
     }
 
     void onLoadCurrentMinistry(@Nullable final AssociatedMinistry ministry) {
+        // store the current ministry
         final AssociatedMinistry old = mCurrentMinistry;
         mCurrentMinistry = ministry;
+
+        // update any View data
+        updateCurrentMinistryViews();
 
         // trigger a zoom only if we are changing from one ministryId to another
         final String oldId = old != null ? old.getMinistryId() : null;
@@ -243,6 +247,13 @@ public class MainActivity extends ActionBarActivity
         final LoaderManager manager = this.getSupportLoaderManager();
         manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, new AttributesLoaderCallbacks());
         manager.initLoader(LOADER_CURRENT_MINISTRY, null, new AssociatedMinistryLoaderCallbacks());
+    }
+
+    private void updateCurrentMinistryViews() {
+        // set map overlay text
+        if (mapOverlayText != null) {
+            mapOverlayText.setText(mCurrentMinistry != null ? mCurrentMinistry.getName() : null);
+        }
     }
 
     public void joinNewMinistry(MenuItem menuItem)
@@ -593,9 +604,6 @@ public class MainActivity extends ActionBarActivity
                 Log.i(TAG, "currentMinistry: " + currentMinistry.getName());
 
                 setChosenMcc();
-
-                // set map overlay text
-                mapOverlayText.setText(currentMinistry.getName());
 
                 // start adding markers to map
 
