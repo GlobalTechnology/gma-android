@@ -92,12 +92,12 @@ public class MainActivity extends ActionBarActivity
     private GoogleMap map;
     private ClusterManager<GcmMarker> clusterManager;
 
+    @Nullable
     private AssociatedMinistry mCurrentMinistry;
     private AssociatedMinistry currentMinistry;
     private boolean currentAssignmentSet = false;
     private boolean refreshAssignment;
-    private String chosenMcc;
-    
+
     private TextView mapOverlayText;
     
     private List<Training> allTraining;
@@ -603,14 +603,12 @@ public class MainActivity extends ActionBarActivity
 
                 Log.i(TAG, "currentMinistry: " + currentMinistry.getName());
 
-                setChosenMcc();
-
                 // start adding markers to map
 
                 // download training if not already done
                 if (!trainingDownloaded)
                 {
-                    trainingSearch(currentMinistry.getMinistryId(), chosenMcc);
+                    trainingSearch(currentMinistry.getMinistryId(), getChosenMcc());
                 }
 
 
@@ -640,21 +638,29 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
-    private void setChosenMcc()
-    {
-        if(currentMinistry == null) return;
+    @Nullable
+    private String getChosenMcc() {
+        if (mCurrentMinistry != null) {
+            String mcc = preferences.getString("chosen_mcc", null);
 
-        chosenMcc = preferences.getString("chosen_mcc", null);
+            if (mcc == null || "No MCC Options".equals(mcc)) {
+                if (mCurrentMinistry.hasSlm()) {
+                    mcc = "SLM";
+                } else if (mCurrentMinistry.hasGcm()) {
+                    mcc = "GCM";
+                } else if (mCurrentMinistry.hasLlm()) {
+                    mcc = "LLM";
+                } else if (mCurrentMinistry.hasDs()) {
+                    mcc = "DS";
+                }
 
-        if(chosenMcc == null || "No MCC Options".equals(chosenMcc))
-        {
-            if(currentMinistry.hasSlm()) chosenMcc = "SLM";
-            else if(currentMinistry.hasGcm()) chosenMcc = "GCM";
-            else if(currentMinistry.hasLlm()) chosenMcc = "LLM";
-            else if(currentMinistry.hasDs()) chosenMcc = "DS";
+                preferences.edit().putString("chosen_mcc", mcc).apply();
+            }
 
-            preferences.edit().putString("chosen_mcc", chosenMcc).apply();
+            return mcc;
         }
+
+        return null;
     }
 
     private class AssociatedMinistryLoaderCallbacks extends SimpleLoaderCallbacks<AssociatedMinistry> {
