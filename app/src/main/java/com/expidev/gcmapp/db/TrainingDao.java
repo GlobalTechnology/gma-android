@@ -13,14 +13,8 @@ import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.Mapper;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by matthewfrederick on 1/26/15.
@@ -180,57 +174,7 @@ public class TrainingDao extends AbstractDao
         return null;
     }
 
-    // TODO: this should be handled at either the API or Service layer
-    public void saveTrainingFromAPI(JSONArray jsonArray)
-    {
-        try
-        {
-            Log.i(TAG, "API returned: " + jsonArray.length());
-            
-            for (int i = 0; i < jsonArray.length(); i++)
-            {
-                final JSONObject json = jsonArray.getJSONObject(i);
-
-                // build training object
-                final Training training = new Training();
-                training.setId(json.getInt("id"));
-                training.setMinistryId(json.getString("ministry_id"));
-                training.setName(json.getString("name"));
-                training.setDate(stringToDate(json.getString("date")));
-                training.setType(json.getString("type"));
-                training.setMcc(json.getString("mcc"));
-                training.setLatitude(json.getDouble("latitude"));
-                training.setLongitude(json.getDouble("longitude"));
-                training.setLastSynced(new Date());
-
-                // build completion objects for all completed trainings
-                JSONArray trainingCompletedArray = json.getJSONArray("gcm_training_completions");
-                for (int j = 0; j < trainingCompletedArray.length(); j++)
-                {
-                    final JSONObject completionJson = trainingCompletedArray.getJSONObject(j);
-
-                    final Training.GCMTrainingCompletions completion = new Training.GCMTrainingCompletions();
-                    completion.setId(completionJson.getInt("id"));
-                    completion.setTrainingId(completionJson.getInt("training_id"));
-                    completion.setPhase(completionJson.getInt("phase"));
-                    completion.setNumberCompleted(completionJson.getInt("number_completed"));
-                    completion.setDate(stringToDate(completionJson.getString("date")));
-
-                    training.addCompletion(completion);
-                }
-
-                // update or insert training object
-                this.saveTraining(training);
-            }
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
-        }
-    }
-    
-    public void saveTraining(Training training)
-    {
+    public void saveTraining(@NonNull final Training training) {
         final SQLiteDatabase database = dbHelper.getWritableDatabase();
         try
         {
@@ -274,11 +218,5 @@ public class TrainingDao extends AbstractDao
 
             if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (deleteAllData)");
         }
-    }
-
-    private Date stringToDate(String string) throws ParseException
-    {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        return format.parse(string);
     }
 }
