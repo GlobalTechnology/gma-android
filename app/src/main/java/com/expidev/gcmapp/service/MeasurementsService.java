@@ -26,15 +26,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import static com.expidev.gcmapp.service.Type.LOAD_MEASUREMENTS;
+import static com.expidev.gcmapp.service.Type.RETRIEVE_AND_SAVE_MEASUREMENTS;
+import static com.expidev.gcmapp.service.Type.RETRIEVE_MEASUREMENT_DETAILS;
 import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.SEARCH_MEASUREMENTS;
-import static com.expidev.gcmapp.service.Type.RETRIEVE_MEASUREMENT_DETAILS;
 import static com.expidev.gcmapp.service.Type.SYNC_MEASUREMENTS;
 import static com.expidev.gcmapp.utils.BroadcastUtils.measurementDetailsReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.measurementsLoaded;
@@ -58,6 +57,8 @@ public class MeasurementsService extends IntentService
     private static final long HOUR_IN_MS = 60 * 60 * 1000;
     private static final long DAY_IN_MS = 24 * HOUR_IN_MS;
     private static final long STALE_DURATION_MEASUREMENTS = DAY_IN_MS;
+
+    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
 
     @NonNull
     private MeasurementDao measurementDao;
@@ -104,6 +105,9 @@ public class MeasurementsService extends IntentService
                     break;
                 case LOAD_MEASUREMENTS:
                     loadMeasurementsFromDatabase(intent);
+                    break;
+                case RETRIEVE_AND_SAVE_MEASUREMENTS:
+                    retrieveAndSaveInitialMeasurements(intent);
                     break;
                 default:
                     Log.i(TAG, "Unhandled Type: " + type);
@@ -204,12 +208,27 @@ public class MeasurementsService extends IntentService
         context.startService(baseIntent(context, extras));
     }
 
+    public static void retrieveAndSaveInitialMeasurements(
+        final Context context,
+        String ministryId,
+        String mcc,
+        String period)
+    {
+        Bundle extras = new Bundle(4);
+
+        extras.putSerializable("type", RETRIEVE_AND_SAVE_MEASUREMENTS);
+        extras.putString("ministryId", ministryId);
+        extras.putString("mcc", mcc);
+        extras.putString("period", setPeriodToCurrentIfNecessary(period));
+
+        context.startService(baseIntent(context, extras));
+    }
+
     private static String setPeriodToCurrentIfNecessary(String period)
     {
         if(period == null)
         {
             Calendar calendar = Calendar.getInstance();
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
             period = dateFormat.format(calendar.getTime());
         }
         return period;
@@ -358,5 +377,22 @@ public class MeasurementsService extends IntentService
             new String[] { ministryId, mcc, period });
 
         broadcastManager.sendBroadcast(measurementsLoaded(measurements, ministryId, mcc, period));
+    }
+
+    private void retrieveAndSaveInitialMeasurements(Intent intent) throws ApiException
+    {
+        String ministryId = intent.getStringExtra("ministryId");
+        String mcc = intent.getStringExtra("mcc");
+        String period = intent.getStringExtra("period");
+
+        Calendar previousMonth = Calendar.getInstance();
+        previousMonth.add(Calendar.MONTH, -1);
+
+        String previousPeriod = dateFormat.format(previousMonth.getTime());
+
+        List<Measurement> measurements = searchMeasurements(ministryId, mcc, period);
+        measurements.addAll(searchMeasurements(ministryId, mcc, previousPeriod));
+
+        updateMeasurements(measurements);
     }
 }

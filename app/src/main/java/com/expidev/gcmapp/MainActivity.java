@@ -29,7 +29,6 @@ import com.expidev.gcmapp.map.GcmMarker;
 import com.expidev.gcmapp.map.MarkerRender;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Training;
-import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
@@ -49,8 +48,6 @@ import com.google.maps.android.clustering.ClusterManager;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 import me.thekey.android.TheKey;
@@ -218,7 +215,7 @@ public class MainActivity extends ActionBarActivity
 
         if(!measurementsDownloaded)
         {
-            MeasurementsService.searchMeasurements(this, mCurrentMinistry.getMinistryId(), getChosenMcc(), null);
+            MeasurementsService.retrieveAndSaveInitialMeasurements(this, mCurrentMinistry.getMinistryId(), getChosenMcc(), null);
         }
     }
 
@@ -499,23 +496,9 @@ public class MainActivity extends ActionBarActivity
                             updateMap(false);
 
                             break;
-                        case SEARCH_MEASUREMENTS:
-                                Serializable measurementsData = intent.getSerializableExtra("measurements");
-
-                                if(measurementsData != null)
-                                {
-                                    Log.i(TAG, "Measurements downloaded");
-                                    List<Measurement> measurements = (ArrayList<Measurement>) measurementsData;
-                                    MeasurementsService.saveMeasurementsToDatabase(getApplicationContext(), measurements);
-                                    measurementsDownloaded = true;
-                                }
-                                else
-                                {
-                                    Log.w(TAG, "No measurement data");
-                                }
-                                break;
                         case SAVE_MEASUREMENTS:
                             Log.i(TAG, "Measurements saved to local storage");
+                            measurementsDownloaded = true;
                             break;
                         default:
                             Log.i(TAG, "Unhandled Type: " + type);
