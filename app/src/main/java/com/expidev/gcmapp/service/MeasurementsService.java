@@ -216,7 +216,7 @@ public class MeasurementsService extends IntentService
         }
         else
         {
-            return MeasurementsJsonParser.parseMeasurements(results);
+            return MeasurementsJsonParser.parseMeasurements(results, ministryId, mcc, period);
         }
     }
 

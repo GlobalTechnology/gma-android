@@ -1,6 +1,7 @@
 package com.expidev.gcmapp.model.measurement;
 
 import com.expidev.gcmapp.model.Base;
+import com.expidev.gcmapp.model.Ministry;
 
 import java.io.Serializable;
 
@@ -20,6 +21,8 @@ public class Measurement extends Base implements Serializable
     private int total;
     private MeasurementDetails measurementDetails;
     private String period; // The period passed in to the API
+    private String ministryId;
+    private String mcc;
 
     public String getName()
     {
@@ -109,5 +112,25 @@ public class Measurement extends Base implements Serializable
     public void setPeriod(String period)
     {
         this.period = period;
+    }
+
+    public String getMinistryId()
+    {
+        return ministryId;
+    }
+
+    public void setMinistryId(String ministryId)
+    {
+        this.ministryId = ministryId;
+    }
+
+    public String getMcc()
+    {
+        return mcc;
+    }
+
+    public void setMcc(String mcc)
+    {
+        this.mcc = mcc;
     }
 }

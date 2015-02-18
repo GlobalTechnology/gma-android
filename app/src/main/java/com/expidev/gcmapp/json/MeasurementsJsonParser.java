@@ -24,7 +24,11 @@ public class MeasurementsJsonParser
 {
     private static String TAG = MeasurementsJsonParser.class.getSimpleName();
 
-    public static List<Measurement> parseMeasurements(JSONArray measurementsJson)
+    public static List<Measurement> parseMeasurements(
+        JSONArray measurementsJson,
+        String ministryId,
+        String mcc,
+        String period)
     {
         List<Measurement> measurementList = new ArrayList<>();
 
@@ -34,6 +38,9 @@ public class MeasurementsJsonParser
             {
                 JSONObject measurementJson = measurementsJson.getJSONObject(i);
                 Measurement measurement = parseMeasurement(measurementJson);
+                measurement.setMinistryId(ministryId);
+                measurement.setMcc(mcc);
+                measurement.setPeriod(period);
                 measurementList.add(measurement);
             }
 

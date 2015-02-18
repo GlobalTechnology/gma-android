@@ -39,6 +39,16 @@ public class MeasurementMapper extends BaseMapper<Measurement>
                 break;
             case Contract.Measurement.COLUMN_TOTAL:
                 values.put(field, measurement.getTotal());
+                break;
+            case Contract.Measurement.COLUMN_MINISTRY_ID:
+                values.put(field, measurement.getMinistryId());
+                break;
+            case Contract.Measurement.COLUMN_MCC:
+                values.put(field, measurement.getMcc());
+                break;
+            case Contract.Measurement.COLUMN_PERIOD:
+                values.put(field, measurement.getPeriod());
+                break;
             default:
                 super.mapField(values, field, measurement);
                 break;
@@ -65,6 +75,9 @@ public class MeasurementMapper extends BaseMapper<Measurement>
         measurement.setSection(this.getString(cursor, Contract.Measurement.COLUMN_SECTION, null));
         measurement.setColumn(this.getString(cursor, Contract.Measurement.COLUMN_COLUMN, null));
         measurement.setTotal(this.getInt(cursor, Contract.Measurement.COLUMN_TOTAL, 0));
+        measurement.setMinistryId(this.getString(cursor, Contract.Measurement.COLUMN_MINISTRY_ID, null));
+        measurement.setMcc(this.getString(cursor, Contract.Measurement.COLUMN_MCC, null));
+        measurement.setPeriod(this.getString(cursor, Contract.Measurement.COLUMN_PERIOD, null));
 
         return measurement;
     }

@@ -186,10 +186,13 @@ public class Contract {
         static final String COLUMN_SECTION = "section";
         static final String COLUMN_COLUMN = "measurement_column";
         static final String COLUMN_TOTAL = "total";
+        static final String COLUMN_MINISTRY_ID = "ministry_id";
+        static final String COLUMN_MCC = "mcc";
+        static final String COLUMN_PERIOD = "period";
 
         static final String[] PROJECTION_ALL = {
-            COLUMN_MEASUREMENT_ID, COLUMN_NAME, COLUMN_PERM_LINK, COLUMN_CUSTOM,
-            COLUMN_SECTION, COLUMN_COLUMN, COLUMN_TOTAL, COLUMN_LAST_SYNCED
+            COLUMN_MEASUREMENT_ID, COLUMN_NAME, COLUMN_PERM_LINK, COLUMN_CUSTOM, COLUMN_SECTION, COLUMN_COLUMN,
+            COLUMN_TOTAL, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERIOD, COLUMN_LAST_SYNCED
         };
 
         private static final String SQL_COLUMN_MEASUREMENT_ID = COLUMN_MEASUREMENT_ID + " TEXT";
@@ -199,14 +202,19 @@ public class Contract {
         private static final String SQL_COLUMN_SECTION= COLUMN_SECTION + " TEXT";
         private static final String SQL_COLUMN_COLUMN = COLUMN_COLUMN + " TEXT";
         private static final String SQL_COLUMN_TOTAL = COLUMN_TOTAL + " INTEGER";
+        private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
+        private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
+        private static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
 
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_MEASUREMENT_ID + ")";
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_MEASUREMENT_ID + " = ?";
+        public static final String SQL_WHERE_MINISTRY_MCC_PERIOD = COLUMN_MINISTRY_ID + " = ? AND " +
+            COLUMN_MCC + " = ? AND " + COLUMN_PERIOD + " = ?";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
             .join(",", new Object[]{ SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_NAME, SQL_COLUMN_PERM_LINK,
-                SQL_COLUMN_CUSTOM, SQL_COLUMN_SECTION, SQL_COLUMN_COLUMN, SQL_COLUMN_TOTAL, SQL_COLUMN_LAST_SYNCED,
-                SQL_PRIMARY_KEY }) + ");";
+                SQL_COLUMN_CUSTOM, SQL_COLUMN_SECTION, SQL_COLUMN_COLUMN, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_MCC,
+                SQL_COLUMN_PERIOD, SQL_COLUMN_TOTAL, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY }) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
