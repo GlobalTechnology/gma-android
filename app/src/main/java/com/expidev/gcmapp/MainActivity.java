@@ -82,9 +82,6 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
 
-    // try to cut down on api calls
-    private boolean trainingDownloaded = false;
-
     @Nullable
     private GoogleMap map;
     private ClusterManager<GcmMarker> clusterManager;
@@ -93,7 +90,8 @@ public class MainActivity extends ActionBarActivity
     private AssociatedMinistry mCurrentMinistry;
 
     private TextView mapOverlayText;
-    
+
+    @Nullable
     private List<Training> allTraining;
 
     /* BEGIN lifecycle */
@@ -202,13 +200,13 @@ public class MainActivity extends ActionBarActivity
         final String newId = ministry != null ? ministry.getMinistryId() : null;
         final boolean changed = oldId != null ? !oldId.equals(newId) : newId != null;
 
-        // update the map
-        updateMap(changed);
-
         // trigger some additional actions if we are changing our current ministry
         if (changed) {
             onChangeCurrentMinistry();
         }
+
+        // update the map
+        updateMap(changed);
     }
 
     /**
@@ -226,6 +224,8 @@ public class MainActivity extends ActionBarActivity
         if (mCurrentMinistry != null) {
             TrainingDao trainingDao = TrainingDao.getInstance(this);
             allTraining = trainingDao.getAllMinistryTraining(mCurrentMinistry.getMinistryId());
+        } else {
+            allTraining = null;
         }
     }
 
@@ -442,7 +442,7 @@ public class MainActivity extends ActionBarActivity
     private void addTrainingMarkersToMap() {
         // do not show training activities if turned off in map settings
         Log.i(TAG, "Show training: " + trainingActivities);
-        if (trainingActivities && trainingDownloaded) {
+        if (trainingActivities && allTraining != null) {
             for (Training training : allTraining)
             {
                 GcmMarker marker = new GcmMarker(training.getName(), training.getLatitude(), training.getLongitude());
@@ -479,10 +479,9 @@ public class MainActivity extends ActionBarActivity
                         case TRAINING:
                             Log.i(TAG, "Training search complete and training saved");
                             
-                            trainingDownloaded = true;
-                            
                             TrainingDao trainingDao = TrainingDao.getInstance(context);
-                            allTraining = trainingDao.getAllMinistryTraining(mCurrentMinistry.getMinistryId());
+                            allTraining = mCurrentMinistry != null ?
+                                    trainingDao.getAllMinistryTraining(mCurrentMinistry.getMinistryId()) : null;
 
                             updateMap(false);
 
