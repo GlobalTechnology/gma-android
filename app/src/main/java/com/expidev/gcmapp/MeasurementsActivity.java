@@ -120,6 +120,9 @@ public class MeasurementsActivity extends ActionBarActivity
                             {
                                 List<Measurement> measurements = (ArrayList<Measurement>) measurementsData;
                                 drawLayout(chosenMinistry, chosenMcc, measurements);
+
+                                // Save the measurements to the database for quicker loading next time
+                                MeasurementsService.saveMeasurementsToDatabase(MeasurementsActivity.this, measurements);
                             }
                             else
                             {
@@ -148,6 +151,9 @@ public class MeasurementsActivity extends ActionBarActivity
                             {
                                 Log.w(TAG, "No associated ministries");
                             }
+                            break;
+                        case SAVE_MEASUREMENTS:
+                            Log.i(TAG, "Measurements saved to the database");
                             break;
                         default:
                             Log.i(TAG, "Unhandled Type: " + type);
