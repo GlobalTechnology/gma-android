@@ -89,6 +89,7 @@ public class MainActivity extends ActionBarActivity
     // try to cut down on api calls
     private boolean trainingDownloaded = false;
 
+    @Nullable
     private GoogleMap map;
     private ClusterManager<GcmMarker> clusterManager;
 
@@ -208,13 +209,16 @@ public class MainActivity extends ActionBarActivity
         final AssociatedMinistry old = mCurrentMinistry;
         mCurrentMinistry = ministry;
 
-        // update any View data
-        updateCurrentMinistryViews();
-
-        // trigger some additional actions if we are changing our current ministry
+        // determine if the current ministry changed
         final String oldId = old != null ? old.getMinistryId() : null;
         final String newId = ministry != null ? ministry.getMinistryId() : null;
-        if (oldId != null ? !oldId.equals(newId) : newId != null) {
+        final boolean changed = oldId != null ? !oldId.equals(newId) : newId != null;
+
+        // update the map
+        updateMap(changed);
+
+        // trigger some additional actions if we are changing our current ministry
+        if (changed) {
             onChangeCurrentMinistry();
         }
     }
@@ -228,9 +232,6 @@ public class MainActivity extends ActionBarActivity
             String mcc = getChosenMcc();
             TrainingService.downloadTraining(this, mCurrentMinistry.getMinistryId(), mcc != null ? mcc : "slm");
         }
-
-        // update map zoom
-        zoomToLocation();
     }
 
     @Override
@@ -243,7 +244,7 @@ public class MainActivity extends ActionBarActivity
         
         getMapPreferences();
         refreshCurrentAssignment();
-        setUpMap();
+        updateMap(false);
     }
 
     @Override
@@ -261,10 +262,30 @@ public class MainActivity extends ActionBarActivity
         manager.initLoader(LOADER_CURRENT_MINISTRY, null, new AssociatedMinistryLoaderCallbacks());
     }
 
-    private void updateCurrentMinistryViews() {
-        // set map overlay text
+    private void updateMap(final boolean zoom) {
+        // update map overlay text
         if (mapOverlayText != null) {
             mapOverlayText.setText(mCurrentMinistry != null ? mCurrentMinistry.getName() : null);
+        }
+
+        // update map itself if it exists
+        if (map != null) {
+            // update map zoom
+            if (zoom) {
+                zoomToLocation();
+            }
+
+            // update Markers on the map
+            if (clusterManager != null) {
+                // clear any previous items
+                clusterManager.clearItems();
+
+                // add training Markers
+                addTrainingMarkersToMap();
+
+                // force a recluster
+                clusterManager.cluster();
+            }
         }
     }
 
@@ -393,11 +414,6 @@ public class MainActivity extends ActionBarActivity
         refreshAssignment = true;
         refreshAssignment = !new SetCurrentMinistry().doInBackground(this);
     }
-    
-    private void setUpMap()
-    {   
-        if (trainingDownloaded) addTrainingMakersToMap();
-    }
 
     private boolean checkPlayServices()
     {
@@ -425,24 +441,22 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap)
-    {
+    public void onMapReady(@NonNull final GoogleMap googleMap) {
         Log.i(TAG, "On Map Ready");
         this.map = googleMap;
-        
-        zoomToLocation();
-        
-        setUpMap();
-        
         clusterManager = new ClusterManager<>(this, map);
         clusterManager.setRenderer(new MarkerRender(this, map, clusterManager));
         map.setOnCameraChangeListener(clusterManager);
         map.setOnMarkerClickListener(clusterManager);
+
+        // update the map
+        updateMap(true);
     }
 
     private void zoomToLocation()
     {
-        if (map != null && mCurrentMinistry != null) {
+        assert map != null : "map should be set before calling zoomToLocation";
+        if (mCurrentMinistry != null) {
             Log.i(TAG, "Zooming to: " + mCurrentMinistry.getLatitude() + ", " + mCurrentMinistry.getLongitude());
 
             CameraUpdate center = CameraUpdateFactory
@@ -453,19 +467,16 @@ public class MainActivity extends ActionBarActivity
             map.moveCamera(zoom);
         }
     }
-    
-    private void addTrainingMakersToMap()
-    {
+
+    private void addTrainingMarkersToMap() {
         // do not show training activities if turned off in map settings
         Log.i(TAG, "Show training: " + trainingActivities);
-        if (map != null && trainingActivities)
-        {   
+        if (trainingActivities && trainingDownloaded) {
             for (Training training : allTraining)
             {
                 GcmMarker marker = new GcmMarker(training.getName(), training.getLatitude(), training.getLongitude());
                 clusterManager.addItem(marker);
             }
-            clusterManager.cluster();
         }
     }
 
@@ -501,9 +512,9 @@ public class MainActivity extends ActionBarActivity
                             
                             TrainingDao trainingDao = TrainingDao.getInstance(context);
                             allTraining = trainingDao.getAllMinistryTraining(currentMinistry.getMinistryId());
-                            
-                            addTrainingMakersToMap();
-                            
+
+                            updateMap(false);
+
                             break;
                         case RETRIEVE_ALL_MINISTRIES:
                             getCurrentAssignment();
@@ -614,10 +625,6 @@ public class MainActivity extends ActionBarActivity
                 }
 
                 Log.i(TAG, "currentMinistry: " + currentMinistry.getName());
-
-                // start adding markers to map
-
-                setUpMap();
 
                 return true;
             }
