@@ -120,10 +120,10 @@ public class Contract {
         static final String COLUMN_LOCATION_ZOOM = "location_zoom";
         static final String COLUMN_PARENT_MINISTRY_ID = "parent_ministry_id";
 
-        static final String[] PROJECTION_ALL = {
-            COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_MIN_CODE, COLUMN_HAS_SLM, COLUMN_HAS_LLM, COLUMN_HAS_DS,
-            COLUMN_HAS_GCM, COLUMN_PARENT_MINISTRY_ID, COLUMN_LAST_SYNCED
-        };
+        static final String[] PROJECTION_ALL =
+                {COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_MIN_CODE, COLUMN_HAS_SLM, COLUMN_HAS_LLM, COLUMN_HAS_DS,
+                        COLUMN_HAS_GCM, COLUMN_LATITUDE, COLUMN_LONGITUDE, COLUMN_LOCATION_ZOOM,
+                        COLUMN_PARENT_MINISTRY_ID, COLUMN_LAST_SYNCED};
 
         private static final String SQL_COLUMN_MIN_CODE = COLUMN_MIN_CODE + " TEXT";
         private static final String SQL_COLUMN_HAS_SLM = COLUMN_HAS_SLM + " INTEGER";
