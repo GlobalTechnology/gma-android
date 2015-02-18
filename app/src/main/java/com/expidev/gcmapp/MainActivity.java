@@ -83,8 +83,6 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
 
-    private boolean measurementsDownloaded = false;
-
     @Nullable
     private GoogleMap map;
     private ClusterManager<GcmMarker> clusterManager;
@@ -212,11 +210,6 @@ public class MainActivity extends ActionBarActivity
 
         // update the map
         updateMap(changed);
-
-        if(!measurementsDownloaded)
-        {
-            MeasurementsService.retrieveAndSaveInitialMeasurements(this, mCurrentMinistry.getMinistryId(), getChosenMcc(), null);
-        }
     }
 
     /**
@@ -227,6 +220,7 @@ public class MainActivity extends ActionBarActivity
         if (mCurrentMinistry != null) {
             String mcc = getChosenMcc();
             TrainingService.downloadTraining(this, mCurrentMinistry.getMinistryId(), mcc != null ? mcc : "slm");
+            MeasurementsService.retrieveAndSaveInitialMeasurements(this, mCurrentMinistry.getMinistryId(), mcc, null);
         }
 
         // If we are changing assignments/ministries, we need to reload trainings
@@ -498,7 +492,6 @@ public class MainActivity extends ActionBarActivity
                             break;
                         case SAVE_MEASUREMENTS:
                             Log.i(TAG, "Measurements saved to local storage");
-                            measurementsDownloaded = true;
                             break;
                         default:
                             Log.i(TAG, "Unhandled Type: " + type);
