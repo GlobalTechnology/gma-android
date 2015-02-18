@@ -161,13 +161,6 @@ public class MainActivity extends ActionBarActivity
             MinistriesService.syncAssignments(this);
         }
     }
-    
-    private void trainingSearch(String ministryId, String mcc)
-    {
-        Log.i(TAG, "Training search");
-        if (mcc == null) mcc = "slm";
-        TrainingService.downloadTraining(this, ministryId, mcc);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -205,6 +198,11 @@ public class MainActivity extends ActionBarActivity
                 "Welcome" + (attrs != null && attrs.getFirstName() != null ? " " + attrs.getFirstName() : ""));
     }
 
+    /**
+     * This event is triggered when a new currentMinistry object is loaded
+     *
+     * @param ministry the new current ministry object
+     */
     void onLoadCurrentMinistry(@Nullable final AssociatedMinistry ministry) {
         // store the current ministry
         final AssociatedMinistry old = mCurrentMinistry;
@@ -213,12 +211,26 @@ public class MainActivity extends ActionBarActivity
         // update any View data
         updateCurrentMinistryViews();
 
-        // trigger a zoom only if we are changing from one ministryId to another
+        // trigger some additional actions if we are changing our current ministry
         final String oldId = old != null ? old.getMinistryId() : null;
         final String newId = ministry != null ? ministry.getMinistryId() : null;
         if (oldId != null ? !oldId.equals(newId) : newId != null) {
-            zoomToLocation();
+            onChangeCurrentMinistry();
         }
+    }
+
+    /**
+     * This event is triggered when the current ministry is changing from one to another
+     */
+    void onChangeCurrentMinistry() {
+        // sync trainings from the backend
+        if (mCurrentMinistry != null) {
+            String mcc = getChosenMcc();
+            TrainingService.downloadTraining(this, mCurrentMinistry.getMinistryId(), mcc != null ? mcc : "slm");
+        }
+
+        // update map zoom
+        zoomToLocation();
     }
 
     @Override
@@ -604,13 +616,6 @@ public class MainActivity extends ActionBarActivity
                 Log.i(TAG, "currentMinistry: " + currentMinistry.getName());
 
                 // start adding markers to map
-
-                // download training if not already done
-                if (!trainingDownloaded)
-                {
-                    trainingSearch(currentMinistry.getMinistryId(), getChosenMcc());
-                }
-
 
                 setUpMap();
 
