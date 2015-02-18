@@ -1,6 +1,8 @@
 package com.expidev.gcmapp;
 
 import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
+import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
+import static com.expidev.gcmapp.Constants.PREF_CURRENT_MINISTRY;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -65,8 +67,6 @@ public class MainActivity extends ActionBarActivity
 
     private static final int LOADER_THEKEY_ATTRIBUTES = 1;
 
-    private final String PREF_NAME = "gcm_prefs";
-
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     TheKey theKey;
@@ -112,7 +112,7 @@ public class MainActivity extends ActionBarActivity
         
         mapOverlayText = (TextView) findViewById(R.id.map_text);
 
-        preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        preferences = getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE);
 
         getMapPreferences();
         
@@ -551,6 +551,7 @@ public class MainActivity extends ActionBarActivity
 
                         currentMinistryName = currentMinistry.getName();
                         editor.putString("chosen_ministry", currentMinistryName);
+                        editor.putString(PREF_CURRENT_MINISTRY, currentMinistry.getMinistryId());
                         editor.apply();
                     }
                     else

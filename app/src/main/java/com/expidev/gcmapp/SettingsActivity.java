@@ -1,5 +1,8 @@
 package com.expidev.gcmapp;
 
+import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
+import static com.expidev.gcmapp.Constants.PREF_CURRENT_MINISTRY;
+
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -16,6 +19,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.expidev.gcmapp.db.Contract;
+import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.Type;
@@ -39,8 +44,8 @@ public class SettingsActivity extends PreferenceActivity
 {
     private final String TAG = getClass().getSimpleName();
 
+    private MinistriesDao mDao;
     private BroadcastReceiver broadcastReceiver;
-    private final String PREF_NAME = "gcm_prefs";
     private SharedPreferences preferences;
     
     private List<AssociatedMinistry> associatedMinistries;
@@ -57,7 +62,8 @@ public class SettingsActivity extends PreferenceActivity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        mDao = MinistriesDao.getInstance(this);
+        preferences = getSharedPreferences(PREFS_SETTINGS, MODE_PRIVATE);
     }
 
     @Override
@@ -198,10 +204,18 @@ public class SettingsActivity extends PreferenceActivity
                 String ministryName = newValue.toString();
                 bindPreferenceSummaryToValue(preference, ministryName);
 
+                // resolve ministry from database
+                // TODO: we shouldn't be loading ministries from DAO on UI thread, but this is only temporary
+                final List<AssociatedMinistry> ministries =
+                        mDao.get(AssociatedMinistry.class, Contract.AssociatedMinistry.COLUMN_NAME + "=?",
+                                 new String[] {ministryName});
+                final AssociatedMinistry ministry = ministries.isEmpty() ? null : ministries.get(0);
+
                 populateMissionCriticalComponentsPreference(associatedMinistries, ministryName, null);
                 preferences
                     .edit()
-                    .putString("chosen_ministry", ministryName)
+                        .putString(PREF_CURRENT_MINISTRY, ministry != null ? ministry.getMinistryId() : null)
+                        .putString("chosen_ministry", ministryName)
                     .apply();
                 return true;
             }
