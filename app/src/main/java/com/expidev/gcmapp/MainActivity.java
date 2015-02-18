@@ -38,6 +38,7 @@ import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
+import com.expidev.gcmapp.support.v4.content.CurrentMinistryLoader;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.Device;
 import com.google.android.gms.common.ConnectionResult;
@@ -66,6 +67,7 @@ public class MainActivity extends ActionBarActivity
     private final String TAG = this.getClass().getSimpleName();
 
     private static final int LOADER_THEKEY_ATTRIBUTES = 1;
+    private static final int LOADER_CURRENT_MINISTRY = 2;
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
@@ -90,6 +92,7 @@ public class MainActivity extends ActionBarActivity
     private GoogleMap map;
     private ClusterManager<GcmMarker> clusterManager;
 
+    private AssociatedMinistry mCurrentMinistry;
     private AssociatedMinistry currentMinistry;
     private boolean currentAssignmentSet = false;
     private boolean refreshAssignment;
@@ -202,6 +205,18 @@ public class MainActivity extends ActionBarActivity
                 "Welcome" + (attrs != null && attrs.getFirstName() != null ? " " + attrs.getFirstName() : ""));
     }
 
+    void onLoadCurrentMinistry(@Nullable final AssociatedMinistry ministry) {
+        final AssociatedMinistry old = mCurrentMinistry;
+        mCurrentMinistry = ministry;
+
+        // trigger a zoom only if we are changing from one ministryId to another
+        final String oldId = old != null ? old.getMinistryId() : null;
+        final String newId = ministry != null ? ministry.getMinistryId() : null;
+        if (oldId != null ? !oldId.equals(newId) : newId != null) {
+            zoomToLocation();
+        }
+    }
+
     @Override
     protected void onPostResume()
     {
@@ -227,6 +242,7 @@ public class MainActivity extends ActionBarActivity
     private void startLoaders() {
         final LoaderManager manager = this.getSupportLoaderManager();
         manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, new AttributesLoaderCallbacks());
+        manager.initLoader(LOADER_CURRENT_MINISTRY, null, new AssociatedMinistryLoaderCallbacks());
     }
 
     public void joinNewMinistry(MenuItem menuItem)
@@ -403,12 +419,12 @@ public class MainActivity extends ActionBarActivity
 
     private void zoomToLocation()
     {
-        if(map != null && currentMinistry != null) {
-            Log.i(TAG, "Zooming to: " + currentMinistry.getLatitude() + ", " + currentMinistry.getLongitude());
+        if (map != null && mCurrentMinistry != null) {
+            Log.i(TAG, "Zooming to: " + mCurrentMinistry.getLatitude() + ", " + mCurrentMinistry.getLongitude());
 
             CameraUpdate center = CameraUpdateFactory
-                    .newLatLng(new LatLng(currentMinistry.getLatitude(), currentMinistry.getLongitude()));
-            CameraUpdate zoom = CameraUpdateFactory.zoomTo(currentMinistry.getLocationZoom());
+                    .newLatLng(new LatLng(mCurrentMinistry.getLatitude(), mCurrentMinistry.getLongitude()));
+            CameraUpdate zoom = CameraUpdateFactory.zoomTo(mCurrentMinistry.getLocationZoom());
 
             map.moveCamera(center);
             map.moveCamera(zoom);
@@ -578,11 +594,6 @@ public class MainActivity extends ActionBarActivity
 
                 setChosenMcc();
 
-                // assignment is set and map is set: zoom to assignment location
-                // if location is null, no big deal. no exception will be thrown and map simply 
-                // will not zoom.
-                zoomToLocation();
-
                 // set map overlay text
                 mapOverlayText.setText(currentMinistry.getName());
 
@@ -635,6 +646,28 @@ public class MainActivity extends ActionBarActivity
             else if(currentMinistry.hasDs()) chosenMcc = "DS";
 
             preferences.edit().putString("chosen_mcc", chosenMcc).apply();
+        }
+    }
+
+    private class AssociatedMinistryLoaderCallbacks extends SimpleLoaderCallbacks<AssociatedMinistry> {
+        @Override
+        public Loader<AssociatedMinistry> onCreateLoader(final int id, final Bundle bundle) {
+            switch (id) {
+                case LOADER_CURRENT_MINISTRY:
+                    return new CurrentMinistryLoader(MainActivity.this);
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public void onLoadFinished(final Loader<AssociatedMinistry> loader,
+                                   @Nullable final AssociatedMinistry ministry) {
+            switch (loader.getId()) {
+                case LOADER_CURRENT_MINISTRY:
+                    onLoadCurrentMinistry(ministry);
+                    break;
+            }
         }
     }
 
