@@ -6,9 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.expidev.gcmapp.model.Church;
 
-import org.ccci.gto.android.common.db.AbstractMapper;
-
-public class ChurchMapper extends AbstractMapper<Church> {
+public class ChurchMapper extends BaseMapper<Church> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
                             @NonNull final Church church) {
