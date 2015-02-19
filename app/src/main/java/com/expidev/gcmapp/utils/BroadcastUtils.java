@@ -25,10 +25,12 @@ public final class BroadcastUtils
     private static final Uri URI_ASSIGNMENTS = Uri.parse("gma://assignments/");
     private static final Uri URI_MINISTRIES = Uri.parse("gma://ministries/");
     private static final Uri URI_MEASUREMENTS = Uri.parse("gma://measurements/");
+    private static final Uri URI_MEASUREMENT_DETAILS = Uri.parse("gma://measurementdetails/");
 
     private static final String ACTION_UPDATE_ASSIGNMENTS = MinistriesService.class.getName() + ".ACTION_UPDATE_ASSIGNMENTS";
     private static final String ACTION_UPDATE_MINISTRIES = MinistriesService.class.getName() + ".ACTION_UPDATE_MINISTRIES";
     private static final String ACTION_UPDATE_MEASUREMENTS = MeasurementsService.class.getName() + ".ACTION_UPDATE_MEASUREMENTS";
+    private static final String ACTION_UPDATE_MEASUREMENT_DETAILS = MeasurementsService.class.getName() + ".ACTION_UPDATE_MEASUREMENT_DETAILS";
 
     public static final String ACTION_START = BroadcastUtils.class.getName() + ".ACTION_START";
     public static final String ACTION_RUNNING = BroadcastUtils.class.getName() + ".ACTION_RUNNING";
@@ -49,6 +51,11 @@ public final class BroadcastUtils
     private static Uri measurementsUri()
     {
         return URI_MEASUREMENTS;
+    }
+
+    private static Uri measurementDetailsUri()
+    {
+        return URI_MEASUREMENT_DETAILS;
     }
 
     /* Intent Filter generation methods */
@@ -168,5 +175,10 @@ public final class BroadcastUtils
         intent.putExtra("mcc", mcc);
         intent.putExtra("period", period);
         return intent;
+    }
+
+    public static Intent updateMeasurementDetailsBroadcast()
+    {
+        return new Intent(ACTION_UPDATE_MEASUREMENT_DETAILS, measurementDetailsUri());
     }
 }

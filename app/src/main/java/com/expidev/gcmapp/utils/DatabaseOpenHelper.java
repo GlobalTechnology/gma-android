@@ -118,6 +118,12 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     {
         db.execSQL(Contract.Measurement.SQL_CREATE_TABLE);
         db.execSQL(Contract.Measurement.SQL_CREATE_INDEX);
+        db.execSQL(Contract.MeasurementDetails.SQL_CREATE_TABLE);
+        db.execSQL(Contract.MeasurementTypeIds.SQL_CREATE_TABLE);
+        db.execSQL(Contract.SixMonthAmounts.SQL_CREATE_TABLE);
+        db.execSQL(Contract.BreakdownData.SQL_CREATE_TABLE);
+        db.execSQL(Contract.TeamMemberDetails.SQL_CREATE_TABLE);
+        db.execSQL(Contract.SubMinistryDetails.SQL_CREATE_TABLE);
     }
 
     private void deleteAllTables(SQLiteDatabase db)
@@ -129,5 +135,11 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL(Contract.Assignment.SQL_DELETE_TABLE);
         db.execSQL(Contract.Measurement.SQL_DELETE_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + TableNames.USER.getTableName());
+        db.execSQL(Contract.MeasurementDetails.SQL_DELETE_TABLE);
+        db.execSQL(Contract.MeasurementTypeIds.SQL_DELETE_TABLE);
+        db.execSQL(Contract.SixMonthAmounts.SQL_DELETE_TABLE);
+        db.execSQL(Contract.BreakdownData.SQL_DELETE_TABLE);
+        db.execSQL(Contract.TeamMemberDetails.SQL_DELETE_TABLE);
+        db.execSQL(Contract.SubMinistryDetails.SQL_DELETE_TABLE);
     }
 }

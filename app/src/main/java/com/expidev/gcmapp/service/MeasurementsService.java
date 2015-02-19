@@ -33,6 +33,7 @@ import static com.expidev.gcmapp.service.Type.LOAD_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_AND_SAVE_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_MEASUREMENT_DETAILS;
 import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENTS;
+import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENT_DETAILS;
 import static com.expidev.gcmapp.service.Type.SEARCH_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.SYNC_MEASUREMENTS;
 import static com.expidev.gcmapp.utils.BroadcastUtils.measurementDetailsReceivedBroadcast;
@@ -41,6 +42,7 @@ import static com.expidev.gcmapp.utils.BroadcastUtils.measurementsReceivedBroadc
 import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.updateMeasurementDetailsBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.updateMeasurementsBroadcast;
 
 /**
@@ -52,6 +54,7 @@ public class MeasurementsService extends IntentService
 
     private static final String PREFS_SYNC = "gma_sync";
     private static final String PREF_SYNC_TIME_MEASUREMENTS = "last_synced.measurements";
+    private static final String PREF_SYNC_TIME_MEASUREMENT_DETAILS = "last_synced.measurement_details";
     private static final String EXTRA_FORCE = MeasurementsService.class.getName() + ".EXTRA_FORCE";
 
     private static final long HOUR_IN_MS = 60 * 60 * 1000;
@@ -107,7 +110,7 @@ public class MeasurementsService extends IntentService
                     loadMeasurementsFromDatabase(intent);
                     break;
                 case RETRIEVE_AND_SAVE_MEASUREMENTS:
-                    retrieveAndSaveInitialMeasurements(intent);
+                    retrieveAndSaveInitialMeasurementsAndDetails(intent);
                     break;
                 default:
                     Log.i(TAG, "Unhandled Type: " + type);
@@ -280,22 +283,41 @@ public class MeasurementsService extends IntentService
         String mcc = intent.getStringExtra("mcc");
         String period = intent.getStringExtra("period");
 
+        MeasurementDetails measurementDetails = retrieveDetailsForMeasurement(measurementId, ministryId, mcc, period);
+        broadcastManager.sendBroadcast(measurementDetailsReceivedBroadcast(measurementDetails));
+    }
+
+    private MeasurementDetails retrieveDetailsForMeasurement(
+        String measurementId,
+        String ministryId,
+        String mcc,
+        String period) throws ApiException
+    {
         GmaApiClient apiClient = GmaApiClient.getInstance(this);
         JSONObject json = apiClient.getDetailsForMeasurement(measurementId, ministryId, mcc, period);
 
         if(json == null)
         {
             Log.e(TAG, "No measurement details!");
+            return null;
         }
         else
         {
+            Log.i(TAG, "Measurement details retrieved: " + json);
             MeasurementDetails measurementDetails = MeasurementsJsonParser.parseMeasurementDetails(json);
-            broadcastManager.sendBroadcast(measurementDetailsReceivedBroadcast(measurementDetails));
+
+            measurementDetails.setMeasurementId(measurementId);
+            measurementDetails.setMinistryId(ministryId);
+            measurementDetails.setMcc(mcc);
+            measurementDetails.setPeriod(period);
+
+            return measurementDetails;
         }
     }
 
     private void saveMeasurementsToDatabase(Intent intent)
     {
+        @SuppressWarnings(value = "unchecked")
         List<Measurement> measurements = (ArrayList<Measurement>) intent.getSerializableExtra("measurements");
 
         if(measurements != null)
@@ -341,8 +363,6 @@ public class MeasurementsService extends IntentService
             for(final Measurement measurement : measurements)
             {
                 measurementDao.saveMeasurement(measurement);
-
-                //TODO: update measurement details in local database
             }
 
             transaction.setSuccessful();
@@ -357,7 +377,7 @@ public class MeasurementsService extends IntentService
         }
         catch(final SQLException e)
         {
-            Log.e(TAG, "Error syncing measurements", e);
+            Log.e(TAG, "Error updating measurements", e);
         }
         finally
         {
@@ -379,7 +399,7 @@ public class MeasurementsService extends IntentService
         broadcastManager.sendBroadcast(measurementsLoaded(measurements, ministryId, mcc, period));
     }
 
-    private void retrieveAndSaveInitialMeasurements(Intent intent) throws ApiException
+    private void retrieveAndSaveInitialMeasurementsAndDetails(Intent intent) throws ApiException
     {
         String ministryId = intent.getStringExtra("ministryId");
         String mcc = intent.getStringExtra("mcc");
@@ -390,9 +410,74 @@ public class MeasurementsService extends IntentService
 
         String previousPeriod = dateFormat.format(previousMonth.getTime());
 
+        // retrieve and save the measurements for the current and previous period
         List<Measurement> measurements = searchMeasurements(ministryId, mcc, period);
-        measurements.addAll(searchMeasurements(ministryId, mcc, previousPeriod));
+        List<Measurement> previousPeriodMeasurements = searchMeasurements(ministryId, mcc, previousPeriod);
+        if(previousPeriodMeasurements != null)
+        {
+            measurements.addAll(previousPeriodMeasurements);
+        }
 
-        updateMeasurements(measurements);
+        if(!measurements.isEmpty())
+        {
+            updateMeasurements(measurements);
+        }
+
+        List<MeasurementDetails> measurementDetailsList = new ArrayList<>();
+
+        // retrieve and save all measurement details for the measurements retrieved
+        for(Measurement measurement : measurements)
+        {
+            MeasurementDetails measurementDetails = retrieveDetailsForMeasurement(
+                measurement.getMeasurementId(),
+                measurement.getMinistryId(),
+                measurement.getMcc(),
+                measurement.getPeriod());
+
+            if(measurementDetails != null)
+            {
+                measurementDetailsList.add(measurementDetails);
+            }
+        }
+
+        if(!measurementDetailsList.isEmpty())
+        {
+            Log.d(TAG, "Updating measurement details...");
+            updateMeasurementDetails(measurementDetailsList);
+        }
+    }
+
+    private void updateMeasurementDetails(List<MeasurementDetails> measurementDetailsList) throws ApiException
+    {
+        final AbstractDao.Transaction transaction = measurementDao.newTransaction();
+
+        try
+        {
+            transaction.begin();
+
+            for(MeasurementDetails measurementDetails : measurementDetailsList)
+            {
+                measurementDao.saveMeasurementDetails(measurementDetails);
+            }
+
+            transaction.setSuccessful();
+
+            // update the sync time
+            this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE).edit()
+                .putLong(PREF_SYNC_TIME_MEASUREMENT_DETAILS, System.currentTimeMillis()).apply();
+
+            // send broadcasts for updated data
+            broadcastManager.sendBroadcast(stopBroadcast(SAVE_MEASUREMENT_DETAILS));
+            broadcastManager.sendBroadcast(updateMeasurementDetailsBroadcast());
+        }
+        catch(final SQLException e)
+        {
+            Log.e(TAG, "Error updating measurement details", e);
+        }
+        finally
+        {
+            transaction.end();
+        }
+
     }
 }

@@ -191,7 +191,7 @@ public class MeasurementDao extends AbstractDao
         }
         else if(TeamMemberDetails.class.equals(clazz))
         {
-            keyLength = 5;
+            keyLength = 6;
             where = Contract.TeamMemberDetails.SQL_WHERE_UNIQUE;
         }
         else if(MeasurementDetailsData.class.equals(clazz) || MeasurementTypeIds.class.equals(clazz) ||
@@ -271,7 +271,8 @@ public class MeasurementDao extends AbstractDao
                 ((TeamMemberDetails) obj).getMinistryId(),
                 mcc != null ? mcc : "SLM",
                 ((TeamMemberDetails) obj).getPeriod(),
-                ((TeamMemberDetails) obj).getType());
+                ((TeamMemberDetails) obj).getType(),
+                ((TeamMemberDetails) obj).getPersonId());
         }
         else if(obj instanceof MeasurementDetailsData)
         {
