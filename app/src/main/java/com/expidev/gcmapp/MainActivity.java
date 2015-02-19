@@ -66,25 +66,27 @@ public class MainActivity extends ActionBarActivity
     private static final int LOADER_THEKEY_ATTRIBUTES = 1;
     private static final int LOADER_CURRENT_MINISTRY = 2;
 
+    private static final int MAP_LAYER_TRAINING = 0;
+    private static final int MAP_LAYER_TARGET = 1;
+    private static final int MAP_LAYER_GROUP = 2;
+    private static final int MAP_LAYER_CHURCH = 3;
+    private static final int MAP_LAYER_MULTIPLYING_CHURCH = 4;
+    private static final int MAP_LAYER_CAMPUSES = 5;
+
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     TheKey theKey;
     private LocalBroadcastManager manager;
     private GcmBroadcastReceiver gcmBroadcastReceiver;
     private ActionBar actionBar;
-    private boolean targets;
-    private boolean groups;
-    private boolean churches;
-    private boolean multiplyingChurches;
-    private boolean trainingActivities;
-    private boolean campuses;
-    private SharedPreferences mapPreferences;
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
 
+    /* map related objects */
     @Nullable
     private GoogleMap map;
     private ClusterManager<GcmMarker> clusterManager;
+    private final boolean[] mMapLayers = new boolean[6];
 
     @Nullable
     private AssociatedMinistry mCurrentMinistry;
@@ -109,8 +111,6 @@ public class MainActivity extends ActionBarActivity
 
         preferences = getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE);
 
-        getMapPreferences();
-        
         setupBroadcastReceivers();
 
         theKey = TheKeyImpl.getInstance(getApplicationContext(), THEKEY_CLIENTID);
@@ -240,8 +240,7 @@ public class MainActivity extends ActionBarActivity
         Log.i(TAG, "Resuming");
         
         if (map != null) map.clear();
-        
-        getMapPreferences();
+
         updateMap(false);
     }
 
@@ -268,6 +267,9 @@ public class MainActivity extends ActionBarActivity
 
         // update map itself if it exists
         if (map != null) {
+            // refresh the list of map layers to display
+            loadVisibleMapLayers();
+
             // update map zoom
             if (zoom) {
                 zoomToLocation();
@@ -369,15 +371,14 @@ public class MainActivity extends ActionBarActivity
 
         alertDialog.show();  
     }
-    
-    private void getMapPreferences()
-    {
-        targets = preferences.getBoolean("targets", true);
-        groups = preferences.getBoolean("groups", true);
-        churches = preferences.getBoolean("churches", true);
-        multiplyingChurches = preferences.getBoolean("multiplyingChurches", true);
-        trainingActivities = preferences.getBoolean("trainingActivities", true);
-        campuses = preferences.getBoolean("campuses", true);
+
+    private void loadVisibleMapLayers() {
+        mMapLayers[MAP_LAYER_TRAINING] = preferences.getBoolean("trainingActivities", true);
+        mMapLayers[MAP_LAYER_TARGET] = preferences.getBoolean("targets", true);
+        mMapLayers[MAP_LAYER_GROUP] = preferences.getBoolean("groups", true);
+        mMapLayers[MAP_LAYER_CHURCH] = preferences.getBoolean("churches", true);
+        mMapLayers[MAP_LAYER_MULTIPLYING_CHURCH] = preferences.getBoolean("multiplyingChurches", true);
+        mMapLayers[MAP_LAYER_CAMPUSES] = preferences.getBoolean("campuses", true);
     }
     
     private void login()
@@ -444,9 +445,8 @@ public class MainActivity extends ActionBarActivity
     }
 
     private void addTrainingMarkersToMap() {
-        // do not show training activities if turned off in map settings
-        Log.i(TAG, "Show training: " + trainingActivities);
-        if (trainingActivities && allTraining != null) {
+        // show training activities when the Training layer is enabled and we have trainings
+        if (mMapLayers[MAP_LAYER_TRAINING] && allTraining != null) {
             for (Training training : allTraining)
             {
                 GcmMarker marker = new GcmMarker(training.getName(), training.getLatitude(), training.getLongitude());
