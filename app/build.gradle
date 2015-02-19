@@ -35,7 +35,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        buildConfigField "String", "GCM_BASE_URI", "\"https://sbr.global-registry.org/api/measurements/\""
+        buildConfigField "String", "GCM_BASE_URI", "\"https://measurements.global-registry.org/v1/\""
         buildConfigField "String", "NEW_RELIC_API_KEY", "\"AAfd80ddf74e333f27c92d3f89f125be5cecf9c532\""
         buildConfigField "long", "THEKEY_CLIENTID", "7439283632057308L"
     }
@@ -50,7 +50,7 @@ android {
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
 
-            buildConfigField "String", "GCM_BASE_URI", "\"https://stage.sbr.global-registry.org/api/measurements/\""
+            buildConfigField "String", "GCM_BASE_URI", "\"https://stage-measurements.global-registry.org/v1/\""
         }
         release {
             minifyEnabled false
@@ -71,7 +71,7 @@ dependencies {
     compile 'me.thekey.android:thekey-api:0.7.0'
     compile 'me.thekey.android:thekey-lib:0.7.0'
 
-    compile 'org.ccci.gto.android:gto-support:0.4.2'
+    compile 'org.ccci.gto.android:gto-support:0.4.3-SNAPSHOT'
 
     compile 'org.achartengine:achartengine:1.2.0'
 }
