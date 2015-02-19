@@ -183,7 +183,7 @@ public class MeasurementDao extends AbstractDao
             MeasurementTypeIds.class.equals(clazz) || BreakdownData.class.equals(clazz) ||
             TeamMemberDetails.class.equals(clazz) || SubMinistryDetails.class.equals(clazz))
         {
-            keyLength = 1;
+            keyLength = 4;
             where = Contract.MeasurementDetailsData.SQL_WHERE_MEASUREMENT;
         }
         else
@@ -226,7 +226,12 @@ public class MeasurementDao extends AbstractDao
         }
         else if(obj instanceof MeasurementDetailsData)
         {
-            return getPrimaryKeyWhere(MeasurementDetailsData.class, ((MeasurementDetailsData) obj).getMeasurementId());
+            return getPrimaryKeyWhere(
+                MeasurementDetailsData.class,
+                ((MeasurementDetailsData) obj).getMeasurementId(),
+                ((MeasurementDetailsData) obj).getMinistryId(),
+                ((MeasurementDetailsData) obj).getMcc(),
+                ((MeasurementDetailsData) obj).getPeriod());
         }
 
         return super.getPrimaryKeyWhere(obj);

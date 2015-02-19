@@ -19,8 +19,8 @@ public class SixMonthAmountsMapper extends MeasurementDetailsDataMapper<SixMonth
     {
         switch(field)
         {
-            case Contract.SixMonthAmounts.COLUMN_PERIOD:
-                values.put(field, sixMonthAmounts.getPeriod());
+            case Contract.SixMonthAmounts.COLUMN_MONTH:
+                values.put(field, sixMonthAmounts.getMonth());
                 break;
             case Contract.SixMonthAmounts.COLUMN_AMOUNT:
                 values.put(field, sixMonthAmounts.getAmount());
@@ -47,7 +47,7 @@ public class SixMonthAmountsMapper extends MeasurementDetailsDataMapper<SixMonth
     {
         final SixMonthAmounts sixMonthAmounts = super.toObject(cursor);
 
-        sixMonthAmounts.setPeriod(this.getString(cursor, Contract.SixMonthAmounts.COLUMN_PERIOD, null));
+        sixMonthAmounts.setMonth(this.getString(cursor, Contract.SixMonthAmounts.COLUMN_MONTH, null));
         sixMonthAmounts.setAmount(this.getInt(cursor, Contract.SixMonthAmounts.COLUMN_AMOUNT, 0));
         sixMonthAmounts.setAmountType(this.getString(cursor, Contract.SixMonthAmounts.COLUMN_AMOUNT_TYPE, null));
 

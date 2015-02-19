@@ -9,18 +9,18 @@ public class SixMonthAmounts extends MeasurementDetailsData implements Serializa
 {
     private static final long serialVersionUID = 0L;
 
-    private String period;
+    private String month;
     private int amount;
     private String amountType;
 
-    public String getPeriod()
+    public String getMonth()
     {
-        return period;
+        return month;
     }
 
-    public void setPeriod(String period)
+    public void setMonth(String month)
     {
-        this.period = period;
+        this.month = month;
     }
 
     public int getAmount()

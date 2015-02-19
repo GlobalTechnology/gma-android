@@ -231,30 +231,39 @@ public class Contract {
         static final String COLUMN_MINISTRY_ID = "ministry_id";
         static final String COLUMN_PERIOD = "period";
 
-        static final String[] PROJECTION_ALL = { COLUMN_MEASUREMENT_ID, COLUMN_LAST_SYNCED };
+        static final String[] PROJECTION_ALL = {
+            COLUMN_MEASUREMENT_ID, COLUMN_MCC, COLUMN_MINISTRY_ID,
+            COLUMN_PERIOD, COLUMN_LAST_SYNCED
+        };
 
         private static final String SQL_COLUMN_MEASUREMENT_ID = COLUMN_MEASUREMENT_ID + " TEXT";
         private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
         private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
         private static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
 
-        static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ROWID + ")";
         public static final String SQL_WHERE_MEASUREMENT = COLUMN_MEASUREMENT_ID + " = ? AND " +
             COLUMN_MINISTRY_ID + " = ? AND " + COLUMN_MCC + " = ? AND " + COLUMN_PERIOD + " = ?";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
             .join(",", new Object[] { SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_MCC,
-                SQL_COLUMN_LAST_SYNCED, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_PERIOD }) + ");";
+                SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_PERIOD, SQL_COLUMN_LAST_SYNCED }) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
     public static abstract class MeasurementDetailsData extends Base
     {
         static final String COLUMN_MEASUREMENT_ID = "measurement_id"; //Link to which Measurement this is
+        static final String COLUMN_MINISTRY_ID = "ministry_id";
+        static final String COLUMN_MCC = "mcc";
+        static final String COLUMN_PERIOD = "period";
 
         static final String SQL_COLUMN_MEASUREMENT_ID = COLUMN_MEASUREMENT_ID + " INTEGER";
+        static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
+        static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
+        static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
 
-        static final String SQL_WHERE_MEASUREMENT = COLUMN_MEASUREMENT_ID + " = ?";
+        public static final String SQL_WHERE_MEASUREMENT = COLUMN_MEASUREMENT_ID + " = ? AND " +
+            COLUMN_MINISTRY_ID + " = ? AND " + COLUMN_MCC + " = ? AND " + COLUMN_PERIOD + " = ?";
     }
 
     public static final class MeasurementTypeIds extends MeasurementDetailsData
@@ -266,7 +275,7 @@ public class Contract {
         static final String COLUMN_PERSON_ID = "person_id";
 
         static final String[] PROJECTION_ALL = {
-            COLUMN_MEASUREMENT_ID, COLUMN_TOTAL_ID,
+            COLUMN_MEASUREMENT_ID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERIOD, COLUMN_TOTAL_ID,
             COLUMN_LOCAL_ID, COLUMN_PERSON_ID, COLUMN_LAST_SYNCED
         };
 
@@ -275,8 +284,9 @@ public class Contract {
         private static final String SQL_COLUMN_PERSON_ID = COLUMN_PERSON_ID + " TEXT";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
-            .join(",", new Object[] { SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_TOTAL_ID,
-                SQL_COLUMN_LOCAL_ID, SQL_COLUMN_PERSON_ID, SQL_COLUMN_LAST_SYNCED }) + ");";
+            .join(",", new Object[] { SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_MINISTRY_ID,
+                SQL_COLUMN_MCC, SQL_COLUMN_PERIOD, SQL_COLUMN_TOTAL_ID, SQL_COLUMN_LOCAL_ID,
+                SQL_COLUMN_PERSON_ID, SQL_COLUMN_LAST_SYNCED }) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
@@ -284,21 +294,22 @@ public class Contract {
     {
         public static final String TABLE_NAME = "six_month_amounts";
 
-        static final String COLUMN_PERIOD = "period";
+        static final String COLUMN_MONTH = "month";
         static final String COLUMN_AMOUNT = "amount";
         static final String COLUMN_AMOUNT_TYPE = "amount_type";
 
         static final String[] PROJECTION_ALL = {
-            COLUMN_MEASUREMENT_ID, COLUMN_PERIOD,
+            COLUMN_MEASUREMENT_ID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERIOD, COLUMN_MONTH,
             COLUMN_AMOUNT, COLUMN_AMOUNT_TYPE, COLUMN_LAST_SYNCED
         };
 
-        private static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
+        private static final String SQL_COLUMN_MONTH = COLUMN_MONTH + " TEXT";
         private static final String SQL_COLUMN_AMOUNT = COLUMN_AMOUNT + " INTEGER";
         private static final String SQL_COLUMN_AMOUNT_TYPE = COLUMN_AMOUNT_TYPE + " TEXT";  // local, personal, total
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
-            .join(",", new Object[] { SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_PERIOD, SQL_COLUMN_AMOUNT,
+            .join(",", new Object[] { SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_MINISTRY_ID,
+                SQL_COLUMN_MCC, SQL_COLUMN_PERIOD, SQL_COLUMN_MONTH, SQL_COLUMN_AMOUNT,
                 SQL_COLUMN_AMOUNT_TYPE, SQL_COLUMN_LAST_SYNCED }) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
@@ -312,8 +323,8 @@ public class Contract {
         static final String COLUMN_TYPE = "type";
 
         static final String[] PROJECTION_ALL = {
-            COLUMN_MEASUREMENT_ID, COLUMN_SOURCE,
-            COLUMN_AMOUNT, COLUMN_LAST_SYNCED
+            COLUMN_MEASUREMENT_ID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERIOD,
+            COLUMN_SOURCE, COLUMN_AMOUNT, COLUMN_LAST_SYNCED
         };
 
         private static final String SQL_COLUMN_SOURCE = COLUMN_SOURCE + " TEXT";
@@ -321,8 +332,9 @@ public class Contract {
         private static final String SQL_COLUMN_TYPE = COLUMN_TYPE + " TEXT";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
-            .join(",", new Object[] { SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_SOURCE,
-                SQL_COLUMN_AMOUNT, SQL_COLUMN_TYPE, SQL_COLUMN_LAST_SYNCED }) + ");";
+            .join(",", new Object[] { SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_MINISTRY_ID,
+                SQL_COLUMN_MCC, SQL_COLUMN_PERIOD, SQL_COLUMN_SOURCE, SQL_COLUMN_AMOUNT, SQL_COLUMN_TYPE,
+                SQL_COLUMN_LAST_SYNCED }) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
@@ -339,9 +351,9 @@ public class Contract {
         static final String COLUMN_TYPE = "type";
 
         static final String[] PROJECTION_ALL = {
-            COLUMN_MEASUREMENT_ID, COLUMN_ASSIGNMENT_ID,
-            COLUMN_TEAM_ROLE, COLUMN_FIRST_NAME, COLUMN_LAST_NAME, COLUMN_PERSON_ID,
-            COLUMN_TOTAL, COLUMN_LAST_SYNCED
+            COLUMN_MEASUREMENT_ID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERIOD,
+            COLUMN_ASSIGNMENT_ID, COLUMN_TEAM_ROLE, COLUMN_FIRST_NAME, COLUMN_LAST_NAME,
+            COLUMN_PERSON_ID, COLUMN_TOTAL, COLUMN_LAST_SYNCED
         };
 
         private static final String SQL_COLUMN_ASSIGNMENT_ID = COLUMN_ASSIGNMENT_ID + " TEXT";
@@ -353,8 +365,9 @@ public class Contract {
         private static final String SQL_COLUMN_TYPE = COLUMN_TYPE + " TEXT";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
-            .join(",", new Object[] { SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_ASSIGNMENT_ID,
-                SQL_COLUMN_TEAM_ROLE, SQL_COLUMN_FIRST_NAME, SQL_COLUMN_LAST_NAME, SQL_COLUMN_PERSON_ID,
+            .join(",", new Object[] { SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_MINISTRY_ID,
+                SQL_COLUMN_MCC, SQL_COLUMN_PERIOD, SQL_COLUMN_ASSIGNMENT_ID, SQL_COLUMN_TEAM_ROLE,
+                SQL_COLUMN_FIRST_NAME, SQL_COLUMN_LAST_NAME, SQL_COLUMN_PERSON_ID,
                 SQL_COLUMN_TOTAL, SQL_COLUMN_TYPE, SQL_COLUMN_LAST_SYNCED }) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
@@ -368,8 +381,8 @@ public class Contract {
         static final String COLUMN_TOTAL = "total";
 
         static final String[] PROJECTION_ALL = {
-            COLUMN_MEASUREMENT_ID, COLUMN_NAME,
-            COLUMN_MINISTRY_ID, COLUMN_TOTAL, COLUMN_LAST_SYNCED
+            COLUMN_MEASUREMENT_ID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERIOD,
+            COLUMN_NAME, COLUMN_MINISTRY_ID, COLUMN_TOTAL, COLUMN_LAST_SYNCED
         };
 
         private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
@@ -377,8 +390,9 @@ public class Contract {
         private static final String SQL_COLUMN_TOTAL = COLUMN_TOTAL + " INTEGER";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
-            .join(",", new Object[] { SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_NAME,
-                SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_TOTAL, SQL_COLUMN_LAST_SYNCED }) + ");";
+            .join(",", new Object[] { SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_MINISTRY_ID,
+                SQL_COLUMN_MCC, SQL_COLUMN_PERIOD, SQL_COLUMN_NAME, SQL_COLUMN_MINISTRY_ID,
+                SQL_COLUMN_TOTAL, SQL_COLUMN_LAST_SYNCED }) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 }

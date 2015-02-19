@@ -19,6 +19,15 @@ public abstract class MeasurementDetailsDataMapper<T extends MeasurementDetailsD
             case Contract.MeasurementDetailsData.COLUMN_MEASUREMENT_ID:
                 values.put(field, obj.getMeasurementId());
                 break;
+            case Contract.MeasurementDetailsData.COLUMN_MINISTRY_ID:
+                values.put(field, obj.getMinistryId());
+                break;
+            case Contract.MeasurementDetailsData.COLUMN_MCC:
+                values.put(field, obj.getMcc());
+                break;
+            case Contract.MeasurementDetailsData.COLUMN_PERIOD:
+                values.put(field, obj.getPeriod());
+                break;
             default:
                 super.mapField(values, field, obj);
                 break;
@@ -31,6 +40,9 @@ public abstract class MeasurementDetailsDataMapper<T extends MeasurementDetailsD
     {
         final T obj = super.toObject(cursor);
         obj.setMeasurementId(this.getString(cursor, Contract.MeasurementDetailsData.COLUMN_MEASUREMENT_ID, null));
+        obj.setMinistryId(this.getString(cursor, Contract.MeasurementDetailsData.COLUMN_MINISTRY_ID, null));
+        obj.setMcc(this.getString(cursor, Contract.MeasurementDetailsData.COLUMN_MCC, null));
+        obj.setPeriod(this.getString(cursor, Contract.MeasurementDetailsData.COLUMN_PERIOD, null));
         return obj;
     }
 }
