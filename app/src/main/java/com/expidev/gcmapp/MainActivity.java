@@ -213,9 +213,10 @@ public class MainActivity extends ActionBarActivity
      * This event is triggered when the current ministry is changing from one to another
      */
     void onChangeCurrentMinistry() {
-        // sync trainings from the backend
+        // sync churches & trainings
         if (mCurrentMinistry != null) {
             String mcc = getChosenMcc();
+            MinistriesService.syncChurches(this, mCurrentMinistry.getMinistryId());
             TrainingService.downloadTraining(this, mCurrentMinistry.getMinistryId(), mcc != null ? mcc : "slm");
         }
 

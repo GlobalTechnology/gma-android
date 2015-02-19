@@ -4,6 +4,7 @@ import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.SYNC_ASSIGNMENTS;
+import static com.expidev.gcmapp.service.Type.SYNC_CHURCHES;
 import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.associatedMinistriesReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.util.LongSparseArray;
 import android.util.Log;
 
 import com.expidev.gcmapp.db.Contract;
@@ -24,6 +26,7 @@ import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.AssignmentsJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
+import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
@@ -34,6 +37,7 @@ import org.ccci.gto.android.common.db.AbstractDao.Transaction;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +54,7 @@ public class MinistriesService extends ThreadedIntentService {
 
     private static final String EXTRA_SYNCTYPE = "type";
     private static final String EXTRA_FORCE = MinistriesService.class.getName() + ".EXTRA_FORCE";
+    private static final String EXTRA_MINISTRY_ID = MinistriesService.class.getName() + ".EXTRA_MINISTRY_ID";
 
     // various stale data durations
     private static final long HOUR_IN_MS = 60 * 60 * 1000;
@@ -76,6 +81,13 @@ public class MinistriesService extends ThreadedIntentService {
         final Intent intent = new Intent(context, MinistriesService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNC_ASSIGNMENTS);
         intent.putExtra(EXTRA_FORCE, force);
+        context.startService(intent);
+    }
+
+    public static void syncChurches(@NonNull final Context context, @NonNull final String ministryId) {
+        final Intent intent = new Intent(context, MinistriesService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNC_CHURCHES);
+        intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
         context.startService(intent);
     }
 
@@ -109,6 +121,9 @@ public class MinistriesService extends ThreadedIntentService {
                     break;
                 case SYNC_ASSIGNMENTS:
                     syncAssignments(intent);
+                    break;
+                case SYNC_CHURCHES:
+                    syncChurches(intent);
                     break;
                 default:
                     break;
@@ -201,6 +216,46 @@ public class MinistriesService extends ThreadedIntentService {
             final JSONArray json = mApi.getAssignments(true);
             if (json != null) {
                 this.updateAllAssignments(AssignmentsJsonParser.parseAssignments(json));
+            }
+        }
+    }
+
+    private void syncChurches(final Intent intent) throws ApiException {
+        final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
+
+        final List<Church> churches = mApi.getChurches(ministryId);
+
+        // only update churches if we get data back
+        if(churches != null) {
+            final Transaction tx = mDao.newTransaction();
+            try {
+                tx.begin();
+
+                // load current churches
+                final LongSparseArray<Church> current = new LongSparseArray<>();
+                for(final Church church : mDao.get(Church.class, Contract.Church.SQL_WHERE_MINISTRY_ID, new String[]{ministryId})) {
+                    current.put(church.getId(), church);
+                }
+
+                // process all fetched churches
+                for(final Church church : churches) {
+                    // update church in database
+                    church.setLastSynced(new Date());
+                    mDao.updateOrInsert(church);
+
+                    // remove this church from the list of churches
+                    current.remove(church.getId());
+                }
+
+                // delete any remaining churches that weren't returned from the API
+                for(int i = 0; i< current.size(); i++) {
+                    mDao.delete(current.valueAt(i));
+                }
+
+                // mark transaction successful
+                tx.setSuccessful();
+            } finally {
+                tx.end();
             }
         }
     }
