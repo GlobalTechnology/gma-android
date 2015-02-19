@@ -19,8 +19,8 @@ import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.MinistriesService;
 
-import org.ccci.gto.android.common.api.AbstractApi;
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
+import org.ccci.gto.android.common.api.AbstractApi.Request.Method;
 import org.ccci.gto.android.common.api.AbstractTheKeyApi;
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.api.ApiSocketException;
@@ -331,7 +331,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
                                        @NonNull final Assignment.Role role) throws ApiException {
         // build request
         final Request<Session> request = new Request<>(ASSIGNMENTS);
-        request.method = AbstractApi.Request.Method.POST;
+        request.method = Method.POST;
 
         // generate POST data
         final Map<String, Object> data = new HashMap<>();
