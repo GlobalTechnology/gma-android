@@ -170,4 +170,45 @@ public class Contract {
                         SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY, SQL_FOREIGN_KEY_MINISTRIES}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
+
+    public static final class Church extends Base {
+        public static final String TABLE_NAME = "churches";
+
+        static final String COLUMN_ID = _ID;
+        static final String COLUMN_MINISTRY_ID = "ministry_id";
+        static final String COLUMN_NAME = "name";
+        static final String COLUMN_CONTACT_NAME = "contact_name";
+        static final String COLUMN_CONTACT_EMAIL = "contact_email";
+        static final String COLUMN_LATITUDE = "latitude";
+        static final String COLUMN_LONGITUDE = "longitude";
+        static final String COLUMN_DEVELOPMENT = "development";
+        static final String COLUMN_SIZE = "size";
+        static final String COLUMN_SECURITY = "security";
+
+        static final String[] PROJECTION_ALL =
+                {COLUMN_ID, COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_CONTACT_NAME, COLUMN_CONTACT_EMAIL, COLUMN_LATITUDE,
+                        COLUMN_LONGITUDE, COLUMN_DEVELOPMENT, COLUMN_SIZE, COLUMN_SECURITY, COLUMN_LAST_SYNCED};
+
+        private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
+        private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
+        private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
+        private static final String SQL_COLUMN_CONTACT_NAME = COLUMN_CONTACT_NAME + " TEXT";
+        private static final String SQL_COLUMN_CONTACT_EMAIL = COLUMN_CONTACT_EMAIL + " TEXT";
+        private static final String SQL_COLUMN_LATITUDE = COLUMN_LATITUDE + " DECIMAL";
+        private static final String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
+        private static final String SQL_COLUMN_DEVELOPMENT = COLUMN_DEVELOPMENT + " INTEGER";
+        private static final String SQL_COLUMN_SIZE = COLUMN_SIZE + " INTEGER";
+        private static final String SQL_COLUMN_SECURITY = COLUMN_SECURITY + " INTEGER";
+        private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
+
+        static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
+        public static final String SQL_WHERE_MINISTRY_ID = COLUMN_MINISTRY_ID + " = ?";
+
+        public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
+                .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME,
+                        SQL_COLUMN_CONTACT_NAME, SQL_COLUMN_CONTACT_EMAIL, SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE,
+                        SQL_COLUMN_DEVELOPMENT, SQL_COLUMN_SIZE, SQL_COLUMN_SECURITY, SQL_COLUMN_LAST_SYNCED,
+                        SQL_PRIMARY_KEY}) + ")";
+        public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
 }
