@@ -179,9 +179,23 @@ public class MeasurementDao extends AbstractDao
             keyLength = 4;
             where = Contract.MeasurementDetails.SQL_WHERE_MEASUREMENT;
         }
-        else if(MeasurementDetailsData.class.equals(clazz) || SixMonthAmounts.class.equals(clazz) ||
-            MeasurementTypeIds.class.equals(clazz) || BreakdownData.class.equals(clazz) ||
-            TeamMemberDetails.class.equals(clazz) || SubMinistryDetails.class.equals(clazz))
+        else if(SixMonthAmounts.class.equals(clazz))
+        {
+            keyLength = 6;
+            where = Contract.SixMonthAmounts.SQL_WHERE_UNIQUE;
+        }
+        else if(BreakdownData.class.equals(clazz))
+        {
+            keyLength = 6;
+            where = Contract.BreakdownData.SQL_WHERE_UNIQUE;
+        }
+        else if(TeamMemberDetails.class.equals(clazz))
+        {
+            keyLength = 5;
+            where = Contract.TeamMemberDetails.SQL_WHERE_UNIQUE;
+        }
+        else if(MeasurementDetailsData.class.equals(clazz) || MeasurementTypeIds.class.equals(clazz) ||
+            SubMinistryDetails.class.equals(clazz))
         {
             keyLength = 4;
             where = Contract.MeasurementDetailsData.SQL_WHERE_MEASUREMENT;
@@ -224,13 +238,49 @@ public class MeasurementDao extends AbstractDao
                 mcc != null ? mcc : "SLM",
                 ((MeasurementDetails) obj).getPeriod());
         }
+        else if(obj instanceof SixMonthAmounts)
+        {
+            String mcc = ((SixMonthAmounts) obj).getMcc();
+            return getPrimaryKeyWhere(
+                SixMonthAmounts.class,
+                ((SixMonthAmounts) obj).getMeasurementId(),
+                ((SixMonthAmounts) obj).getMinistryId(),
+                mcc != null ? mcc : "SLM",
+                ((SixMonthAmounts) obj).getPeriod(),
+                ((SixMonthAmounts) obj).getMonth(),
+                ((SixMonthAmounts) obj).getAmountType());
+        }
+        else if(obj instanceof BreakdownData)
+        {
+            String mcc = ((BreakdownData) obj).getMcc();
+            return getPrimaryKeyWhere(
+                BreakdownData.class,
+                ((BreakdownData) obj).getMeasurementId(),
+                ((BreakdownData) obj).getMinistryId(),
+                mcc != null ? mcc : "SLM",
+                ((BreakdownData) obj).getPeriod(),
+                ((BreakdownData) obj).getSource(),
+                ((BreakdownData) obj).getType());
+        }
+        else if(obj instanceof TeamMemberDetails)
+        {
+            String mcc = ((TeamMemberDetails) obj).getMcc();
+            return getPrimaryKeyWhere(
+                TeamMemberDetails.class,
+                ((TeamMemberDetails) obj).getMeasurementId(),
+                ((TeamMemberDetails) obj).getMinistryId(),
+                mcc != null ? mcc : "SLM",
+                ((TeamMemberDetails) obj).getPeriod(),
+                ((TeamMemberDetails) obj).getType());
+        }
         else if(obj instanceof MeasurementDetailsData)
         {
+            String mcc = ((MeasurementDetailsData) obj).getMcc();
             return getPrimaryKeyWhere(
                 MeasurementDetailsData.class,
                 ((MeasurementDetailsData) obj).getMeasurementId(),
                 ((MeasurementDetailsData) obj).getMinistryId(),
-                ((MeasurementDetailsData) obj).getMcc(),
+                mcc != null ? mcc : "SLM",
                 ((MeasurementDetailsData) obj).getPeriod());
         }
 
@@ -244,54 +294,106 @@ public class MeasurementDao extends AbstractDao
 
     public void saveMeasurementDetails(MeasurementDetails measurementDetails)
     {
-        this.updateOrInsert(measurementDetails, Contract.MeasurementDetails.PROJECTION_ALL);
         String measurementId = measurementDetails.getMeasurementId();
+        String ministryId = measurementDetails.getMinistryId();
+        String mcc = measurementDetails.getMcc();
+        String period = measurementDetails.getPeriod();
 
-        saveSixMonthAmounts(measurementDetails.getSixMonthTotalAmounts(), measurementId);
-        saveSixMonthAmounts(measurementDetails.getSixMonthLocalAmounts(), measurementId);
-        saveSixMonthAmounts(measurementDetails.getSixMonthPersonalAmounts(), measurementId);
+        this.updateOrInsert(measurementDetails, Contract.MeasurementDetails.PROJECTION_ALL);
 
-        saveBreakdownData(measurementDetails.getLocalBreakdown(), measurementId);
-        saveBreakdownData(measurementDetails.getSelfBreakdown(), measurementId);
+        saveMeasurementTypeIds(measurementDetails.getMeasurementTypeIds(), measurementId, ministryId, mcc, period);
 
-        saveTeamMemberDetails(measurementDetails.getTeamMemberDetails(), measurementId);
-        saveTeamMemberDetails(measurementDetails.getSelfAssignedDetails(), measurementId);
+        saveSixMonthAmounts(measurementDetails.getSixMonthTotalAmounts(), measurementId, ministryId, mcc, period);
+        saveSixMonthAmounts(measurementDetails.getSixMonthLocalAmounts(), measurementId, ministryId, mcc, period);
+        saveSixMonthAmounts(measurementDetails.getSixMonthPersonalAmounts(), measurementId, ministryId, mcc, period);
 
-        saveSubMinistryDetails(measurementDetails.getSubMinistryDetails(), measurementId);
+        saveBreakdownData(measurementDetails.getLocalBreakdown(), measurementId, ministryId, mcc, period);
+        saveBreakdownData(measurementDetails.getSelfBreakdown(), measurementId, ministryId, mcc, period);
+
+        saveTeamMemberDetails(measurementDetails.getTeamMemberDetails(), measurementId, ministryId, mcc, period);
+        saveTeamMemberDetails(measurementDetails.getSelfAssignedDetails(), measurementId, ministryId, mcc, period);
+
+        saveSubMinistryDetails(measurementDetails.getSubMinistryDetails(), measurementId, ministryId, mcc, period);
     }
 
-    private void saveSixMonthAmounts(List<SixMonthAmounts> amounts, String measurementId)
+    private void saveMeasurementTypeIds(
+        MeasurementTypeIds ids,
+        String measurementId,
+        String ministryId,
+        String mcc,
+        String period)
+    {
+        ids.setMeasurementId(measurementId);
+        ids.setMinistryId(ministryId);
+        ids.setMcc(mcc);
+        ids.setPeriod(period);
+        this.updateOrInsert(ids, Contract.MeasurementTypeIds.PROJECTION_ALL);
+    }
+
+    private void saveSixMonthAmounts(
+        List<SixMonthAmounts> amounts,
+        String measurementId,
+        String ministryId,
+        String mcc,
+        String period)
     {
         for(SixMonthAmounts row : amounts)
         {
             row.setMeasurementId(measurementId);
+            row.setMinistryId(ministryId);
+            row.setMcc(mcc);
+            row.setPeriod(period);
             this.updateOrInsert(row, Contract.SixMonthAmounts.PROJECTION_ALL);
         }
     }
 
-    private void saveBreakdownData(List<BreakdownData> breakdownDataList, String measurementId)
+    private void saveBreakdownData(
+        List<BreakdownData> breakdownDataList,
+        String measurementId,
+        String ministryId,
+        String mcc,
+        String period)
     {
         for(BreakdownData row : breakdownDataList)
         {
             row.setMeasurementId(measurementId);
+            row.setMinistryId(ministryId);
+            row.setMcc(mcc);
+            row.setPeriod(period);
             this.updateOrInsert(row, Contract.BreakdownData.PROJECTION_ALL);
         }
     }
 
-    private void saveTeamMemberDetails(List<TeamMemberDetails> teamMemberDetailsList, String measurementId)
+    private void saveTeamMemberDetails(
+        List<TeamMemberDetails> teamMemberDetailsList,
+        String measurementId,
+        String ministryId,
+        String mcc,
+        String period)
     {
         for(TeamMemberDetails row : teamMemberDetailsList)
         {
             row.setMeasurementId(measurementId);
+            row.setMinistryId(ministryId);
+            row.setMcc(mcc);
+            row.setPeriod(period);
             this.updateOrInsert(row, Contract.TeamMemberDetails.PROJECTION_ALL);
         }
     }
 
-    private void saveSubMinistryDetails(List<SubMinistryDetails> subMinistryDetailsList, String measurementId)
+    private void saveSubMinistryDetails(
+        List<SubMinistryDetails> subMinistryDetailsList,
+        String measurementId,
+        String ministryId,
+        String mcc,
+        String period)
     {
         for(SubMinistryDetails row : subMinistryDetailsList)
         {
             row.setMeasurementId(measurementId);
+            row.setMinistryId(ministryId);
+            row.setMcc(mcc);
+            row.setPeriod(period);
             this.updateOrInsert(row, Contract.SubMinistryDetails.PROJECTION_ALL);
         }
     }

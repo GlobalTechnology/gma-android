@@ -112,8 +112,8 @@ public class MeasurementsJsonParser
         for(int i = 0; i < names.length(); i++)
         {
             SixMonthAmounts row = new SixMonthAmounts();
-            row.setPeriod(names.getString(i));
-            row.setAmount(json.getInt(row.getPeriod()));
+            row.setMonth(names.getString(i));
+            row.setAmount(json.getInt(row.getMonth()));
             row.setAmountType(type);
             sixMonthAmountsList.add(row);
         }
