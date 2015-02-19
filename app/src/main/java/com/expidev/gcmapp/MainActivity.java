@@ -173,6 +173,9 @@ public class MainActivity extends ActionBarActivity
             case R.id.action_refresh:
                 MinistriesService.syncAllMinistries(this, true);
                 MinistriesService.syncAssignments(this, true);
+                if (mCurrentMinistry != null) {
+                    MinistriesService.syncChurches(this, mCurrentMinistry.getMinistryId());
+                }
                 return true;
         }
         return super.onOptionsItemSelected(item);
