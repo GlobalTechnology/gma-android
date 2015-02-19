@@ -16,6 +16,7 @@ import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.http.GmaApiClient.Session;
 import com.expidev.gcmapp.json.MinistryJsonParser;
 import com.expidev.gcmapp.model.Assignment;
+import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.MinistriesService;
 
@@ -51,6 +52,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     private final String TAG = getClass().getSimpleName();
 
     private static final String ASSIGNMENTS = "assignments";
+    private static final String CHURCHES = "churches";
     private static final String MEASUREMENTS = "measurements";
     private static final String MINISTRIES = "ministries";
     private static final String TOKEN = "token";
@@ -231,6 +233,90 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
         return null;
     }
+
+    /* BEGIN church methods */
+
+    @Nullable
+    public List<Church> getChurches(@NonNull final String ministryId) throws ApiException {
+        // build request
+        final Request<Session> request = new Request<>(CHURCHES);
+        request.accept = MediaType.APPLICATION_JSON;
+        request.params.add(param("ministry_id", ministryId));
+
+        // process request
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+
+            // is this a successful response?
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                return Church.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())));
+            }
+        } catch (final JSONException e) {
+            Log.e(TAG, "error parsing getChurches response", e);
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+
+        return null;
+    }
+
+    public boolean createChurch(@NonNull final Church church) throws ApiException, JSONException {
+        return this.createChurch(church.toJson());
+    }
+
+    public boolean createChurch(@NonNull final JSONObject church) throws ApiException {
+        // build request
+        final Request<Session> request = new Request<>(CHURCHES);
+        request.method = Method.POST;
+        request.setContent(church);
+
+        // process request
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+
+            // is this a successful response?
+            return conn.getResponseCode() == HttpURLConnection.HTTP_CREATED;
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+    }
+
+    public boolean updateChurch(@NonNull final Church church) throws ApiException, JSONException {
+        return this.updateChurch(church.getId(), church.toJson());
+    }
+
+    public boolean updateChurch(final long id, @NonNull final JSONObject church) throws ApiException {
+        // short-circuit if we are trying to update an invalid church
+        if (id == Church.INVALID_ID) {
+            return false;
+        }
+
+        // build request
+        final Request<Session> request = new Request<>(CHURCHES + "/" + id);
+        request.method = Method.PUT;
+        request.setContent(church);
+
+        // process request
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+
+            // is this a successful response?
+            return conn.getResponseCode() == HttpURLConnection.HTTP_CREATED;
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+    }
+
+    /* END church methods */
 
     @Nullable
     public JSONArray searchMeasurements(@NonNull final String ministryId, @NonNull final String mcc,
