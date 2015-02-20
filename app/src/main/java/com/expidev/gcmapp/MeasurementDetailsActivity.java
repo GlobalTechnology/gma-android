@@ -76,6 +76,10 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
     private String measurementName;
     private String ministryName;
+    private String measurementId;
+    private String ministryId;
+    private String mcc;
+    private String period;
 
 
     @Override
@@ -86,14 +90,14 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
 
-        String measurementId = getIntent().getStringExtra("measurementId");
-        String ministryId = getIntent().getStringExtra("ministryId");
-        String mcc = getIntent().getStringExtra("mcc");
-        String period = getIntent().getStringExtra("period");
+        measurementId = getIntent().getStringExtra("measurementId");
+        ministryId = getIntent().getStringExtra("ministryId");
+        mcc = getIntent().getStringExtra("mcc");
+        period = getIntent().getStringExtra("period");
         measurementName = getIntent().getStringExtra("measurementName");
         ministryName = getIntent().getStringExtra("ministryName");
 
-        MeasurementsService.retrieveDetailsForMeasurement(this, measurementId, ministryId, mcc, period);
+        MeasurementsService.loadMeasurementDetailsFromDatabase(this, measurementId, ministryId, mcc, period);
     }
 
     @Override
@@ -129,22 +133,36 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                     switch (type)
                     {
                         case RETRIEVE_MEASUREMENT_DETAILS:
-                            Serializable data = intent.getSerializableExtra("measurementDetails");
+                            Serializable retrievedMeasurementDetailData = intent.getSerializableExtra("measurementDetails");
 
-                            if(data != null)
+                            if(retrievedMeasurementDetailData != null)
                             {
-                                Log.i(TAG, "Measurement details retrieved");
-                                MeasurementDetails measurementDetails = (MeasurementDetails) data;
-
-                                initializeRenderer(getPeriodsForLabels(measurementDetails.getSixMonthTotalAmounts()));
-                                initializeSeriesData(measurementDetails);
-                                renderGraph();
-                                initializeDataSection(measurementDetails);
+                                Log.i(TAG, "Measurement details retrieved from API");
+                                handleRetrievedMeasurementDetails(retrievedMeasurementDetailData);
                             }
                             else
                             {
-                                Log.w(TAG, "No data for measurement");
+                                Log.w(TAG, "No measurement detail data");
                                 finish();
+                            }
+                            break;
+                        case LOAD_MEASUREMENT_DETAILS:
+                            Serializable loadedMeasurementDetailData = intent.getSerializableExtra("measurementDetails");
+
+                            if(loadedMeasurementDetailData != null)
+                            {
+                                Log.i(TAG, "Measurement details loaded from local database");
+                                handleRetrievedMeasurementDetails(loadedMeasurementDetailData);
+                            }
+                            else
+                            {
+                                Log.i(TAG, "No data for measurement in local database, loading from the API");
+                                MeasurementsService.retrieveDetailsForMeasurement(
+                                    MeasurementDetailsActivity.this,
+                                    measurementId,
+                                    ministryId,
+                                    mcc,
+                                    period);
                             }
                             break;
                         default:
@@ -158,6 +176,16 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
         broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());
         broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.stopFilter());
+    }
+
+    private void handleRetrievedMeasurementDetails(Serializable data)
+    {
+        MeasurementDetails measurementDetails = (MeasurementDetails) data;
+
+        initializeRenderer(getPeriodsForLabels(measurementDetails.getSixMonthTotalAmounts()));
+        initializeSeriesData(measurementDetails);
+        renderGraph();
+        initializeDataSection(measurementDetails);
     }
 
     private Set<String> getPeriodsForLabels(List<SixMonthAmounts> sixMonthAmountsList)

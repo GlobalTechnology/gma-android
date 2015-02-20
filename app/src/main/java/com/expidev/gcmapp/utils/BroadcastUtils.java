@@ -181,4 +181,11 @@ public final class BroadcastUtils
     {
         return new Intent(ACTION_UPDATE_MEASUREMENT_DETAILS, measurementDetailsUri());
     }
+
+    public static Intent measurementDetailsLoadedBroadcast(MeasurementDetails measurementDetails)
+    {
+        Intent intent = stopBroadcast(Type.LOAD_MEASUREMENT_DETAILS);
+        intent.putExtra("measurementDetails", measurementDetails);
+        return intent;
+    }
 }

@@ -398,4 +398,97 @@ public class MeasurementDao extends AbstractDao
             this.updateOrInsert(row, Contract.SubMinistryDetails.PROJECTION_ALL);
         }
     }
+
+    public MeasurementDetails loadMeasurementDetails(String measurementId, String ministryId, String mcc, String period)
+    {
+        String[] whereArgs = new String[] { measurementId, ministryId, mcc, period };
+
+        MeasurementDetails fullDetailData;
+
+        List<MeasurementDetails> baseResults = this.get(
+            MeasurementDetails.class,
+            Contract.MeasurementDetails.SQL_WHERE_MEASUREMENT,
+            whereArgs);
+
+        if(baseResults.size() != 1)
+        {
+            throw new IllegalStateException("Incorrect number of measurement details results: " + baseResults.size());
+        }
+
+        fullDetailData = baseResults.get(0);
+
+        fullDetailData.setMeasurementTypeIds(retrieveMeasurementTypeIds(whereArgs));
+        fullDetailData.setSixMonthTotalAmounts(retrieveSixMonthAmounts(measurementId, ministryId, mcc, period, "total"));
+        fullDetailData.setSixMonthLocalAmounts(retrieveSixMonthAmounts(measurementId, ministryId, mcc, period, "local"));
+        fullDetailData.setSixMonthPersonalAmounts(retrieveSixMonthAmounts(measurementId, ministryId, mcc, period, "personal"));
+        fullDetailData.setLocalBreakdown(retrieveBreakdownData(measurementId, ministryId, mcc, period, "local"));
+        fullDetailData.setSelfBreakdown(retrieveBreakdownData(measurementId, ministryId, mcc, period, "self"));
+        fullDetailData.setTeamMemberDetails(retrieveTeamMemberDetails(measurementId, ministryId, mcc, period, "team"));
+        fullDetailData.setSelfAssignedDetails(retrieveTeamMemberDetails(measurementId, ministryId, mcc, period, "self"));
+        fullDetailData.setSubMinistryDetails(retrieveSubMinistryDetails(whereArgs));
+
+        return fullDetailData;
+    }
+
+    private MeasurementTypeIds retrieveMeasurementTypeIds(String[] whereArgs)
+    {
+        List<MeasurementTypeIds> typeIdsResults = this.get(
+            MeasurementTypeIds.class,
+            Contract.MeasurementTypeIds.SQL_WHERE_MEASUREMENT,
+            whereArgs);
+
+        if(typeIdsResults.size() != 1)
+        {
+            throw new IllegalStateException("Incorrect number of measurement type IDs results: " + typeIdsResults.size());
+        }
+
+        return typeIdsResults.get(0);
+    }
+
+    private List<SixMonthAmounts> retrieveSixMonthAmounts(
+        String measurementId,
+        String ministryId,
+        String mcc,
+        String period,
+        String type)
+    {
+        return this.get(
+            SixMonthAmounts.class,
+            Contract.SixMonthAmounts.SQL_WHERE_SEARCH,
+            new String[] { measurementId, ministryId, mcc, period, type });
+    }
+
+    private List<BreakdownData> retrieveBreakdownData(
+        String measurementId,
+        String ministryId,
+        String mcc,
+        String period,
+        String type)
+    {
+        return this.get(
+            BreakdownData.class,
+            Contract.BreakdownData.SQL_WHERE_SEARCH,
+            new String[] { measurementId, ministryId, mcc, period, type });
+    }
+
+    private List<TeamMemberDetails> retrieveTeamMemberDetails(
+        String measurementId,
+        String ministryId,
+        String mcc,
+        String period,
+        String type)
+    {
+        return this.get(
+            TeamMemberDetails.class,
+            Contract.TeamMemberDetails.SQL_WHERE_SEARCH,
+            new String[] { measurementId, ministryId, mcc, period, type });
+    }
+
+    private List<SubMinistryDetails> retrieveSubMinistryDetails(String[] whereArgs)
+    {
+        return this.get(
+            SubMinistryDetails.class,
+            Contract.SubMinistryDetails.SQL_WHERE_MEASUREMENT,
+            whereArgs);
+    }
 }

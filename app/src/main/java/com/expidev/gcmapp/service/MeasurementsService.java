@@ -30,12 +30,14 @@ import java.util.List;
 import java.util.Locale;
 
 import static com.expidev.gcmapp.service.Type.LOAD_MEASUREMENTS;
+import static com.expidev.gcmapp.service.Type.LOAD_MEASUREMENT_DETAILS;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_AND_SAVE_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_MEASUREMENT_DETAILS;
 import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENT_DETAILS;
 import static com.expidev.gcmapp.service.Type.SEARCH_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.SYNC_MEASUREMENTS;
+import static com.expidev.gcmapp.utils.BroadcastUtils.measurementDetailsLoadedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.measurementDetailsReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.measurementsLoaded;
 import static com.expidev.gcmapp.utils.BroadcastUtils.measurementsReceivedBroadcast;
@@ -111,6 +113,9 @@ public class MeasurementsService extends IntentService
                     break;
                 case RETRIEVE_AND_SAVE_MEASUREMENTS:
                     retrieveAndSaveInitialMeasurementsAndDetails(intent);
+                    break;
+                case LOAD_MEASUREMENT_DETAILS:
+                    loadMeasurementDetailsFromDatabase(intent);
                     break;
                 default:
                     Log.i(TAG, "Unhandled Type: " + type);
@@ -220,6 +225,24 @@ public class MeasurementsService extends IntentService
         Bundle extras = new Bundle(4);
 
         extras.putSerializable("type", RETRIEVE_AND_SAVE_MEASUREMENTS);
+        extras.putString("ministryId", ministryId);
+        extras.putString("mcc", mcc);
+        extras.putString("period", setPeriodToCurrentIfNecessary(period));
+
+        context.startService(baseIntent(context, extras));
+    }
+
+    public static void loadMeasurementDetailsFromDatabase(
+        final Context context,
+        String measurementId,
+        String ministryId,
+        String mcc,
+        String period)
+    {
+        Bundle extras = new Bundle(5);
+
+        extras.putSerializable("type", LOAD_MEASUREMENT_DETAILS);
+        extras.putString("measurementId", measurementId);
         extras.putString("ministryId", ministryId);
         extras.putString("mcc", mcc);
         extras.putString("period", setPeriodToCurrentIfNecessary(period));
@@ -478,6 +501,18 @@ public class MeasurementsService extends IntentService
         {
             transaction.end();
         }
+    }
 
+    private void loadMeasurementDetailsFromDatabase(Intent intent)
+    {
+        String measurementId = intent.getStringExtra("measurementId");
+        String ministryId = intent.getStringExtra("ministryId");
+        String mcc = intent.getStringExtra("mcc");
+        String period = intent.getStringExtra("period");
+
+        MeasurementDetails measurementDetails =
+            measurementDao.loadMeasurementDetails(measurementId, ministryId, mcc, period);
+
+        broadcastManager.sendBroadcast(measurementDetailsLoadedBroadcast(measurementDetails));
     }
 }

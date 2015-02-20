@@ -307,6 +307,7 @@ public class Contract {
         private static final String SQL_COLUMN_AMOUNT = COLUMN_AMOUNT + " INTEGER";
         private static final String SQL_COLUMN_AMOUNT_TYPE = COLUMN_AMOUNT_TYPE + " TEXT";  // local, personal, total
 
+        public static final String SQL_WHERE_SEARCH = SQL_WHERE_MEASUREMENT + " AND " + COLUMN_AMOUNT_TYPE + " = ?";
         public static final String SQL_WHERE_UNIQUE = SQL_WHERE_MEASUREMENT + " AND " + COLUMN_MONTH + " = ? AND " +
             COLUMN_AMOUNT_TYPE + " = ?";
 
@@ -336,6 +337,7 @@ public class Contract {
 
         public static final String SQL_WHERE_UNIQUE = SQL_WHERE_MEASUREMENT + " AND " + COLUMN_SOURCE + " = ? AND " +
             COLUMN_TYPE + " = ?";
+        public static final String SQL_WHERE_SEARCH = SQL_WHERE_MEASUREMENT + " AND " + COLUMN_TYPE + " = ?";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
             .join(",", new Object[] { SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_MINISTRY_ID,
@@ -370,6 +372,7 @@ public class Contract {
         private static final String SQL_COLUMN_TOTAL = COLUMN_TOTAL + " INTEGER";
         private static final String SQL_COLUMN_TYPE = COLUMN_TYPE + " TEXT";
 
+        public static final String SQL_WHERE_SEARCH = SQL_WHERE_MEASUREMENT + " AND " + COLUMN_TYPE + " = ?";
         public static final String SQL_WHERE_UNIQUE = SQL_WHERE_MEASUREMENT + " AND " + COLUMN_TYPE + " = ? AND " +
             COLUMN_PERSON_ID + " = ?";
 
