@@ -15,7 +15,15 @@ public class Contract {
         static final String SQL_COLUMN_LAST_SYNCED = COLUMN_LAST_SYNCED + " INTEGER";
     }
 
-    public static final class Training extends Base {
+    public static abstract class Location extends Base {
+        static final String COLUMN_LATITUDE = "latitude";
+        static final String COLUMN_LONGITUDE = "longitude";
+
+        static final String SQL_COLUMN_LATITUDE = COLUMN_LATITUDE + " DECIMAL";
+        static final String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
+    }
+
+    public static final class Training extends Location {
         public static final String TABLE_NAME = "training";
 
         static final String COLUMN_ID = _ID;
@@ -24,8 +32,6 @@ public class Contract {
         static final String COLUMN_DATE = "date";
         static final String COLUMN_TYPE = "type";
         static final String COLUMN_MCC = "mcc";
-        static final String COLUMN_LATITUDE = "latitude";
-        static final String COLUMN_LONGITUDE = "longitude";
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_ID, COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_DATE, COLUMN_TYPE, COLUMN_MCC, COLUMN_LATITUDE,
@@ -37,8 +43,6 @@ public class Contract {
         private static final String SQL_COLUMN_DATE = COLUMN_DATE + " TEXT";
         private static final String SQL_COLUMN_TYPE = COLUMN_TYPE + " TEXT";
         private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
-        private static final String SQL_COLUMN_LATITUDE = COLUMN_LATITUDE + " DECIMAL";
-        private static final String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
@@ -171,7 +175,7 @@ public class Contract {
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
-    public static final class Church extends Base {
+    public static final class Church extends Location {
         public static final String TABLE_NAME = "churches";
 
         static final String COLUMN_ID = _ID;
@@ -179,8 +183,6 @@ public class Contract {
         static final String COLUMN_NAME = "name";
         static final String COLUMN_CONTACT_NAME = "contact_name";
         static final String COLUMN_CONTACT_EMAIL = "contact_email";
-        static final String COLUMN_LATITUDE = "latitude";
-        static final String COLUMN_LONGITUDE = "longitude";
         static final String COLUMN_DEVELOPMENT = "development";
         static final String COLUMN_SIZE = "size";
         static final String COLUMN_SECURITY = "security";
@@ -194,8 +196,6 @@ public class Contract {
         private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_CONTACT_NAME = COLUMN_CONTACT_NAME + " TEXT";
         private static final String SQL_COLUMN_CONTACT_EMAIL = COLUMN_CONTACT_EMAIL + " TEXT";
-        private static final String SQL_COLUMN_LATITUDE = COLUMN_LATITUDE + " DECIMAL";
-        private static final String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
         private static final String SQL_COLUMN_DEVELOPMENT = COLUMN_DEVELOPMENT + " INTEGER";
         private static final String SQL_COLUMN_SIZE = COLUMN_SIZE + " INTEGER";
         private static final String SQL_COLUMN_SECURITY = COLUMN_SECURITY + " INTEGER";

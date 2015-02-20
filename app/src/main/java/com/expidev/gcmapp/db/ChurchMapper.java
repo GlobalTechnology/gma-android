@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.expidev.gcmapp.model.Church;
 
-public class ChurchMapper extends BaseMapper<Church> {
+public class ChurchMapper extends LocationMapper<Church> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
                             @NonNull final Church church) {
@@ -25,12 +25,6 @@ public class ChurchMapper extends BaseMapper<Church> {
                 break;
             case Contract.Church.COLUMN_CONTACT_EMAIL:
                 values.put(field, church.getContactEmail());
-                break;
-            case Contract.Church.COLUMN_LATITUDE:
-                values.put(field, church.getLatitude());
-                break;
-            case Contract.Church.COLUMN_LONGITUDE:
-                values.put(field, church.getLongitude());
                 break;
             case Contract.Church.COLUMN_DEVELOPMENT:
                 values.put(field, church.getDevelopment().id);
@@ -61,8 +55,6 @@ public class ChurchMapper extends BaseMapper<Church> {
         church.setName(getString(c, Contract.Church.COLUMN_NAME, null));
         church.setContactName(getString(c, Contract.Church.COLUMN_CONTACT_NAME, null));
         church.setContactEmail(getString(c, Contract.Church.COLUMN_CONTACT_EMAIL, null));
-        church.setLatitude(getDouble(c, Contract.Church.COLUMN_LATITUDE));
-        church.setLongitude(getDouble(c, Contract.Church.COLUMN_LONGITUDE));
         church.setDevelopment(getInt(c, Contract.Church.COLUMN_DEVELOPMENT, Church.Development.UNKNOWN.id));
         church.setSize(getInt(c, Contract.Church.COLUMN_SIZE, 0));
         church.setSecurity(getInt(c, Contract.Church.COLUMN_SECURITY, 2));

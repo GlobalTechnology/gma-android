@@ -10,7 +10,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Church extends Base {
+public class Church extends Location {
     public static final long INVALID_ID = -1;
 
     private static final int DEVELOPMENT_UNKNOWN = 0;
@@ -66,8 +66,6 @@ public class Church extends Base {
     private String contactEmail;
     @Nullable
     private String contactName;
-    private double latitude;
-    private double longitude;
     @NonNull
     private Development development = Development.UNKNOWN;
     private int size;
@@ -90,8 +88,8 @@ public class Church extends Base {
         church.name = json.optString(JSON_NAME, null);
         church.contactEmail = json.optString(JSON_CONTACT_EMAIL, null);
         church.contactName = json.optString(JSON_CONTACT_NAME, null);
-        church.latitude = json.getDouble(JSON_LATITUDE);
-        church.longitude = json.getDouble(JSON_LONGITUDE);
+        church.setLatitude(json.getDouble(JSON_LATITUDE));
+        church.setLongitude(json.getDouble(JSON_LONGITUDE));
         church.setDevelopment(json.optInt(JSON_DEVELOPMENT, DEVELOPMENT_UNKNOWN));
         church.size = json.optInt(JSON_SIZE, 0);
         church.security = json.optInt(JSON_SECURITY, 2);
@@ -142,22 +140,6 @@ public class Church extends Base {
         this.contactName = name;
     }
 
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(final double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(final double longitude) {
-        this.longitude = longitude;
-    }
-
     @NonNull
     public Development getDevelopment() {
         return development;
@@ -193,8 +175,8 @@ public class Church extends Base {
         json.put(JSON_NAME, this.name);
         json.put(JSON_CONTACT_NAME, this.contactName);
         json.put(JSON_CONTACT_EMAIL, this.contactEmail);
-        json.put(JSON_LATITUDE, this.latitude);
-        json.put(JSON_LONGITUDE, this.longitude);
+        json.put(JSON_LATITUDE, this.getLatitude());
+        json.put(JSON_LONGITUDE, this.getLongitude());
         if (this.development != Development.UNKNOWN) {
             json.put(JSON_DEVELOPMENT, this.development.id);
         }
