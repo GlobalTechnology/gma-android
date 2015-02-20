@@ -410,9 +410,13 @@ public class MeasurementDao extends AbstractDao
             Contract.MeasurementDetails.SQL_WHERE_MEASUREMENT,
             whereArgs);
 
-        if(baseResults.size() != 1)
+        if(baseResults.size() < 1)
         {
-            throw new IllegalStateException("Incorrect number of measurement details results: " + baseResults.size());
+            return null;
+        }
+        else if(baseResults.size() > 1)
+        {
+            throw new IllegalStateException("Too many measurement details results: " + baseResults.size());
         }
 
         fullDetailData = baseResults.get(0);
