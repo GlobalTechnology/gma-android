@@ -1,6 +1,7 @@
 package com.expidev.gcmapp;
 
 import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
+import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
 import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
 
 import android.app.AlertDialog;
@@ -28,13 +29,17 @@ import android.widget.Toast;
 
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.db.TrainingDao;
-import com.expidev.gcmapp.map.GcmMarker;
+import com.expidev.gcmapp.map.ChurchMarker;
+import com.expidev.gcmapp.map.Marker;
 import com.expidev.gcmapp.map.MarkerRender;
+import com.expidev.gcmapp.map.TrainingMarker;
 import com.expidev.gcmapp.model.AssociatedMinistry;
+import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
+import com.expidev.gcmapp.support.v4.content.ChurchesLoader;
 import com.expidev.gcmapp.support.v4.content.CurrentMinistryLoader;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.Device;
@@ -57,7 +62,6 @@ import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.content.AttributesLoader;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 
-
 public class MainActivity extends ActionBarActivity
     implements OnMapReadyCallback
 {
@@ -65,6 +69,14 @@ public class MainActivity extends ActionBarActivity
 
     private static final int LOADER_THEKEY_ATTRIBUTES = 1;
     private static final int LOADER_CURRENT_MINISTRY = 2;
+    private static final int LOADER_CHURCHES = 3;
+
+    private static final int MAP_LAYER_TRAINING = 0;
+    private static final int MAP_LAYER_TARGET = 1;
+    private static final int MAP_LAYER_GROUP = 2;
+    private static final int MAP_LAYER_CHURCH = 3;
+    private static final int MAP_LAYER_MULTIPLYING_CHURCH = 4;
+    private static final int MAP_LAYER_CAMPUSES = 5;
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
@@ -72,27 +84,27 @@ public class MainActivity extends ActionBarActivity
     private LocalBroadcastManager manager;
     private GcmBroadcastReceiver gcmBroadcastReceiver;
     private ActionBar actionBar;
-    private boolean targets;
-    private boolean groups;
-    private boolean churches;
-    private boolean multiplyingChurches;
-    private boolean trainingActivities;
-    private boolean campuses;
-    private SharedPreferences mapPreferences;
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
 
+    /* Loader callback objects */
+    private final AssociatedMinistryLoaderCallbacks mLoaderCallbacksMinistry = new AssociatedMinistryLoaderCallbacks();
+    private final AttributesLoaderCallbacks mLoaderCallbacksAttributes = new AttributesLoaderCallbacks();
+    private final ChurchesLoaderCallbacks mLoaderCallbacksChurches = new ChurchesLoaderCallbacks();
+
+    /* map related objects */
+    private TextView mapOverlayText;
     @Nullable
     private GoogleMap map;
-    private ClusterManager<GcmMarker> clusterManager;
+    private ClusterManager<Marker> clusterManager;
+    private final boolean[] mMapLayers = new boolean[6];
 
     @Nullable
     private AssociatedMinistry mCurrentMinistry;
-
-    private TextView mapOverlayText;
-
     @Nullable
     private List<Training> allTraining;
+    @Nullable
+    private List<Church> mChurches;
 
     /* BEGIN lifecycle */
 
@@ -109,8 +121,6 @@ public class MainActivity extends ActionBarActivity
 
         preferences = getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE);
 
-        getMapPreferences();
-        
         setupBroadcastReceivers();
 
         theKey = TheKeyImpl.getInstance(getApplicationContext(), THEKEY_CLIENTID);
@@ -173,6 +183,9 @@ public class MainActivity extends ActionBarActivity
             case R.id.action_refresh:
                 MinistriesService.syncAllMinistries(this, true);
                 MinistriesService.syncAssignments(this, true);
+                if (mCurrentMinistry != null) {
+                    MinistriesService.syncChurches(this, mCurrentMinistry.getMinistryId());
+                }
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -213,11 +226,15 @@ public class MainActivity extends ActionBarActivity
      * This event is triggered when the current ministry is changing from one to another
      */
     void onChangeCurrentMinistry() {
-        // sync trainings from the backend
+        // sync churches & trainings
         if (mCurrentMinistry != null) {
             String mcc = getChosenMcc();
+            MinistriesService.syncChurches(this, mCurrentMinistry.getMinistryId());
             TrainingService.downloadTraining(this, mCurrentMinistry.getMinistryId(), mcc != null ? mcc : "slm");
         }
+
+        // restart Loaders based off the current ministry
+        restartCurrentMinistryBasedLoaders();
 
         // If we are changing assignments/ministries, we need to reload trainings
         // TODO: this should be handled by a ContentLoader on a background thread eventually
@@ -229,6 +246,13 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
+    void onLoadChurches(@Nullable final List<Church> churches) {
+        mChurches = churches;
+
+        // update the map
+        updateMap(false);
+    }
+
     @Override
     protected void onPostResume()
     {
@@ -236,8 +260,7 @@ public class MainActivity extends ActionBarActivity
         Log.i(TAG, "Resuming");
         
         if (map != null) map.clear();
-        
-        getMapPreferences();
+
         updateMap(false);
     }
 
@@ -252,8 +275,20 @@ public class MainActivity extends ActionBarActivity
 
     private void startLoaders() {
         final LoaderManager manager = this.getSupportLoaderManager();
-        manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, new AttributesLoaderCallbacks());
-        manager.initLoader(LOADER_CURRENT_MINISTRY, null, new AssociatedMinistryLoaderCallbacks());
+        manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, mLoaderCallbacksAttributes);
+        manager.initLoader(LOADER_CURRENT_MINISTRY, null, mLoaderCallbacksMinistry);
+        restartCurrentMinistryBasedLoaders();
+    }
+
+    private void restartCurrentMinistryBasedLoaders() {
+        final LoaderManager manager = this.getSupportLoaderManager();
+
+        // build the args used for ministry based loaders
+        final Bundle args = new Bundle(1);
+        args.putString(ARG_MINISTRY_ID, mCurrentMinistry != null ? mCurrentMinistry.getMinistryId() : null);
+
+        // restart these loaders in case the ministry id has changed since the last start
+        manager.restartLoader(LOADER_CHURCHES, args, mLoaderCallbacksChurches);
     }
 
     private void updateMap(final boolean zoom) {
@@ -264,6 +299,9 @@ public class MainActivity extends ActionBarActivity
 
         // update map itself if it exists
         if (map != null) {
+            // refresh the list of map layers to display
+            loadVisibleMapLayers();
+
             // update map zoom
             if (zoom) {
                 zoomToLocation();
@@ -274,7 +312,8 @@ public class MainActivity extends ActionBarActivity
                 // clear any previous items
                 clusterManager.clearItems();
 
-                // add training Markers
+                // add various Markers to the map
+                addChurchMarkersToMap();
                 addTrainingMarkersToMap();
 
                 // force a recluster
@@ -365,15 +404,14 @@ public class MainActivity extends ActionBarActivity
 
         alertDialog.show();  
     }
-    
-    private void getMapPreferences()
-    {
-        targets = preferences.getBoolean("targets", true);
-        groups = preferences.getBoolean("groups", true);
-        churches = preferences.getBoolean("churches", true);
-        multiplyingChurches = preferences.getBoolean("multiplyingChurches", true);
-        trainingActivities = preferences.getBoolean("trainingActivities", true);
-        campuses = preferences.getBoolean("campuses", true);
+
+    private void loadVisibleMapLayers() {
+        mMapLayers[MAP_LAYER_TRAINING] = preferences.getBoolean("trainingActivities", true);
+        mMapLayers[MAP_LAYER_TARGET] = preferences.getBoolean("targets", true);
+        mMapLayers[MAP_LAYER_GROUP] = preferences.getBoolean("groups", true);
+        mMapLayers[MAP_LAYER_CHURCH] = preferences.getBoolean("churches", true);
+        mMapLayers[MAP_LAYER_MULTIPLYING_CHURCH] = preferences.getBoolean("multiplyingChurches", true);
+        mMapLayers[MAP_LAYER_CAMPUSES] = preferences.getBoolean("campuses", true);
     }
     
     private void login()
@@ -440,13 +478,37 @@ public class MainActivity extends ActionBarActivity
     }
 
     private void addTrainingMarkersToMap() {
-        // do not show training activities if turned off in map settings
-        Log.i(TAG, "Show training: " + trainingActivities);
-        if (trainingActivities && allTraining != null) {
+        // show training activities when the Training layer is enabled and we have trainings
+        if (mMapLayers[MAP_LAYER_TRAINING] && allTraining != null) {
             for (Training training : allTraining)
             {
-                GcmMarker marker = new GcmMarker(training.getName(), training.getLatitude(), training.getLongitude());
-                clusterManager.addItem(marker);
+                clusterManager.addItem(new TrainingMarker(training));
+            }
+        }
+    }
+
+    private void addChurchMarkersToMap() {
+        if (mChurches != null) {
+            for (final Church church : mChurches) {
+                boolean render = false;
+                switch (church.getDevelopment()) {
+                    case TARGET:
+                        render = mMapLayers[MAP_LAYER_TARGET];
+                        break;
+                    case GROUP:
+                        render = mMapLayers[MAP_LAYER_GROUP];
+                        break;
+                    case CHURCH:
+                        render = mMapLayers[MAP_LAYER_CHURCH];
+                        break;
+                    case MULTIPLYING_CHURCH:
+                        render = mMapLayers[MAP_LAYER_MULTIPLYING_CHURCH];
+                        break;
+                }
+
+                if (render) {
+                    clusterManager.addItem(new ChurchMarker(church));
+                }
             }
         }
     }
@@ -572,6 +634,26 @@ public class MainActivity extends ActionBarActivity
                 case LOADER_THEKEY_ATTRIBUTES:
                     onLoadAttributes(attrs);
                     break;
+            }
+        }
+    }
+
+    private class ChurchesLoaderCallbacks extends SimpleLoaderCallbacks<List<Church>> {
+        @Override
+        public Loader<List<Church>> onCreateLoader(final int id, @Nullable final Bundle args) {
+            switch (id) {
+                case LOADER_CHURCHES:
+                    return new ChurchesLoader(MainActivity.this, args);
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull final Loader<List<Church>> loader, @Nullable final List<Church> churches) {
+            switch (loader.getId()) {
+                case LOADER_CHURCHES:
+                    onLoadChurches(churches);
             }
         }
     }

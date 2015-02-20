@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.expidev.gcmapp.model.Training;
 
-public class TrainingMapper extends BaseMapper<Training> {
+public class TrainingMapper extends LocationMapper<Training> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
                             @NonNull final Training training) {
@@ -28,12 +28,6 @@ public class TrainingMapper extends BaseMapper<Training> {
                 break;
             case Contract.Training.COLUMN_MCC:
                 values.put(field, training.getMcc());
-                break;
-            case Contract.Training.COLUMN_LATITUDE:
-                values.put(field, training.getLatitude());
-                break;
-            case Contract.Training.COLUMN_LONGITUDE:
-                values.put(field, training.getLongitude());
                 break;
             default:
                 super.mapField(values, field, training);
@@ -57,8 +51,6 @@ public class TrainingMapper extends BaseMapper<Training> {
         training.setDate(stringToDate(this.getString(c, Contract.Training.COLUMN_DATE)));
         training.setType(this.getString(c, Contract.Training.COLUMN_TYPE, null));
         training.setMcc(this.getString(c, Contract.Training.COLUMN_MCC, null));
-        training.setLatitude(this.getDouble(c, Contract.Training.COLUMN_LATITUDE, 0));
-        training.setLongitude(this.getDouble(c, Contract.Training.COLUMN_LONGITUDE, 0));
         return training;
     }
 }

@@ -11,16 +11,13 @@ import java.util.List;
 /**
  * Created by matthewfrederick on 1/26/15.
  */
-public class Training extends Base
-{
+public class Training extends Location {
     private int id;
     private String ministryId;
     private String name;
     private Date date;
     private String type;
     private String mcc;
-    private double latitude;
-    private double longitude;
     @NonNull
     private final List<GCMTrainingCompletions> completions = new ArrayList<>();
 
@@ -93,26 +90,6 @@ public class Training extends Base
     public void setMcc(String mcc)
     {
         this.mcc = mcc;
-    }
-
-    public double getLatitude()
-    {
-        return latitude;
-    }
-
-    public void setLatitude(double latitude)
-    {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude()
-    {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude)
-    {
-        this.longitude = longitude;
     }
 
     @NonNull
