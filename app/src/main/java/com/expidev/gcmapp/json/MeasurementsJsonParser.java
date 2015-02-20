@@ -147,7 +147,7 @@ public class MeasurementsJsonParser
             JSONObject subMinistryJson = json.getJSONObject(i);
 
             SubMinistryDetails subMinistryDetails = new SubMinistryDetails();
-            subMinistryDetails.setMinistryId(subMinistryJson.getString("ministry_id"));
+            subMinistryDetails.setSubMinistryId(subMinistryJson.getString("ministry_id"));
             subMinistryDetails.setName(subMinistryJson.getString("name"));
             subMinistryDetails.setTotal(subMinistryJson.getInt("total"));
 

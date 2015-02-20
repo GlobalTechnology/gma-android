@@ -22,8 +22,8 @@ public class SubMinistryDetailsMapper extends MeasurementDetailsDataMapper<SubMi
             case Contract.SubMinistryDetails.COLUMN_NAME:
                 values.put(field, subMinistryDetails.getName());
                 break;
-            case Contract.SubMinistryDetails.COLUMN_MINISTRY_ID:
-                values.put(field, subMinistryDetails.getMinistryId());
+            case Contract.SubMinistryDetails.COLUMN_SUB_MINISTRY_ID:
+                values.put(field, subMinistryDetails.getSubMinistryId());
                 break;
             case Contract.SubMinistryDetails.COLUMN_TOTAL:
                 values.put(field, subMinistryDetails.getTotal());
@@ -48,7 +48,7 @@ public class SubMinistryDetailsMapper extends MeasurementDetailsDataMapper<SubMi
         final SubMinistryDetails subMinistryDetails = super.toObject(cursor);
 
         subMinistryDetails.setName(this.getString(cursor, Contract.SubMinistryDetails.COLUMN_NAME));
-        subMinistryDetails.setMinistryId(this.getString(cursor, Contract.SubMinistryDetails.COLUMN_MINISTRY_ID));
+        subMinistryDetails.setSubMinistryId(this.getString(cursor, Contract.SubMinistryDetails.COLUMN_SUB_MINISTRY_ID));
         subMinistryDetails.setTotal(this.getInt(cursor, Contract.SubMinistryDetails.COLUMN_TOTAL));
 
         return super.toObject(cursor);

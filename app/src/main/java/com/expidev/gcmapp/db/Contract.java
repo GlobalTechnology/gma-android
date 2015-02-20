@@ -390,18 +390,21 @@ public class Contract {
 
         static final String COLUMN_NAME = "name";
         static final String COLUMN_TOTAL = "total";
+        static final String COLUMN_SUB_MINISTRY_ID = "sub_ministry_id";
 
         static final String[] PROJECTION_ALL = {
             COLUMN_MEASUREMENT_ID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERIOD,
-            COLUMN_NAME, COLUMN_MINISTRY_ID, COLUMN_TOTAL, COLUMN_LAST_SYNCED
+            COLUMN_NAME, COLUMN_SUB_MINISTRY_ID, COLUMN_TOTAL, COLUMN_LAST_SYNCED
         };
 
         private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_TOTAL = COLUMN_TOTAL + " INTEGER";
+        private static final String SQL_COLUMN_SUB_MINISTRY_ID = COLUMN_SUB_MINISTRY_ID + " TEXT";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
             .join(",", new Object[] { SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_MINISTRY_ID,
-                SQL_COLUMN_MCC, SQL_COLUMN_PERIOD, SQL_COLUMN_NAME, SQL_COLUMN_TOTAL, SQL_COLUMN_LAST_SYNCED }) + ");";
+                SQL_COLUMN_MCC, SQL_COLUMN_PERIOD, SQL_COLUMN_NAME, SQL_COLUMN_TOTAL,
+                SQL_COLUMN_SUB_MINISTRY_ID, SQL_COLUMN_LAST_SYNCED }) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 }

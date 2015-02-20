@@ -10,7 +10,7 @@ public class SubMinistryDetails extends MeasurementDetailsData implements Serial
     private static final long serialVersionUID = 0L;
 
     private String name;
-    private String ministryId;
+    private String subMinistryId;
     private int total;
 
     public String getName()
@@ -23,14 +23,14 @@ public class SubMinistryDetails extends MeasurementDetailsData implements Serial
         this.name = name;
     }
 
-    public String getMinistryId()
+    public String getSubMinistryId()
     {
-        return ministryId;
+        return subMinistryId;
     }
 
-    public void setMinistryId(String ministryId)
+    public void setSubMinistryId(String subMinistryId)
     {
-        this.ministryId = ministryId;
+        this.subMinistryId = subMinistryId;
     }
 
     public int getTotal()
