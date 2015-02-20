@@ -1,6 +1,5 @@
 package com.expidev.gcmapp.service;
 
-import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,6 +17,7 @@ import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 
 import org.ccci.gto.android.common.api.ApiException;
+import org.ccci.gto.android.common.app.ThreadedIntentService;
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -50,7 +50,7 @@ import static com.expidev.gcmapp.utils.BroadcastUtils.updateMeasurementsBroadcas
 /**
  * Created by William.Randall on 2/4/2015.
  */
-public class MeasurementsService extends IntentService
+public class MeasurementsService extends ThreadedIntentService
 {
     private static final String TAG = MeasurementsService.class.getSimpleName();
 
@@ -72,7 +72,7 @@ public class MeasurementsService extends IntentService
 
     public MeasurementsService()
     {
-        super("MeasurementsService");
+        super("MeasurementsService", 5);
     }
 
 
