@@ -1,2 +1,2 @@
-# gcm_android
-GCM Measurements Application (Android)
+# gma_android
+Global Measurements Application (Android)
