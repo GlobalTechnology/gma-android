@@ -51,6 +51,6 @@ public class SubMinistryDetailsMapper extends MeasurementDetailsDataMapper<SubMi
         subMinistryDetails.setSubMinistryId(this.getString(cursor, Contract.SubMinistryDetails.COLUMN_SUB_MINISTRY_ID));
         subMinistryDetails.setTotal(this.getInt(cursor, Contract.SubMinistryDetails.COLUMN_TOTAL));
 
-        return super.toObject(cursor);
+        return subMinistryDetails;
     }
 }

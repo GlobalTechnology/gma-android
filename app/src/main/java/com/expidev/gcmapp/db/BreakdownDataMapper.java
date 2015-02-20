@@ -51,6 +51,6 @@ public class BreakdownDataMapper extends MeasurementDetailsDataMapper<BreakdownD
         breakdownData.setAmount(this.getInt(cursor, Contract.BreakdownData.COLUMN_AMOUNT, 0));
         breakdownData.setType(this.getString(cursor, Contract.BreakdownData.COLUMN_TYPE, null));
 
-        return super.toObject(cursor);
+        return breakdownData;
     }
 }
