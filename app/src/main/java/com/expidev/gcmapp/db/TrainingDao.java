@@ -193,7 +193,7 @@ public class TrainingDao extends AbstractDao
 
                 // build training object
                 final Training training = new Training();
-                training.setId(json.getInt("id"));
+                training.setId(json.getInt("Id"));
                 training.setMinistryId(json.getString("ministry_id"));
                 training.setName(json.getString("name"));
                 training.setDate(stringToDate(json.getString("date")));
@@ -210,7 +210,7 @@ public class TrainingDao extends AbstractDao
                     final JSONObject completionJson = trainingCompletedArray.getJSONObject(j);
 
                     final Training.GCMTrainingCompletions completion = new Training.GCMTrainingCompletions();
-                    completion.setId(completionJson.getInt("id"));
+                    completion.setId(completionJson.getInt("Id"));
                     completion.setTrainingId(completionJson.getInt("training_id"));
                     completion.setPhase(completionJson.getInt("phase"));
                     completion.setNumberCompleted(completionJson.getInt("number_completed"));
