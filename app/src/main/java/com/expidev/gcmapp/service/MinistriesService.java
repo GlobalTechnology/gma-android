@@ -1,5 +1,6 @@
 package com.expidev.gcmapp.service;
 
+import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
@@ -37,6 +38,7 @@ import org.ccci.gto.android.common.db.AbstractDao.Transaction;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +56,6 @@ public class MinistriesService extends ThreadedIntentService {
 
     private static final String EXTRA_SYNCTYPE = "type";
     private static final String EXTRA_FORCE = MinistriesService.class.getName() + ".EXTRA_FORCE";
-    private static final String EXTRA_MINISTRY_ID = MinistriesService.class.getName() + ".EXTRA_MINISTRY_ID";
 
     // various stale data durations
     private static final long HOUR_IN_MS = 60 * 60 * 1000;
@@ -238,6 +239,8 @@ public class MinistriesService extends ThreadedIntentService {
                 }
 
                 // process all fetched churches
+                long[] ids = new long[current.size() + churches.size()];
+                int j = 0;
                 for(final Church church : churches) {
                     // update church in database
                     church.setLastSynced(new Date());
@@ -245,15 +248,26 @@ public class MinistriesService extends ThreadedIntentService {
 
                     // remove this church from the list of churches
                     current.remove(church.getId());
+
+                    // mark this id as having been updated
+                    ids[j++] = church.getId();
                 }
 
                 // delete any remaining churches that weren't returned from the API
                 for(int i = 0; i< current.size(); i++) {
-                    mDao.delete(current.valueAt(i));
+                    final Church church = current.valueAt(i);
+                    mDao.delete(church);
+
+                    // mark these ids as being updated as well
+                    ids[j++] = church.getId();
                 }
 
                 // mark transaction successful
                 tx.setSuccessful();
+
+                // send broadcasts that data has been updated
+                broadcastManager.sendBroadcast(
+                        BroadcastUtils.updateChurchesBroadcast(ministryId, Arrays.copyOf(ids, j)));
             } finally {
                 tx.end();
             }
