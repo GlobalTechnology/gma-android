@@ -115,25 +115,32 @@ public class Contract {
         static final String COLUMN_HAS_LLM = "has_llm";
         static final String COLUMN_HAS_DS = "has_ds";
         static final String COLUMN_HAS_GCM = "has_gcm";
+        static final String COLUMN_LATITUDE = "latitude";
+        static final String COLUMN_LONGITUDE = "longitude";
+        static final String COLUMN_LOCATION_ZOOM = "location_zoom";
         static final String COLUMN_PARENT_MINISTRY_ID = "parent_ministry_id";
 
-        static final String[] PROJECTION_ALL = {
-            COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_MIN_CODE, COLUMN_HAS_SLM, COLUMN_HAS_LLM, COLUMN_HAS_DS,
-            COLUMN_HAS_GCM, COLUMN_PARENT_MINISTRY_ID, COLUMN_LAST_SYNCED
-        };
+        static final String[] PROJECTION_ALL =
+                {COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_MIN_CODE, COLUMN_HAS_SLM, COLUMN_HAS_LLM, COLUMN_HAS_DS,
+                        COLUMN_HAS_GCM, COLUMN_LATITUDE, COLUMN_LONGITUDE, COLUMN_LOCATION_ZOOM,
+                        COLUMN_PARENT_MINISTRY_ID, COLUMN_LAST_SYNCED};
 
         private static final String SQL_COLUMN_MIN_CODE = COLUMN_MIN_CODE + " TEXT";
         private static final String SQL_COLUMN_HAS_SLM = COLUMN_HAS_SLM + " INTEGER";
         private static final String SQL_COLUMN_HAS_LLM = COLUMN_HAS_LLM + " INTEGER";
         private static final String SQL_COLUMN_HAS_DS = COLUMN_HAS_DS + " INTEGER";
         private static final String SQL_COLUMN_HAS_GCM = COLUMN_HAS_GCM + " INTEGER";
+        private static final String SQL_COLUMN_LATITUDE = COLUMN_LATITUDE + " DECIMAL";
+        private static final String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
+        private static final String SQL_COLUMN_LOCATION_ZOOM = COLUMN_LOCATION_ZOOM + " INTEGER";
         private static final String SQL_COLUMN_PARENT_MINISTRY_ID = COLUMN_PARENT_MINISTRY_ID + " TEXT";
 
         static final String SQL_WHERE_PARENT = COLUMN_PARENT_MINISTRY_ID + " = ?";
 
-        public static final String SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" + TextUtils
+        public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME, SQL_COLUMN_MIN_CODE,
                         SQL_COLUMN_HAS_SLM, SQL_COLUMN_HAS_LLM, SQL_COLUMN_HAS_DS, SQL_COLUMN_HAS_GCM,
+                        SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE, SQL_COLUMN_LOCATION_ZOOM,
                         SQL_COLUMN_PARENT_MINISTRY_ID, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
@@ -144,20 +151,12 @@ public class Contract {
         static final String COLUMN_ID = "assignment_id";
         public static final String COLUMN_ROLE = "team_role";
         public static final String COLUMN_MINISTRY_ID = "ministry_id";
-        static final String COLUMN_LATITUDE = "latitude";
-        static final String COLUMN_LONGITUDE = "longitude";
-        static final String COLUMN_LOCATION_ZOOM = "location_zoom";
 
-        static final String[] PROJECTION_ALL =
-                {COLUMN_ID, COLUMN_ROLE, COLUMN_MINISTRY_ID, COLUMN_LATITUDE, COLUMN_LONGITUDE, COLUMN_LOCATION_ZOOM,
-                        COLUMN_LAST_SYNCED};
+        static final String[] PROJECTION_ALL = {COLUMN_ID, COLUMN_ROLE, COLUMN_MINISTRY_ID, COLUMN_LAST_SYNCED};
 
         private static final String SQL_COLUMN_ID = COLUMN_ID + " TEXT";
         private static final String SQL_COLUMN_ROLE = COLUMN_ROLE + " TEXT";
         private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
-        private static final String SQL_COLUMN_LATITUDE = COLUMN_LATITUDE + " DECIMAL";
-        private static final String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
-        private static final String SQL_COLUMN_LOCATION_ZOOM = COLUMN_LOCATION_ZOOM + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_ID + ")";
         private static final String SQL_FOREIGN_KEY_MINISTRIES =
                 "FOREIGN KEY(" + COLUMN_MINISTRY_ID + ") REFERENCES " + AssociatedMinistry.TABLE_NAME + "(" +
@@ -168,8 +167,7 @@ public class Contract {
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_ID, SQL_COLUMN_ROLE, SQL_COLUMN_MINISTRY_ID,
-                        SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE, SQL_COLUMN_LOCATION_ZOOM, SQL_COLUMN_LAST_SYNCED,
-                        SQL_PRIMARY_KEY, SQL_FOREIGN_KEY_MINISTRIES}) + ")";
+                        SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY, SQL_FOREIGN_KEY_MINISTRIES}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 }

@@ -40,6 +40,15 @@ public class AssociatedMinistriesMapper extends BaseMapper<AssociatedMinistry>
             case Contract.AssociatedMinistry.COLUMN_HAS_GCM:
                 values.put(field, ministry.hasGcm() ? 1 : 0);
                 break;
+            case Contract.AssociatedMinistry.COLUMN_LATITUDE:
+                values.put(field, ministry.getLatitude());
+                break;
+            case Contract.AssociatedMinistry.COLUMN_LONGITUDE:
+                values.put(field, ministry.getLongitude());
+                break;
+            case Contract.AssociatedMinistry.COLUMN_LOCATION_ZOOM:
+                values.put(field, ministry.getLocationZoom());
+                break;
             case Contract.AssociatedMinistry.COLUMN_PARENT_MINISTRY_ID:
                 values.put(field, ministry.getParentMinistryId());
                 break;
@@ -70,6 +79,9 @@ public class AssociatedMinistriesMapper extends BaseMapper<AssociatedMinistry>
         ministry.setHasSlm(this.getBool(cursor, Contract.AssociatedMinistry.COLUMN_HAS_SLM, false));
         ministry.setHasDs(this.getBool(cursor, Contract.AssociatedMinistry.COLUMN_HAS_DS, false));
         ministry.setHasLlm(this.getBool(cursor, Contract.AssociatedMinistry.COLUMN_HAS_LLM, false));
+        ministry.setLatitude(this.getDouble(cursor, Contract.AssociatedMinistry.COLUMN_LATITUDE, 0));
+        ministry.setLongitude(this.getDouble(cursor, Contract.AssociatedMinistry.COLUMN_LONGITUDE, 0));
+        ministry.setLocationZoom(this.getInt(cursor, Contract.AssociatedMinistry.COLUMN_LOCATION_ZOOM, 0));
 
         return ministry;
     }

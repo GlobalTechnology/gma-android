@@ -1,5 +1,8 @@
 package com.expidev.gcmapp;
 
+import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
+import static com.expidev.gcmapp.Constants.PREF_CURRENT_MINISTRY;
+
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -16,6 +19,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.expidev.gcmapp.db.Contract;
+import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.Type;
@@ -39,8 +44,8 @@ public class SettingsActivity extends PreferenceActivity
 {
     private final String TAG = getClass().getSimpleName();
 
+    private MinistriesDao mDao;
     private BroadcastReceiver broadcastReceiver;
-    private final String PREF_NAME = "gcm_prefs";
     private SharedPreferences preferences;
     
     private List<AssociatedMinistry> associatedMinistries;
@@ -57,7 +62,8 @@ public class SettingsActivity extends PreferenceActivity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        mDao = MinistriesDao.getInstance(this);
+        preferences = getSharedPreferences(PREFS_SETTINGS, MODE_PRIVATE);
     }
 
     @Override
@@ -104,14 +110,19 @@ public class SettingsActivity extends PreferenceActivity
                     {
                         case RETRIEVE_ASSOCIATED_MINISTRIES:
                             Log.i(TAG, "Associated Ministries Received");
-                            
+
+                            String chosenMinistry = preferences.getString("chosen_ministry", null);
+                            String chosenMcc = preferences.getString("chosen_mcc", null);
+
                             associatedMinistries =
                                 (ArrayList<AssociatedMinistry>) intent.getSerializableExtra("associatedMinistries");
-                            populateMinistryListPreference(associatedMinistries);
-                            String chosenMinistry = preferences.getString("chosen_ministry", null);
+
+                            populateMinistryListPreference(associatedMinistries, chosenMinistry);
+
                             if(chosenMinistry != null)
                             {
-                                populateMissionCriticalComponentsPreference(associatedMinistries, chosenMinistry);
+                                populateMissionCriticalComponentsPreference(
+                                    associatedMinistries, chosenMinistry, chosenMcc);
                             }
                             break;
                         default:
@@ -160,7 +171,9 @@ public class SettingsActivity extends PreferenceActivity
         addPreferencesFromResource(R.xml.pref_general);
     }
 
-    private void populateMinistryListPreference(final List<AssociatedMinistry> associatedMinistries)
+    private void populateMinistryListPreference(
+        final List<AssociatedMinistry> associatedMinistries,
+        String chosenMinistry)
     {
         ListPreference ministryListPreference = (ListPreference) findPreference("ministry_team_list");
 
@@ -173,7 +186,15 @@ public class SettingsActivity extends PreferenceActivity
         
         ministryListPreference.setEntries(ministryNames.toArray(new CharSequence[ministryNames.size()]));
         ministryListPreference.setEntryValues(ministryNames.toArray(new CharSequence[ministryNames.size()]));
-        bindPreferenceSummaryToValue(ministryListPreference);
+
+        if(chosenMinistry != null)
+        {
+            bindPreferenceSummaryToValue(ministryListPreference, chosenMinistry);
+        }
+        else
+        {
+            bindPreferenceSummaryToValue(ministryListPreference);
+        }
 
         ministryListPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
         {
@@ -183,10 +204,18 @@ public class SettingsActivity extends PreferenceActivity
                 String ministryName = newValue.toString();
                 bindPreferenceSummaryToValue(preference, ministryName);
 
-                populateMissionCriticalComponentsPreference(associatedMinistries, ministryName);
+                // resolve ministry from database
+                // TODO: we shouldn't be loading ministries from DAO on UI thread, but this is only temporary
+                final List<AssociatedMinistry> ministries =
+                        mDao.get(AssociatedMinistry.class, Contract.AssociatedMinistry.COLUMN_NAME + "=?",
+                                 new String[] {ministryName});
+                final AssociatedMinistry ministry = ministries.isEmpty() ? null : ministries.get(0);
+
+                populateMissionCriticalComponentsPreference(associatedMinistries, ministryName, null);
                 preferences
                     .edit()
-                    .putString("chosen_ministry", ministryName)
+                        .putString(PREF_CURRENT_MINISTRY, ministry != null ? ministry.getMinistryId() : null)
+                        .putString("chosen_ministry", ministryName)
                     .apply();
                 return true;
             }
@@ -195,7 +224,8 @@ public class SettingsActivity extends PreferenceActivity
 
     private void populateMissionCriticalComponentsPreference(
         List<AssociatedMinistry> associatedMinistries,
-        String chosenMinistryName)
+        String chosenMinistryName,
+        String chosenMcc)
     {
         ListPreference mccListPreference = (ListPreference) findPreference("mcc_list");
         List<String> options = new ArrayList<String>();
@@ -234,19 +264,23 @@ public class SettingsActivity extends PreferenceActivity
         }
 
         mccListPreference.setPersistent(true);
-        bindPreferenceSummaryToValue(mccListPreference);
+
+        if(chosenMcc != null)
+        {
+            bindPreferenceSummaryToValue(mccListPreference, chosenMcc);
+        }
+        else
+        {
+            bindPreferenceSummaryToValue(mccListPreference);
+        }
+
         mccListPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
         {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue)
             {
                 String mcc = newValue.toString();
-                bindPreferenceSummaryToValue(preference, mcc);
-
-                preferences
-                    .edit()
-                    .putString("chosen_mcc", mcc)
-                    .apply();
+                setMccPreference(preference, mcc);
 
                 return true;
             }
@@ -291,6 +325,16 @@ public class SettingsActivity extends PreferenceActivity
         {
             loadHeadersFromResource(R.xml.pref_headers, target);
         }
+    }
+
+    private void setMccPreference(Preference preference, String mcc)
+    {
+        bindPreferenceSummaryToValue(preference, mcc);
+
+        preferences
+            .edit()
+            .putString("chosen_mcc", mcc)
+            .apply();
     }
 
     /**

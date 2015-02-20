@@ -19,6 +19,10 @@ public class AssociatedMinistry extends Ministry
     private boolean hasLlm;
     private boolean hasDs;
     private boolean hasGcm;
+    private double latitude;
+    private double longitude;
+    private int locationZoom;
+
     @NonNull
     private final List<AssociatedMinistry> subMinistries = new ArrayList<>();
 
@@ -79,6 +83,30 @@ public class AssociatedMinistry extends Ministry
     public void setHasGcm(boolean hasGcm)
     {
         this.hasGcm = hasGcm;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(final double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(final double longitude) {
+        this.longitude = longitude;
+    }
+
+    public int getLocationZoom() {
+        return locationZoom;
+    }
+
+    public void setLocationZoom(final int locationZoom) {
+        this.locationZoom = locationZoom;
     }
 
     @NonNull

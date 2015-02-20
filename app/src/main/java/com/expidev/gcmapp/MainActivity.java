@@ -1,6 +1,7 @@
 package com.expidev.gcmapp;
 
 import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
+import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -9,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -27,16 +27,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
-import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.db.TrainingDao;
 import com.expidev.gcmapp.map.GcmMarker;
 import com.expidev.gcmapp.map.MarkerRender;
-import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
+import com.expidev.gcmapp.support.v4.content.CurrentMinistryLoader;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.Device;
 import com.google.android.gms.common.ConnectionResult;
@@ -65,8 +64,7 @@ public class MainActivity extends ActionBarActivity
     private final String TAG = this.getClass().getSimpleName();
 
     private static final int LOADER_THEKEY_ATTRIBUTES = 1;
-
-    private final String PREF_NAME = "gcm_prefs";
+    private static final int LOADER_CURRENT_MINISTRY = 2;
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
@@ -83,20 +81,17 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences mapPreferences;
     private SharedPreferences preferences;
     private BroadcastReceiver broadcastReceiver;
-    private List<AssociatedMinistry> associatedMinistries;
-    
-    // try to cut down on api calls
-    private boolean trainingDownloaded = false;
 
+    @Nullable
     private GoogleMap map;
     private ClusterManager<GcmMarker> clusterManager;
 
-    private AssociatedMinistry currentMinistry;
-    private Assignment currentAssignment;
-    private boolean currentAssignmentSet = false;
-    
+    @Nullable
+    private AssociatedMinistry mCurrentMinistry;
+
     private TextView mapOverlayText;
-    
+
+    @Nullable
     private List<Training> allTraining;
 
     /* BEGIN lifecycle */
@@ -112,7 +107,7 @@ public class MainActivity extends ActionBarActivity
         
         mapOverlayText = (TextView) findViewById(R.id.map_text);
 
-        preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        preferences = getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE);
 
         getMapPreferences();
         
@@ -124,11 +119,6 @@ public class MainActivity extends ActionBarActivity
         gcmBroadcastReceiver = new GcmBroadcastReceiver(theKey, this);
         gcmBroadcastReceiver.registerReceiver(manager);
         
-        // This call at times will create a null pointer. However, this is no big deal since it is call
-        // again later. It could be removed here; however, this does help a returning user retrieve
-        // their saved information a little quicker.
-        getCurrentAssignment();
-
         if (Device.isConnected(getApplicationContext()))
         {
             handleLogin();
@@ -157,13 +147,6 @@ public class MainActivity extends ActionBarActivity
             MinistriesService.syncAllMinistries(this);
             MinistriesService.syncAssignments(this);
         }
-    }
-    
-    private void trainingSearch(String ministryId, String mcc)
-    {
-        Log.i(TAG, "Training search");
-        if (mcc == null) mcc = "slm";
-        TrainingService.downloadTraining(this, ministryId, mcc);
     }
 
     @Override
@@ -202,6 +185,50 @@ public class MainActivity extends ActionBarActivity
                 "Welcome" + (attrs != null && attrs.getFirstName() != null ? " " + attrs.getFirstName() : ""));
     }
 
+    /**
+     * This event is triggered when a new currentMinistry object is loaded
+     *
+     * @param ministry the new current ministry object
+     */
+    void onLoadCurrentMinistry(@Nullable final AssociatedMinistry ministry) {
+        // store the current ministry
+        final AssociatedMinistry old = mCurrentMinistry;
+        mCurrentMinistry = ministry;
+
+        // determine if the current ministry changed
+        final String oldId = old != null ? old.getMinistryId() : null;
+        final String newId = ministry != null ? ministry.getMinistryId() : null;
+        final boolean changed = oldId != null ? !oldId.equals(newId) : newId != null;
+
+        // trigger some additional actions if we are changing our current ministry
+        if (changed) {
+            onChangeCurrentMinistry();
+        }
+
+        // update the map
+        updateMap(changed);
+    }
+
+    /**
+     * This event is triggered when the current ministry is changing from one to another
+     */
+    void onChangeCurrentMinistry() {
+        // sync trainings from the backend
+        if (mCurrentMinistry != null) {
+            String mcc = getChosenMcc();
+            TrainingService.downloadTraining(this, mCurrentMinistry.getMinistryId(), mcc != null ? mcc : "slm");
+        }
+
+        // If we are changing assignments/ministries, we need to reload trainings
+        // TODO: this should be handled by a ContentLoader on a background thread eventually
+        if (mCurrentMinistry != null) {
+            TrainingDao trainingDao = TrainingDao.getInstance(this);
+            allTraining = trainingDao.getAllMinistryTraining(mCurrentMinistry.getMinistryId());
+        } else {
+            allTraining = null;
+        }
+    }
+
     @Override
     protected void onPostResume()
     {
@@ -211,8 +238,7 @@ public class MainActivity extends ActionBarActivity
         if (map != null) map.clear();
         
         getMapPreferences();
-        getCurrentAssignment();
-        setUpMap();
+        updateMap(false);
     }
 
     @Override
@@ -227,6 +253,34 @@ public class MainActivity extends ActionBarActivity
     private void startLoaders() {
         final LoaderManager manager = this.getSupportLoaderManager();
         manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, new AttributesLoaderCallbacks());
+        manager.initLoader(LOADER_CURRENT_MINISTRY, null, new AssociatedMinistryLoaderCallbacks());
+    }
+
+    private void updateMap(final boolean zoom) {
+        // update map overlay text
+        if (mapOverlayText != null) {
+            mapOverlayText.setText(mCurrentMinistry != null ? mCurrentMinistry.getName() : null);
+        }
+
+        // update map itself if it exists
+        if (map != null) {
+            // update map zoom
+            if (zoom) {
+                zoomToLocation();
+            }
+
+            // update Markers on the map
+            if (clusterManager != null) {
+                // clear any previous items
+                clusterManager.clearItems();
+
+                // add training Markers
+                addTrainingMarkersToMap();
+
+                // force a recluster
+                clusterManager.cluster();
+            }
+        }
     }
 
     public void joinNewMinistry(MenuItem menuItem)
@@ -331,21 +385,6 @@ public class MainActivity extends ActionBarActivity
             loginDialogFragment.show(fm.beginTransaction().addToBackStack("loginDialog"), "loginDialog");
         }
     }
-    
-    private void getCurrentAssignment()
-    {   
-        Log.i(TAG, "Need to get current Assignment: " + !currentAssignmentSet);
-        
-        if (!currentAssignmentSet)
-        {
-           currentAssignmentSet = new SetCurrentMinistry().doInBackground(this);
-        }
-    }
-    
-    private void setUpMap()
-    {   
-        if (trainingDownloaded) addTrainingMakersToMap();
-    }
 
     private boolean checkPlayServices()
     {
@@ -373,44 +412,42 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap)
-    {
+    public void onMapReady(@NonNull final GoogleMap googleMap) {
         Log.i(TAG, "On Map Ready");
         this.map = googleMap;
-        
-        if (currentAssignment != null) zoomToLocation();
-        
-        setUpMap();
-        
         clusterManager = new ClusterManager<>(this, map);
         clusterManager.setRenderer(new MarkerRender(this, map, clusterManager));
         map.setOnCameraChangeListener(clusterManager);
         map.setOnMarkerClickListener(clusterManager);
+
+        // update the map
+        updateMap(true);
     }
 
     private void zoomToLocation()
     {
-        Log.i(TAG, "Zooming to: " + currentAssignment.getLatitude() +", " + currentAssignment.getLongitude());
-        
-        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(currentAssignment.getLatitude(), currentAssignment.getLongitude()));
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(currentAssignment.getLocationZoom());
+        assert map != null : "map should be set before calling zoomToLocation";
+        if (mCurrentMinistry != null) {
+            Log.i(TAG, "Zooming to: " + mCurrentMinistry.getLatitude() + ", " + mCurrentMinistry.getLongitude());
 
-        map.moveCamera(center);
-        map.moveCamera(zoom);
+            CameraUpdate center = CameraUpdateFactory
+                    .newLatLng(new LatLng(mCurrentMinistry.getLatitude(), mCurrentMinistry.getLongitude()));
+            CameraUpdate zoom = CameraUpdateFactory.zoomTo(mCurrentMinistry.getLocationZoom());
+
+            map.moveCamera(center);
+            map.moveCamera(zoom);
+        }
     }
-    
-    private void addTrainingMakersToMap()
-    {
+
+    private void addTrainingMarkersToMap() {
         // do not show training activities if turned off in map settings
         Log.i(TAG, "Show training: " + trainingActivities);
-        if (map != null && trainingActivities)
-        {   
+        if (trainingActivities && allTraining != null) {
             for (Training training : allTraining)
             {
                 GcmMarker marker = new GcmMarker(training.getName(), training.getLatitude(), training.getLongitude());
                 clusterManager.addItem(marker);
             }
-            clusterManager.cluster();
         }
     }
 
@@ -442,20 +479,12 @@ public class MainActivity extends ActionBarActivity
                         case TRAINING:
                             Log.i(TAG, "Training search complete and training saved");
                             
-                            trainingDownloaded = true;
-                            
                             TrainingDao trainingDao = TrainingDao.getInstance(context);
-                            allTraining = trainingDao.getAllMinistryTraining(currentMinistry.getMinistryId());
-                            
-                            addTrainingMakersToMap();
-                            
-                            break;
-                        case RETRIEVE_ALL_MINISTRIES:
-                            Log.i(TAG, "All ministries loaded & saved to local storage");
-                            getCurrentAssignment();
-                            break;
-                        case SAVE_ASSOCIATED_MINISTRIES:
-                            getCurrentAssignment();
+                            allTraining = mCurrentMinistry != null ?
+                                    trainingDao.getAllMinistryTraining(mCurrentMinistry.getMinistryId()) : null;
+
+                            updateMap(false);
+
                             break;
                         default:
                             Log.i(TAG, "Unhandled Type: " + type);
@@ -478,127 +507,50 @@ public class MainActivity extends ActionBarActivity
         gcmBroadcastReceiver = null;
     }
     
-    private class SetCurrentMinistry extends AsyncTask<Context, Void, Boolean> 
-    {
+    @Nullable
+    private String getChosenMcc() {
+        if (mCurrentMinistry != null) {
+            String mcc = preferences.getString("chosen_mcc", null);
 
-        /*
-         * This will allow the current assignment to be retrieved and data for the assignment will be loaded.
-         * If an assignment is not currently set a random parent associated ministry will be selected.
-         * 
-         * Definitions:
-         * currentMinistry: The ministry associated with the currently selected assignment
-         * currentAssignment: currently selected assignment. Selected from associated assignments
-         * currentMinistryName: Name of currentMinistry 
-         */
-        
+            if (mcc == null || "No MCC Options".equals(mcc)) {
+                if (mCurrentMinistry.hasSlm()) {
+                    mcc = "SLM";
+                } else if (mCurrentMinistry.hasGcm()) {
+                    mcc = "GCM";
+                } else if (mCurrentMinistry.hasLlm()) {
+                    mcc = "LLM";
+                } else if (mCurrentMinistry.hasDs()) {
+                    mcc = "DS";
+                }
+
+                preferences.edit().putString("chosen_mcc", mcc).apply();
+            }
+
+            return mcc;
+        }
+
+        return null;
+    }
+
+    private class AssociatedMinistryLoaderCallbacks extends SimpleLoaderCallbacks<AssociatedMinistry> {
         @Override
-        protected Boolean doInBackground(Context... params)
-        {
-            Context context = params[0];
-            String currentMinistryName;
-            
-            Log.i(TAG, "Trying to set current Assignment");
-            try
-            {
-                // if currentAssignment && currentMinistry is already set, skip getting it
-                if (currentAssignment == null || currentMinistry == null)
-                {
-                    MinistriesDao ministriesDao = MinistriesDao.getInstance(context);
-                    currentMinistryName = preferences.getString("chosen_ministry", null);
-
-                    if (associatedMinistries == null || associatedMinistries.size() == 0)
-                    {
-                        Log.i(TAG, "associated ministries needs to be set");
-                        associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
-                    }
-
-                    if (associatedMinistries == null || associatedMinistries.size() == 0)
-                    {
-                        Log.w(TAG, "No Associated Ministries");
-                        return false;
-                    }
-
-                    if (currentMinistryName == null)
-                    {
-                        Log.i(TAG, "current ministry id needs to be set");
-                        SharedPreferences.Editor editor = preferences.edit();
-
-                        int i = 0;
-                        boolean parent = false;
-                        do
-                        {
-                            parent = associatedMinistries.get(i).getParentMinistryId() == null;
-                            i++;
-                        } while (!parent);
-
-                        currentMinistry = associatedMinistries.get(i);
-
-                        currentMinistryName = currentMinistry.getName();
-                        editor.putString("chosen_ministry", currentMinistryName);
-                        editor.apply();
-
-                        currentAssignment = ministriesDao.retrieveCurrentAssignment(currentMinistry);
-                    }
-                    else
-                    {
-                        for (AssociatedMinistry ministry : associatedMinistries)
-                        {
-                            if (ministry.getName().equals(currentMinistryName))
-                            {
-                                currentMinistry = ministry;
-                                currentAssignment = ministriesDao.retrieveCurrentAssignment(ministry);
-
-                                if (currentAssignment != null)
-                                {
-                                    Log.i(TAG, "current assignment: " + currentAssignment.toString());
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                if (currentAssignment == null)
-                {
-                    Log.i(TAG, "current ministry is still null");
-                    return false;
-                }
-                else if (currentMinistry == null)
-                {
-                    Log.i(TAG, "current ministry is still null");
-                    return false;
-                }
-                
-                Log.i(TAG, "currentAssignment: " + currentAssignment.getId());
-                Log.i(TAG, "currentMinistry: " + currentMinistry.getName());
-
-                // assignment is set and map is set: zoom to assignment location
-                // if location is null, no big deal. no exception will be thrown and map simply 
-                // will not zoom.
-                if (map != null && currentAssignment != null) zoomToLocation();
-
-                // set map overlay text
-                mapOverlayText.setText(currentMinistry.getName());
-
-                // start adding markers to map
-
-                // download training if not already done
-                if (!trainingDownloaded)
-                {
-                    // todo: change the way MCC is passed
-                    trainingSearch(currentMinistry.getMinistryId(), "slm");
-                }
-
-
-                setUpMap();
-
-                return true;
+        public Loader<AssociatedMinistry> onCreateLoader(final int id, final Bundle bundle) {
+            switch (id) {
+                case LOADER_CURRENT_MINISTRY:
+                    return new CurrentMinistryLoader(MainActivity.this);
+                default:
+                    return null;
             }
-            catch (Exception e)
-            {
-                Log.e(TAG, e.getMessage(), e);
+        }
+
+        @Override
+        public void onLoadFinished(final Loader<AssociatedMinistry> loader,
+                                   @Nullable final AssociatedMinistry ministry) {
+            switch (loader.getId()) {
+                case LOADER_CURRENT_MINISTRY:
+                    onLoadCurrentMinistry(ministry);
+                    break;
             }
-            
-            return false;
         }
     }
 
