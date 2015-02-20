@@ -29,8 +29,10 @@ import android.widget.Toast;
 
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.db.TrainingDao;
-import com.expidev.gcmapp.map.GcmMarker;
+import com.expidev.gcmapp.map.ChurchMarker;
+import com.expidev.gcmapp.map.Marker;
 import com.expidev.gcmapp.map.MarkerRender;
+import com.expidev.gcmapp.map.TrainingMarker;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Training;
@@ -94,7 +96,7 @@ public class MainActivity extends ActionBarActivity
     private TextView mapOverlayText;
     @Nullable
     private GoogleMap map;
-    private ClusterManager<GcmMarker> clusterManager;
+    private ClusterManager<Marker> clusterManager;
     private final boolean[] mMapLayers = new boolean[6];
 
     @Nullable
@@ -480,15 +482,34 @@ public class MainActivity extends ActionBarActivity
         if (mMapLayers[MAP_LAYER_TRAINING] && allTraining != null) {
             for (Training training : allTraining)
             {
-                GcmMarker marker = new GcmMarker(training.getName(), training.getLatitude(), training.getLongitude());
-                clusterManager.addItem(marker);
+                clusterManager.addItem(new TrainingMarker(training));
             }
         }
     }
 
     private void addChurchMarkersToMap() {
         if (mChurches != null) {
-            // TODO
+            for (final Church church : mChurches) {
+                boolean render = false;
+                switch (church.getDevelopment()) {
+                    case TARGET:
+                        render = mMapLayers[MAP_LAYER_TARGET];
+                        break;
+                    case GROUP:
+                        render = mMapLayers[MAP_LAYER_GROUP];
+                        break;
+                    case CHURCH:
+                        render = mMapLayers[MAP_LAYER_CHURCH];
+                        break;
+                    case MULTIPLYING_CHURCH:
+                        render = mMapLayers[MAP_LAYER_MULTIPLYING_CHURCH];
+                        break;
+                }
+
+                if (render) {
+                    clusterManager.addItem(new ChurchMarker(church));
+                }
+            }
         }
     }
 
