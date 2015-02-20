@@ -1,5 +1,11 @@
 package com.expidev.gcmapp.service;
 
+import static com.expidev.gcmapp.service.Type.DOWNLOAD_TRAINING;
+import static com.expidev.gcmapp.service.Type.TRAINING;
+import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
+
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
@@ -11,14 +17,13 @@ import android.util.Log;
 
 import com.expidev.gcmapp.db.TrainingDao;
 import com.expidev.gcmapp.http.GmaApiClient;
+import com.expidev.gcmapp.json.TrainingJsonParser;
+import com.expidev.gcmapp.model.Training;
 
+import org.ccci.gto.android.common.db.AbstractDao;
 import org.json.JSONArray;
 
-import static com.expidev.gcmapp.service.Type.DOWNLOAD_TRAINING;
-import static com.expidev.gcmapp.service.Type.TRAINING;
-import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
+import java.util.List;
 
 /**
  * Created by matthewfrederick on 1/26/15.
@@ -106,10 +111,26 @@ public class TrainingService extends IntentService
 
             if (jsonArray != null)
             {
-                Log.i(TAG, jsonArray.toString());
-                
+                // parse returned trainings
+                final List<Training> trainings = TrainingJsonParser.parseTrainings(jsonArray);
+
+                // save all trainings to the database
                 TrainingDao trainingDao = TrainingDao.getInstance(this);
-                trainingDao.saveTrainingFromAPI(jsonArray);
+                final AbstractDao.Transaction tx = trainingDao.newTransaction();
+                try {
+                    tx.begin();
+
+                    // save trainings
+                    for (final Training training : trainings) {
+                        trainingDao.saveTraining(training);
+                    }
+
+                    // TODO: remove missing trainings for this ministry & mcc
+
+                    tx.setSuccessful();
+                } finally {
+                    tx.end();
+                }
             }
             else
             {

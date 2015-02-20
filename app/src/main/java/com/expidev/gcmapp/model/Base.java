@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 import java.util.Date;
 
-public class Base {
+public abstract class Base {
     @NonNull
     private Date lastSynced = new Date(0);
 

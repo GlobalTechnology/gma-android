@@ -3,6 +3,7 @@ package com.expidev.gcmapp.utils;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.expidev.gcmapp.db.Contract;
@@ -14,25 +15,31 @@ import com.expidev.gcmapp.sql.TableNames;
 public class DatabaseOpenHelper extends SQLiteOpenHelper
 {
     private final String TAG = getClass().getSimpleName();
-    
-    private static DatabaseOpenHelper instance;
-    private Context context;
 
-    private static final int DATABASE_VERSION = 7;
+    /*
+     * Version history
+     *
+     * 8: 2015-02-19
+     */
+    private static final int DATABASE_VERSION = 8;
     private static final String DATABASE_NAME = "gcm_data.db";
 
-    private DatabaseOpenHelper(Context context)
+    private static final Object LOCK_INSTANCE = new Object();
+    private static DatabaseOpenHelper instance;
+
+    private DatabaseOpenHelper(final Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        this.context = context;
     }
     
     public static DatabaseOpenHelper getInstance(Context context)
     {
-        if (instance == null)
-        {
-            instance = new DatabaseOpenHelper(context.getApplicationContext());
+        synchronized (LOCK_INSTANCE) {
+            if (instance == null) {
+                instance = new DatabaseOpenHelper(context.getApplicationContext());
+            }
         }
+
         return instance;
     }
 
@@ -45,14 +52,34 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         createAssignmentsTable(db);
         createAllMinistriesTable(db);
         createTrainingTables(db);
+        db.execSQL(Contract.Church.SQL_CREATE_TABLE);
         createMeasurementsTables(db);
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
-    {
-        // TODO: implement db upgrade logic once we have actual users with actual data
-        resetDatabase(db);
+    public void onUpgrade(@NonNull final SQLiteDatabase db, final int oldVersion, final int newVersion) {
+        if (oldVersion < 7) {
+            // version is too old, reset database
+            resetDatabase(db);
+            return;
+        }
+
+        // perform upgrade in increments
+        int upgradeTo = oldVersion + 1;
+        while (upgradeTo <= newVersion) {
+            switch (upgradeTo) {
+                case 8:
+                    db.execSQL(Contract.Church.SQL_CREATE_TABLE);
+                    break;
+                default:
+                    // unrecognized version, let's just reset the database and return
+                    resetDatabase(db);
+                    return;
+            }
+
+            // perform next upgrade increment
+            upgradeTo++;
+        }
     }
 
     @Override
@@ -62,6 +89,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     }
 
     private void resetDatabase(final SQLiteDatabase db) {
+        db.execSQL(Contract.Church.SQL_DELETE_TABLE);
         deleteAllTables(db);
         onCreate(db);
     }

@@ -10,6 +10,7 @@ import android.util.Pair;
 
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
+import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
@@ -34,6 +35,7 @@ public class MinistriesDao extends AbstractDao
     private static final Mapper<Assignment> ASSIGNMENT_MAPPER = new AssignmentMapper();
     private static final Mapper<Ministry> ALL_MINISTRIES_MAPPER = new MinistriesMapper();
     private static final Mapper<AssociatedMinistry> ASSOCIATED_MINISTRIES_MAPPER = new AssociatedMinistriesMapper();
+    private static final Mapper<Church> CHURCH_MAPPER = new ChurchMapper();
 
     private MinistriesDao(final Context context)
     {
@@ -66,6 +68,8 @@ public class MinistriesDao extends AbstractDao
             return Contract.AssociatedMinistry.TABLE_NAME;
         } else if (Assignment.class.equals(clazz)) {
             return Contract.Assignment.TABLE_NAME;
+        } else if(Church.class.equals(clazz)) {
+            return Contract.Church.TABLE_NAME;
         }
 
         return super.getTable(clazz);
@@ -84,6 +88,8 @@ public class MinistriesDao extends AbstractDao
             return Contract.AssociatedMinistry.PROJECTION_ALL;
         } else if (Assignment.class.equals(clazz)) {
             return Contract.Assignment.PROJECTION_ALL;
+        } else if (Church.class.equals(clazz)) {
+            return Contract.Church.PROJECTION_ALL;
         }
 
         return super.getFullProjection(clazz);
@@ -103,6 +109,8 @@ public class MinistriesDao extends AbstractDao
             return (Mapper<T>) ASSOCIATED_MINISTRIES_MAPPER;
         } else if (Assignment.class.equals(clazz)) {
             return (Mapper<T>) ASSIGNMENT_MAPPER;
+        } else if(Church.class.equals(clazz)) {
+            return (Mapper<T>) CHURCH_MAPPER;
         }
 
         return super.getMapper(clazz);
@@ -127,6 +135,9 @@ public class MinistriesDao extends AbstractDao
         } else if (Assignment.class.equals(clazz)) {
             keyLength = 1;
             where = Contract.Assignment.SQL_WHERE_PRIMARY_KEY;
+        } else if(Church.class.equals(clazz)) {
+            keyLength = 1;
+            where = Contract.Church.SQL_WHERE_PRIMARY_KEY;
         }
         else
         {
@@ -155,6 +166,8 @@ public class MinistriesDao extends AbstractDao
             return getPrimaryKeyWhere(Ministry.class, ((Ministry) obj).getMinistryId());
         } else if (obj instanceof Assignment) {
             return getPrimaryKeyWhere(Assignment.class, ((Assignment) obj).getId());
+        } else if(obj instanceof Church) {
+            return getPrimaryKeyWhere(Church.class, ((Church) obj).getId());
         }
 
         return super.getPrimaryKeyWhere(obj);
