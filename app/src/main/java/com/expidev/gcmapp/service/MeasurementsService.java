@@ -117,6 +117,9 @@ public class MeasurementsService extends IntentService
                 case LOAD_MEASUREMENT_DETAILS:
                     loadMeasurementDetailsFromDatabase(intent);
                     break;
+                case SAVE_MEASUREMENT_DETAILS:
+                    saveMeasurementDetailsToDatabase(intent);
+                    break;
                 default:
                     Log.i(TAG, "Unhandled Type: " + type);
                     break;
@@ -247,6 +250,14 @@ public class MeasurementsService extends IntentService
         extras.putString("mcc", mcc);
         extras.putString("period", setPeriodToCurrentIfNecessary(period));
 
+        context.startService(baseIntent(context, extras));
+    }
+
+    public static void saveMeasurementDetailsToDatabase(final Context context, MeasurementDetails measurementDetails)
+    {
+        Bundle extras = new Bundle(2);
+        extras.putSerializable("type", SAVE_MEASUREMENT_DETAILS);
+        extras.putSerializable("measurementDetails", measurementDetails);
         context.startService(baseIntent(context, extras));
     }
 
@@ -514,5 +525,17 @@ public class MeasurementsService extends IntentService
             measurementDao.loadMeasurementDetails(measurementId, ministryId, mcc, period);
 
         broadcastManager.sendBroadcast(measurementDetailsLoadedBroadcast(measurementDetails));
+    }
+
+    private void saveMeasurementDetailsToDatabase(Intent intent) throws ApiException
+    {
+        MeasurementDetails measurementDetails = (MeasurementDetails) intent.getSerializableExtra("measurementDetails");
+
+        if(measurementDetails != null)
+        {
+            List<MeasurementDetails> rowsToSave = new ArrayList<>();
+            rowsToSave.add(measurementDetails);
+            updateMeasurementDetails(rowsToSave);
+        }
     }
 }

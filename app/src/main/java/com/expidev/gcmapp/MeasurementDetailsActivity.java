@@ -138,6 +138,11 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                             if(retrievedMeasurementDetailData != null)
                             {
                                 Log.i(TAG, "Measurement details retrieved from API");
+
+                                MeasurementsService.saveMeasurementDetailsToDatabase(
+                                    MeasurementDetailsActivity.this,
+                                    (MeasurementDetails) retrievedMeasurementDetailData);
+
                                 handleRetrievedMeasurementDetails(retrievedMeasurementDetailData);
                             }
                             else
@@ -164,6 +169,9 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                                     mcc,
                                     period);
                             }
+                            break;
+                        case SAVE_MEASUREMENT_DETAILS:
+                            Log.i(TAG, "Measurement details saved to local storage");
                             break;
                         default:
                             Log.i(TAG, "Unhandled Type: " + type);
