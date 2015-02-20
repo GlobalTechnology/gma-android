@@ -158,7 +158,11 @@ public class MainActivity extends ActionBarActivity
             // trigger background syncing of data
             MinistriesService.syncAllMinistries(this);
             MinistriesService.syncAssignments(this);
-            MeasurementsService.syncMeasurements(this);
+
+            if(mCurrentMinistry != null)
+            {
+                MeasurementsService.syncMeasurements(this, mCurrentMinistry.getMinistryId(), getChosenMcc(), null);
+            }
         }
     }
 
@@ -188,8 +192,10 @@ public class MainActivity extends ActionBarActivity
                 MinistriesService.syncAssignments(this, true);
                 if (mCurrentMinistry != null) {
                     MinistriesService.syncChurches(this, mCurrentMinistry.getMinistryId());
+                    MeasurementsService.syncMeasurements(
+                        this, mCurrentMinistry.getMinistryId(), getChosenMcc(), null, true);
                 }
-                MeasurementsService.syncMeasurements(this, true);
+
                 return true;
         }
         return super.onOptionsItemSelected(item);

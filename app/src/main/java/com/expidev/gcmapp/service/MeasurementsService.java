@@ -193,15 +193,23 @@ public class MeasurementsService extends IntentService
         context.startService(baseIntent(context, extras));
     }
 
-    public static void syncMeasurements(final Context context)
+    public static void syncMeasurements(final Context context, String ministryId, String mcc, String period)
     {
-        syncMeasurements(context, false);
+        syncMeasurements(context, ministryId, mcc, period, false);
     }
 
-    public static void syncMeasurements(final Context context, final boolean force)
+    public static void syncMeasurements(
+        final Context context,
+        String ministryId,
+        String mcc,
+        String period,
+        final boolean force)
     {
-        Bundle extras = new Bundle(2);
+        Bundle extras = new Bundle(5);
         extras.putSerializable("type", SYNC_MEASUREMENTS);
+        extras.putString("ministryId", ministryId);
+        extras.putString("mcc", mcc);
+        extras.putString("period", setPeriodToCurrentIfNecessary(period));
         extras.putBoolean(EXTRA_FORCE, force);
 
         context.startService(baseIntent(context, extras));
