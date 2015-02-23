@@ -53,6 +53,7 @@ public class MeasurementsService extends ThreadedIntentService
     private static final String PREF_SYNC_TIME_MEASUREMENTS = "last_synced.measurements";
     private static final String PREF_SYNC_TIME_MEASUREMENT_DETAILS = "last_synced.measurement_details";
     private static final String EXTRA_FORCE = MeasurementsService.class.getName() + ".EXTRA_FORCE";
+    private static final String EXTRA_TYPE = "type";
 
     private static final long HOUR_IN_MS = 60 * 60 * 1000;
     private static final long DAY_IN_MS = 24 * HOUR_IN_MS;
@@ -87,7 +88,7 @@ public class MeasurementsService extends ThreadedIntentService
     public void onHandleIntent(Intent intent)
     {
         broadcastManager.sendBroadcast(runningBroadcast());
-        final Type type = (Type) intent.getSerializableExtra("type");
+        final Type type = (Type) intent.getSerializableExtra(EXTRA_TYPE);
 
         try {
             switch (type) {
@@ -141,7 +142,7 @@ public class MeasurementsService extends ThreadedIntentService
         String period)
     {
         Bundle extras = new Bundle(4);
-        extras.putSerializable("type", SEARCH_MEASUREMENTS);
+        extras.putSerializable(EXTRA_TYPE, SEARCH_MEASUREMENTS);
         extras.putString("ministryId", ministryId);
         extras.putString("mcc", mcc);
 
@@ -161,7 +162,7 @@ public class MeasurementsService extends ThreadedIntentService
         String period)
     {
         Bundle extras = new Bundle(5);
-        extras.putSerializable("type", RETRIEVE_MEASUREMENT_DETAILS);
+        extras.putSerializable(EXTRA_TYPE, RETRIEVE_MEASUREMENT_DETAILS);
         extras.putString("measurementId", measurementId);
         extras.putString("ministryId", ministryId);
         extras.putString("mcc", mcc);
@@ -177,7 +178,7 @@ public class MeasurementsService extends ThreadedIntentService
     public static void saveMeasurementsToDatabase(final Context context, List<Measurement> measurements)
     {
         Bundle extras = new Bundle(2);
-        extras.putSerializable("type", SAVE_MEASUREMENTS);
+        extras.putSerializable(EXTRA_TYPE, SAVE_MEASUREMENTS);
         extras.putSerializable("measurements", (ArrayList<Measurement>) measurements);
         context.startService(baseIntent(context, extras));
     }
@@ -195,7 +196,7 @@ public class MeasurementsService extends ThreadedIntentService
         final boolean force)
     {
         Bundle extras = new Bundle(5);
-        extras.putSerializable("type", SYNC_MEASUREMENTS);
+        extras.putSerializable(EXTRA_TYPE, SYNC_MEASUREMENTS);
         extras.putString("ministryId", ministryId);
         extras.putString("mcc", mcc);
         extras.putString("period", setPeriodToCurrentIfNecessary(period));
@@ -212,7 +213,7 @@ public class MeasurementsService extends ThreadedIntentService
     {
         Bundle extras = new Bundle(4);
 
-        extras.putSerializable("type", RETRIEVE_AND_SAVE_MEASUREMENTS);
+        extras.putSerializable(EXTRA_TYPE, RETRIEVE_AND_SAVE_MEASUREMENTS);
         extras.putString("ministryId", ministryId);
         extras.putString("mcc", mcc);
         extras.putString("period", setPeriodToCurrentIfNecessary(period));
@@ -223,7 +224,7 @@ public class MeasurementsService extends ThreadedIntentService
     public static void saveMeasurementDetailsToDatabase(final Context context, MeasurementDetails measurementDetails)
     {
         Bundle extras = new Bundle(2);
-        extras.putSerializable("type", SAVE_MEASUREMENT_DETAILS);
+        extras.putSerializable(EXTRA_TYPE, SAVE_MEASUREMENT_DETAILS);
         extras.putSerializable("measurementDetails", measurementDetails);
         context.startService(baseIntent(context, extras));
     }
