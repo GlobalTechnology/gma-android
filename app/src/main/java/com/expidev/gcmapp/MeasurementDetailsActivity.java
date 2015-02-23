@@ -105,8 +105,6 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         period = getIntent().getStringExtra("period");
         measurementName = getIntent().getStringExtra("measurementName");
         ministryName = getIntent().getStringExtra("ministryName");
-
-        MeasurementsService.loadMeasurementDetailsFromDatabase(this, measurementId, ministryId, mcc, period);
     }
 
     @Override
