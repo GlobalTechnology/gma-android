@@ -51,6 +51,8 @@ public class ChurchMapper extends LocationMapper<Church> {
     @Override
     public Church toObject(@NonNull final Cursor c) {
         final Church church = super.toObject(c);
+        final String ministryId = getString(c, Contract.Church.COLUMN_MINISTRY_ID);
+        church.setMinistryId(ministryId != null ? ministryId : "");
         church.setId(getLong(c, Contract.Church.COLUMN_ID, Church.INVALID_ID));
         church.setName(getString(c, Contract.Church.COLUMN_NAME, null));
         church.setContactName(getString(c, Contract.Church.COLUMN_CONTACT_NAME, null));
