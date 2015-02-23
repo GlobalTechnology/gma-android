@@ -90,9 +90,6 @@ public class MeasurementsService extends ThreadedIntentService
 
         try {
             switch (type) {
-                case SEARCH_MEASUREMENTS:
-                    searchMeasurements(intent);
-                    break;
                 case SAVE_MEASUREMENTS:
                     saveMeasurementsToDatabase(intent);
                     break;
@@ -128,25 +125,6 @@ public class MeasurementsService extends ThreadedIntentService
         }
 
         return intent;
-    }
-
-    public static void searchMeasurements(
-        final Context context,
-        String ministryId,
-        String mcc,
-        String period)
-    {
-        Bundle extras = new Bundle(4);
-        extras.putSerializable(EXTRA_TYPE, SEARCH_MEASUREMENTS);
-        extras.putString("ministryId", ministryId);
-        extras.putString("mcc", mcc);
-
-        if(period != null)
-        {
-            extras.putString("period", period);
-        }
-
-        context.startService(baseIntent(context, extras));
     }
 
     public static void saveMeasurementsToDatabase(final Context context, List<Measurement> measurements)
@@ -217,23 +195,6 @@ public class MeasurementsService extends ThreadedIntentService
     /////////////////////////////////////////////////////
     //           Actions                              //
     ////////////////////////////////////////////////////
-    private void searchMeasurements(Intent intent) throws ApiException
-    {
-        String ministryId = intent.getStringExtra("ministryId");
-        String mcc = intent.getStringExtra("mcc");
-        String period = intent.getStringExtra("period");
-
-        List<Measurement> measurements = searchMeasurements(ministryId, mcc, period);
-
-        if(measurements == null)
-        {
-            broadcastManager.sendBroadcast(measurementsReceivedBroadcast(null));
-        }
-        else
-        {
-            broadcastManager.sendBroadcast(measurementsReceivedBroadcast((ArrayList<Measurement>) measurements));
-        }
-    }
 
     private List<Measurement> searchMeasurements(String ministryId, String mcc, String period) throws ApiException
     {

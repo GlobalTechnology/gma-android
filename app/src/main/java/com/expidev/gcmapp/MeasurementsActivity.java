@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.expidev.gcmapp.http.GmaApiClient;
+import com.expidev.gcmapp.json.MeasurementsJsonParser;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.Measurement;
@@ -31,9 +34,10 @@ import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.ViewUtils;
 import com.expidev.gcmapp.view.TextHeaderView;
 
+import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.json.JSONArray;
 
-import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -128,22 +132,6 @@ public class MeasurementsActivity extends ActionBarActivity
 
                     switch(type)
                     {
-                        case SEARCH_MEASUREMENTS:
-                            Serializable measurementsData = intent.getSerializableExtra("measurements");
-
-                            if(measurementsData != null)
-                            {
-                                List<Measurement> measurements = (ArrayList<Measurement>) measurementsData;
-                                drawLayout(chosenMinistry, chosenMcc, measurements);
-
-                                // Save the measurements to the database for quicker loading next time
-                                MeasurementsService.saveMeasurementsToDatabase(MeasurementsActivity.this, measurements);
-                            }
-                            else
-                            {
-                                Log.w(TAG, "No measurement data");
-                            }
-                            break;
                         case SAVE_MEASUREMENTS:
                             Log.i(TAG, "Measurements saved to the database");
                             break;
@@ -524,12 +512,7 @@ public class MeasurementsActivity extends ActionBarActivity
         else
         {
             Log.w(TAG, "No measurement data in local database, try searching from API");
-
-            MeasurementsService.searchMeasurements(
-                MeasurementsActivity.this,
-                chosenMinistry.getMinistryId(),
-                chosenMcc,
-                currentPeriod);
+            new NewMeasurementsPageRetrieverTask().execute(this, chosenMinistry.getMinistryId(), chosenMcc, currentPeriod);
         }
     }
 
@@ -584,6 +567,59 @@ public class MeasurementsActivity extends ActionBarActivity
                     onLoadMeasurements(measurements);
                     break;
             }
+        }
+    }
+
+    private void onLoadMeasurementsFromServer(List<Measurement> measurements)
+    {
+        if(measurements != null)
+        {
+            drawLayout(chosenMinistry, chosenMcc, measurements);
+
+            // Save the measurements to the database for quicker loading next time
+            MeasurementsService.saveMeasurementsToDatabase(MeasurementsActivity.this, measurements);
+        }
+        else
+        {
+            Log.w(TAG, "No measurement data");
+        }
+    }
+
+    private class NewMeasurementsPageRetrieverTask extends AsyncTask<Object, Void, List<Measurement>>
+    {
+        @Override
+        protected List<Measurement> doInBackground(Object... params)
+        {
+            Context context = (Context) params[0];
+            String ministryId = (String) params[1];
+            String mcc = (String) params[2];
+            String period = (String) params[3];
+
+            try
+            {
+                GmaApiClient apiClient = GmaApiClient.getInstance(context);
+
+                JSONArray results = apiClient.searchMeasurements(ministryId, mcc, period);
+
+                if(results == null)
+                {
+                    Log.w(TAG, "No measurements found!");
+                    return null;
+                }
+
+                return MeasurementsJsonParser.parseMeasurements(results, ministryId, mcc, period);
+            }
+            catch(ApiException e)
+            {
+                Log.e(TAG, "Failed to retrieve measurements from API", e);
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(List<Measurement> measurements)
+        {
+            onLoadMeasurementsFromServer(measurements);
         }
     }
 }
