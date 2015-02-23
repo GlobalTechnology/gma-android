@@ -2,13 +2,18 @@ package com.expidev.gcmapp.model;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class Church extends Location {
     public static final long INVALID_ID = -1;
@@ -72,6 +77,10 @@ public class Church extends Location {
     private int security;
 
     @NonNull
+    private final Set<String> mDirty = new HashSet<>();
+    private boolean mTrackingChanges = false;
+
+    @NonNull
     public static List<Church> listFromJson(@NonNull final JSONArray json) throws JSONException {
         final List<Church> churches = new ArrayList<>();
         for (int i = 0; i < json.length(); i++) {
@@ -120,6 +129,9 @@ public class Church extends Location {
 
     public void setName(@Nullable final String name) {
         this.name = name;
+        if (mTrackingChanges) {
+            mDirty.add(JSON_NAME);
+        }
     }
 
     @Nullable
@@ -129,6 +141,9 @@ public class Church extends Location {
 
     public void setContactEmail(@Nullable final String email) {
         this.contactEmail = email;
+        if (mTrackingChanges) {
+            mDirty.add(JSON_CONTACT_EMAIL);
+        }
     }
 
     @Nullable
@@ -138,6 +153,9 @@ public class Church extends Location {
 
     public void setContactName(@Nullable final String name) {
         this.contactName = name;
+        if (mTrackingChanges) {
+            mDirty.add(JSON_CONTACT_NAME);
+        }
     }
 
     @NonNull
@@ -159,6 +177,9 @@ public class Church extends Location {
 
     public void setSize(final int size) {
         this.size = size;
+        if(mTrackingChanges) {
+            mDirty.add(JSON_SIZE);
+        }
     }
 
     public int getSecurity() {
@@ -167,6 +188,37 @@ public class Church extends Location {
 
     public void setSecurity(final int security) {
         this.security = security;
+    }
+
+    public void setDirty(@Nullable final String dirty) {
+        mDirty.clear();
+        if (dirty != null) {
+            Collections.addAll(mDirty, TextUtils.split(dirty, ","));
+        }
+    }
+
+    @NonNull
+    public String getDirty() {
+        return TextUtils.join(",", mDirty);
+    }
+
+    public boolean isDirty() {
+        return !mDirty.isEmpty();
+    }
+
+    public void trackingChanges(final boolean state) {
+        mTrackingChanges = state;
+    }
+
+    public JSONObject dirtyToJson() throws JSONException {
+        final JSONObject json = this.toJson();
+        final Iterator<String> keys = json.keys();
+        while (keys.hasNext()) {
+            if (!this.mDirty.contains(keys.next())) {
+                keys.remove();
+            }
+        }
+        return json;
     }
 
     public JSONObject toJson() throws JSONException {
