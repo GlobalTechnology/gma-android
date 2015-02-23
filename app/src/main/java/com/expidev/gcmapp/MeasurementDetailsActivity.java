@@ -7,6 +7,9 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -25,6 +28,7 @@ import com.expidev.gcmapp.model.measurement.SubMinistryDetails;
 import com.expidev.gcmapp.model.measurement.TeamMemberDetails;
 import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.Type;
+import com.expidev.gcmapp.support.v4.content.MeasurementDetailsLoader;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.ViewUtils;
 import com.expidev.gcmapp.view.HorizontalLineView;
@@ -37,9 +41,9 @@ import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
+import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 
 import java.io.Serializable;
-import java.util.LinkedHashSet;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -47,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -58,6 +63,8 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 {
     private final String TAG = getClass().getSimpleName();
     private final String PREF_NAME = "gcm_prefs";
+
+    private final MeasurementDetailsLoaderCallbacks measurementDetailsLoaderCallback = new MeasurementDetailsLoaderCallbacks();
 
     private SharedPreferences preferences;
     private LocalBroadcastManager broadcastManager;
@@ -80,6 +87,8 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     private String ministryId;
     private String mcc;
     private String period;
+
+    private static final int LOADER_MEASUREMENT_DETAILS = 1;
 
 
     @Override
@@ -105,6 +114,20 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     {
         super.onStart();
         setupBroadcastReceivers();
+        setupLoaders();
+    }
+
+    private void setupLoaders()
+    {
+        final LoaderManager manager = this.getSupportLoaderManager();
+
+        Bundle args = new Bundle(4);
+        args.putString("measurementId", measurementId);
+        args.putString("ministryId", ministryId);
+        args.putString("mcc", mcc);
+        args.putString("period", period);
+
+        manager.initLoader(LOADER_MEASUREMENT_DETAILS, args, measurementDetailsLoaderCallback);
     }
 
     private void setupBroadcastReceivers()
@@ -149,25 +172,6 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                             {
                                 Log.w(TAG, "No measurement detail data");
                                 finish();
-                            }
-                            break;
-                        case LOAD_MEASUREMENT_DETAILS:
-                            Serializable loadedMeasurementDetailData = intent.getSerializableExtra("measurementDetails");
-
-                            if(loadedMeasurementDetailData != null)
-                            {
-                                Log.i(TAG, "Measurement details loaded from local database");
-                                handleRetrievedMeasurementDetails(loadedMeasurementDetailData);
-                            }
-                            else
-                            {
-                                Log.i(TAG, "No data for measurement in local database, loading from the API");
-                                MeasurementsService.retrieveDetailsForMeasurement(
-                                    MeasurementDetailsActivity.this,
-                                    measurementId,
-                                    ministryId,
-                                    mcc,
-                                    period);
                             }
                             break;
                         case SAVE_MEASUREMENT_DETAILS:
@@ -557,5 +561,61 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         linearLayout.addView(valueView);
 
         return linearLayout;
+    }
+
+    /**
+     * This event triggers when measurement details are loaded from local storage
+     *
+     * @param measurementDetails details for the current measurement
+     */
+    private void onLoadMeasurementDetails(MeasurementDetails measurementDetails)
+    {
+        if(measurementDetails != null)
+        {
+            Log.i(TAG, "Measurement details loaded from local database");
+
+            initializeRenderer(getPeriodsForLabels(measurementDetails.getSixMonthTotalAmounts()));
+            initializeSeriesData(measurementDetails);
+            renderGraph();
+            initializeDataSection(measurementDetails);
+        }
+        else
+        {
+            Log.i(TAG, "No data for measurement in local database, loading from the API");
+            MeasurementsService.retrieveDetailsForMeasurement(
+                MeasurementDetailsActivity.this,
+                measurementId,
+                ministryId,
+                mcc,
+                period);
+        }
+    }
+
+    private class MeasurementDetailsLoaderCallbacks extends SimpleLoaderCallbacks<MeasurementDetails>
+    {
+        @Override
+        public Loader<MeasurementDetails> onCreateLoader(final int id, @Nullable final Bundle args)
+        {
+            switch(id)
+            {
+                case LOADER_MEASUREMENT_DETAILS:
+                    return new MeasurementDetailsLoader(MeasurementDetailsActivity.this, args);
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public void onLoadFinished(
+            @NonNull final Loader<MeasurementDetails> loader,
+            @Nullable final MeasurementDetails measurementDetails)
+        {
+            switch(loader.getId())
+            {
+                case LOADER_MEASUREMENT_DETAILS:
+                    onLoadMeasurementDetails(measurementDetails);
+                    break;
+            }
+        }
     }
 }
