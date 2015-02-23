@@ -13,7 +13,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
-import android.view.View;
+import android.widget.TextView;
 
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.model.Church;
@@ -22,10 +22,28 @@ import com.expidev.gcmapp.support.v4.content.ChurchLoader;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.support.v4.fragment.AbstractDialogFragment;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
+import butterknife.Optional;
+
 public class EditChurchFragment extends AbstractDialogFragment {
     private static final int LOADER_CHURCH = 1;
 
     private long mChurchId = Church.INVALID_ID;
+
+    @Optional
+    @InjectView(R.id.title)
+    TextView mTitleView;
+    @Optional
+    @InjectView(R.id.contactName)
+    TextView mContactNameView;
+    @Optional
+    @InjectView(R.id.contactEmail)
+    TextView mContactEmailView;
+    @Optional
+    @InjectView(R.id.size)
+    TextView mSizeView;
 
     private Church mChurch;
 
@@ -65,18 +83,22 @@ public class EditChurchFragment extends AbstractDialogFragment {
     }
 
     @Override
-    public void onViewCreated(final View view, @Nullable final Bundle savedState) {
-        super.onViewCreated(view, savedState);
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
         this.startLoaders();
+        ButterKnife.inject(this, getDialog());
+        updateViews();
     }
 
-    void onUpdateChurch(final Church church) {
+    void onLoadChurch(final Church church) {
         mChurch = church;
+        updateViews();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        ButterKnife.reset(this);
     }
 
     /* END lifecycle */
@@ -84,6 +106,33 @@ public class EditChurchFragment extends AbstractDialogFragment {
     private void startLoaders() {
         final LoaderManager manager = this.getLoaderManager();
         manager.initLoader(LOADER_CHURCH, null, new ChurchLoaderCallbacks());
+    }
+
+    private void updateViews() {
+        if(mTitleView != null) {
+            mTitleView.setText(mChurch != null ? mChurch.getName() : null);
+        }
+        if(mContactNameView != null) {
+            mContactNameView.setText(mChurch != null ? mChurch.getContactName() : null);
+        }
+        if(mContactEmailView != null) {
+            mContactEmailView.setText(mChurch != null ? mChurch.getContactEmail() : null);
+        }
+        if(mSizeView != null) {
+            mSizeView.setText(mChurch != null ? Integer.toString(mChurch.getSize()) : null);
+        }
+    }
+
+    @Optional
+    @OnClick(R.id.save)
+    void saveChanges() {
+        //TODO
+    }
+
+    @Optional
+    @OnClick(R.id.cancel)
+    void cancelEdit() {
+        this.dismiss();
     }
 
     private class ChurchLoaderCallbacks extends SimpleLoaderCallbacks<Church> {
@@ -101,7 +150,7 @@ public class EditChurchFragment extends AbstractDialogFragment {
         public void onLoadFinished(@NonNull final Loader<Church> loader, @Nullable final Church church) {
             switch (loader.getId()) {
                 case LOADER_CHURCH:
-                    onUpdateChurch(church);
+                    onLoadChurch(church);
             }
         }
     }
