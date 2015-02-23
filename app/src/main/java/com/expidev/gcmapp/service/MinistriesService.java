@@ -234,6 +234,9 @@ public class MinistriesService extends ThreadedIntentService {
 
     private void syncChurches(final Intent intent) throws ApiException {
         final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
+        if (ministryId == null) {
+            return;
+        }
 
         final List<Church> churches = mApi.getChurches(ministryId);
 
