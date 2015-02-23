@@ -192,6 +192,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     {
         MeasurementDetails measurementDetails = (MeasurementDetails) data;
 
+        sortSixMonthAmounts(measurementDetails);
         initializeRenderer(getPeriodsForLabels(measurementDetails.getSixMonthTotalAmounts()));
         initializeSeriesData(measurementDetails);
         renderGraph();
@@ -572,6 +573,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         {
             Log.i(TAG, "Measurement details loaded from local database");
 
+            sortSixMonthAmounts(measurementDetails);
             initializeRenderer(getPeriodsForLabels(measurementDetails.getSixMonthTotalAmounts()));
             initializeSeriesData(measurementDetails);
             renderGraph();
@@ -587,6 +589,36 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                 mcc,
                 period);
         }
+    }
+
+    private void sortSixMonthAmounts(MeasurementDetails measurementDetails)
+    {
+        Collections.sort(measurementDetails.getSixMonthTotalAmounts(), sixMonthAmountsComparator());
+        Collections.sort(measurementDetails.getSixMonthLocalAmounts(), sixMonthAmountsComparator());
+        Collections.sort(measurementDetails.getSixMonthPersonalAmounts(), sixMonthAmountsComparator());
+    }
+
+    private Comparator<SixMonthAmounts> sixMonthAmountsComparator()
+    {
+        return new Comparator<SixMonthAmounts>()
+        {
+            @Override
+            public int compare(SixMonthAmounts lhs, SixMonthAmounts rhs)
+            {
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
+
+                try
+                {
+                    Date leftDate = dateFormat.parse(lhs.getMonth());
+                    Date rightDate = dateFormat.parse(rhs.getMonth());
+                    return leftDate.compareTo(rightDate);
+                }
+                catch(ParseException e)
+                {
+                    return 0;
+                }
+            }
+        };
     }
 
     private class MeasurementDetailsLoaderCallbacks extends SimpleLoaderCallbacks<MeasurementDetails>
