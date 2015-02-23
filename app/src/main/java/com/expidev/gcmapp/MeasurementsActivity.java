@@ -87,7 +87,6 @@ public class MeasurementsActivity extends ActionBarActivity
         currentPeriod = preferences.getString("currentPeriod", null);
         setupBroadcastReceivers();
         startLoaders();
-        MinistriesService.retrieveMinistries(this);
     }
 
     private void startLoaders()
