@@ -19,11 +19,13 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.Type;
+import com.expidev.gcmapp.support.v4.content.CurrentMinistryLoader;
 import com.expidev.gcmapp.support.v4.content.MeasurementsLoader;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.ViewUtils;
@@ -49,7 +51,9 @@ public class MeasurementsActivity extends ActionBarActivity
     private final String TAG = this.getClass().getSimpleName();
 
     private final String PREF_NAME = "gcm_prefs";
+
     private final MeasurementsLoaderCallbacks measurementsLoaderCallbacks = new MeasurementsLoaderCallbacks();
+    private final AssociatedMinistryLoaderCallbacks ministryLoaderCallbacks = new AssociatedMinistryLoaderCallbacks();
 
     private LocalBroadcastManager broadcastManager;
     private BroadcastReceiver broadcastReceiver;
@@ -58,7 +62,8 @@ public class MeasurementsActivity extends ActionBarActivity
     private String chosenMcc;
     private String currentPeriod = null;
 
-    private static final int LOADER_MEASUREMENTS = 1;
+    private static final int LOADER_CURRENT_MINISTRY = 1;
+    private static final int LOADER_MEASUREMENTS = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -77,6 +82,7 @@ public class MeasurementsActivity extends ActionBarActivity
 
         currentPeriod = preferences.getString("currentPeriod", null);
         setupBroadcastReceivers();
+        startLoaders();
         MinistriesService.retrieveMinistries(this);
     }
 
@@ -84,12 +90,7 @@ public class MeasurementsActivity extends ActionBarActivity
     {
         final LoaderManager manager = this.getSupportLoaderManager();
 
-        Bundle args = new Bundle(3);
-        args.putString("ministryId", chosenMinistry.getMinistryId());
-        args.putString("mcc", chosenMcc);
-        args.putString("period", currentPeriod);
-
-        manager.initLoader(LOADER_MEASUREMENTS, args, measurementsLoaderCallbacks);
+        manager.initLoader(LOADER_CURRENT_MINISTRY, null, ministryLoaderCallbacks);
     }
 
     private void restartMeasurementLoader(String ministryId, String mcc, String period)
@@ -143,25 +144,6 @@ public class MeasurementsActivity extends ActionBarActivity
                                 Log.w(TAG, "No measurement data");
                             }
                             break;
-                        case RETRIEVE_ASSOCIATED_MINISTRIES:
-                            Log.i(TAG, "Associated Ministries retrieved");
-
-                            Serializable ministriesData = intent.getSerializableExtra("associatedMinistries");
-
-                            if(ministriesData != null)
-                            {
-                                List<Ministry> associatedMinistries = (ArrayList<Ministry>) ministriesData;
-                                chosenMinistry = getMinistryForName(
-                                    associatedMinistries,
-                                    preferences.getString("chosen_ministry", null));
-
-                                startLoaders();
-                            }
-                            else
-                            {
-                                Log.w(TAG, "No associated ministries");
-                            }
-                            break;
                         case SAVE_MEASUREMENTS:
                             Log.i(TAG, "Measurements saved to the database");
                             break;
@@ -176,24 +158,6 @@ public class MeasurementsActivity extends ActionBarActivity
         broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
         broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());
         broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.stopFilter());
-    }
-
-    private Ministry getMinistryForName(List<Ministry> ministryList, String ministryName)
-    {
-        if(ministryName == null)
-        {
-            return null;
-        }
-
-        for(Ministry ministry : ministryList)
-        {
-            if(ministryName.equals(ministry.getName()))
-            {
-                return ministry;
-            }
-        }
-
-        return null;
     }
 
     private void drawLayout(Ministry selectedMinistry, String mcc, List<Measurement> measurements)
@@ -524,6 +488,31 @@ public class MeasurementsActivity extends ActionBarActivity
         restartMeasurementLoader(chosenMinistry.getMinistryId(), chosenMcc, nextPeriodString);
     }
 
+    /**
+     * This event is triggered when a new currentMinistry object is loaded
+     *
+     * @param ministry the new current ministry object
+     */
+    void onLoadCurrentMinistry(@Nullable final AssociatedMinistry ministry)
+    {
+        chosenMinistry = ministry;
+
+        if(ministry != null)
+        {
+            Log.i(TAG, "Associated Ministries retrieved");
+            restartMeasurementLoader(ministry.getMinistryId(), chosenMcc, currentPeriod);
+        }
+        else
+        {
+            Log.w(TAG, "No associated ministries");
+        }
+    }
+
+    /**
+     * This event is triggered when measurements are loaded from local storage
+     *
+     * @param measurements the list of measurements to display
+     */
     void onLoadMeasurements(@Nullable final List<Measurement> measurements)
     {
         Log.i(TAG, "Measurements loaded from local storage");
@@ -541,6 +530,32 @@ public class MeasurementsActivity extends ActionBarActivity
                 chosenMinistry.getMinistryId(),
                 chosenMcc,
                 currentPeriod);
+        }
+    }
+
+    private class AssociatedMinistryLoaderCallbacks extends SimpleLoaderCallbacks<AssociatedMinistry>
+    {
+        @Override
+        public Loader<AssociatedMinistry> onCreateLoader(final int id, final Bundle bundle)
+        {
+            switch (id) {
+                case LOADER_CURRENT_MINISTRY:
+                    return new CurrentMinistryLoader(MeasurementsActivity.this);
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public void onLoadFinished(
+            @NonNull final Loader<AssociatedMinistry> loader,
+            @Nullable final AssociatedMinistry ministry)
+        {
+            switch (loader.getId()) {
+                case LOADER_CURRENT_MINISTRY:
+                    onLoadCurrentMinistry(ministry);
+                    break;
+            }
         }
     }
 
