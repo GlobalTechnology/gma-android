@@ -1,10 +1,15 @@
 package com.expidev.gcmapp.json;
 
+import android.content.Context;
+import android.test.InstrumentationTestCase;
+import android.test.RenamingDelegatingContext;
+
+import com.expidev.gcmapp.db.TrainingDao;
 import com.expidev.gcmapp.model.Training;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
+import org.ccci.gto.android.common.db.AbstractDao;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -13,13 +18,53 @@ import java.util.List;
 /**
  * Created by matthewfrederick on 2/23/15.
  */
-public class TrainingJsonParserTest extends TestCase
+public class TrainingJsonParserTest extends InstrumentationTestCase
 {
+    Context context;
+
+    @Override
+    public void setUp() throws Exception
+    {
+        super.setUp();
+        context = new RenamingDelegatingContext(getInstrumentation().getTargetContext().getApplicationContext(), "test_");
+    }
+
     public void testParseTrainingDetails() throws Exception
     {
         List<Training> trainings = TrainingJsonParser.parseTrainings(testTrainingDetails());
         Assert.assertNotNull(trainings);
         Assert.assertEquals(trainings.size(), 2);
+
+        TrainingDao trainingDao = TrainingDao.getInstance(context);
+        final AbstractDao.Transaction tx = trainingDao.newTransaction();
+        try {
+            tx.begin();
+
+            // save trainings
+            for (final Training training : trainings) {
+                trainingDao.saveTraining(training);
+            }
+
+            tx.setSuccessful();
+        } finally {
+            tx.end();
+        }
+        
+        trainings = null;
+        
+        try
+        {
+            tx.begin();
+            
+            trainings = trainingDao.getAllMinistryTraining("770ffd2c-d6ac-11e3-9e38-12725f8f377c");
+            tx.setSuccessful();
+        } finally
+        {
+            tx.end();
+        }
+        
+        Assert.assertNotNull(trainings);
+        Assert.assertEquals(2, trainings.size());
     }
     
     private JSONArray testTrainingDetails() throws JSONException
