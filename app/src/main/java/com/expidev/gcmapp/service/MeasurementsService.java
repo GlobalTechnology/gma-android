@@ -29,12 +29,10 @@ import java.util.List;
 import java.util.Locale;
 
 import static com.expidev.gcmapp.service.Type.RETRIEVE_AND_SAVE_MEASUREMENTS;
-import static com.expidev.gcmapp.service.Type.RETRIEVE_MEASUREMENT_DETAILS;
 import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENT_DETAILS;
 import static com.expidev.gcmapp.service.Type.SEARCH_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.SYNC_MEASUREMENTS;
-import static com.expidev.gcmapp.utils.BroadcastUtils.measurementDetailsReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.measurementsReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
@@ -95,9 +93,6 @@ public class MeasurementsService extends ThreadedIntentService
                 case SEARCH_MEASUREMENTS:
                     searchMeasurements(intent);
                     break;
-                case RETRIEVE_MEASUREMENT_DETAILS:
-                    retrieveDetailsForMeasurement(intent);
-                    break;
                 case SAVE_MEASUREMENTS:
                     saveMeasurementsToDatabase(intent);
                     break;
@@ -143,27 +138,6 @@ public class MeasurementsService extends ThreadedIntentService
     {
         Bundle extras = new Bundle(4);
         extras.putSerializable(EXTRA_TYPE, SEARCH_MEASUREMENTS);
-        extras.putString("ministryId", ministryId);
-        extras.putString("mcc", mcc);
-
-        if(period != null)
-        {
-            extras.putString("period", period);
-        }
-
-        context.startService(baseIntent(context, extras));
-    }
-
-    public static void retrieveDetailsForMeasurement(
-        final Context context,
-        String measurementId,
-        String ministryId,
-        String mcc,
-        String period)
-    {
-        Bundle extras = new Bundle(5);
-        extras.putSerializable(EXTRA_TYPE, RETRIEVE_MEASUREMENT_DETAILS);
-        extras.putString("measurementId", measurementId);
         extras.putString("ministryId", ministryId);
         extras.putString("mcc", mcc);
 
@@ -276,17 +250,6 @@ public class MeasurementsService extends ThreadedIntentService
         {
             return MeasurementsJsonParser.parseMeasurements(results, ministryId, mcc, period);
         }
-    }
-
-    private void retrieveDetailsForMeasurement(Intent intent) throws ApiException
-    {
-        String measurementId = intent.getStringExtra("measurementId");
-        String ministryId = intent.getStringExtra("ministryId");
-        String mcc = intent.getStringExtra("mcc");
-        String period = intent.getStringExtra("period");
-
-        MeasurementDetails measurementDetails = retrieveDetailsForMeasurement(measurementId, ministryId, mcc, period);
-        broadcastManager.sendBroadcast(measurementDetailsReceivedBroadcast(measurementDetails));
     }
 
     private MeasurementDetails retrieveDetailsForMeasurement(

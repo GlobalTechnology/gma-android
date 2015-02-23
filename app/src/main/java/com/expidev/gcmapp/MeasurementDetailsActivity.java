@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -21,6 +22,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.expidev.gcmapp.http.GmaApiClient;
+import com.expidev.gcmapp.json.MeasurementsJsonParser;
 import com.expidev.gcmapp.model.measurement.BreakdownData;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.model.measurement.SixMonthAmounts;
@@ -41,9 +44,10 @@ import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
+import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -153,25 +157,6 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
                     switch (type)
                     {
-                        case RETRIEVE_MEASUREMENT_DETAILS:
-                            Serializable retrievedMeasurementDetailData = intent.getSerializableExtra("measurementDetails");
-
-                            if(retrievedMeasurementDetailData != null)
-                            {
-                                Log.i(TAG, "Measurement details retrieved from API");
-
-                                MeasurementsService.saveMeasurementDetailsToDatabase(
-                                    MeasurementDetailsActivity.this,
-                                    (MeasurementDetails) retrievedMeasurementDetailData);
-
-                                handleRetrievedMeasurementDetails(retrievedMeasurementDetailData);
-                            }
-                            else
-                            {
-                                Log.w(TAG, "No measurement detail data");
-                                finish();
-                            }
-                            break;
                         case SAVE_MEASUREMENT_DETAILS:
                             Log.i(TAG, "Measurement details saved to local storage");
                             break;
@@ -188,10 +173,9 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.stopFilter());
     }
 
-    private void handleRetrievedMeasurementDetails(Serializable data)
+    private void handleRetrievedMeasurementDetails(MeasurementDetails measurementDetails)
     {
-        MeasurementDetails measurementDetails = (MeasurementDetails) data;
-
+        Log.i(TAG, "Measurement details loaded from local database");
         sortSixMonthAmounts(measurementDetails);
         initializeRenderer(getPeriodsForLabels(measurementDetails.getSixMonthTotalAmounts()));
         initializeSeriesData(measurementDetails);
@@ -571,23 +555,12 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     {
         if(measurementDetails != null)
         {
-            Log.i(TAG, "Measurement details loaded from local database");
-
-            sortSixMonthAmounts(measurementDetails);
-            initializeRenderer(getPeriodsForLabels(measurementDetails.getSixMonthTotalAmounts()));
-            initializeSeriesData(measurementDetails);
-            renderGraph();
-            initializeDataSection(measurementDetails);
+            handleRetrievedMeasurementDetails(measurementDetails);
         }
         else
         {
             Log.i(TAG, "No data for measurement in local database, loading from the API");
-            MeasurementsService.retrieveDetailsForMeasurement(
-                MeasurementDetailsActivity.this,
-                measurementId,
-                ministryId,
-                mcc,
-                period);
+            new NewDetailsPageRetrieverTask().execute(this, measurementId, ministryId, mcc, period);
         }
     }
 
@@ -621,6 +594,20 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         };
     }
 
+    private void onLoadDetailsFromServer(MeasurementDetails measurementDetails)
+    {
+        if(measurementDetails != null)
+        {
+            handleRetrievedMeasurementDetails(measurementDetails);
+            MeasurementsService.saveMeasurementDetailsToDatabase(this, measurementDetails);
+        }
+        else
+        {
+            Log.w(TAG, "No measurement detail data");
+            finish();
+        }
+    }
+
     private class MeasurementDetailsLoaderCallbacks extends SimpleLoaderCallbacks<MeasurementDetails>
     {
         @Override
@@ -646,6 +633,54 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                     onLoadMeasurementDetails(measurementDetails);
                     break;
             }
+        }
+    }
+
+    private class NewDetailsPageRetrieverTask extends AsyncTask<Object, Void, MeasurementDetails>
+    {
+        @Override
+        protected MeasurementDetails doInBackground(Object... params)
+        {
+            Context context = (Context) params[0];
+            String measurementId = (String) params[1];
+            String ministryId = (String) params[2];
+            String mcc = (String) params[3];
+            String period = (String) params[4];
+
+            if(measurementId != null && ministryId != null && mcc != null && period != null)
+            {
+                try
+                {
+                    GmaApiClient apiClient = GmaApiClient.getInstance(context);
+                    JSONObject results = apiClient.getDetailsForMeasurement(measurementId, ministryId, mcc, period);
+
+                    if(results == null)
+                    {
+                        Log.w(TAG, "No measurement details!");
+                        return null;
+                    }
+                    MeasurementDetails measurementDetails = MeasurementsJsonParser.parseMeasurementDetails(results);
+                    measurementDetails.setMeasurementId(measurementId);
+                    measurementDetails.setMinistryId(ministryId);
+                    measurementDetails.setMcc(mcc);
+                    measurementDetails.setPeriod(period);
+
+                    return measurementDetails;
+                }
+                catch(ApiException e)
+                {
+                    Log.e(TAG, "Failed to retrieve measurement details from API", e);
+                    return null;
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(MeasurementDetails measurementDetails)
+        {
+            onLoadDetailsFromServer(measurementDetails);
         }
     }
 }
