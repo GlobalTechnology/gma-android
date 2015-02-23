@@ -10,6 +10,7 @@ import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_CHURCHES;
 import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.associatedMinistriesReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
 import android.content.Intent;
@@ -248,7 +249,8 @@ public class MinistriesService extends ThreadedIntentService {
 
                 // load current churches
                 final LongSparseArray<Church> current = new LongSparseArray<>();
-                for(final Church church : mDao.get(Church.class, Contract.Church.SQL_WHERE_MINISTRY_ID, new String[]{ministryId})) {
+                for (final Church church : mDao
+                        .get(Church.class, Contract.Church.SQL_WHERE_MINISTRY_ID, bindValues(ministryId))) {
                     current.put(church.getId(), church);
                 }
 
