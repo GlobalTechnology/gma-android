@@ -93,11 +93,4 @@ public class TrainingJsonParser {
             return null;
         }
     }
-    
-    private static boolean isNullOrEmpty(@Nullable String value)
-    {
-        if (value == null) return true;
-        
-        return value.isEmpty();
-    }
 }
