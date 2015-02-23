@@ -96,6 +96,14 @@ public class MeasurementsActivity extends ActionBarActivity
         manager.initLoader(LOADER_CURRENT_MINISTRY, null, ministryLoaderCallbacks);
     }
 
+    @Override
+    protected void onPostResume()
+    {
+        super.onPostResume();
+        Log.i(TAG, "Resuming");
+        chosenMcc = preferences.getString("chosen_mcc", null);
+    }
+
     private void restartMeasurementLoader(String ministryId, String mcc, String period)
     {
         final LoaderManager manager = this.getSupportLoaderManager();
