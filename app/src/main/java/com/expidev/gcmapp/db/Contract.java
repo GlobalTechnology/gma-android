@@ -181,10 +181,10 @@ public class Contract {
         static final String COLUMN_ID = _ID;
         static final String COLUMN_MINISTRY_ID = "ministry_id";
         static final String COLUMN_NAME = "name";
-        static final String COLUMN_CONTACT_NAME = "contact_name";
-        static final String COLUMN_CONTACT_EMAIL = "contact_email";
+        public static final String COLUMN_CONTACT_NAME = "contact_name";
+        public static final String COLUMN_CONTACT_EMAIL = "contact_email";
         static final String COLUMN_DEVELOPMENT = "development";
-        static final String COLUMN_SIZE = "size";
+        public static final String COLUMN_SIZE = "size";
         static final String COLUMN_SECURITY = "security";
         public static final String COLUMN_DIRTY = "dirtyData";
 
