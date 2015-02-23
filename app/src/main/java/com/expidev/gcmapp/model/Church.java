@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public class Church extends Location {
+public class Church extends Location implements Cloneable {
     public static final long INVALID_ID = -1;
 
     private static final int DEVELOPMENT_UNKNOWN = 0;
@@ -103,6 +103,24 @@ public class Church extends Location {
         church.size = json.optInt(JSON_SIZE, 0);
         church.security = json.optInt(JSON_SECURITY, 2);
         return church;
+    }
+
+    public Church() {
+    }
+
+    private Church(@NonNull final Church church) {
+        super(church);
+        this.id = church.id;
+        this.ministryId = church.ministryId;
+        this.name = church.name;
+        this.contactEmail = church.contactEmail;
+        this.contactName = church.contactName;
+        this.development = church.development;
+        this.size = church.size;
+        this.security = church.security;
+        mDirty.clear();
+        mDirty.addAll(church.mDirty);
+        mTrackingChanges = church.mTrackingChanges;
     }
 
     public long getId() {
@@ -208,6 +226,11 @@ public class Church extends Location {
 
     public void trackingChanges(final boolean state) {
         mTrackingChanges = state;
+    }
+
+    @Override
+    public Church clone() {
+        return new Church(this);
     }
 
     public JSONObject dirtyToJson() throws JSONException {
