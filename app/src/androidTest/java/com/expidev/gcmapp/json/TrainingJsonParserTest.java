@@ -21,21 +21,25 @@ import java.util.List;
 public class TrainingJsonParserTest extends InstrumentationTestCase
 {
     Context context;
+    TrainingDao trainingDao;
 
     @Override
     public void setUp() throws Exception
     {
         super.setUp();
         context = new RenamingDelegatingContext(getInstrumentation().getTargetContext().getApplicationContext(), "test_");
+        trainingDao = TrainingDao.getInstance(context);
+        
     }
 
     public void testParseTrainingDetails() throws Exception
     {
+        trainingDao.deleteAllData();
+        
         List<Training> trainings = TrainingJsonParser.parseTrainings(testTrainingDetails());
         Assert.assertNotNull(trainings);
         Assert.assertEquals(trainings.size(), 2);
-
-        TrainingDao trainingDao = TrainingDao.getInstance(context);
+        
         final AbstractDao.Transaction tx = trainingDao.newTransaction();
         try {
             tx.begin();

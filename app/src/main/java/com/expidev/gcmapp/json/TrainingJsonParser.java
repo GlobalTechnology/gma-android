@@ -33,7 +33,7 @@ public class TrainingJsonParser {
     @NonNull
     public static Training parseTraining(@NonNull final JSONObject json) throws JSONException {
         final Training training = new Training();
-        if (json.has("id")) training.setId(json.getInt("id"));
+        training.setId(json.optLong("Id"));
         training.setMinistryId(json.getString("ministry_id"));
         training.setName(json.getString("name"));
         training.setDate(stringToDate(json.getString("date")));
@@ -75,7 +75,7 @@ public class TrainingJsonParser {
     @NonNull
     public static Training.GCMTrainingCompletions parseCompletion(@NonNull final JSONObject json) throws JSONException {
         final Training.GCMTrainingCompletions completion = new Training.GCMTrainingCompletions();
-        if (json.has("id")) completion.setId(json.getInt("id"));
+        completion.setId(json.optLong("Id"));
         completion.setTrainingId(json.getInt("training_id"));
         completion.setPhase(json.getInt("phase"));
         completion.setNumberCompleted(json.getInt("number_completed"));

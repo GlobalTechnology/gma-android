@@ -160,7 +160,7 @@ public class TrainingDao extends AbstractDao
     }
 
     @Nullable
-    public List<Training.GCMTrainingCompletions> getCompletedTrainingByTrainingId(int id)
+    public List<Training.GCMTrainingCompletions> getCompletedTrainingByTrainingId(long id)
     {
         try
         {
@@ -199,7 +199,7 @@ public class TrainingDao extends AbstractDao
         }
     }
 
-    void deleteAllData()
+    public void deleteAllData()
     {
         final SQLiteDatabase database = this.dbHelper.getWritableDatabase();
 
