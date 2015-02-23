@@ -6,16 +6,13 @@ import android.net.Uri;
 import android.os.PatternMatcher;
 
 import com.expidev.gcmapp.model.AssociatedMinistry;
-import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.Ministry;
-import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by matthewfrederick on 1/23/15.
@@ -126,20 +123,6 @@ public final class BroadcastUtils
         return intent;
     }
 
-    public static Intent measurementsReceivedBroadcast(ArrayList<Measurement> measurements)
-    {
-        Intent intent = stopBroadcast(Type.SEARCH_MEASUREMENTS);
-        intent.putExtra("measurements", measurements);
-        return intent;
-    }
-
-    public static Intent measurementDetailsReceivedBroadcast(MeasurementDetails measurementDetails)
-    {
-        Intent intent = stopBroadcast(Type.RETRIEVE_MEASUREMENT_DETAILS);
-        intent.putExtra("measurementDetails", measurementDetails);
-        return intent;
-    }
-
     public static Intent updateAssignmentsBroadcast() {
         return new Intent(ACTION_UPDATE_ASSIGNMENTS, assignmentsUri());
     }
@@ -165,27 +148,8 @@ public final class BroadcastUtils
         return new Intent(ACTION_UPDATE_MEASUREMENTS, measurementsUri());
     }
 
-    public static Intent measurementsLoaded(List<Measurement> measurements, String ministryId, String mcc, String period)
-    {
-        Intent intent = stopBroadcast(Type.LOAD_MEASUREMENTS);
-        intent.putExtra("measurements", (ArrayList<Measurement>) measurements);
-
-        // We put the search values here in case there are 0 results and we need to search from the API
-        intent.putExtra("ministryId", ministryId);
-        intent.putExtra("mcc", mcc);
-        intent.putExtra("period", period);
-        return intent;
-    }
-
     public static Intent updateMeasurementDetailsBroadcast()
     {
         return new Intent(ACTION_UPDATE_MEASUREMENT_DETAILS, measurementDetailsUri());
-    }
-
-    public static Intent measurementDetailsLoadedBroadcast(MeasurementDetails measurementDetails)
-    {
-        Intent intent = stopBroadcast(Type.LOAD_MEASUREMENT_DETAILS);
-        intent.putExtra("measurementDetails", measurementDetails);
-        return intent;
     }
 }
