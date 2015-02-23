@@ -204,7 +204,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         for(SixMonthAmounts row : sixMonthAmountsList)
         {
-            String period = row.getPeriod();
+            String period = row.getMonth();
 
             if(!periods.contains(period))
             {
