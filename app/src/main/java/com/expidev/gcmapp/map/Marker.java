@@ -20,6 +20,8 @@ public abstract class Marker<T extends Location> implements ClusterItem {
 
     public abstract String getName();
 
+    public abstract String getSnippet();
+
     @DrawableRes
     public abstract int getItemImage();
 

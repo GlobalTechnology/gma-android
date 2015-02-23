@@ -16,6 +16,11 @@ public class ChurchMarker extends Marker<Church> {
         return mObj.getName();
     }
 
+    @Override
+    public String getSnippet() {
+        return "Size: " + mObj.getSize();
+    }
+
     @DrawableRes
     @Override
     public int getItemImage() {

@@ -18,10 +18,11 @@ public class MarkerRender extends DefaultClusterRenderer<Marker> {
     }
 
     @Override
-    protected void onBeforeClusterItemRendered(final Marker item, MarkerOptions markerOptions) {
+    protected void onBeforeClusterItemRendered(final Marker item, final MarkerOptions markerOptions) {
         super.onBeforeClusterItemRendered(item, markerOptions);
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(item.getItemImage()))
-                .title(item.getName());
+        markerOptions.icon(BitmapDescriptorFactory.fromResource(item.getItemImage()));
+        markerOptions.title(item.getName());
+        markerOptions.snippet(item.getSnippet());
     }
 
     @Override
@@ -58,6 +59,4 @@ public class MarkerRender extends DefaultClusterRenderer<Marker> {
     protected boolean shouldRenderAsCluster(Cluster<Marker> cluster) {
         return cluster.getSize() > 3;
     }
-    
-    
 }
