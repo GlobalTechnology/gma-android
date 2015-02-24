@@ -1,9 +1,5 @@
 package com.expidev.gcmapp;
 
-import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
-import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
-import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
-
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -41,7 +37,9 @@ import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
 import com.expidev.gcmapp.support.v4.content.ChurchesLoader;
 import com.expidev.gcmapp.support.v4.content.CurrentMinistryLoader;
+import com.expidev.gcmapp.support.v4.content.TrainingLoader;
 import com.expidev.gcmapp.support.v4.fragment.EditChurchFragment;
+import com.expidev.gcmapp.support.v4.fragment.EditTrainingFragment;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.Device;
 import com.google.android.gms.common.ConnectionResult;
@@ -63,6 +61,10 @@ import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.content.AttributesLoader;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 
+import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
+import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
+import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
+
 
 public class MainActivity extends ActionBarActivity
     implements OnMapReadyCallback
@@ -72,6 +74,7 @@ public class MainActivity extends ActionBarActivity
     private static final int LOADER_THEKEY_ATTRIBUTES = 1;
     private static final int LOADER_CURRENT_MINISTRY = 2;
     private static final int LOADER_CHURCHES = 3;
+    private static final int LOADER_TRAINING = 4;
 
     private static final int MAP_LAYER_TRAINING = 0;
     private static final int MAP_LAYER_TARGET = 1;
@@ -93,6 +96,7 @@ public class MainActivity extends ActionBarActivity
     private final AssociatedMinistryLoaderCallbacks mLoaderCallbacksMinistry = new AssociatedMinistryLoaderCallbacks();
     private final AttributesLoaderCallbacks mLoaderCallbacksAttributes = new AttributesLoaderCallbacks();
     private final ChurchesLoaderCallbacks mLoaderCallbacksChurches = new ChurchesLoaderCallbacks();
+    private final TrainingLoaderCallbacks mLoaderCallbacksTraining = new TrainingLoaderCallbacks();
 
     /* map related objects */
     private TextView mapOverlayText;
@@ -192,7 +196,7 @@ public class MainActivity extends ActionBarActivity
                 if (mCurrentMinistry != null) {
                     MinistriesService.syncChurches(this, mCurrentMinistry.getMinistryId());
                     MeasurementsService.syncMeasurements(
-                        this, mCurrentMinistry.getMinistryId(), getChosenMcc(), null, true);
+                            this, mCurrentMinistry.getMinistryId(), getChosenMcc(), null, true);
                 }
 
                 return true;
@@ -245,15 +249,12 @@ public class MainActivity extends ActionBarActivity
 
         // restart Loaders based off the current ministry
         restartCurrentMinistryBasedLoaders();
-
-        // If we are changing assignments/ministries, we need to reload trainings
-        // TODO: this should be handled by a ContentLoader on a background thread eventually
-        if (mCurrentMinistry != null) {
-            TrainingDao trainingDao = TrainingDao.getInstance(this);
-            allTraining = trainingDao.getAllMinistryTraining(mCurrentMinistry.getMinistryId());
-        } else {
-            allTraining = null;
-        }
+    }
+    
+    void onLoadTraining(@Nullable final List<Training> trainings)
+    {
+        allTraining = trainings;
+        updateMap(false);
     }
 
     void onLoadChurches(@Nullable final List<Church> churches) {
@@ -287,6 +288,7 @@ public class MainActivity extends ActionBarActivity
         final LoaderManager manager = this.getSupportLoaderManager();
         manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, mLoaderCallbacksAttributes);
         manager.initLoader(LOADER_CURRENT_MINISTRY, null, mLoaderCallbacksMinistry);
+        manager.initLoader(LOADER_TRAINING, null, mLoaderCallbacksTraining);
         restartCurrentMinistryBasedLoaders();
     }
 
@@ -299,6 +301,7 @@ public class MainActivity extends ActionBarActivity
 
         // restart these loaders in case the ministry id has changed since the last start
         manager.restartLoader(LOADER_CHURCHES, args, mLoaderCallbacksChurches);
+        manager.restartLoader(LOADER_TRAINING, args, mLoaderCallbacksTraining);
     }
 
     private void updateMap(final boolean zoom) {
@@ -370,6 +373,16 @@ public class MainActivity extends ActionBarActivity
         if (fm.findFragmentByTag("editChurch") == null) {
             EditChurchFragment fragment = EditChurchFragment.newInstance(churchId);
             fragment.show(fm.beginTransaction().addToBackStack("editChurch"), "editChurch");
+        }
+    }
+    
+    void showEditTraining(final long trainingId)
+    {
+        final FragmentManager fm = this.getSupportFragmentManager();
+        if (fm.findFragmentByTag("editTraining") == null)
+        {
+            EditTrainingFragment fragment = EditTrainingFragment.newInstance(trainingId);
+            fragment.show(fm.beginTransaction().addToBackStack("editTraining"), "editTraining");
         }
     }
 
@@ -479,6 +492,10 @@ public class MainActivity extends ActionBarActivity
                     public void onClusterItemInfoWindowClick(final Marker marker) {
                         if (marker instanceof ChurchMarker) {
                             showEditChurch(((ChurchMarker) marker).getChurchId());
+                        }
+                        else if (marker instanceof TrainingMarker)
+                        {
+                            showEditTraining(((TrainingMarker) marker).getTrainingId());
                         }
                     }
                 });
@@ -640,6 +657,31 @@ public class MainActivity extends ActionBarActivity
                 case LOADER_CURRENT_MINISTRY:
                     onLoadCurrentMinistry(ministry);
                     break;
+            }
+        }
+    }
+    
+    private class TrainingLoaderCallbacks extends SimpleLoaderCallbacks<List<Training>>
+    {
+        @Override
+        public Loader<List<Training>> onCreateLoader(int id, @Nullable Bundle bundle)
+        {
+            switch (id)
+            {
+                case LOADER_TRAINING:
+                    return new TrainingLoader(MainActivity.this, bundle);
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull Loader<List<Training>> listLoader, @Nullable List<Training> trainings)
+        {
+            switch (listLoader.getId())
+            {
+                case LOADER_TRAINING:
+                    onLoadTraining(trainings);
             }
         }
     }

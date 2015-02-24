@@ -1,8 +1,5 @@
 package com.expidev.gcmapp.utils;
 
-import static com.expidev.gcmapp.Constants.EXTRA_CHURCH_IDS;
-import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
-
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
@@ -19,6 +16,10 @@ import com.expidev.gcmapp.service.Type;
 
 import java.util.ArrayList;
 
+import static com.expidev.gcmapp.Constants.EXTRA_CHURCH_IDS;
+import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
+import static com.expidev.gcmapp.Constants.EXTRA_TRAINING_IDS;
+
 /**
  * Created by matthewfrederick on 1/23/15.
  */
@@ -27,12 +28,14 @@ public final class BroadcastUtils
     private static final Uri URI_ASSIGNMENTS = Uri.parse("gma://assignments/");
     private static final Uri URI_CHURCHES = Uri.parse("gma://churches/");
     private static final Uri URI_MINISTRIES = Uri.parse("gma://ministries/");
+    private static final Uri URI_TRAINING = Uri.parse("gma://training/");
     private static final Uri URI_MEASUREMENTS = Uri.parse("gma://measurements/");
     private static final Uri URI_MEASUREMENT_DETAILS = Uri.parse("gma://measurementdetails/");
 
     private static final String ACTION_UPDATE_ASSIGNMENTS = MinistriesService.class.getName() + ".ACTION_UPDATE_ASSIGNMENTS";
     private static final String ACTION_UPDATE_CHURCHES = MinistriesService.class.getName() + ".ACTION_UPDATE_CHURCHES";
     private static final String ACTION_UPDATE_MINISTRIES = MinistriesService.class.getName() + ".ACTION_UPDATE_MINISTRIES";
+    private static final String ACTION_UPDATE_TRAINING = TrainingService.class.getName() + ".ACTION_UPDATE_TRAINING";
     private static final String ACTION_UPDATE_MEASUREMENTS = MeasurementsService.class.getName() + ".ACTION_UPDATE_MEASUREMENTS";
     private static final String ACTION_UPDATE_MEASUREMENT_DETAILS = MeasurementsService.class.getName() + ".ACTION_UPDATE_MEASUREMENT_DETAILS";
 
@@ -50,6 +53,11 @@ public final class BroadcastUtils
 
     private static Uri ministriesUri() {
         return URI_MINISTRIES;
+    }
+    
+    private static Uri trainingUri()
+    {
+        return URI_TRAINING;
     }
 
     private static Uri measurementsUri()
@@ -148,6 +156,19 @@ public final class BroadcastUtils
     public static Intent updateMinistriesBroadcast() {
         return new Intent(ACTION_UPDATE_MINISTRIES, ministriesUri());
     }
+    
+    public static Intent updateTrainingBroadcast(@NonNull final long... ids)
+    {
+        return updateTrainingBroadcast(null, ids);        
+    }
+    
+    public static Intent updateTrainingBroadcast(@NonNull final String ministryId, @NonNull final long... ids)
+    {
+        final Intent intent = new Intent(ACTION_UPDATE_TRAINING);
+        intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
+        intent.putExtra(EXTRA_TRAINING_IDS, ids);
+        return intent;
+    }
 
     public static IntentFilter updateAssignmentsFilter() {
         final IntentFilter filter = new IntentFilter(ACTION_UPDATE_ASSIGNMENTS);
@@ -163,6 +184,11 @@ public final class BroadcastUtils
         final IntentFilter filter = new IntentFilter(ACTION_UPDATE_MINISTRIES);
         addDataUri(filter, ministriesUri(), PatternMatcher.PATTERN_LITERAL);
         return filter;
+    }
+    
+    public static IntentFilter updateTrainingFilter()
+    {
+        return new IntentFilter(ACTION_UPDATE_TRAINING);
     }
 
     public static IntentFilter updateMeasurementsFilter()

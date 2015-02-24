@@ -1,11 +1,5 @@
 package com.expidev.gcmapp.service;
 
-import static com.expidev.gcmapp.service.Type.DOWNLOAD_TRAINING;
-import static com.expidev.gcmapp.service.Type.TRAINING;
-import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
-
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
@@ -14,16 +8,30 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.support.v4.util.LongSparseArray;
 
+import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.TrainingDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.TrainingJsonParser;
 import com.expidev.gcmapp.model.Training;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 
+import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.db.AbstractDao;
+import org.ccci.gto.android.common.db.AbstractDao.Transaction;
 import org.json.JSONArray;
 
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+
+import static com.expidev.gcmapp.service.Type.DOWNLOAD_TRAINING;
+import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_TRAINING;
+import static com.expidev.gcmapp.service.Type.TRAINING;
+import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 
 /**
  * Created by matthewfrederick on 1/26/15.
@@ -36,10 +44,14 @@ public class TrainingService extends IntentService
     private static final String MINISTRY_ID = TrainingService.class.getName() + ".MINISTRY_ID";
     private static final String MINISTRY_MCC = TrainingService.class.getName() + ".MCC";
 
+    private static final String EXTRA_SYNCTYPE = "type";
+
     private final String PREF_NAME = "gcm_prefs";
 
     @NonNull
     private GmaApiClient mApi;
+    @NonNull
+    private TrainingDao mDao;
     private LocalBroadcastManager broadcastManager;
     private SharedPreferences sharedPreferences;
     
@@ -54,6 +66,7 @@ public class TrainingService extends IntentService
         super.onCreate();
         mApi = GmaApiClient.getInstance(this);
         broadcastManager = LocalBroadcastManager.getInstance(this);
+        mDao = TrainingDao.getInstance(this);
 
         sharedPreferences = this.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
 
@@ -74,6 +87,9 @@ public class TrainingService extends IntentService
             {
                 case DOWNLOAD_TRAINING:
                     searchTraining(intent.getStringExtra(MINISTRY_ID), intent.getStringExtra(MINISTRY_MCC));
+                    break;
+                case SYNC_TRAINING:
+                    syncTraining(intent);
                     break;
             }
         }
@@ -100,6 +116,13 @@ public class TrainingService extends IntentService
         extras.putString(MINISTRY_ID, ministryId);
         extras.putString(MINISTRY_MCC, mcc);
         final Intent intent = baseIntent(context, extras);
+        context.startService(intent);
+    }
+    
+    public static void syncDirtyTraining(@NonNull final Context context)
+    {
+        final Intent intent = new Intent(context, TrainingService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNC_DIRTY_TRAINING);
         context.startService(intent);
     }
     
@@ -142,6 +165,62 @@ public class TrainingService extends IntentService
         catch (Exception e)
         {
             Log.e(TAG, e.getMessage(), e);
+        }
+    }
+    
+    private void syncTraining(final Intent intent) throws ApiException
+    {
+        final String ministryId = intent.getStringExtra(MINISTRY_ID);
+        final String mcc = intent.getStringExtra(MINISTRY_MCC);
+
+        final Transaction tx = mDao.newTransaction();
+        tx.begin();
+        
+        try
+        {
+            // get list of training from api
+            JSONArray jsonArray = mApi.searchTraining(ministryId, mcc);
+            
+            if (jsonArray != null)
+            {
+                final List<Training> trainings = TrainingJsonParser.parseTrainings(jsonArray);
+                
+                if (trainings != null)
+                {
+                    final LongSparseArray<Training> current = new LongSparseArray<>();
+                    for (final Training training : mDao.get(Training.class, Contract.Training.SQL_WHERE_MINISTRY_ID, new String[]{ministryId}))
+                    {
+                        current.put(training.getId(), training);   
+                    }
+                    
+                    long[] ids = new long[current.size() + trainings.size()];
+                    int j = 0;
+                    for (final Training training : trainings)
+                    {
+                        training.setLastSynced(new Date());
+                        current.remove(training.getId());
+                        ids[j++] = training.getId();
+                    }
+                    
+                    for (int i = 0; i < current.size(); i++)
+                    {
+                        final Training training = current.valueAt(i);
+                        mDao.delete(training);
+                        ids[j++] = training.getId();
+                    }
+                    
+                    tx.setSuccessful();
+                    
+                    broadcastManager.sendBroadcast(BroadcastUtils.updateTrainingBroadcast(ministryId, Arrays.copyOf(ids, j)));
+                }
+            }
+        } catch (Exception e)
+        {
+            Log.d(TAG, e.getMessage());
+        }
+        finally
+        {
+            tx.end();
         }
     }
 }

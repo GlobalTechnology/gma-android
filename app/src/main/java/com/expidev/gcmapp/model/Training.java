@@ -3,15 +3,23 @@ package com.expidev.gcmapp.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by matthewfrederick on 1/26/15.
  */
-public class Training extends Location {
+public class Training extends Location implements Cloneable 
+{
+    public static final long INVALID_ID = -1;
+    
     private long id;
     private String ministryId;
     private String name;
@@ -20,6 +28,32 @@ public class Training extends Location {
     private String mcc;
     @NonNull
     private final List<GCMTrainingCompletions> completions = new ArrayList<>();
+    private boolean mTrackingChanges = false;
+    @NonNull
+    private final Set<String> mDirty = new HashSet<>();
+
+    public static final String JSON_NAME = "name";
+    public static final String JSON_TYPE = "type";
+    public static final String JSON_DATE = "date";
+    
+    public Training()
+    {       
+    }
+    
+    private Training(@NonNull final Training training)
+    {
+        super(training);
+        this.id = training.getId();
+        this.ministryId = training.getMinistryId();
+        this.name = training.getName();
+        this.date = training.getDate();
+        this.type = training.getType();
+        this.mcc = training.getMcc();
+        this.setCompletions(training.getCompletions());
+        mDirty.clear();
+        mDirty.addAll(training.mDirty);
+        mTrackingChanges = training.mTrackingChanges;
+    }
 
     public static boolean equals(Training first, Training second)
     {
@@ -52,6 +86,7 @@ public class Training extends Location {
         this.ministryId = ministryId;
     }
 
+    @Nullable
     public String getName()
     {
         return name;
@@ -60,8 +95,13 @@ public class Training extends Location {
     public void setName(String name)
     {
         this.name = name;
+        if (mTrackingChanges)
+        {
+            mDirty.add(JSON_NAME);
+        }
     }
 
+    @Nullable
     public Date getDate()
     {
         return date;
@@ -70,8 +110,23 @@ public class Training extends Location {
     public void setDate(Date date)
     {
         this.date = date;
+        if (mTrackingChanges)
+        {
+            mDirty.add(JSON_DATE);
+        }
+    }
+    
+    public void setDate(String date) throws ParseException
+    {
+        DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+        this.date = format.parse(date);
+        if (mTrackingChanges)
+        {
+            mDirty.add(JSON_DATE);
+        }
     }
 
+    @Nullable
     public String getType()
     {
         return type;
@@ -80,6 +135,10 @@ public class Training extends Location {
     public void setType(String type)
     {
         this.type = type;
+        if (mTrackingChanges)
+        {
+            mDirty.add(JSON_TYPE);
+        }
     }
 
     public String getMcc()
@@ -90,6 +149,11 @@ public class Training extends Location {
     public void setMcc(String mcc)
     {
         this.mcc = mcc;
+    }
+    
+    public void trackingChanges(final boolean state)
+    {
+        mTrackingChanges = state;
     }
 
     @NonNull
@@ -107,6 +171,17 @@ public class Training extends Location {
 
     public void addCompletion(@NonNull final GCMTrainingCompletions completion) {
         this.completions.add(completion);
+    }
+
+    @Override
+    public Training clone()
+    {
+        return new Training(this);
+    }
+    
+    public boolean isDirty()
+    {
+        return !mDirty.isEmpty();
     }
 
     public static class GCMTrainingCompletions extends Base

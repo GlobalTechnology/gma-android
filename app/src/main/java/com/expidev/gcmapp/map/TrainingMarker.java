@@ -10,6 +10,11 @@ public class TrainingMarker extends Marker<Training> {
     public TrainingMarker(@NonNull final Training obj) {
         super(obj);
     }
+    
+    public long getTrainingId()
+    {
+        return mObj.getId();
+    }
 
     @Override
     public String getName() {

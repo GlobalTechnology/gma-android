@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/icon"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:src="@drawable/training"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="15dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/training_title"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentTop="true"
+        tools:text="Long Title"
+        android:layout_alignBottom="@+id/icon"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_toRightOf="@+id/icon"
+        android:layout_toEndOf="@+id/icon"
+        android:ellipsize="end"
+        android:lines="2"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="15dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_training_name"
+        android:id="@+id/trainingNameLabel"
+        android:gravity="center_vertical|end"
+        android:layout_below="@+id/icon"
+        android:layout_alignLeft="@+id/trainingTypeLable"
+        android:layout_alignStart="@+id/trainingTypeLable"
+        android:layout_alignBottom="@+id/et_training_name"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/et_training_name"
+        android:layout_gravity="center_horizontal"
+        tools:text="Training Type"
+        android:layout_below="@+id/training_title"
+        android:layout_marginRight="15dp"
+        android:layout_alignLeft="@+id/et_training_type"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_training_type"
+        android:id="@+id/trainingTypeLable"
+        android:gravity="center_vertical|end"
+        android:layout_below="@+id/trainingNameLabel"
+        android:layout_above="@+id/et_training_date"
+        android:layout_marginLeft="15dp"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        android:ems="10"
+        android:id="@+id/et_training_type"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/et_training_name"
+        tools:text="Training Name"
+        android:layout_toRightOf="@+id/trainingTypeLable"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="5dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_training_date"
+        android:id="@+id/trainingDateLabel"
+        android:gravity="center_vertical"
+        android:layout_below="@+id/trainingTypeLable"
+        android:layout_toLeftOf="@+id/et_training_name"
+        android:layout_alignBottom="@+id/et_training_date"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="15dp"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="date"
+        android:ems="10"
+        android:id="@+id/et_training_date"
+        android:layout_below="@+id/et_training_type"
+        android:layout_toRightOf="@+id/trainingDateLabel"
+        android:layout_toEndOf="@+id/trainingDateLabel"
+        android:layout_marginRight="15dp"/>
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/update_button"
+        android:id="@+id/training_update"
+        android:layout_below="@+id/et_training_date"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="10dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cancel_button"
+        android:id="@+id/training_cancel"
+        android:layout_alignTop="@+id/training_update"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="15dp"/>
+
+    
+
+</RelativeLayout>
