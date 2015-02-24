@@ -3,8 +3,6 @@ package com.expidev.gcmapp.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.expidev.gcmapp.json.MinistryJsonParser;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +17,7 @@ public class Assignment extends Base implements Serializable {
     public static final String JSON_ID = "id";
     public static final String JSON_MINISTRY_ID = "ministry_id";
     public static final String JSON_ROLE = "team_role";
+    public static final String JSON_SUB_ASSIGNMENTS = "sub_ministries";
 
     private static final String ROLE_LEADER = "leader";
     private static final String ROLE_INHERITED_LEADER = "inherited_leader";
@@ -71,6 +70,9 @@ public class Assignment extends Base implements Serializable {
     private AssociatedMinistry ministry;
 
     @NonNull
+    private final List<Assignment> subAssignments = new ArrayList<>();
+
+    @NonNull
     public static List<Assignment> listFromJson(@NonNull final JSONArray json) throws JSONException {
         final List<Assignment> assignments = new ArrayList<>();
         for (int i = 0; i < json.length(); i++) {
@@ -86,9 +88,14 @@ public class Assignment extends Base implements Serializable {
         assignment.ministryId = json.getString(JSON_MINISTRY_ID);
         assignment.role = Role.fromRaw(json.optString(JSON_ROLE));
 
-        // parse the embedded ministry
-        final AssociatedMinistry ministry = MinistryJsonParser.parseAssociatedMinistry(json);
-        assignment.setMinistry(ministry);
+        // parse any inherited assignments
+        final JSONArray subAssignments = json.optJSONArray(JSON_SUB_ASSIGNMENTS);
+        if (subAssignments != null) {
+            assignment.subAssignments.addAll(listFromJson(subAssignments));
+        }
+
+        // parse the merged ministry object
+        assignment.setMinistry(AssociatedMinistry.fromJson(json));
 
         return assignment;
     }
@@ -151,6 +158,11 @@ public class Assignment extends Base implements Serializable {
     public void setMinistry(AssociatedMinistry ministry)
     {
         this.ministry = ministry;
+    }
+
+    @NonNull
+    public List<Assignment> getSubAssignments() {
+        return subAssignments;
     }
 
     public JSONObject toJson() throws JSONException {

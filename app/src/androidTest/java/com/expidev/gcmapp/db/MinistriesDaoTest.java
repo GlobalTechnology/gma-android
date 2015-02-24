@@ -98,11 +98,6 @@ public class MinistriesDaoTest extends InstrumentationTestCase
         subMinistryList2.add(subMinistry4);
         subMinistryList4.add(subMinistry5);
 
-        subMinistry2.setSubMinistries(subMinistryList3);
-        subMinistry4.setSubMinistries(subMinistryList4);
-        subMinistry1.setSubMinistries(subMinistryList2);
-        mockMinistry.setSubMinistries(subMinistryList1);
-
         return mockMinistry;
     }
 }

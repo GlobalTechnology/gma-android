@@ -159,7 +159,7 @@ public class Contract {
         public static final String COLUMN_MINISTRY_ID = "ministry_id";
         public static final String COLUMN_ROLE = "team_role";
         public static final String COLUMN_MCC = "mcc";
-        static final String COLUMN_ID = "assignment_id";
+        public static final String COLUMN_ID = "assignment_id";
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_GUID, COLUMN_ID, COLUMN_ROLE, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_LAST_SYNCED};

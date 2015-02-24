@@ -3,7 +3,6 @@ package com.expidev.gcmapp.db;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 
@@ -173,35 +172,7 @@ public class MinistriesDao extends AbstractDao
     @NonNull
     public List<AssociatedMinistry> retrieveAssociatedMinistriesList()
     {
-        final List<AssociatedMinistry> ministries = this.get(AssociatedMinistry.class);
-
-        // populate sub-ministries list
-        for (final AssociatedMinistry ministry : ministries) {
-            ministry.setSubMinistries(this.retrieveMinistriesWithParent(ministry.getMinistryId()));
-        }
-
-        return ministries;
-    }
-
-    @Nullable
-    public List<AssociatedMinistry> retrieveMinistriesWithParent(final String parentMinistryId) {
-        try
-        {
-            final List<AssociatedMinistry> ministries =
-                    this.get(AssociatedMinistry.class, Contract.AssociatedMinistry.SQL_WHERE_PARENT,
-                             new String[] {parentMinistryId});
-
-            // post process Ministries found to populate sub-ministries
-            for (final AssociatedMinistry ministry : ministries) {
-                ministry.setSubMinistries(this.retrieveMinistriesWithParent(ministry.getMinistryId()));
-            }
-        }
-        catch(Exception e)
-        {
-            Log.e(TAG, "Failed to retrieve associated ministries: " + e.getMessage());
-        }
-
-        return null;
+        return this.get(AssociatedMinistry.class);
     }
 
     public void updateOrInsertAssignment(@NonNull final Assignment assignment) {
@@ -230,12 +201,6 @@ public class MinistriesDao extends AbstractDao
 
             // insert this AssociatedMinistry
             this.updateOrInsert(ministry, Contract.AssociatedMinistry.PROJECTION_ALL);
-
-            // process any sub ministries
-            for (final AssociatedMinistry subMinistry : ministry.getSubMinistries()) {
-                subMinistry.setParentMinistryId(ministry.getMinistryId());
-                this.insertOrUpdateAssociatedMinistry(subMinistry);
-            }
 
             db.setTransactionSuccessful();
         } finally {
