@@ -6,6 +6,7 @@ public class Constants {
     public static final String PREF_CURRENT_MINISTRY = "currentMinistry";
 
     /* common args */
+    public static final String ARG_GUID = "guid";
     public static final String ARG_MINISTRY_ID = "ministry_id";
     
     
