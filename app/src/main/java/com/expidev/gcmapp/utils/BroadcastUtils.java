@@ -143,6 +143,20 @@ public final class BroadcastUtils
         return filter;
     }
 
+    public static IntentFilter updateMeasurementsFilter()
+    {
+        final IntentFilter filter = new IntentFilter(ACTION_UPDATE_MEASUREMENTS);
+        addDataUri(filter, measurementsUri(), PatternMatcher.PATTERN_LITERAL);
+        return filter;
+    }
+
+    public static IntentFilter updateMeasurementDetailsFilter()
+    {
+        final IntentFilter filter = new IntentFilter(ACTION_UPDATE_MEASUREMENT_DETAILS);
+        addDataUri(filter, measurementDetailsUri(), PatternMatcher.PATTERN_LITERAL);
+        return filter;
+    }
+
     public static Intent updateMeasurementsBroadcast()
     {
         return new Intent(ACTION_UPDATE_MEASUREMENTS, measurementsUri());

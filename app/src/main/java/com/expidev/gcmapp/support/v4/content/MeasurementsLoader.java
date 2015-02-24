@@ -10,6 +10,7 @@ import com.expidev.gcmapp.Constants;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MeasurementDao;
 import com.expidev.gcmapp.model.measurement.Measurement;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.ccci.gto.android.common.support.v4.content.AsyncTaskBroadcastReceiverLoader;
 
@@ -62,6 +63,7 @@ public class MeasurementsLoader extends AsyncTaskBroadcastReceiverLoader<List<Me
             this.ministryId = ministryId;
             this.mcc = mcc;
             this.currentPeriod = period != null ? period : getCurrentPeriod();
+            addIntentFilter(BroadcastUtils.updateMeasurementsFilter());
         }
     }
 

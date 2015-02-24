@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import com.expidev.gcmapp.Constants;
 import com.expidev.gcmapp.db.MeasurementDao;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.ccci.gto.android.common.support.v4.content.AsyncTaskBroadcastReceiverLoader;
 
@@ -74,6 +75,7 @@ public class MeasurementDetailsLoader extends AsyncTaskBroadcastReceiverLoader<M
             this.measurementId = measurementId;
             this.ministryId = ministryId;
             this.mcc = mcc;
+            addIntentFilter(BroadcastUtils.updateMeasurementDetailsFilter());
         }
     }
 
