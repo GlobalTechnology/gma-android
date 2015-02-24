@@ -271,6 +271,14 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
     private void initializeSeriesData(MeasurementDetails measurementDetails)
     {
+        if(currentSeries != null)
+        {
+            currentSeries.clear();
+        }
+        if(dataset != null)
+        {
+            dataset.clear();
+        }
         initializeTotalSeries(measurementDetails.getSixMonthTotalAmounts());
         initializeLocalSeries(measurementDetails.getSixMonthLocalAmounts());
         initializeMySeries(measurementDetails.getSixMonthPersonalAmounts());
