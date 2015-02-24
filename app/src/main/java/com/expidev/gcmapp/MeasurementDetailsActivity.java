@@ -539,17 +539,24 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
     private void onInputFocusLost(String value, String type)
     {
-        switch(type)
+        try
         {
-            case LOCAL_MEASUREMENTS_TAG:
-                measurementDetails.setLocalValue(Integer.parseInt(value));
-                break;
-            case PERSONAL_MEASUREMENTS_TAG:
-                measurementDetails.setPersonalValue(Integer.parseInt(value));
-                break;
-        }
+            switch(type)
+            {
+                case LOCAL_MEASUREMENTS_TAG:
+                    measurementDetails.setLocalValue(Integer.parseInt(value));
+                    break;
+                case PERSONAL_MEASUREMENTS_TAG:
+                    measurementDetails.setPersonalValue(Integer.parseInt(value));
+                    break;
+            }
 
-        new SaveMeasurementsToServer().execute(measurementDetails);
+            new SaveMeasurementsToServer().execute(measurementDetails);
+        }
+        catch(NumberFormatException e)
+        {
+            Log.w(TAG, "Invalid number: " + value);
+        }
     }
 
     /**
