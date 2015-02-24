@@ -2,7 +2,6 @@ package com.expidev.gcmapp;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -62,11 +61,7 @@ import java.util.Set;
 public class MeasurementDetailsActivity extends ActionBarActivity
 {
     private final String TAG = getClass().getSimpleName();
-    private final String PREF_NAME = "gcm_prefs";
-
     private final MeasurementDetailsLoaderCallbacks measurementDetailsLoaderCallback = new MeasurementDetailsLoaderCallbacks();
-
-    private SharedPreferences preferences;
 
     // The main dataset that includes all the series that go into a chart
     private XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
@@ -94,8 +89,6 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.base_graph);
-
-        preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
 
         measurementId = getIntent().getStringExtra("measurementId");
         ministryId = getIntent().getStringExtra("ministryId");
