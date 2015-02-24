@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.expidev.gcmapp.db.Contract;
-import com.expidev.gcmapp.sql.TableNames;
 
 /**
  * Created by William.Randall on 1/15/2015.
@@ -48,7 +47,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     {
         Log.i(TAG, "Creating database...");
         createAssociatedMinistryTable(db);
-        createUserTable(db);
         createAssignmentsTable(db);
         createAllMinistriesTable(db);
         createTrainingTables(db);
@@ -114,15 +112,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL(Contract.Assignment.SQL_CREATE_TABLE);
     }
 
-    /**
-     * This table holds the user information.
-     */
-    private void createUserTable(SQLiteDatabase db)
-    {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TableNames.USER.getTableName() +
-            "(first_name TEXT, last_name TEXT, cas_username TEXT, person_id TEXT);");
-    }
-
     private void createTrainingTables(SQLiteDatabase db)
     {
         db.execSQL(Contract.Training.SQL_CREATE_TABLE);
@@ -162,7 +151,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL(Contract.Ministry.SQL_DELETE_TABLE);
         db.execSQL(Contract.Assignment.SQL_DELETE_TABLE);
         db.execSQL(Contract.Measurement.SQL_DELETE_TABLE);
-        db.execSQL("DROP TABLE IF EXISTS " + TableNames.USER.getTableName());
         db.execSQL(Contract.MeasurementDetails.SQL_DELETE_TABLE);
         db.execSQL(Contract.MeasurementTypeIds.SQL_DELETE_TABLE);
         db.execSQL(Contract.SixMonthAmounts.SQL_DELETE_TABLE);
