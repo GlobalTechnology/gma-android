@@ -7,4 +7,8 @@ public class Constants {
 
     /* common args */
     public static final String ARG_MINISTRY_ID = "ministry_id";
+    
+    
+    public static final String EXTRA_TRAINING_IDS = "training_ids";
+    public static final String EXTRA_MINISTRY_ID = "ministry_id";
 }

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.PatternMatcher;
+import android.support.annotation.NonNull;
 
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Measurement;
@@ -15,6 +16,9 @@ import com.expidev.gcmapp.service.Type;
 
 import java.util.ArrayList;
 
+import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
+import static com.expidev.gcmapp.Constants.EXTRA_TRAINING_IDS;
+
 /**
  * Created by matthewfrederick on 1/23/15.
  */
@@ -22,9 +26,11 @@ public final class BroadcastUtils
 {
     private static final Uri URI_ASSIGNMENTS = Uri.parse("gma://assignments/");
     private static final Uri URI_MINISTRIES = Uri.parse("gma://ministries/");
+    private static final Uri URI_TRAINING = Uri.parse("gma://training/");
 
     private static final String ACTION_UPDATE_ASSIGNMENTS = MinistriesService.class.getName() + ".ACTION_UPDATE_ASSIGNMENTS";
     private static final String ACTION_UPDATE_MINISTRIES = MinistriesService.class.getName() + ".ACTION_UPDATE_MINISTRIES";
+    private static final String ACTION_UPDATE_TRAINING = TrainingService.class.getName() + ".ACTION_UPDATE_TRAINING";
 
     public static final String ACTION_START = BroadcastUtils.class.getName() + ".ACTION_START";
     public static final String ACTION_RUNNING = BroadcastUtils.class.getName() + ".ACTION_RUNNING";
@@ -131,6 +137,19 @@ public final class BroadcastUtils
     public static Intent updateMinistriesBroadcast() {
         return new Intent(ACTION_UPDATE_MINISTRIES, ministriesUri());
     }
+    
+    public static Intent updateTrainingBroadcast(@NonNull final long... ids)
+    {
+        return updateTrainingBroadcast(null, ids);        
+    }
+    
+    public static Intent updateTrainingBroadcast(@NonNull final String ministryId, @NonNull final long... ids)
+    {
+        final Intent intent = new Intent(ACTION_UPDATE_TRAINING);
+        intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
+        intent.putExtra(EXTRA_TRAINING_IDS, ids);
+        return intent;
+    }
 
     public static IntentFilter updateAssignmentsFilter() {
         final IntentFilter filter = new IntentFilter(ACTION_UPDATE_ASSIGNMENTS);
@@ -142,5 +161,10 @@ public final class BroadcastUtils
         final IntentFilter filter = new IntentFilter(ACTION_UPDATE_MINISTRIES);
         addDataUri(filter, ministriesUri(), PatternMatcher.PATTERN_LITERAL);
         return filter;
+    }
+    
+    public static IntentFilter updateTrainingFilter()
+    {
+        return new IntentFilter(ACTION_UPDATE_TRAINING);
     }
 }
