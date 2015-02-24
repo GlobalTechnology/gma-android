@@ -35,6 +35,9 @@ public class ChurchMapper extends LocationMapper<Church> {
             case Contract.Church.COLUMN_SECURITY:
                 values.put(field, church.getSecurity());
                 break;
+            case Contract.Church.COLUMN_DIRTY:
+                values.put(field, church.getDirty());
+                break;
             default:
                 super.mapField(values, field, church);
                 break;
@@ -51,6 +54,8 @@ public class ChurchMapper extends LocationMapper<Church> {
     @Override
     public Church toObject(@NonNull final Cursor c) {
         final Church church = super.toObject(c);
+        final String ministryId = getString(c, Contract.Church.COLUMN_MINISTRY_ID);
+        church.setMinistryId(ministryId != null ? ministryId : "");
         church.setId(getLong(c, Contract.Church.COLUMN_ID, Church.INVALID_ID));
         church.setName(getString(c, Contract.Church.COLUMN_NAME, null));
         church.setContactName(getString(c, Contract.Church.COLUMN_CONTACT_NAME, null));
@@ -58,6 +63,7 @@ public class ChurchMapper extends LocationMapper<Church> {
         church.setDevelopment(getInt(c, Contract.Church.COLUMN_DEVELOPMENT, Church.Development.UNKNOWN.id));
         church.setSize(getInt(c, Contract.Church.COLUMN_SIZE, 0));
         church.setSecurity(getInt(c, Contract.Church.COLUMN_SECURITY, 2));
+        church.setDirty(getString(c, Contract.Church.COLUMN_DIRTY, null));
         return church;
     }
 }

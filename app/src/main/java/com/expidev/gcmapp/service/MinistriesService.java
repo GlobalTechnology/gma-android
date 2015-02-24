@@ -1,13 +1,16 @@
 package com.expidev.gcmapp.service;
 
+import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.SYNC_ASSIGNMENTS;
 import static com.expidev.gcmapp.service.Type.SYNC_CHURCHES;
+import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_CHURCHES;
 import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.associatedMinistriesReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
 import android.content.Intent;
@@ -35,8 +38,11 @@ import org.ccci.gto.android.common.app.ThreadedIntentService;
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.AbstractDao.Transaction;
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +60,6 @@ public class MinistriesService extends ThreadedIntentService {
 
     private static final String EXTRA_SYNCTYPE = "type";
     private static final String EXTRA_FORCE = MinistriesService.class.getName() + ".EXTRA_FORCE";
-    private static final String EXTRA_MINISTRY_ID = MinistriesService.class.getName() + ".EXTRA_MINISTRY_ID";
 
     // various stale data durations
     private static final long HOUR_IN_MS = 60 * 60 * 1000;
@@ -88,6 +93,12 @@ public class MinistriesService extends ThreadedIntentService {
         final Intent intent = new Intent(context, MinistriesService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNC_CHURCHES);
         intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
+        context.startService(intent);
+    }
+
+    public static void syncDirtyChurches(@NonNull final Context context) {
+        final Intent intent = new Intent(context, MinistriesService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNC_DIRTY_CHURCHES);
         context.startService(intent);
     }
 
@@ -125,6 +136,8 @@ public class MinistriesService extends ThreadedIntentService {
                 case SYNC_CHURCHES:
                     syncChurches(intent);
                     break;
+                case SYNC_DIRTY_CHURCHES:
+                    syncDirtyChurches();
                 default:
                     break;
             }
@@ -222,6 +235,9 @@ public class MinistriesService extends ThreadedIntentService {
 
     private void syncChurches(final Intent intent) throws ApiException {
         final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
+        if (ministryId == null) {
+            return;
+        }
 
         final List<Church> churches = mApi.getChurches(ministryId);
 
@@ -233,29 +249,71 @@ public class MinistriesService extends ThreadedIntentService {
 
                 // load current churches
                 final LongSparseArray<Church> current = new LongSparseArray<>();
-                for(final Church church : mDao.get(Church.class, Contract.Church.SQL_WHERE_MINISTRY_ID, new String[]{ministryId})) {
+                for (final Church church : mDao
+                        .get(Church.class, Contract.Church.SQL_WHERE_MINISTRY_ID, bindValues(ministryId))) {
                     current.put(church.getId(), church);
                 }
 
                 // process all fetched churches
+                long[] ids = new long[current.size() + churches.size()];
+                int j = 0;
                 for(final Church church : churches) {
-                    // update church in database
-                    church.setLastSynced(new Date());
-                    mDao.updateOrInsert(church);
+                    final long id = church.getId();
+                    final Church existing = current.get(id);
+
+                    // persist church in database (if it doesn't exist or isn't dirty)
+                    if (existing == null || !existing.isDirty()) {
+                        church.setLastSynced(new Date());
+                        mDao.updateOrInsert(church);
+
+                        // mark this id as having been changed
+                        ids[j++] = id;
+                    }
 
                     // remove this church from the list of churches
-                    current.remove(church.getId());
+                    current.remove(id);
                 }
 
                 // delete any remaining churches that weren't returned from the API
                 for(int i = 0; i< current.size(); i++) {
-                    mDao.delete(current.valueAt(i));
+                    final Church church = current.valueAt(i);
+                    mDao.delete(church);
+
+                    // mark these ids as being updated as well
+                    ids[j++] = church.getId();
                 }
 
                 // mark transaction successful
                 tx.setSuccessful();
+
+                // send broadcasts that data has been updated
+                broadcastManager.sendBroadcast(
+                        BroadcastUtils.updateChurchesBroadcast(ministryId, Arrays.copyOf(ids, j)));
             } finally {
                 tx.end();
+            }
+        }
+    }
+
+    private synchronized void syncDirtyChurches() throws ApiException {
+        final List<Church> dirty = mDao.get(Church.class, Contract.Church.SQL_WHERE_DIRTY, null);
+
+        // process all churches that are dirty
+        for (final Church church : dirty) {
+            try {
+                // generate dirty JSON
+                final JSONObject json = church.dirtyToJson();
+
+                // update the church
+                final boolean success = mApi.updateChurch(church.getId(), json);
+
+                // clear dirty attributes if update was successful
+                if (success) {
+                    church.setDirty(null);
+                    mDao.update(church, new String[] {Contract.Church.COLUMN_DIRTY});
+                }
+            } catch (final JSONException ignored) {
+                // this shouldn't happen when generating json
             }
         }
     }

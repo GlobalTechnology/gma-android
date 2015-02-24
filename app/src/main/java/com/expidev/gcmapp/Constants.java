@@ -7,7 +7,12 @@ public class Constants {
 
     /* common args */
     public static final String ARG_MINISTRY_ID = "ministry_id";
+    public static final String ARG_CHURCH_ID = "church_id";
     public static final String ARG_MEASUREMENT_ID = "measurementId";
     public static final String ARG_MCC = "mcc";
     public static final String ARG_PERIOD = "period";
+
+    /* common extra's */
+    public static final String EXTRA_CHURCH_IDS = "church_ids";
+    public static final String EXTRA_MINISTRY_ID = "ministry_id";
 }

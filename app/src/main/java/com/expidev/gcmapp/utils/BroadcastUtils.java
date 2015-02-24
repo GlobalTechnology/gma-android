@@ -1,9 +1,14 @@
 package com.expidev.gcmapp.utils;
 
+import static com.expidev.gcmapp.Constants.EXTRA_CHURCH_IDS;
+import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
+
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.PatternMatcher;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
@@ -20,11 +25,13 @@ import java.util.ArrayList;
 public final class BroadcastUtils
 {
     private static final Uri URI_ASSIGNMENTS = Uri.parse("gma://assignments/");
+    private static final Uri URI_CHURCHES = Uri.parse("gma://churches/");
     private static final Uri URI_MINISTRIES = Uri.parse("gma://ministries/");
     private static final Uri URI_MEASUREMENTS = Uri.parse("gma://measurements/");
     private static final Uri URI_MEASUREMENT_DETAILS = Uri.parse("gma://measurementdetails/");
 
     private static final String ACTION_UPDATE_ASSIGNMENTS = MinistriesService.class.getName() + ".ACTION_UPDATE_ASSIGNMENTS";
+    private static final String ACTION_UPDATE_CHURCHES = MinistriesService.class.getName() + ".ACTION_UPDATE_CHURCHES";
     private static final String ACTION_UPDATE_MINISTRIES = MinistriesService.class.getName() + ".ACTION_UPDATE_MINISTRIES";
     private static final String ACTION_UPDATE_MEASUREMENTS = MeasurementsService.class.getName() + ".ACTION_UPDATE_MEASUREMENTS";
     private static final String ACTION_UPDATE_MEASUREMENT_DETAILS = MeasurementsService.class.getName() + ".ACTION_UPDATE_MEASUREMENT_DETAILS";
@@ -127,6 +134,17 @@ public final class BroadcastUtils
         return new Intent(ACTION_UPDATE_ASSIGNMENTS, assignmentsUri());
     }
 
+    public static Intent updateChurchesBroadcast(@NonNull final long... ids) {
+        return updateChurchesBroadcast(null, ids);
+    }
+
+    public static Intent updateChurchesBroadcast(@Nullable final String ministryId, @NonNull final long... ids) {
+        final Intent intent = new Intent(ACTION_UPDATE_CHURCHES);
+        intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
+        intent.putExtra(EXTRA_CHURCH_IDS, ids);
+        return intent;
+    }
+
     public static Intent updateMinistriesBroadcast() {
         return new Intent(ACTION_UPDATE_MINISTRIES, ministriesUri());
     }
@@ -135,6 +153,10 @@ public final class BroadcastUtils
         final IntentFilter filter = new IntentFilter(ACTION_UPDATE_ASSIGNMENTS);
         addDataUri(filter, assignmentsUri(), PatternMatcher.PATTERN_LITERAL);
         return filter;
+    }
+
+    public static IntentFilter updateChurchesFilter() {
+        return new IntentFilter(ACTION_UPDATE_CHURCHES);
     }
 
     public static IntentFilter updateMinistriesFilter() {
