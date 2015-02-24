@@ -11,7 +11,10 @@ import java.util.List;
 /**
  * Created by matthewfrederick on 1/26/15.
  */
-public class Training extends Location {
+public class Training extends Location implements Cloneable 
+{
+    public static final long INVALID_ID = -1;
+    
     private long id;
     private String ministryId;
     private String name;

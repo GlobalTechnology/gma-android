@@ -44,16 +44,6 @@ public class TrainingService extends IntentService
     private static final String MINISTRY_MCC = TrainingService.class.getName() + ".MCC";
 
     private final String PREF_NAME = "gcm_prefs";
-    
-    private static final String EXTRA_FORCE = TrainingService.class.getName() + ".EXTRA_FORCE";
-    private static final String EXTRA_TRAINING_ID = TrainingService.class.getName() + ".EXTRA_TRAINING_ID";
-
-    private static final String PREF_SYNC_TIME_TRAINING = "last_synced.training";
-
-    // various stale data durations
-    private static final long HOUR_IN_MS = 60 * 60 * 1000;
-    private static final long DAY_IN_MS = 24 * HOUR_IN_MS;
-    private static final long STALE_DURATION_TRAINING = 7 * DAY_IN_MS;
 
     @NonNull
     private GmaApiClient mApi;
@@ -187,8 +177,6 @@ public class TrainingService extends IntentService
                 
                 if (trainings != null)
                 {
-                    
-                    
                     final LongSparseArray<Training> current = new LongSparseArray<>();
                     for (final Training training : mDao.get(Training.class, Contract.Training.SQL_WHERE_MINISTRY_ID, new String[]{ministryId}))
                     {
