@@ -118,7 +118,7 @@ public class Training extends Location implements Cloneable
     
     public void setDate(String date) throws ParseException
     {
-        DateFormat format = new SimpleDateFormat("MM/dd/yy");
+        DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
         this.date = format.parse(date);
         if (mTrackingChanges)
         {

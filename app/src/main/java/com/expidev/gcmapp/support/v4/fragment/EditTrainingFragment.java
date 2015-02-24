@@ -28,7 +28,9 @@ import com.expidev.gcmapp.support.v4.content.SingleTrainingLoader;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.support.v4.fragment.AbstractDialogFragment;
 
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -55,11 +57,7 @@ public class EditTrainingFragment extends AbstractDialogFragment
     private boolean[] mChanged = new boolean[3];
     @Nullable
     private Training mTraining;
-    
-    @Optional
-    @Nullable
-    @InjectView(R.id.training_title)
-    TextView mTitle;
+
     @Optional
     @Nullable
     @InjectView(R.id.et_training_name)
@@ -141,7 +139,8 @@ public class EditTrainingFragment extends AbstractDialogFragment
                 mChanged[CHANGED_TYPE] = !(mTraining != null ? text.equals(mTraining.getType()) : text.isEmpty());
                 break;
             case R.id.et_training_date:
-                mChanged[CHANGED_DATE] = !(mTraining != null ? text.equals(mTraining.getDate().toString()) : text.isEmpty());
+                DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+                mChanged[CHANGED_DATE] = !(mTraining != null ? text.equals(df.format(mTraining.getDate())) : text.isEmpty());
                 break;
         }
     }
@@ -166,7 +165,8 @@ public class EditTrainingFragment extends AbstractDialogFragment
             {
                 try
                 {
-                    training.setDate(mTrainingDate.getText().toString());
+                    DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+                    training.setDate(df.format(mTraining.getDate()));
                 } catch (ParseException ignored)
                 {}
             }
@@ -229,7 +229,8 @@ public class EditTrainingFragment extends AbstractDialogFragment
         }
         if (mTrainingDate != null)
         {
-            mTrainingDate.setText(mTraining != null ? mTraining.getDate().toString() : null);
+            DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+            mTrainingDate.setText(mTraining != null ? df.format(mTraining.getDate()) : null);
         }
     }
     
