@@ -68,6 +68,8 @@ dependencies {
 
     compile 'com.newrelic.agent.android:android-agent:4.178.0'
 
+    compile 'com.jakewharton:butterknife:6.1.0'
+
     compile 'me.thekey.android:thekey-api:0.7.0'
     compile 'me.thekey.android:thekey-lib:0.7.0'
 

@@ -16,6 +16,11 @@ public class TrainingMarker extends Marker<Training> {
         return mObj.getName();
     }
 
+    @Override
+    public String getSnippet() {
+        return null;
+    }
+
     @DrawableRes
     @Override
     public int getItemImage() {

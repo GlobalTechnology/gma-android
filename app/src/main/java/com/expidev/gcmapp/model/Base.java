@@ -8,6 +8,12 @@ public abstract class Base {
     @NonNull
     private Date lastSynced = new Date(0);
 
+    protected Base() {}
+
+    protected Base(@NonNull final Base base) {
+        this.lastSynced = base.lastSynced;
+    }
+
     public long getLastSynced() {
         return this.lastSynced.getTime();
     }

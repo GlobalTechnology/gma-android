@@ -1,13 +1,14 @@
 package com.expidev.gcmapp;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -18,12 +19,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.expidev.gcmapp.http.GmaApiClient;
+import com.expidev.gcmapp.json.MeasurementsJsonParser;
+import com.expidev.gcmapp.model.measurement.BreakdownData;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
+import com.expidev.gcmapp.model.measurement.SixMonthAmounts;
 import com.expidev.gcmapp.model.measurement.SubMinistryDetails;
 import com.expidev.gcmapp.model.measurement.TeamMemberDetails;
 import com.expidev.gcmapp.service.MeasurementsService;
-import com.expidev.gcmapp.service.Type;
-import com.expidev.gcmapp.utils.BroadcastUtils;
+import com.expidev.gcmapp.support.v4.content.MeasurementDetailsLoader;
 import com.expidev.gcmapp.utils.ViewUtils;
 import com.expidev.gcmapp.view.HorizontalLineView;
 import com.expidev.gcmapp.view.TextHeaderView;
@@ -35,8 +39,10 @@ import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
+import org.ccci.gto.android.common.api.ApiException;
+import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -44,9 +50,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -55,11 +61,7 @@ import java.util.Set;
 public class MeasurementDetailsActivity extends ActionBarActivity
 {
     private final String TAG = getClass().getSimpleName();
-    private final String PREF_NAME = "gcm_prefs";
-
-    private SharedPreferences preferences;
-    private LocalBroadcastManager broadcastManager;
-    private BroadcastReceiver broadcastReceiver;
+    private final MeasurementDetailsLoaderCallbacks measurementDetailsLoaderCallback = new MeasurementDetailsLoaderCallbacks();
 
     // The main dataset that includes all the series that go into a chart
     private XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
@@ -74,6 +76,12 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
     private String measurementName;
     private String ministryName;
+    private String measurementId;
+    private String ministryId;
+    private String mcc;
+    private String period;
+
+    private static final int LOADER_MEASUREMENT_DETAILS = 1;
 
 
     @Override
@@ -82,94 +90,59 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.base_graph);
 
-        preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-
-        String measurementId = getIntent().getStringExtra("measurementId");
-        String ministryId = getIntent().getStringExtra("ministryId");
-        String mcc = getIntent().getStringExtra("mcc");
-        String period = getIntent().getStringExtra("period");
+        measurementId = getIntent().getStringExtra(Constants.ARG_MEASUREMENT_ID);
+        ministryId = getIntent().getStringExtra(Constants.ARG_MINISTRY_ID);
+        mcc = getIntent().getStringExtra(Constants.ARG_MCC);
+        period = getIntent().getStringExtra(Constants.ARG_PERIOD);
         measurementName = getIntent().getStringExtra("measurementName");
         ministryName = getIntent().getStringExtra("ministryName");
-
-        MeasurementsService.retrieveDetailsForMeasurement(this, measurementId, ministryId, mcc, period);
     }
 
     @Override
     protected void onStart()
     {
         super.onStart();
-        setupBroadcastReceivers();
+        setupLoaders();
     }
 
-    private void setupBroadcastReceivers()
+    private void setupLoaders()
     {
-        broadcastManager = LocalBroadcastManager.getInstance(this);
+        final LoaderManager manager = this.getSupportLoaderManager();
 
-        broadcastReceiver = new BroadcastReceiver()
+        Bundle args = new Bundle(4);
+        args.putString(Constants.ARG_MEASUREMENT_ID, measurementId);
+        args.putString(Constants.ARG_MINISTRY_ID, ministryId);
+        args.putString(Constants.ARG_MCC, mcc);
+        args.putString(Constants.ARG_PERIOD, period);
+
+        manager.initLoader(LOADER_MEASUREMENT_DETAILS, args, measurementDetailsLoaderCallback);
+    }
+
+    private void handleRetrievedMeasurementDetails(MeasurementDetails measurementDetails)
+    {
+        Log.i(TAG, "Measurement details loaded from local database");
+        sortSixMonthAmounts(measurementDetails);
+        initializeRenderer(getPeriodsForLabels(measurementDetails.getSixMonthTotalAmounts()));
+        initializeSeriesData(measurementDetails);
+        renderGraph();
+        initializeDataSection(measurementDetails);
+    }
+
+    private Set<String> getPeriodsForLabels(List<SixMonthAmounts> sixMonthAmountsList)
+    {
+        Set<String> periods = new LinkedHashSet<>();
+
+        for(SixMonthAmounts row : sixMonthAmountsList)
         {
-            @Override
-            public void onReceive(Context context, Intent intent)
+            String period = row.getMonth();
+
+            if(!periods.contains(period))
             {
-                if (BroadcastUtils.ACTION_START.equals(intent.getAction()))
-                {
-                    Log.i(TAG, "Action Started");
-                }
-                else if (BroadcastUtils.ACTION_RUNNING.equals(intent.getAction()))
-                {
-                    Log.i(TAG, "Action Running");
-                }
-                else if (BroadcastUtils.ACTION_STOP.equals(intent.getAction()))
-                {
-                    Log.i(TAG, "Action Done");
-
-                    Type type = (Type) intent.getSerializableExtra(BroadcastUtils.ACTION_TYPE);
-
-                    switch (type)
-                    {
-                        case RETRIEVE_MEASUREMENT_DETAILS:
-                            Serializable data = intent.getSerializableExtra("measurementDetails");
-
-                            if(data != null)
-                            {
-                                Log.i(TAG, "Measurement details retrieved");
-                                MeasurementDetails measurementDetails = (MeasurementDetails) data;
-
-                                initializeRenderer(measurementDetails.getSixMonthTotalAmounts().keySet());
-                                initializeSeriesData(measurementDetails);
-                                renderGraph();
-                                initializeDataSection(measurementDetails);
-                            }
-                            else
-                            {
-                                Log.w(TAG, "No data for measurement");
-                                finish();
-                            }
-                            break;
-                        default:
-                            Log.i(TAG, "Unhandled Type: " + type);
-                            break;
-                    }
-                }
+                periods.add(period);
             }
-        };
+        }
 
-        broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
-        broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());
-        broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.stopFilter());
-    }
-
-    @Override
-    protected void onDestroy()
-    {
-        super.onDestroy();
-        removeBroadcastReceivers();
-    }
-
-    private void removeBroadcastReceivers()
-    {
-        broadcastManager = LocalBroadcastManager.getInstance(this);
-        broadcastManager.unregisterReceiver(broadcastReceiver);
-        broadcastReceiver = null;
+        return periods;
     }
 
     @Override
@@ -296,30 +269,29 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         initializeMySeries(measurementDetails.getSixMonthPersonalAmounts());
     }
 
-    private void initializeTotalSeries(Map<String, Integer> data)
+    private void initializeTotalSeries(List<SixMonthAmounts> totalAmounts)
     {
         currentSeries = new XYSeries(legendTitleWithPadding("Total"));
 
         double xPoint = 0.0d;
-        for(int dataValue : data.values())
+        for(SixMonthAmounts point : totalAmounts)
         {
-            currentSeries.add(xPoint, dataValue);
+            currentSeries.add(xPoint, point.getAmount());
             xPoint++;
         }
 
         dataset.addSeries(currentSeries);
-
         initializeSeriesRenderer(Color.BLUE);
     }
 
-    private void initializeLocalSeries(Map<String, Integer> data)
+    private void initializeLocalSeries(List<SixMonthAmounts> localAmounts)
     {
         currentSeries = new XYSeries(legendTitleWithPadding("Local"));
 
         double xPoint = 0.0d;
-        for(int dataValue : data.values())
+        for(SixMonthAmounts point : localAmounts)
         {
-            currentSeries.add(xPoint, dataValue);
+            currentSeries.add(xPoint, point.getAmount());
             xPoint++;
         }
 
@@ -328,14 +300,14 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         initializeSeriesRenderer(Color.RED);
     }
 
-    private void initializeMySeries(Map<String, Integer> data)
+    private void initializeMySeries(List<SixMonthAmounts> personalAmounts)
     {
         currentSeries = new XYSeries("Me");
 
         double xPoint = 0.0d;
-        for(int dataValue : data.values())
+        for(SixMonthAmounts point : personalAmounts)
         {
-            currentSeries.add(xPoint, dataValue);
+            currentSeries.add(xPoint, point.getAmount());
             xPoint++;
         }
 
@@ -411,18 +383,18 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         LinearLayout dataSection = (LinearLayout) findViewById(R.id.md_chart_data);
 
-        Map<String, Integer> localBreakdown = measurementDetails.getLocalBreakdown();
+        List<BreakdownData> localBreakdown = measurementDetails.getLocalBreakdown();
 
         int layoutPosition = 1;
-        for(Map.Entry<String, Integer> localDataSource : localBreakdown.entrySet())
+        for(BreakdownData localDataSource : localBreakdown)
         {
             //TODO: Should we skip 0 value rows?
-            if(localDataSource.getKey().equals("total")) // || localDataSource.getValue() == 0)
+            if("total".equals(localDataSource.getSource())) // || localDataSource.getSource() == 0)
             {
                 continue;
             }
 
-            LinearLayout row = createRow(localDataSource.getKey(), localDataSource.getValue());
+            LinearLayout row = createRow(localDataSource.getSource(), localDataSource.getAmount());
             dataSection.addView(row, layoutPosition);
             layoutPosition++;
 
@@ -503,5 +475,142 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         linearLayout.addView(valueView);
 
         return linearLayout;
+    }
+
+    /**
+     * This event triggers when measurement details are loaded from local storage
+     *
+     * @param measurementDetails details for the current measurement
+     */
+    private void onLoadMeasurementDetails(MeasurementDetails measurementDetails)
+    {
+        if(measurementDetails != null)
+        {
+            handleRetrievedMeasurementDetails(measurementDetails);
+        }
+        else
+        {
+            Log.i(TAG, "No data for measurement in local database, loading from the API");
+            new NewDetailsPageRetrieverTask().execute(measurementId, ministryId, mcc, period);
+        }
+    }
+
+    private void sortSixMonthAmounts(MeasurementDetails measurementDetails)
+    {
+        Collections.sort(measurementDetails.getSixMonthTotalAmounts(), sixMonthAmountsComparator());
+        Collections.sort(measurementDetails.getSixMonthLocalAmounts(), sixMonthAmountsComparator());
+        Collections.sort(measurementDetails.getSixMonthPersonalAmounts(), sixMonthAmountsComparator());
+    }
+
+    private Comparator<SixMonthAmounts> sixMonthAmountsComparator()
+    {
+        return new Comparator<SixMonthAmounts>()
+        {
+            @Override
+            public int compare(SixMonthAmounts lhs, SixMonthAmounts rhs)
+            {
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
+
+                try
+                {
+                    Date leftDate = dateFormat.parse(lhs.getMonth());
+                    Date rightDate = dateFormat.parse(rhs.getMonth());
+                    return leftDate.compareTo(rightDate);
+                }
+                catch(ParseException e)
+                {
+                    return 0;
+                }
+            }
+        };
+    }
+
+    private void onLoadDetailsFromServer(MeasurementDetails measurementDetails)
+    {
+        if(measurementDetails != null)
+        {
+            handleRetrievedMeasurementDetails(measurementDetails);
+            MeasurementsService.saveMeasurementDetailsToDatabase(this, measurementDetails);
+        }
+        else
+        {
+            Log.w(TAG, "No measurement detail data");
+            finish();
+        }
+    }
+
+    private class MeasurementDetailsLoaderCallbacks extends SimpleLoaderCallbacks<MeasurementDetails>
+    {
+        @Override
+        public Loader<MeasurementDetails> onCreateLoader(final int id, @Nullable final Bundle args)
+        {
+            switch(id)
+            {
+                case LOADER_MEASUREMENT_DETAILS:
+                    return new MeasurementDetailsLoader(MeasurementDetailsActivity.this, args);
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public void onLoadFinished(
+            @NonNull final Loader<MeasurementDetails> loader,
+            @Nullable final MeasurementDetails measurementDetails)
+        {
+            switch(loader.getId())
+            {
+                case LOADER_MEASUREMENT_DETAILS:
+                    onLoadMeasurementDetails(measurementDetails);
+                    break;
+            }
+        }
+    }
+
+    private class NewDetailsPageRetrieverTask extends AsyncTask<Object, Void, MeasurementDetails>
+    {
+        @Override
+        protected MeasurementDetails doInBackground(Object... params)
+        {
+            String measurementId = (String) params[0];
+            String ministryId = (String) params[1];
+            String mcc = (String) params[2];
+            String period = (String) params[3];
+
+            if(measurementId != null && ministryId != null && mcc != null && period != null)
+            {
+                try
+                {
+                    GmaApiClient apiClient = GmaApiClient.getInstance(MeasurementDetailsActivity.this);
+                    JSONObject results = apiClient.getDetailsForMeasurement(measurementId, ministryId, mcc, period);
+
+                    if(results == null)
+                    {
+                        Log.w(TAG, "No measurement details!");
+                        return null;
+                    }
+                    MeasurementDetails measurementDetails = MeasurementsJsonParser.parseMeasurementDetails(results);
+                    measurementDetails.setMeasurementId(measurementId);
+                    measurementDetails.setMinistryId(ministryId);
+                    measurementDetails.setMcc(mcc);
+                    measurementDetails.setPeriod(period);
+
+                    return measurementDetails;
+                }
+                catch(ApiException e)
+                {
+                    Log.e(TAG, "Failed to retrieve measurement details from API", e);
+                    return null;
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(MeasurementDetails measurementDetails)
+        {
+            onLoadDetailsFromServer(measurementDetails);
+        }
     }
 }

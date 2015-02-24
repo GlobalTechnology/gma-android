@@ -1,6 +1,6 @@
 package com.expidev.gcmapp;
 
-import com.expidev.gcmapp.model.Measurement;
+import com.expidev.gcmapp.model.measurement.Measurement;
 
 import junit.framework.TestCase;
 

@@ -36,11 +36,13 @@ import com.expidev.gcmapp.map.TrainingMarker;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Training;
+import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
 import com.expidev.gcmapp.support.v4.content.ChurchesLoader;
 import com.expidev.gcmapp.support.v4.content.CurrentMinistryLoader;
+import com.expidev.gcmapp.support.v4.fragment.EditChurchFragment;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.Device;
 import com.google.android.gms.common.ConnectionResult;
@@ -61,6 +63,7 @@ import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.content.AttributesLoader;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
+
 
 public class MainActivity extends ActionBarActivity
     implements OnMapReadyCallback
@@ -156,6 +159,11 @@ public class MainActivity extends ActionBarActivity
             // trigger background syncing of data
             MinistriesService.syncAllMinistries(this);
             MinistriesService.syncAssignments(this);
+
+            if(mCurrentMinistry != null)
+            {
+                MeasurementsService.syncMeasurements(this, mCurrentMinistry.getMinistryId(), getChosenMcc(), null);
+            }
         }
     }
 
@@ -185,7 +193,10 @@ public class MainActivity extends ActionBarActivity
                 MinistriesService.syncAssignments(this, true);
                 if (mCurrentMinistry != null) {
                     MinistriesService.syncChurches(this, mCurrentMinistry.getMinistryId());
+                    MeasurementsService.syncMeasurements(
+                        this, mCurrentMinistry.getMinistryId(), getChosenMcc(), null, true);
                 }
+
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -195,7 +206,7 @@ public class MainActivity extends ActionBarActivity
         final ActionBar actionBar = getSupportActionBar();
         //TODO: what should be the default text until attributes have been loaded
         actionBar.setTitle(
-                "Welcome" + (attrs != null && attrs.getFirstName() != null ? " " + attrs.getFirstName() : ""));
+            "Welcome" + (attrs != null && attrs.getFirstName() != null ? " " + attrs.getFirstName() : ""));
     }
 
     /**
@@ -231,6 +242,7 @@ public class MainActivity extends ActionBarActivity
             String mcc = getChosenMcc();
             MinistriesService.syncChurches(this, mCurrentMinistry.getMinistryId());
             TrainingService.downloadTraining(this, mCurrentMinistry.getMinistryId(), mcc != null ? mcc : "slm");
+            MeasurementsService.retrieveAndSaveInitialMeasurements(this, mCurrentMinistry.getMinistryId(), mcc, null);
         }
 
         // restart Loaders based off the current ministry
@@ -355,6 +367,14 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
+    void showEditChurch(final long churchId) {
+        final FragmentManager fm = this.getSupportFragmentManager();
+        if (fm.findFragmentByTag("editChurch") == null) {
+            EditChurchFragment fragment = EditChurchFragment.newInstance(churchId);
+            fragment.show(fm.beginTransaction().addToBackStack("editChurch"), "editChurch");
+        }
+    }
+
     public void goToMeasurements(MenuItem menuItem)
     {
         startActivity(new Intent(getApplicationContext(), MeasurementsActivity.class));
@@ -455,8 +475,18 @@ public class MainActivity extends ActionBarActivity
         this.map = googleMap;
         clusterManager = new ClusterManager<>(this, map);
         clusterManager.setRenderer(new MarkerRender(this, map, clusterManager));
+        clusterManager.setOnClusterItemInfoWindowClickListener(
+                new ClusterManager.OnClusterItemInfoWindowClickListener<Marker>() {
+                    @Override
+                    public void onClusterItemInfoWindowClick(final Marker marker) {
+                        if (marker instanceof ChurchMarker) {
+                            showEditChurch(((ChurchMarker) marker).getChurchId());
+                        }
+                    }
+                });
         map.setOnCameraChangeListener(clusterManager);
         map.setOnMarkerClickListener(clusterManager);
+        map.setOnInfoWindowClickListener(clusterManager);
 
         // update the map
         updateMap(true);

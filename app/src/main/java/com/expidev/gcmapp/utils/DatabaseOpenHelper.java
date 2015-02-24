@@ -19,8 +19,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      * Version history
      *
      * 8: 2015-02-19
+     * 9: 2015-02-23
      */
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 9;
     private static final String DATABASE_NAME = "gcm_data.db";
 
     private static final Object LOCK_INSTANCE = new Object();
@@ -51,6 +52,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         createAllMinistriesTable(db);
         createTrainingTables(db);
         db.execSQL(Contract.Church.SQL_CREATE_TABLE);
+        createMeasurementsTables(db);
     }
 
     @Override
@@ -66,7 +68,10 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         while (upgradeTo <= newVersion) {
             switch (upgradeTo) {
                 case 8:
-                    db.execSQL(Contract.Church.SQL_CREATE_TABLE);
+                    db.execSQL(Contract.Church.SQL_V8_CREATE_TABLE);
+                    break;
+                case 9:
+                    db.execSQL(Contract.Church.SQL_V9_ALTER_DIRTY);
                     break;
                 default:
                     // unrecognized version, let's just reset the database and return
@@ -127,6 +132,21 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL(Contract.Ministry.SQL_CREATE_TABLE);
     }
 
+    /**
+     * These tables hold measurement and measurement details data
+     */
+    private void createMeasurementsTables(SQLiteDatabase db)
+    {
+        db.execSQL(Contract.Measurement.SQL_CREATE_TABLE);
+        db.execSQL(Contract.Measurement.SQL_CREATE_INDEX);
+        db.execSQL(Contract.MeasurementDetails.SQL_CREATE_TABLE);
+        db.execSQL(Contract.MeasurementTypeIds.SQL_CREATE_TABLE);
+        db.execSQL(Contract.SixMonthAmounts.SQL_CREATE_TABLE);
+        db.execSQL(Contract.BreakdownData.SQL_CREATE_TABLE);
+        db.execSQL(Contract.TeamMemberDetails.SQL_CREATE_TABLE);
+        db.execSQL(Contract.SubMinistryDetails.SQL_CREATE_TABLE);
+    }
+
     private void deleteAllTables(SQLiteDatabase db)
     {
         db.execSQL(Contract.Training.Completion.SQL_DELETE_TABLE);
@@ -134,5 +154,12 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL(Contract.AssociatedMinistry.SQL_DELETE_TABLE);
         db.execSQL(Contract.Ministry.SQL_DELETE_TABLE);
         db.execSQL(Contract.Assignment.SQL_DELETE_TABLE);
+        db.execSQL(Contract.Measurement.SQL_DELETE_TABLE);
+        db.execSQL(Contract.MeasurementDetails.SQL_DELETE_TABLE);
+        db.execSQL(Contract.MeasurementTypeIds.SQL_DELETE_TABLE);
+        db.execSQL(Contract.SixMonthAmounts.SQL_DELETE_TABLE);
+        db.execSQL(Contract.BreakdownData.SQL_DELETE_TABLE);
+        db.execSQL(Contract.TeamMemberDetails.SQL_DELETE_TABLE);
+        db.execSQL(Contract.SubMinistryDetails.SQL_DELETE_TABLE);
     }
 }
