@@ -14,10 +14,12 @@ import android.util.Log;
 
 import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.http.GmaApiClient.Session;
+import com.expidev.gcmapp.json.MeasurementsJsonParser;
 import com.expidev.gcmapp.json.MinistryJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.service.MinistriesService;
 
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
@@ -33,6 +35,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -379,6 +382,52 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
 
         return null;
+    }
+
+    public boolean updateMeasurementDetails(List<MeasurementDetails> measurementDetailsList)
+        throws JSONException, ApiException
+    {
+        List<JSONObject> data = new ArrayList<>();
+        for(MeasurementDetails measurementDetails : measurementDetailsList)
+        {
+            // Can be positive or negative
+            if(measurementDetails.getLocalValue() != 0)
+            {
+                data.add(MeasurementsJsonParser.createJsonForMeasurementDetails(measurementDetails, "local"));
+            }
+            if(measurementDetails.getPersonalValue() != 0)
+            {
+                data.add(MeasurementsJsonParser.createJsonForMeasurementDetails(measurementDetails, "personal"));
+            }
+        }
+
+        return updateMeasurementDetails(MeasurementsJsonParser.createPostJsonForMeasurementDetails(data));
+    }
+
+    public boolean updateMeasurementDetails(JSONArray data) throws ApiException
+    {
+        // build request
+        final Request<Session> request = new Request<>(MEASUREMENTS);
+        request.method = Method.POST;
+        request.setContent(data);
+
+        // process request
+        HttpURLConnection conn = null;
+        try
+        {
+            conn = this.sendRequest(request);
+
+            // is this a successful response?
+            return conn.getResponseCode() == HttpURLConnection.HTTP_CREATED;
+        }
+        catch (final IOException e)
+        {
+            throw new ApiSocketException(e);
+        }
+        finally
+        {
+            IOUtils.closeQuietly(conn);
+        }
     }
 
     @Nullable
