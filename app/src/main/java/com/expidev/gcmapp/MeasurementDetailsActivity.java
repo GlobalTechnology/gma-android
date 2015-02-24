@@ -42,6 +42,7 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
@@ -82,7 +83,12 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     private String mcc;
     private String period;
 
+    private MeasurementDetails measurementDetails;
+
     private static final int LOADER_MEASUREMENT_DETAILS = 1;
+
+    private static final String LOCAL_MEASUREMENTS_TAG = "local";
+    private static final String PERSONAL_MEASUREMENTS_TAG = "personal";
 
 
     @Override
@@ -403,7 +409,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             dataSection.addView(new HorizontalLineView(this));
         }
 
-        EditText localNumber = createInputView(measurementDetails.getLocalValue());
+        EditText localNumber = createInputView(measurementDetails.getLocalValue(), LOCAL_MEASUREMENTS_TAG);
         LinearLayout localDataInputSection = createRow(createNameView("Local"), localNumber);
 
         dataSection.addView(localDataInputSection);
@@ -413,7 +419,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         dataSection.addView(teamMembersSectionTitle);
 
-        EditText personalNumber = createInputView(measurementDetails.getPersonalValue());
+        EditText personalNumber = createInputView(measurementDetails.getPersonalValue(), PERSONAL_MEASUREMENTS_TAG);
         LinearLayout personalDataInputSection = createRow(createNameView("You"), personalNumber);
 
         dataSection.addView(personalDataInputSection);
@@ -477,11 +483,21 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         return valueView;
     }
 
-    private EditText createInputView(int value)
+    private EditText createInputView(int value, String tag)
     {
         EditText inputView = new EditText(this);
+        inputView.setTag(tag);
         inputView.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
         inputView.setText(Integer.toString(value));
+        inputView.setOnFocusChangeListener(new View.OnFocusChangeListener()
+        {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus)
+            {
+                EditText view = (EditText) v;
+                onInputFocusLost(view.getText().toString(), (String) view.getTag());
+            }
+        });
 
         LinearLayout.LayoutParams inputLayoutParams = new LinearLayout.LayoutParams(
             LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -510,6 +526,21 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         return linearLayout;
     }
 
+    private void onInputFocusLost(String value, String type)
+    {
+        switch(type)
+        {
+            case LOCAL_MEASUREMENTS_TAG:
+                measurementDetails.setLocalValue(Integer.parseInt(value));
+                break;
+            case PERSONAL_MEASUREMENTS_TAG:
+                measurementDetails.setPersonalValue(Integer.parseInt(value));
+                break;
+        }
+
+        new SaveMeasurementsToServer().execute(measurementDetails);
+    }
+
     /**
      * This event triggers when measurement details are loaded from local storage
      *
@@ -519,6 +550,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     {
         if(measurementDetails != null)
         {
+            this.measurementDetails = measurementDetails;
             handleRetrievedMeasurementDetails(measurementDetails);
         }
         else
@@ -644,6 +676,37 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         protected void onPostExecute(MeasurementDetails measurementDetails)
         {
             onLoadDetailsFromServer(measurementDetails);
+        }
+    }
+
+    private class SaveMeasurementsToServer extends AsyncTask<MeasurementDetails, Void, Void>
+    {
+        @Override
+        protected Void doInBackground(MeasurementDetails... params)
+        {
+            MeasurementDetails measurementDetails = params[0];
+            GmaApiClient apiClient = GmaApiClient.getInstance(MeasurementDetailsActivity.this);
+
+            try
+            {
+                List<MeasurementDetails> data = new ArrayList<>();
+                data.add(measurementDetails);
+
+                Log.i(TAG, "Saving new measurements to the database");
+                MeasurementsService.saveMeasurementDetailsToDatabase(MeasurementDetailsActivity.this, measurementDetails);
+
+                Log.i(TAG, "Sending new measurements to the server");
+                apiClient.updateMeasurementDetails(data);
+            }
+            catch(ApiException ae)
+            {
+                Log.e(TAG, "Error saving measurement details", ae);
+            }
+            catch(JSONException je)
+            {
+                Log.e(TAG, "Error parsing measurement details into JSON", je);
+            }
+            return null;
         }
     }
 }
