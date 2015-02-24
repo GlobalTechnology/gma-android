@@ -10,8 +10,6 @@ public class AssignmentMapper extends BaseMapper<Assignment> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
                             @NonNull final Assignment assignment) {
-        super.mapField(values, field, assignment);
-
         switch (field) {
             case Contract.Assignment.COLUMN_ID:
                 values.put(field, assignment.getId());
