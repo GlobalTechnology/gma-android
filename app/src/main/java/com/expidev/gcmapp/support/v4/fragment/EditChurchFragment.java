@@ -18,6 +18,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.expidev.gcmapp.R;
@@ -65,7 +66,10 @@ public class EditChurchFragment extends AbstractDialogFragment {
     @Nullable
     @InjectView(R.id.size)
     TextView mSizeView;
-
+    @Optional
+    @Nullable
+    @InjectView(R.id.icon)
+    ImageView mIconView;
 
     public static EditChurchFragment newInstance(final long churchId) {
         final EditChurchFragment fragment = new EditChurchFragment();
@@ -202,6 +206,25 @@ public class EditChurchFragment extends AbstractDialogFragment {
     }
 
     private void updateViews() {
+        if (mIconView != null) {
+            final int image;
+            switch (mChurch != null ? mChurch.getDevelopment() : Church.Development.UNKNOWN) {
+                case GROUP:
+                    image = R.drawable.groupicon;
+                    break;
+                case CHURCH:
+                    image = R.drawable.churchicon;
+                    break;
+                case MULTIPLYING_CHURCH:
+                    image = R.drawable.multiplyingchurchicon;
+                    break;
+                case TARGET:
+                default:
+                    image = R.drawable.targeticon;
+                    break;
+            }
+            mIconView.setImageResource(image);
+        }
         if(mTitleView != null) {
             mTitleView.setText(mChurch != null ? mChurch.getName() : null);
         }
