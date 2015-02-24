@@ -12,7 +12,7 @@ import java.util.List;
  * Created by matthewfrederick on 1/26/15.
  */
 public class Training extends Location {
-    private int id;
+    private long id;
     private String ministryId;
     private String name;
     private Date date;
@@ -32,12 +32,12 @@ public class Training extends Location {
         return true;
     }
 
-    public int getId()
+    public long getId()
     {
         return id;
     }
 
-    public void setId(int id)
+    public void setId(long id)
     {
         this.id = id;
     }
@@ -111,7 +111,7 @@ public class Training extends Location {
 
     public static class GCMTrainingCompletions extends Base
     {
-        private int id;
+        private long id;
         private int phase;
         private int numberCompleted;
         private Date date;
@@ -126,12 +126,12 @@ public class Training extends Location {
             return true;
         }
 
-        public int getId()
+        public long getId()
         {
             return id;
         }
 
-        public void setId(int id)
+        public void setId(long id)
         {
             this.id = id;
         }
