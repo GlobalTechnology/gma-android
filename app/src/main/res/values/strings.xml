@@ -25,6 +25,11 @@
     <string name="cancel_button">Cancel</string>
     <string name="join_button">Join</string>
 
+    <!-- Church Details Fragment -->
+    <string name="label_church_contact_name">Contact Name</string>
+    <string name="label_church_contact_email">Contact Email</string>
+    <string name="label_church_size">Size</string>
+
     <!-- Buttons -->
     <string name="ok">OK</string>
     <string name="update_button">Update</string>
