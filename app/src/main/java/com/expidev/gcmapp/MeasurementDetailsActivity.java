@@ -502,8 +502,11 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             @Override
             public void onFocusChange(View v, boolean hasFocus)
             {
-                EditText view = (EditText) v;
-                onInputFocusLost(view.getText().toString(), (String) view.getTag());
+                if(!hasFocus)
+                {
+                    EditText view = (EditText) v;
+                    onInputFocusLost(view.getText().toString(), (String) view.getTag());
+                }
             }
         });
 
