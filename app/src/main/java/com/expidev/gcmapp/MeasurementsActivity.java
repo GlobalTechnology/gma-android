@@ -403,6 +403,14 @@ public class MeasurementsActivity extends ActionBarActivity
         // subtract 1 because months are 0 based in Calendar, but visually they are 1 based
         int month = Integer.parseInt(currentPeriodString.substring(5)) - 1;
 
+        Calendar currentTime = Calendar.getInstance();
+
+        if(currentTime.get(Calendar.MONTH) == month && currentTime.get(Calendar.YEAR) == year)
+        {
+            Log.i(TAG, "User attempted to go to the next period, but that is in the future!");
+            return;
+        }
+
         Calendar nextMonth = Calendar.getInstance();
         nextMonth.set(year, month, 1);
         nextMonth.add(Calendar.MONTH, 1);
