@@ -29,11 +29,18 @@
     <string name="label_church_contact_name">Contact Name</string>
     <string name="label_church_contact_email">Contact Email</string>
     <string name="label_church_size">Size</string>
+    
+    <!-- Training Details Fragment-->
+    <string name="label_training_name">Name</string>
+    <string name="label_training_type">Training Type</string>
+    <string name="label_training_date">Date</string>
 
     <!-- Buttons -->
     <string name="ok">OK</string>
     <string name="update_button">Update</string>
     <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="move">Move</string>
 
     <!-- Messages -->
     <string name="no_internet">No network connection detected</string>

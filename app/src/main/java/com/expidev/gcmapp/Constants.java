@@ -9,7 +9,7 @@ public class Constants {
     public static final String ARG_MINISTRY_ID = "ministry_id";
     
     
-    public static final String EXTRA_TRAINING_IDS = "training_ids";
+    public static final String ARG_TRAINING_ID = "training_id";
     public static final String ARG_CHURCH_ID = "church_id";
     public static final String ARG_MEASUREMENT_ID = "measurementId";
     public static final String ARG_MCC = "mcc";
@@ -18,4 +18,5 @@ public class Constants {
     /* common extra's */
     public static final String EXTRA_CHURCH_IDS = "church_ids";
     public static final String EXTRA_MINISTRY_ID = "ministry_id";
+    public static final String EXTRA_TRAINING_IDS = "training_ids";
 }

@@ -40,6 +40,7 @@ import com.expidev.gcmapp.support.v4.content.ChurchesLoader;
 import com.expidev.gcmapp.support.v4.content.CurrentMinistryLoader;
 import com.expidev.gcmapp.support.v4.content.TrainingLoader;
 import com.expidev.gcmapp.support.v4.fragment.EditChurchFragment;
+import com.expidev.gcmapp.support.v4.fragment.EditTrainingFragment;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.Device;
 import com.google.android.gms.common.ConnectionResult;
@@ -376,6 +377,16 @@ public class MainActivity extends ActionBarActivity
             fragment.show(fm.beginTransaction().addToBackStack("editChurch"), "editChurch");
         }
     }
+    
+    void showEditTraining(final long trainingId)
+    {
+        final FragmentManager fm = this.getSupportFragmentManager();
+        if (fm.findFragmentByTag("editTraining") == null)
+        {
+            EditTrainingFragment fragment = EditTrainingFragment.newInstance(trainingId);
+            fragment.show(fm.beginTransaction().addToBackStack("editTraining"), "editTraining");
+        }
+    }
 
     public void goToMeasurements(MenuItem menuItem)
     {
@@ -483,6 +494,10 @@ public class MainActivity extends ActionBarActivity
                     public void onClusterItemInfoWindowClick(final Marker marker) {
                         if (marker instanceof ChurchMarker) {
                             showEditChurch(((ChurchMarker) marker).getChurchId());
+                        }
+                        else if (marker instanceof TrainingMarker)
+                        {
+                            showEditTraining(((TrainingMarker) marker).getTrainingId());
                         }
                     }
                 });

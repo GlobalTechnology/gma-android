@@ -1,8 +1,5 @@
 package com.expidev.gcmapp.utils;
 
-import static com.expidev.gcmapp.Constants.EXTRA_CHURCH_IDS;
-import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
-
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
@@ -19,6 +16,7 @@ import com.expidev.gcmapp.service.Type;
 
 import java.util.ArrayList;
 
+import static com.expidev.gcmapp.Constants.EXTRA_CHURCH_IDS;
 import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
 import static com.expidev.gcmapp.Constants.EXTRA_TRAINING_IDS;
 
@@ -55,6 +53,11 @@ public final class BroadcastUtils
 
     private static Uri ministriesUri() {
         return URI_MINISTRIES;
+    }
+    
+    private static Uri trainingUri()
+    {
+        return URI_TRAINING;
     }
 
     private static Uri measurementsUri()

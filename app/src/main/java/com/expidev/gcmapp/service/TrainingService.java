@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.expidev.gcmapp.service.Type.DOWNLOAD_TRAINING;
+import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_TRAINING;
 import static com.expidev.gcmapp.service.Type.TRAINING;
 import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
@@ -42,6 +43,8 @@ public class TrainingService extends IntentService
     private static final String EXTRA_TYPE = TrainingService.class.getName() + ".EXTRA_TYPE";
     private static final String MINISTRY_ID = TrainingService.class.getName() + ".MINISTRY_ID";
     private static final String MINISTRY_MCC = TrainingService.class.getName() + ".MCC";
+
+    private static final String EXTRA_SYNCTYPE = "type";
 
     private final String PREF_NAME = "gcm_prefs";
 
@@ -113,6 +116,13 @@ public class TrainingService extends IntentService
         extras.putString(MINISTRY_ID, ministryId);
         extras.putString(MINISTRY_MCC, mcc);
         final Intent intent = baseIntent(context, extras);
+        context.startService(intent);
+    }
+    
+    public static void syncDirtyTraining(@NonNull final Context context)
+    {
+        final Intent intent = new Intent(context, TrainingService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNC_DIRTY_TRAINING);
         context.startService(intent);
     }
     
