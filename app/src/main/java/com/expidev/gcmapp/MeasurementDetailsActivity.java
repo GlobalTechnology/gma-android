@@ -697,10 +697,10 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         }
     }
 
-    private class SaveMeasurementsToServer extends AsyncTask<MeasurementDetails, Void, Void>
+    private class SaveMeasurementsToServer extends AsyncTask<MeasurementDetails, Void, Boolean>
     {
         @Override
-        protected Void doInBackground(MeasurementDetails... params)
+        protected Boolean doInBackground(MeasurementDetails... params)
         {
             MeasurementDetails measurementDetails = params[0];
             GmaApiClient apiClient = GmaApiClient.getInstance(MeasurementDetailsActivity.this);
@@ -714,7 +714,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                 MeasurementsService.saveMeasurementDetailsToDatabase(MeasurementDetailsActivity.this, measurementDetails);
 
                 Log.i(TAG, "Sending new measurements to the server");
-                apiClient.updateMeasurementDetails(data);
+                return apiClient.updateMeasurementDetails(data);
             }
             catch(ApiException ae)
             {
@@ -724,7 +724,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             {
                 Log.e(TAG, "Error parsing measurement details into JSON", je);
             }
-            return null;
+            return false;
         }
     }
 }
