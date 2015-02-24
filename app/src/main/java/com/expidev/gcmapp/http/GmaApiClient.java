@@ -383,12 +383,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Nullable
-    public JSONArray getAssignments() throws ApiException {
+    public List<Assignment> getAssignments() throws ApiException {
         return this.getAssignments(false);
     }
 
     @Nullable
-    public JSONArray getAssignments(final boolean refresh) throws ApiException {
+    public List<Assignment> getAssignments(final boolean refresh) throws ApiException {
         // build request
         final Request<Session> request = new Request<>(ASSIGNMENTS);
         request.params.add(param("refresh", refresh));
@@ -400,7 +400,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                return new JSONArray(IOUtils.readString(conn.getInputStream()));
+                return Assignment.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
             Log.e(TAG, "error parsing getAllMinistries response", e);
@@ -414,7 +414,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Nullable
-    public JSONObject createAssignment(@NonNull final String userEmail, @NonNull final String ministryId,
+    public Assignment createAssignment(@NonNull final String userEmail, @NonNull final String ministryId,
                                        @NonNull final Assignment.Role role) throws ApiException {
         // build request
         final Request<Session> request = new Request<>(ASSIGNMENTS);
@@ -434,7 +434,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
             // if successful return parsed response
             if (conn.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
-                return new JSONObject(IOUtils.readString(conn.getInputStream()));
+                return Assignment.fromJson(new JSONObject(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final IOException e) {
             throw new ApiSocketException(e);

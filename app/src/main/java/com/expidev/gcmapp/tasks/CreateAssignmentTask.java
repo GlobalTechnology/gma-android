@@ -8,12 +8,9 @@ import android.support.annotation.Nullable;
 import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.http.GmaApiClient;
-import com.expidev.gcmapp.json.AssignmentsJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 
 import org.ccci.gto.android.common.api.ApiException;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeySocketException;
@@ -66,16 +63,15 @@ public class CreateAssignmentTask extends AsyncTask<Void, Void, Assignment> {
         // only create the assignment if we have a valid email
         if (email != null) {
             try {
-                final JSONObject json = mApi.createAssignment(email, mMinistryId, mRole);
-                if (json != null) {
+                final Assignment assignment = mApi.createAssignment(email, mMinistryId, mRole);
+                if (assignment != null) {
                     // save created assignment
-                    final Assignment assignment = AssignmentsJsonParser.parseAssignment(json);
                     mDao.updateOrInsertAssignment(assignment);
 
                     // return assignment
                     return assignment;
                 }
-            } catch (final ApiException | JSONException ignored) {
+            } catch (final ApiException ignored) {
             }
         }
 
