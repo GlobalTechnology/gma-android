@@ -410,7 +410,7 @@ public class MinistriesService extends ThreadedIntentService {
 
                 // now update assignment
                 mDao.updateOrInsert(assignment, new String[] {Contract.Assignment.COLUMN_ROLE,
-                        Contract.Assignment.COLUMN_MINISTRY_ID, Contract.Assignment.COLUMN_LAST_SYNCED});
+                        Contract.Assignment.COLUMN_ID, Contract.Assignment.COLUMN_LAST_SYNCED});
 
                 // remove it from the list of existing assignments
                 existing.remove(assignment.getMinistryId());
