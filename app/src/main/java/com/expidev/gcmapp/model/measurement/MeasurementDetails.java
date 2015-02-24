@@ -29,6 +29,10 @@ public class MeasurementDetails extends Base implements Serializable
     private List<SubMinistryDetails> subMinistryDetails;
     private List<TeamMemberDetails> selfAssignedDetails;
 
+    // The editable text boxes
+    private int localValue;
+    private int personalValue;
+
 
     public String getMeasurementId()
     {
@@ -158,5 +162,25 @@ public class MeasurementDetails extends Base implements Serializable
     public void setSelfAssignedDetails(List<TeamMemberDetails> selfAssignedDetails)
     {
         this.selfAssignedDetails = selfAssignedDetails;
+    }
+
+    public int getLocalValue()
+    {
+        return localValue;
+    }
+
+    public void setLocalValue(int localValue)
+    {
+        this.localValue = localValue;
+    }
+
+    public int getPersonalValue()
+    {
+        return personalValue;
+    }
+
+    public void setPersonalValue(int personalValue)
+    {
+        this.personalValue = personalValue;
     }
 }
