@@ -153,7 +153,7 @@ public class MainActivity extends ActionBarActivity
         {
             // trigger background syncing of data
             MinistriesService.syncAllMinistries(this);
-            MinistriesService.syncAssignments(this);
+            MinistriesService.syncAssignments(this, theKey.getGuid());
 
             if(mCurrentMinistry != null)
             {
@@ -185,7 +185,7 @@ public class MainActivity extends ActionBarActivity
                 return true;
             case R.id.action_refresh:
                 MinistriesService.syncAllMinistries(this, true);
-                MinistriesService.syncAssignments(this, true);
+                MinistriesService.syncAssignments(this, theKey.getGuid(), true);
                 if (mCurrentMinistry != null) {
                     MinistriesService.syncChurches(this, mCurrentMinistry.getMinistryId());
                     MeasurementsService.syncMeasurements(

@@ -30,8 +30,8 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
     {
         Log.i(TAG, "On Login");
 
-        MinistriesService.syncAllMinistries(context);
-        MinistriesService.syncAssignments(context);
+        MinistriesService.syncAllMinistries(context, true);
+        MinistriesService.syncAssignments(context, guid, true);
     }
 
     @Override

@@ -1,5 +1,18 @@
 package com.expidev.gcmapp.service;
 
+import static com.expidev.gcmapp.Constants.EXTRA_GUID;
+import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
+import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
+import static com.expidev.gcmapp.service.Type.RETRIEVE_ASSOCIATED_MINISTRIES;
+import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
+import static com.expidev.gcmapp.service.Type.SYNC_ASSIGNMENTS;
+import static com.expidev.gcmapp.service.Type.SYNC_CHURCHES;
+import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_CHURCHES;
+import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesReceivedBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.associatedMinistriesReceivedBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -35,18 +48,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
-import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
-import static com.expidev.gcmapp.service.Type.RETRIEVE_ASSOCIATED_MINISTRIES;
-import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
-import static com.expidev.gcmapp.service.Type.SYNC_ASSIGNMENTS;
-import static com.expidev.gcmapp.service.Type.SYNC_CHURCHES;
-import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_CHURCHES;
-import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesReceivedBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.associatedMinistriesReceivedBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
-import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
-
 /**
  * Created by William.Randall on 1/22/2015.
  */
@@ -78,13 +79,15 @@ public class MinistriesService extends ThreadedIntentService {
         super("MinistriesService", 5);
     }
 
-    public static void syncAssignments(final Context context) {
-        syncAssignments(context, false);
+    public static void syncAssignments(@NonNull final Context context, @NonNull final String guid) {
+        syncAssignments(context, guid, false);
     }
 
-    public static void syncAssignments(final Context context, final boolean force) {
+    public static void syncAssignments(@NonNull final Context context, @NonNull final String guid,
+                                       final boolean force) {
         final Intent intent = new Intent(context, MinistriesService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNC_ASSIGNMENTS);
+        intent.putExtra(EXTRA_GUID, guid);
         intent.putExtra(EXTRA_FORCE, force);
         context.startService(intent);
     }
@@ -190,12 +193,13 @@ public class MinistriesService extends ThreadedIntentService {
         context.startService(baseIntent(context, extras));
     }
 
-    public static void saveAssociatedMinistriesFromServer(@NonNull final Context context,
+    public static void saveAssociatedMinistriesFromServer(@NonNull final Context context, @NonNull final String guid,
                                                           @Nullable final JSONArray assignments) {
         Log.i(TAG, assignments != null ? assignments.toString() : "null");
 
-        Bundle extras = new Bundle(2);
+        Bundle extras = new Bundle(3);
         extras.putSerializable(EXTRA_SYNCTYPE, SAVE_ASSOCIATED_MINISTRIES);
+        extras.putString(EXTRA_GUID, guid);
         extras.putString(EXTRA_ASSIGNMENTS, assignments != null ? assignments.toString() : null);
 
         context.startService(baseIntent(context, extras));
@@ -216,6 +220,7 @@ public class MinistriesService extends ThreadedIntentService {
 
     private void syncAssignments(final Intent intent) throws ApiException {
         final SharedPreferences prefs = this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE);
+        final String guid = intent.getStringExtra(EXTRA_GUID);
         final boolean force = intent.getBooleanExtra(EXTRA_FORCE, false);
         final boolean stale =
                 System.currentTimeMillis() - prefs.getLong(PREF_SYNC_TIME_ASSIGNMENTS, 0) > STALE_DURATION_ASSIGNMENTS;
@@ -224,7 +229,7 @@ public class MinistriesService extends ThreadedIntentService {
             // fetch raw data from API & parse it
             final List<Assignment> assignments = mApi.getAssignments(true);
             if (assignments != null) {
-                this.updateAllAssignments(assignments);
+                this.updateAllAssignments(guid, assignments);
             }
         }
     }
@@ -370,40 +375,45 @@ public class MinistriesService extends ThreadedIntentService {
 
     private void saveAssociatedMinistriesFromServer(Intent intent)
     {
+        final String guid = intent.getStringExtra(EXTRA_GUID);
         final String raw = intent.getStringExtra(EXTRA_ASSIGNMENTS);
         if(raw != null) {
             try {
                 final List<Assignment> assignments = Assignment.listFromJson(new JSONArray(raw));
 
-                this.updateAllAssignments(assignments);
+                this.updateAllAssignments(guid, assignments);
             } catch (final JSONException ignored) {
             }
         }
     }
 
-    private void updateAllAssignments(@NonNull final List<Assignment> assignments) {
+    private void updateAllAssignments(@NonNull final String guid, @NonNull final List<Assignment> assignments) {
         // wrap entire update in a transaction
         final AbstractDao.Transaction tx = mDao.newTransaction();
         try {
             tx.begin();
 
-            // load pre-existing Assignments
+            // load pre-existing Assignments (ministry_id => assignment)
             final Map<String, Assignment> existing = new HashMap<>();
-            for (final Assignment assignment : mDao.get(Assignment.class)) {
-                existing.put(assignment.getId(), assignment);
+            for (final Assignment assignment : mDao
+                    .get(Assignment.class, Contract.Assignment.SQL_WHERE_GUID, bindValues(guid))) {
+                existing.put(assignment.getMinistryId(), assignment);
             }
 
             // update assignments in local database
             for (final Assignment assignment : assignments) {
                 // update all attached ministries
-                mDao.insertOrUpdateAssociatedMinistry(assignment.getMinistry());
+                final AssociatedMinistry ministry = assignment.getMinistry();
+                if (ministry != null) {
+                    mDao.insertOrUpdateAssociatedMinistry(assignment.getMinistry());
+                }
 
                 // now update assignment
                 mDao.updateOrInsert(assignment, new String[] {Contract.Assignment.COLUMN_ROLE,
                         Contract.Assignment.COLUMN_MINISTRY_ID, Contract.Assignment.COLUMN_LAST_SYNCED});
 
                 // remove it from the list of existing assignments
-                existing.remove(assignment.getId());
+                existing.remove(assignment.getMinistryId());
             }
 
             // delete any remaining assignments, we don't have them anymore
