@@ -5,9 +5,6 @@ import android.support.annotation.Nullable;
 
 import java.io.Serializable;
 
-/**
- * Created by William.Randall on 1/23/2015.
- */
 public class Assignment extends Base implements Serializable {
     private static final long serialVersionUID = 0L;
 
@@ -48,6 +45,9 @@ public class Assignment extends Base implements Serializable {
         }
     }
 
+    @NonNull
+    private String guid;
+    @Nullable
     private String id;
     @NonNull
     private Role role = Role.UNKNOWN;
@@ -55,15 +55,25 @@ public class Assignment extends Base implements Serializable {
     private String ministryId = Ministry.INVALID_ID;
     @NonNull
     private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
+    @Nullable
     private AssociatedMinistry ministry;
 
+    @NonNull
+    public String getGuid() {
+        return guid;
+    }
+
+    public void setGuid(@NonNull String guid) {
+        this.guid = guid;
+    }
+
+    @Nullable
     public String getId()
     {
         return id;
     }
 
-    public void setId(String id)
-    {
+    public void setId(@Nullable final String id) {
         this.id = id;
     }
 
@@ -111,8 +121,6 @@ public class Assignment extends Base implements Serializable {
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("id: " + id + ", ");
-        return sb.toString();
+        return "id: " + id;
     }
 }

@@ -21,8 +21,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      * 8: 2015-02-19
      * 9: 2015-02-23
      * 10: 2015-02-23
+     * 11: 2015-02-24
      */
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
     private static final String DATABASE_NAME = "gcm_data.db";
 
     private static final Object LOCK_INSTANCE = new Object();
@@ -76,6 +77,10 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
                     break;
                 case 10:
                     db.execSQL(Contract.Assignment.SQL_V10_MCC);
+                    break;
+                case 11:
+                    db.execSQL(Contract.Assignment.SQL_DELETE_TABLE);
+                    db.execSQL(Contract.Assignment.SQL_CREATE_TABLE);
                     break;
                 default:
                     // unrecognized version, let's just reset the database and return
