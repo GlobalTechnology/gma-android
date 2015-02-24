@@ -155,29 +155,32 @@ public class Contract {
     public static final class Assignment extends Base {
         public static final String TABLE_NAME = "assignments";
 
-        static final String COLUMN_ID = "assignment_id";
-        public static final String COLUMN_ROLE = "team_role";
+        public static final String COLUMN_GUID = "guid";
         public static final String COLUMN_MINISTRY_ID = "ministry_id";
+        public static final String COLUMN_ROLE = "team_role";
         public static final String COLUMN_MCC = "mcc";
+        static final String COLUMN_ID = "assignment_id";
 
         static final String[] PROJECTION_ALL =
-                {COLUMN_ID, COLUMN_ROLE, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_LAST_SYNCED};
+                {COLUMN_GUID, COLUMN_ID, COLUMN_ROLE, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_LAST_SYNCED};
 
-        private static final String SQL_COLUMN_ID = COLUMN_ID + " TEXT";
-        private static final String SQL_COLUMN_ROLE = COLUMN_ROLE + " TEXT";
+        private static final String SQL_COLUMN_GUID = COLUMN_GUID + " TEXT NOT NULL DEFAULT ''";
         private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT NOT NULL DEFAULT ''";
+        private static final String SQL_COLUMN_ROLE = COLUMN_ROLE + " TEXT";
         private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT NOT NULL DEFAULT ''";
-        private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_ID + ")";
+        private static final String SQL_COLUMN_ID = COLUMN_ID + " TEXT";
+        private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_GUID + "," + COLUMN_MINISTRY_ID + ")";
         private static final String SQL_FOREIGN_KEY_MINISTRIES =
                 "FOREIGN KEY(" + COLUMN_MINISTRY_ID + ") REFERENCES " + AssociatedMinistry.TABLE_NAME + "(" +
                         AssociatedMinistry.COLUMN_MINISTRY_ID + ")";
 
-        static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
+        static final String SQL_WHERE_PRIMARY_KEY = COLUMN_GUID + " = ? AND " + COLUMN_MINISTRY_ID + " = ?";
         public static final String SQL_WHERE_MINISTRY = COLUMN_MINISTRY_ID + " = ?";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
-                .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_ID, SQL_COLUMN_ROLE, SQL_COLUMN_MINISTRY_ID,
-                        SQL_COLUMN_MCC, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY, SQL_FOREIGN_KEY_MINISTRIES}) + ")";
+                .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_GUID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_ID,
+                        SQL_COLUMN_ROLE, SQL_COLUMN_MCC, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY,
+                        SQL_FOREIGN_KEY_MINISTRIES}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
         @Deprecated

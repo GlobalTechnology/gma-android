@@ -129,7 +129,7 @@ public class MinistriesDao extends AbstractDao
             keyLength = 1;
             where = Contract.AssociatedMinistry.SQL_WHERE_PRIMARY_KEY;
         } else if (Assignment.class.equals(clazz)) {
-            keyLength = 1;
+            keyLength = 2;
             where = Contract.Assignment.SQL_WHERE_PRIMARY_KEY;
         } else if(Church.class.equals(clazz)) {
             keyLength = 1;
@@ -161,8 +161,9 @@ public class MinistriesDao extends AbstractDao
         {
             return getPrimaryKeyWhere(Ministry.class, ((Ministry) obj).getMinistryId());
         } else if (obj instanceof Assignment) {
-            return getPrimaryKeyWhere(Assignment.class, ((Assignment) obj).getId());
-        } else if(obj instanceof Church) {
+            return getPrimaryKeyWhere(Assignment.class, ((Assignment) obj).getGuid(),
+                                      ((Assignment) obj).getMinistryId());
+        } else if (obj instanceof Church) {
             return getPrimaryKeyWhere(Church.class, ((Church) obj).getId());
         }
 
