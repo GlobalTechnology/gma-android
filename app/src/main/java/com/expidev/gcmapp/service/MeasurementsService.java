@@ -77,6 +77,7 @@ public class MeasurementsService extends ThreadedIntentService
         super.onCreate();
         broadcastManager = LocalBroadcastManager.getInstance(this);
         broadcastManager.sendBroadcast(startBroadcast());
+        Log.i(TAG, "Action Started");
         measurementDao = MeasurementDao.getInstance(this);
     }
 
@@ -84,6 +85,7 @@ public class MeasurementsService extends ThreadedIntentService
     public void onHandleIntent(Intent intent)
     {
         broadcastManager.sendBroadcast(runningBroadcast());
+        Log.i(TAG, "Action Running");
         final Type type = (Type) intent.getSerializableExtra(EXTRA_TYPE);
 
         try {
@@ -248,6 +250,7 @@ public class MeasurementsService extends ThreadedIntentService
         {
             updateMeasurements(measurements);
         }
+        Log.i(TAG, "Measurements saved to the database");
     }
 
     private void syncMeasurements(Intent intent) throws ApiException
@@ -400,5 +403,6 @@ public class MeasurementsService extends ThreadedIntentService
             rowsToSave.add(measurementDetails);
             updateMeasurementDetails(rowsToSave);
         }
+        Log.i(TAG, "Measurement details saved to local storage");
     }
 }

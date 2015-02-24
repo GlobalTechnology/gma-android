@@ -559,12 +559,6 @@ public class MainActivity extends ActionBarActivity
                             updateMap(false);
 
                             break;
-                        case SAVE_MEASUREMENTS:
-                            Log.i(TAG, "Measurements saved to local storage");
-                            break;
-                        case SAVE_MEASUREMENT_DETAILS:
-                            Log.i(TAG, "Measurement details saved to local storage");
-                            break;
                         default:
                             Log.i(TAG, "Unhandled Type: " + type);
                     }

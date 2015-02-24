@@ -1,6 +1,5 @@
 package com.expidev.gcmapp;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,7 +10,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -30,9 +28,7 @@ import com.expidev.gcmapp.model.measurement.SixMonthAmounts;
 import com.expidev.gcmapp.model.measurement.SubMinistryDetails;
 import com.expidev.gcmapp.model.measurement.TeamMemberDetails;
 import com.expidev.gcmapp.service.MeasurementsService;
-import com.expidev.gcmapp.service.Type;
 import com.expidev.gcmapp.support.v4.content.MeasurementDetailsLoader;
-import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.ViewUtils;
 import com.expidev.gcmapp.view.HorizontalLineView;
 import com.expidev.gcmapp.view.TextHeaderView;
@@ -71,8 +67,6 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     private final MeasurementDetailsLoaderCallbacks measurementDetailsLoaderCallback = new MeasurementDetailsLoaderCallbacks();
 
     private SharedPreferences preferences;
-    private LocalBroadcastManager broadcastManager;
-    private BroadcastReceiver broadcastReceiver;
 
     // The main dataset that includes all the series that go into a chart
     private XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
@@ -115,7 +109,6 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     protected void onStart()
     {
         super.onStart();
-        setupBroadcastReceivers();
         setupLoaders();
     }
 
@@ -130,47 +123,6 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         args.putString("period", period);
 
         manager.initLoader(LOADER_MEASUREMENT_DETAILS, args, measurementDetailsLoaderCallback);
-    }
-
-    private void setupBroadcastReceivers()
-    {
-        broadcastManager = LocalBroadcastManager.getInstance(this);
-
-        broadcastReceiver = new BroadcastReceiver()
-        {
-            @Override
-            public void onReceive(Context context, Intent intent)
-            {
-                if (BroadcastUtils.ACTION_START.equals(intent.getAction()))
-                {
-                    Log.i(TAG, "Action Started");
-                }
-                else if (BroadcastUtils.ACTION_RUNNING.equals(intent.getAction()))
-                {
-                    Log.i(TAG, "Action Running");
-                }
-                else if (BroadcastUtils.ACTION_STOP.equals(intent.getAction()))
-                {
-                    Log.i(TAG, "Action Done");
-
-                    Type type = (Type) intent.getSerializableExtra(BroadcastUtils.ACTION_TYPE);
-
-                    switch (type)
-                    {
-                        case SAVE_MEASUREMENT_DETAILS:
-                            Log.i(TAG, "Measurement details saved to local storage");
-                            break;
-                        default:
-                            Log.i(TAG, "Unhandled Type: " + type);
-                            break;
-                    }
-                }
-            }
-        };
-
-        broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
-        broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());
-        broadcastManager.registerReceiver(broadcastReceiver, BroadcastUtils.stopFilter());
     }
 
     private void handleRetrievedMeasurementDetails(MeasurementDetails measurementDetails)
@@ -198,20 +150,6 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         }
 
         return periods;
-    }
-
-    @Override
-    protected void onDestroy()
-    {
-        super.onDestroy();
-        removeBroadcastReceivers();
-    }
-
-    private void removeBroadcastReceivers()
-    {
-        broadcastManager = LocalBroadcastManager.getInstance(this);
-        broadcastManager.unregisterReceiver(broadcastReceiver);
-        broadcastReceiver = null;
     }
 
     @Override
