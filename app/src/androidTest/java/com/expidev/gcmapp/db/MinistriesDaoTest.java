@@ -1,7 +1,6 @@
 package com.expidev.gcmapp.db;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.test.InstrumentationTestCase;
 import android.test.RenamingDelegatingContext;
 import android.util.Log;
@@ -33,53 +32,6 @@ public class MinistriesDaoTest extends InstrumentationTestCase
     {
         Log.i(TAG, "Cleaning up database");
         ministriesDao.deleteAllData();
-    }
-
-    public void testSaveAssociatedMinistriesForTheFirstTime()
-    {
-        cleanupDatabase();
-        ministriesDao.saveAssociatedMinistries(getTestAssignments());
-
-        List<String> ministryNames = ministriesDao.retrieveAssociatedMinistries();
-        assertNotNull(ministryNames);
-
-        assertTrue(ministryNames.contains("Mock Ministry"));
-        assertTrue(ministryNames.contains("Sub Ministry 1"));
-        assertTrue(ministryNames.contains("Sub Ministry 2"));
-        assertTrue(ministryNames.contains("Sub Ministry 3"));
-        assertTrue(ministryNames.contains("Sub Ministry 4"));
-        assertTrue(ministryNames.contains("Sub Ministry 5"));
-
-        final Cursor cursor = ministriesDao.getCursor(Assignment.class);
-        int count = cursor.getCount();
-
-        assertEquals(1, count);
-
-        cursor.moveToFirst();
-        assertEquals("A1", cursor.getString(cursor.getColumnIndex("id")));
-        assertEquals("self-assigned", cursor.getString(cursor.getColumnIndex("team_role")));
-    }
-
-    public void testSaveAssociatedMinistriesWithUpdates()
-    {
-        testSaveAssociatedMinistriesForTheFirstTime();
-
-        ArrayList<Assignment> assignments = getTestAssignments();
-        Assignment testAssignment = assignments.get(0);
-        testAssignment.setRole(Assignment.Role.LEADER);
-
-        ministriesDao.saveAssociatedMinistries(assignments);
-
-        List<AssociatedMinistry> ministryList = ministriesDao.retrieveAssociatedMinistriesList();
-        assertEquals(6, ministryList.size());
-
-        final Cursor cursor = ministriesDao.getCursor(Assignment.class);
-        assertNotNull(cursor);
-        assertEquals(1, cursor.getCount());
-
-        cursor.moveToFirst();
-        String teamRole = cursor.getString(cursor.getColumnIndex("team_role"));
-        assertEquals("leader", teamRole);
     }
 
     private ArrayList<Assignment> getTestAssignments()

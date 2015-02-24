@@ -1,7 +1,6 @@
 package com.expidev.gcmapp.db;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,9 +15,7 @@ import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.Mapper;
-import org.ccci.gto.android.common.util.CursorUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -186,28 +183,6 @@ public class MinistriesDao extends AbstractDao
     }
 
     @Nullable
-    public Assignment retrieveAssignmentForMinistry(@NonNull final AssociatedMinistry ministry) {
-        Log.i(TAG, "Looking for assignment with ministryId: " + ministry.getMinistryId());
-        
-        try
-        {
-            final List<Assignment> assignments = this.get(Assignment.class, Contract.Assignment.SQL_WHERE_MINISTRY,
-                                                          new String[] {ministry.getMinistryId()});
-            if (assignments.size() > 0) {
-                final Assignment assignment = assignments.get(0);
-                assignment.setMinistry(ministry);
-                return assignment;
-            }
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
-        }
-
-        return null;
-    }
-
-    @Nullable
     public List<AssociatedMinistry> retrieveMinistriesWithParent(final String parentMinistryId) {
         try
         {
@@ -226,49 +201,6 @@ public class MinistriesDao extends AbstractDao
         }
 
         return null;
-    }
-
-    @NonNull
-    public List<String> retrieveAssociatedMinistries()
-    {
-        // fetch the names of all AssociatedMinistries
-        final Cursor c = this.getCursor(AssociatedMinistry.class,
-                                        new String[] {Contract.AssociatedMinistry.COLUMN_NAME}, null, null, null);
-
-        // process names into a list
-        final List<String> ministries = new ArrayList<>(c.getCount());
-        while (c.moveToNext()) {
-            // XXX: this will currently include null names
-            ministries.add(CursorUtils.getString(c, Contract.AssociatedMinistry.COLUMN_NAME, null));
-        }
-        c.close();
-
-        return ministries;
-    }
-
-    public void saveAssociatedMinistries(List<Assignment> assignmentList)
-    {
-        final SQLiteDatabase database = dbHelper.getWritableDatabase();
-
-        try
-        {
-            database.beginTransaction();
-
-            for (final Assignment assignment : assignmentList) {
-                this.updateOrInsertAssignment(assignment);
-            }
-
-            database.setTransactionSuccessful();
-        }
-        catch(Exception e)
-        {
-            Log.e(TAG, "Failed to save assignments: " + e.getMessage());
-        }
-        finally
-        {
-            database.endTransaction();
-            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (saveAssociatedMinistries)");
-        }
     }
 
     public void updateOrInsertAssignment(@NonNull final Assignment assignment) {
