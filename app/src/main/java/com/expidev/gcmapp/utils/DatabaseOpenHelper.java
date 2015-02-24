@@ -51,6 +51,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         createAllMinistriesTable(db);
         createTrainingTables(db);
         db.execSQL(Contract.Church.SQL_CREATE_TABLE);
+        createMeasurementsTables(db);
     }
 
     @Override
@@ -127,6 +128,21 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL(Contract.Ministry.SQL_CREATE_TABLE);
     }
 
+    /**
+     * These tables hold measurement and measurement details data
+     */
+    private void createMeasurementsTables(SQLiteDatabase db)
+    {
+        db.execSQL(Contract.Measurement.SQL_CREATE_TABLE);
+        db.execSQL(Contract.Measurement.SQL_CREATE_INDEX);
+        db.execSQL(Contract.MeasurementDetails.SQL_CREATE_TABLE);
+        db.execSQL(Contract.MeasurementTypeIds.SQL_CREATE_TABLE);
+        db.execSQL(Contract.SixMonthAmounts.SQL_CREATE_TABLE);
+        db.execSQL(Contract.BreakdownData.SQL_CREATE_TABLE);
+        db.execSQL(Contract.TeamMemberDetails.SQL_CREATE_TABLE);
+        db.execSQL(Contract.SubMinistryDetails.SQL_CREATE_TABLE);
+    }
+
     private void deleteAllTables(SQLiteDatabase db)
     {
         db.execSQL(Contract.Training.Completion.SQL_DELETE_TABLE);
@@ -134,5 +150,12 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL(Contract.AssociatedMinistry.SQL_DELETE_TABLE);
         db.execSQL(Contract.Ministry.SQL_DELETE_TABLE);
         db.execSQL(Contract.Assignment.SQL_DELETE_TABLE);
+        db.execSQL(Contract.Measurement.SQL_DELETE_TABLE);
+        db.execSQL(Contract.MeasurementDetails.SQL_DELETE_TABLE);
+        db.execSQL(Contract.MeasurementTypeIds.SQL_DELETE_TABLE);
+        db.execSQL(Contract.SixMonthAmounts.SQL_DELETE_TABLE);
+        db.execSQL(Contract.BreakdownData.SQL_DELETE_TABLE);
+        db.execSQL(Contract.TeamMemberDetails.SQL_DELETE_TABLE);
+        db.execSQL(Contract.SubMinistryDetails.SQL_DELETE_TABLE);
     }
 }

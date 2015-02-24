@@ -1,28 +1,74 @@
 package com.expidev.gcmapp.model.measurement;
 
+import com.expidev.gcmapp.model.Base;
+
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by William.Randall on 1/29/2015.
  */
-public class MeasurementDetails implements Serializable
+public class MeasurementDetails extends Base implements Serializable
 {
     private static final long serialVersionUID = 0L;
 
+    private String measurementId;
+    private String ministryId;
+    private String mcc;
+    private String period;
     private MeasurementTypeIds measurementTypeIds;
 
-    private Map<String, Integer> sixMonthTotalAmounts;
-    private Map<String, Integer> sixMonthLocalAmounts;
-    private Map<String, Integer> sixMonthPersonalAmounts;
+    private List<SixMonthAmounts> sixMonthTotalAmounts;
+    private List<SixMonthAmounts> sixMonthLocalAmounts;
+    private List<SixMonthAmounts> sixMonthPersonalAmounts;
 
-    private Map<String, Integer> localBreakdown;
-    private Map<String, Integer> selfBreakdown;
+    private List<BreakdownData> localBreakdown;
+    private List<BreakdownData> selfBreakdown;
 
     private List<TeamMemberDetails> teamMemberDetails;
     private List<SubMinistryDetails> subMinistryDetails;
     private List<TeamMemberDetails> selfAssignedDetails;
+
+
+    public String getMeasurementId()
+    {
+        return measurementId;
+    }
+
+    public void setMeasurementId(String measurementId)
+    {
+        this.measurementId = measurementId;
+    }
+
+    public String getMinistryId()
+    {
+        return ministryId;
+    }
+
+    public void setMinistryId(String ministryId)
+    {
+        this.ministryId = ministryId;
+    }
+
+    public String getMcc()
+    {
+        return mcc;
+    }
+
+    public void setMcc(String mcc)
+    {
+        this.mcc = mcc;
+    }
+
+    public String getPeriod()
+    {
+        return period;
+    }
+
+    public void setPeriod(String period)
+    {
+        this.period = period;
+    }
 
     public MeasurementTypeIds getMeasurementTypeIds()
     {
@@ -34,52 +80,52 @@ public class MeasurementDetails implements Serializable
         this.measurementTypeIds = measurementTypeIds;
     }
 
-    public Map<String, Integer> getSixMonthTotalAmounts()
+    public List<SixMonthAmounts> getSixMonthTotalAmounts()
     {
         return sixMonthTotalAmounts;
     }
 
-    public void setSixMonthTotalAmounts(Map<String, Integer> sixMonthTotalAmounts)
+    public void setSixMonthTotalAmounts(List<SixMonthAmounts> sixMonthTotalAmounts)
     {
         this.sixMonthTotalAmounts = sixMonthTotalAmounts;
     }
 
-    public Map<String, Integer> getSixMonthLocalAmounts()
+    public List<SixMonthAmounts> getSixMonthLocalAmounts()
     {
         return sixMonthLocalAmounts;
     }
 
-    public void setSixMonthLocalAmounts(Map<String, Integer> sixMonthLocalAmounts)
+    public void setSixMonthLocalAmounts(List<SixMonthAmounts> sixMonthLocalAmounts)
     {
         this.sixMonthLocalAmounts = sixMonthLocalAmounts;
     }
 
-    public Map<String, Integer> getSixMonthPersonalAmounts()
+    public List<SixMonthAmounts> getSixMonthPersonalAmounts()
     {
         return sixMonthPersonalAmounts;
     }
 
-    public void setSixMonthPersonalAmounts(Map<String, Integer> sixMonthPersonalAmounts)
+    public void setSixMonthPersonalAmounts(List<SixMonthAmounts> sixMonthPersonalAmounts)
     {
         this.sixMonthPersonalAmounts = sixMonthPersonalAmounts;
     }
 
-    public Map<String, Integer> getLocalBreakdown()
+    public List<BreakdownData> getLocalBreakdown()
     {
         return localBreakdown;
     }
 
-    public void setLocalBreakdown(Map<String, Integer> localBreakdown)
+    public void setLocalBreakdown(List<BreakdownData> localBreakdown)
     {
         this.localBreakdown = localBreakdown;
     }
 
-    public Map<String, Integer> getSelfBreakdown()
+    public List<BreakdownData> getSelfBreakdown()
     {
         return selfBreakdown;
     }
 
-    public void setSelfBreakdown(Map<String, Integer> selfBreakdown)
+    public void setSelfBreakdown(List<BreakdownData> selfBreakdown)
     {
         this.selfBreakdown = selfBreakdown;
     }

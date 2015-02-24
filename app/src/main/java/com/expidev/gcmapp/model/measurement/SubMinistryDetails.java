@@ -5,12 +5,12 @@ import java.io.Serializable;
 /**
  * Created by William.Randall on 1/29/2015.
  */
-public class SubMinistryDetails implements Serializable
+public class SubMinistryDetails extends MeasurementDetailsData implements Serializable
 {
     private static final long serialVersionUID = 0L;
 
     private String name;
-    private String ministryId;
+    private String subMinistryId;
     private int total;
 
     public String getName()
@@ -23,14 +23,14 @@ public class SubMinistryDetails implements Serializable
         this.name = name;
     }
 
-    public String getMinistryId()
+    public String getSubMinistryId()
     {
-        return ministryId;
+        return subMinistryId;
     }
 
-    public void setMinistryId(String ministryId)
+    public void setSubMinistryId(String subMinistryId)
     {
-        this.ministryId = ministryId;
+        this.subMinistryId = subMinistryId;
     }
 
     public int getTotal()
