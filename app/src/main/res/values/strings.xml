@@ -27,6 +27,7 @@
 
     <!-- Buttons -->
     <string name="ok">OK</string>
+    <string name="update_button">Update</string>
     <string name="cancel">Cancel</string>
 
     <!-- Messages -->
