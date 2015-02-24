@@ -491,7 +491,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         else
         {
             Log.i(TAG, "No data for measurement in local database, loading from the API");
-            new NewDetailsPageRetrieverTask().execute(this, measurementId, ministryId, mcc, period);
+            new NewDetailsPageRetrieverTask().execute(measurementId, ministryId, mcc, period);
         }
     }
 
@@ -572,17 +572,16 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         @Override
         protected MeasurementDetails doInBackground(Object... params)
         {
-            Context context = (Context) params[0];
-            String measurementId = (String) params[1];
-            String ministryId = (String) params[2];
-            String mcc = (String) params[3];
-            String period = (String) params[4];
+            String measurementId = (String) params[0];
+            String ministryId = (String) params[1];
+            String mcc = (String) params[2];
+            String period = (String) params[3];
 
             if(measurementId != null && ministryId != null && mcc != null && period != null)
             {
                 try
                 {
-                    GmaApiClient apiClient = GmaApiClient.getInstance(context);
+                    GmaApiClient apiClient = GmaApiClient.getInstance(MeasurementDetailsActivity.this);
                     JSONObject results = apiClient.getDetailsForMeasurement(measurementId, ministryId, mcc, period);
 
                     if(results == null)

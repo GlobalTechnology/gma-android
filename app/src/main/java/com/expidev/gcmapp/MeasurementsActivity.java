@@ -465,7 +465,7 @@ public class MeasurementsActivity extends ActionBarActivity
         else
         {
             Log.w(TAG, "No measurement data in local database, try searching from API");
-            new NewMeasurementsPageRetrieverTask().execute(this, chosenMinistry.getMinistryId(), chosenMcc, currentPeriod);
+            new NewMeasurementsPageRetrieverTask().execute(chosenMinistry.getMinistryId(), chosenMcc, currentPeriod);
         }
     }
 
@@ -543,14 +543,13 @@ public class MeasurementsActivity extends ActionBarActivity
         @Override
         protected List<Measurement> doInBackground(Object... params)
         {
-            Context context = (Context) params[0];
-            String ministryId = (String) params[1];
-            String mcc = (String) params[2];
-            String period = (String) params[3];
+            String ministryId = (String) params[0];
+            String mcc = (String) params[1];
+            String period = (String) params[2];
 
             try
             {
-                GmaApiClient apiClient = GmaApiClient.getInstance(context);
+                GmaApiClient apiClient = GmaApiClient.getInstance(MeasurementsActivity.this);
 
                 JSONArray results = apiClient.searchMeasurements(ministryId, mcc, period);
 
