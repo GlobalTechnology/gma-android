@@ -1,5 +1,7 @@
 package com.expidev.gcmapp.model;
 
+import android.support.annotation.NonNull;
+
 import java.io.Serializable;
 
 /**
@@ -9,15 +11,19 @@ public class Ministry extends Base implements Serializable
 {
     private static final long serialVersionUID = 0L;
 
-    private String ministryId;
+    public static final String INVALID_ID = "";
+
+    @NonNull
+    private String ministryId = INVALID_ID;
     private String name;
 
+    @NonNull
     public String getMinistryId()
     {
         return ministryId;
     }
 
-    public void setMinistryId(String ministryId)
+    public void setMinistryId(@NonNull final String ministryId)
     {
         this.ministryId = ministryId;
     }

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
 
 public class TrainingMapper extends LocationMapper<Training> {
@@ -46,7 +47,8 @@ public class TrainingMapper extends LocationMapper<Training> {
     public Training toObject(@NonNull final Cursor c) {
         final Training training = super.toObject(c);
         training.setId(this.getInt(c, Contract.Training.COLUMN_ID, 0));
-        training.setMinistryId(this.getString(c, Contract.Training.COLUMN_MINISTRY_ID, null));
+        final String ministryId = getString(c, Contract.Training.COLUMN_MINISTRY_ID, Ministry.INVALID_ID);
+        training.setMinistryId(ministryId != null ? ministryId : Ministry.INVALID_ID);
         training.setName(this.getString(c, Contract.Training.COLUMN_NAME, null));
         training.setDate(stringToDate(this.getString(c, Contract.Training.COLUMN_DATE)));
         training.setType(this.getString(c, Contract.Training.COLUMN_TYPE, null));
