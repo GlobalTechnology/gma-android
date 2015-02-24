@@ -12,7 +12,6 @@ import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
-import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
 import org.ccci.gto.android.common.db.AbstractDao;
@@ -319,8 +318,8 @@ public class MinistriesDao extends AbstractDao
 
         try
         {
-            database.delete(TableNames.ASSIGNMENTS.getTableName(), null, null);
-            database.delete(TableNames.ASSOCIATED_MINISTRIES.getTableName(), null, null);
+            database.delete(getTable(Assignment.class), null, null);
+            database.delete(getTable(AssociatedMinistry.class), null, null);
             database.setTransactionSuccessful();
         }
         catch(Exception e)

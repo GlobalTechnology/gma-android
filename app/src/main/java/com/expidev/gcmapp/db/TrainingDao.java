@@ -8,7 +8,6 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.expidev.gcmapp.model.Training;
-import com.expidev.gcmapp.sql.TableNames;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
 import org.ccci.gto.android.common.db.AbstractDao;
@@ -207,7 +206,7 @@ public class TrainingDao extends AbstractDao
 
         try
         {
-            database.delete(TableNames.TRAINING.getTableName(), null, null);
+            database.delete(getTable(Training.class), null, null);
             database.setTransactionSuccessful();
         } catch (Exception e)
         {
