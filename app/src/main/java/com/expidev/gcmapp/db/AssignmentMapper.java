@@ -12,6 +12,9 @@ public class AssignmentMapper extends BaseMapper<Assignment> {
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
                             @NonNull final Assignment assignment) {
         switch (field) {
+            case Contract.Assignment.COLUMN_GUID:
+                values.put(field, assignment.getGuid());
+                break;
             case Contract.Assignment.COLUMN_ID:
                 values.put(field, assignment.getId());
                 break;
@@ -40,6 +43,8 @@ public class AssignmentMapper extends BaseMapper<Assignment> {
     @Override
     public Assignment toObject(@NonNull final Cursor c) {
         final Assignment assignment = super.toObject(c);
+        final String guid = getString(c, Contract.Assignment.COLUMN_GUID);
+        assignment.setGuid(guid != null ? guid : "");
         assignment.setId(this.getString(c, Contract.Assignment.COLUMN_ID, null));
         assignment.setRole(this.getString(c, Contract.Assignment.COLUMN_ROLE, null));
         assignment.setMinistryId(getNonNullString(c, Contract.Assignment.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
