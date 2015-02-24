@@ -1,6 +1,5 @@
 package com.expidev.gcmapp;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -10,11 +9,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -378,14 +379,16 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
     private void initializeDataSection(MeasurementDetails measurementDetails)
     {
-        TextView totalNumberTitle = (TextView) findViewById(R.id.md_total_number_title);
+        TextHeaderView totalNumberTitle = new TextHeaderView(this);
         totalNumberTitle.setText(ministryName);
 
         LinearLayout dataSection = (LinearLayout) findViewById(R.id.md_chart_data);
+        dataSection.removeAllViews();
+
+        dataSection.addView(totalNumberTitle);
 
         List<BreakdownData> localBreakdown = measurementDetails.getLocalBreakdown();
 
-        int layoutPosition = 1;
         for(BreakdownData localDataSource : localBreakdown)
         {
             //TODO: Should we skip 0 value rows?
@@ -395,12 +398,25 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             }
 
             LinearLayout row = createRow(localDataSource.getSource(), localDataSource.getAmount());
-            dataSection.addView(row, layoutPosition);
-            layoutPosition++;
+            dataSection.addView(row);
 
-            dataSection.addView(new HorizontalLineView(this), layoutPosition);
-            layoutPosition++;
+            dataSection.addView(new HorizontalLineView(this));
         }
+
+        EditText localNumber = createInputView(measurementDetails.getLocalValue());
+        LinearLayout localDataInputSection = createRow(createNameView("Local"), localNumber);
+
+        dataSection.addView(localDataInputSection);
+
+        TextHeaderView teamMembersSectionTitle = new TextHeaderView(this);
+        teamMembersSectionTitle.setText(R.string.team_members_title);
+
+        dataSection.addView(teamMembersSectionTitle);
+
+        EditText personalNumber = createInputView(measurementDetails.getPersonalValue());
+        LinearLayout personalDataInputSection = createRow(createNameView("You"), personalNumber);
+
+        dataSection.addView(personalDataInputSection);
 
         List<TeamMemberDetails> teamMemberDetailsList = measurementDetails.getTeamMemberDetails();
 
@@ -461,11 +477,28 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         return valueView;
     }
 
+    private EditText createInputView(int value)
+    {
+        EditText inputView = new EditText(this);
+        inputView.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
+        inputView.setText(Integer.toString(value));
+
+        LinearLayout.LayoutParams inputLayoutParams = new LinearLayout.LayoutParams(
+            LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        inputLayoutParams.setMargins(0, 0, ViewUtils.dpToPixels(this, 20), 0);
+
+        inputView.setLayoutParams(inputLayoutParams);
+
+        return inputView;
+    }
+
     private LinearLayout createRow(String name, int value)
     {
-        TextView nameView = createNameView(name);
-        TextView valueView = createValueView(Integer.toString(value));
+        return createRow(createNameView(name), createValueView(Integer.toString(value)));
+    }
 
+    private LinearLayout createRow(TextView nameView, TextView valueView)
+    {
         LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
         linearLayout.setLayoutParams(
