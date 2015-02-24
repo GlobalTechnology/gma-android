@@ -1,169 +1,117 @@
 package com.expidev.gcmapp.support.v4.content;
 
+import static com.expidev.gcmapp.Constants.ARG_GUID;
+import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
+import static com.expidev.gcmapp.Constants.PREF_CURRENT_MINISTRY;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
+
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.model.Assignment;
+import com.expidev.gcmapp.model.AssociatedMinistry;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.ccci.gto.android.common.support.v4.content.AsyncTaskBroadcastReceiverSharedPreferencesChangeLoader;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
-import static com.expidev.gcmapp.Constants.PREF_CURRENT_MINISTRY;
+public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPreferencesChangeLoader<Assignment> {
+    public static final String ARG_LOAD_MINISTRY = CurrentMinistryLoader.class.getSimpleName() + ".ARG_LOAD_MINISTRY";
 
-/**
- * Created by William.Randall on 2/25/2015.
- */
-public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPreferencesChangeLoader<Assignment>
-{
-    private final MinistriesDao ministriesDao;
+    private final MinistriesDao mDao;
 
-    public CurrentAssignmentLoader(@NonNull final Context context)
-    {
+    //TODO: utilize guid when loading assignments
+    @Nullable
+    private final String mGuid;
+    private final boolean mLoadMinistry;
+
+    public CurrentAssignmentLoader(@NonNull final Context context, @Nullable final Bundle args) {
         super(context, context.getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE));
         this.addIntentFilter(BroadcastUtils.updateAssignmentsFilter());
         this.addPreferenceKey(PREF_CURRENT_MINISTRY);
-        ministriesDao = MinistriesDao.getInstance(context);
+        mDao = MinistriesDao.getInstance(context);
+        mGuid = args != null ? args.getString(ARG_GUID) : null;
+        mLoadMinistry = args != null && args.getBoolean(ARG_LOAD_MINISTRY, false);
     }
 
     @Override
-    public Assignment loadInBackground()
-    {
-        // Load from the chosen ministry, if there is one
-        String ministryId = mPrefs.getString(PREF_CURRENT_MINISTRY, null);
+    public Assignment loadInBackground() {
+        // load the current active assignment
+        final String ministryId = mPrefs.getString(PREF_CURRENT_MINISTRY, Ministry.INVALID_ID);
+        final List<Assignment> assignments =
+                mDao.get(Assignment.class, Contract.Assignment.SQL_WHERE_MINISTRY, bindValues(ministryId));
+        Assignment assignment = assignments.size() > 0 ? assignments.get(0) : null;
 
-        if(ministryId != null)
-        {
-            return loadAssignmentFromMinistryId(ministryId);
+        // reset to default assignment if a current current assignment isn't found
+        if (assignment == null) {
+            assignment = initActiveAssignment();
         }
-        else
-        {
-            // if no current assignment is set, retrieve a default
-            return initCurrentAssignment();
+
+        // load the associated ministry if required
+        if (assignment != null && mLoadMinistry) {
+            loadMinistry(assignment);
         }
+
+        //TODO: validate MCC when possible
+
+        // return the assignment
+        return assignment;
     }
 
-    private Assignment loadAssignmentFromMinistryId(String ministryId)
-    {
-        List<Assignment> allAssignments = ministriesDao.get(
-            Assignment.class,
-            Contract.Assignment.SQL_WHERE_MINISTRY,
-            new String[] { ministryId });
+    private Assignment initActiveAssignment() {
+        final List<Assignment> assignments = mDao.get(Assignment.class);
 
-        switch(allAssignments.size())
-        {
-            case 0:
-                return null;
-            case 1:
-                return allAssignments.get(0);
-            default:
-                return getAssignmentBasedOnRole(allAssignments);
+        // short-circuit if there are no assignments for the current user
+        if (assignments.size() == 0) {
+            return null;
         }
+
+        // use the first found Assignment as the active assignment
+        final Assignment assignment = assignments.get(0);
+
+        // set an MCC if one is not already selected
+        if (assignment.getMcc() == Ministry.Mcc.UNKNOWN) {
+            updateMcc(assignment);
+        }
+
+        mPrefs.edit().putString(PREF_CURRENT_MINISTRY, assignment.getMinistryId()).apply();
+
+        // return the found assignment
+        return assignment;
     }
 
-    private Assignment initCurrentAssignment()
-    {
-        List<Assignment> allAssignments;
+    private void updateMcc(@NonNull final Assignment assignment) {
+        loadMinistry(assignment);
 
-        final String currentMinistry = mPrefs.getString(PREF_CURRENT_MINISTRY, null);
-
-        if(currentMinistry != null)
-        {
-            allAssignments = ministriesDao.get(
-                Assignment.class,
-                Contract.Assignment.SQL_WHERE_MINISTRY,
-                new String[] { currentMinistry });
-        }
-        else
-        {
-            allAssignments = ministriesDao.get(Assignment.class);
-        }
-
-        switch(allAssignments.size())
-        {
-            case 0:
-                return null;
-            case 1:
-                return allAssignments.get(0);
-            default:
-                for(Assignment assignment : allAssignments)
-                {
-                    // if there is a current ministry already selected, use the assignment associated with that
-                    if(currentMinistry != null && assignment.getMinistryId() != null)
-                    {
-                        if(assignment.getMinistryId().equals(currentMinistry))
-                        {
-                            return assignment;
-                        }
-                    }
-                }
-
-                return getAssignmentBasedOnRole(allAssignments);
-        }
-    }
-
-    private Assignment getAssignmentBasedOnRole(List<Assignment> allAssignments)
-    {
-        Map<String, Assignment.Role> assignmentRoleMapping = new HashMap<>();
-        for(Assignment assignment : allAssignments)
-        {
-            assignmentRoleMapping.put(assignment.getId(), assignment.getRole());
-        }
-
-        if(assignmentRoleMapping.containsValue(Assignment.Role.LEADER))
-        {
-            return getAssignmentFromMap(allAssignments, assignmentRoleMapping, Assignment.Role.LEADER);
-        }
-        else if(assignmentRoleMapping.containsValue(Assignment.Role.INHERITED_LEADER))
-        {
-            return getAssignmentFromMap(allAssignments, assignmentRoleMapping, Assignment.Role.INHERITED_LEADER);
-        }
-        else if(assignmentRoleMapping.containsValue(Assignment.Role.MEMBER))
-        {
-            return getAssignmentFromMap(allAssignments, assignmentRoleMapping, Assignment.Role.MEMBER);
-        }
-        else if(assignmentRoleMapping.containsValue(Assignment.Role.SELF_ASSIGNED))
-        {
-            return getAssignmentFromMap(allAssignments, assignmentRoleMapping, Assignment.Role.SELF_ASSIGNED);
-        }
-        else
-        {
-            return getAssignmentFromMap(allAssignments, assignmentRoleMapping, Assignment.Role.BLOCKED);
-        }
-    }
-
-    private Assignment getAssignmentFromMap(
-        List<Assignment> allAssignments,
-        Map<String, Assignment.Role> assignmentRoleMapping,
-        Assignment.Role role)
-    {
-        for(Map.Entry<String, Assignment.Role> entry : assignmentRoleMapping.entrySet())
-        {
-            if(entry.getValue() == role)
-            {
-                return getAssignmentFromList(allAssignments, entry.getKey());
+        // set the MCC based off of what is available for the ministry
+        final AssociatedMinistry ministry = assignment.getMinistry();
+        if (ministry != null) {
+            if (ministry.hasSlm()) {
+                assignment.setMcc(Ministry.Mcc.SLM);
+            } else if (ministry.hasLlm()) {
+                assignment.setMcc(Ministry.Mcc.LLM);
+            } else if (ministry.hasGcm()) {
+                assignment.setMcc(Ministry.Mcc.GCM);
+            } else if (ministry.hasDs()) {
+                assignment.setMcc(Ministry.Mcc.DS);
+            } else {
+                assignment.setMcc(Ministry.Mcc.UNKNOWN);
             }
-        }
 
-        return null;
+            // update the assignment
+            mDao.update(assignment, new String[] {Contract.Assignment.COLUMN_MCC});
+        }
     }
 
-    private Assignment getAssignmentFromList(List<Assignment> assignments, String assignmentId)
-    {
-        for(Assignment assignment : assignments)
-        {
-            if(assignment.getId().equals(assignmentId))
-            {
-                return assignment;
-            }
+    private void loadMinistry(@NonNull final Assignment assignment) {
+        if (assignment.getMinistry() == null) {
+            assignment.setMinistry(mDao.find(AssociatedMinistry.class, assignment.getMinistryId()));
         }
-
-        return null;
     }
 }
