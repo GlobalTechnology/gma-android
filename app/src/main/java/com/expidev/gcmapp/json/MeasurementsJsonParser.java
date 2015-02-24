@@ -207,7 +207,7 @@ public class MeasurementsJsonParser
                 break;
         }
 
-        jsonObject.put("related_entity_id", measurementDetails.getMeasurementId());
+        jsonObject.put("related_entity_id", measurementDetails.getMinistryId());
         jsonObject.put("period", measurementDetails.getPeriod());
         jsonObject.put("mcc", measurementDetails.getMcc().toLowerCase() + "_gma-app");
 
