@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.expidev.gcmapp.Constants;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MeasurementDao;
 import com.expidev.gcmapp.model.measurement.Measurement;
@@ -39,9 +40,9 @@ public class MeasurementsLoader extends AsyncTaskBroadcastReceiverLoader<List<Me
     {
         this(
             context,
-            args != null ? args.getString("ministryId") : null,
-            args != null ? args.getString("mcc") : null,
-            args != null ? args.getString("period") : null,
+            args != null ? args.getString(Constants.ARG_MINISTRY_ID) : null,
+            args != null ? args.getString(Constants.ARG_MCC) : null,
+            args != null ? args.getString(Constants.ARG_PERIOD) : null,
             filters);
     }
 

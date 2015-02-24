@@ -101,9 +101,9 @@ public class MeasurementsActivity extends ActionBarActivity
         final LoaderManager manager = this.getSupportLoaderManager();
 
         Bundle args = new Bundle(3);
-        args.putString("ministryId", ministryId);
-        args.putString("mcc", mcc);
-        args.putString("period", period);
+        args.putString(Constants.ARG_MINISTRY_ID, ministryId);
+        args.putString(Constants.ARG_MCC, mcc);
+        args.putString(Constants.ARG_PERIOD, period);
 
         manager.restartLoader(LOADER_MEASUREMENTS, args, measurementsLoaderCallbacks);
     }
@@ -349,15 +349,15 @@ public class MeasurementsActivity extends ActionBarActivity
     public void drillIntoMeasurementDetails(Measurement measurement)
     {
         Intent goToMeasurementDetails = new Intent(this, MeasurementDetailsActivity.class);
-        goToMeasurementDetails.putExtra("measurementId", measurement.getMeasurementId());
-        goToMeasurementDetails.putExtra("ministryId", chosenMinistry.getMinistryId());
+        goToMeasurementDetails.putExtra(Constants.ARG_MEASUREMENT_ID, measurement.getMeasurementId());
+        goToMeasurementDetails.putExtra(Constants.ARG_MINISTRY_ID, chosenMinistry.getMinistryId());
         goToMeasurementDetails.putExtra("ministryName", chosenMinistry.getName());
-        goToMeasurementDetails.putExtra("mcc", chosenMcc);
+        goToMeasurementDetails.putExtra(Constants.ARG_MCC, chosenMcc);
         goToMeasurementDetails.putExtra("measurementName", measurement.getName());
 
         if(currentPeriod != null)
         {
-            goToMeasurementDetails.putExtra("period", currentPeriod);
+            goToMeasurementDetails.putExtra(Constants.ARG_PERIOD, currentPeriod);
         }
 
         startActivity(goToMeasurementDetails);

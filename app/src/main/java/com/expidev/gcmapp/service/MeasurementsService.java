@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.expidev.gcmapp.Constants;
 import com.expidev.gcmapp.db.MeasurementDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
@@ -149,9 +150,9 @@ public class MeasurementsService extends ThreadedIntentService
     {
         Bundle extras = new Bundle(5);
         extras.putSerializable(EXTRA_TYPE, SYNC_MEASUREMENTS);
-        extras.putString("ministryId", ministryId);
-        extras.putString("mcc", mcc);
-        extras.putString("period", setPeriodToCurrentIfNecessary(period));
+        extras.putString(Constants.ARG_MINISTRY_ID, ministryId);
+        extras.putString(Constants.ARG_MCC, mcc);
+        extras.putString(Constants.ARG_PERIOD, setPeriodToCurrentIfNecessary(period));
         extras.putBoolean(EXTRA_FORCE, force);
 
         context.startService(baseIntent(context, extras));
@@ -166,9 +167,9 @@ public class MeasurementsService extends ThreadedIntentService
         Bundle extras = new Bundle(4);
 
         extras.putSerializable(EXTRA_TYPE, RETRIEVE_AND_SAVE_MEASUREMENTS);
-        extras.putString("ministryId", ministryId);
-        extras.putString("mcc", mcc);
-        extras.putString("period", setPeriodToCurrentIfNecessary(period));
+        extras.putString(Constants.ARG_MINISTRY_ID, ministryId);
+        extras.putString(Constants.ARG_MCC, mcc);
+        extras.putString(Constants.ARG_PERIOD, setPeriodToCurrentIfNecessary(period));
 
         context.startService(baseIntent(context, extras));
     }
@@ -263,9 +264,9 @@ public class MeasurementsService extends ThreadedIntentService
         // only sync if being forced or the data is stale
         if(force || stale)
         {
-            String ministryId = intent.getStringExtra("ministryId");
-            String mcc = intent.getStringExtra("mcc");
-            String period = intent.getStringExtra("period");
+            String ministryId = intent.getStringExtra(Constants.ARG_MINISTRY_ID);
+            String mcc = intent.getStringExtra(Constants.ARG_MCC);
+            String period = intent.getStringExtra(Constants.ARG_PERIOD);
 
             List<Measurement> measurements = searchMeasurements(ministryId, mcc, period);
 
@@ -314,9 +315,9 @@ public class MeasurementsService extends ThreadedIntentService
 
     private void retrieveAndSaveInitialMeasurementsAndDetails(Intent intent) throws ApiException
     {
-        String ministryId = intent.getStringExtra("ministryId");
-        String mcc = intent.getStringExtra("mcc");
-        String period = intent.getStringExtra("period");
+        String ministryId = intent.getStringExtra(Constants.ARG_MINISTRY_ID);
+        String mcc = intent.getStringExtra(Constants.ARG_MCC);
+        String period = intent.getStringExtra(Constants.ARG_PERIOD);
 
         Calendar previousMonth = Calendar.getInstance();
         previousMonth.add(Calendar.MONTH, -1);

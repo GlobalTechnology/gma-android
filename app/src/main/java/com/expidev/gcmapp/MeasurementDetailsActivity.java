@@ -90,10 +90,10 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.base_graph);
 
-        measurementId = getIntent().getStringExtra("measurementId");
-        ministryId = getIntent().getStringExtra("ministryId");
-        mcc = getIntent().getStringExtra("mcc");
-        period = getIntent().getStringExtra("period");
+        measurementId = getIntent().getStringExtra(Constants.ARG_MEASUREMENT_ID);
+        ministryId = getIntent().getStringExtra(Constants.ARG_MINISTRY_ID);
+        mcc = getIntent().getStringExtra(Constants.ARG_MCC);
+        period = getIntent().getStringExtra(Constants.ARG_PERIOD);
         measurementName = getIntent().getStringExtra("measurementName");
         ministryName = getIntent().getStringExtra("ministryName");
     }
@@ -110,10 +110,10 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         final LoaderManager manager = this.getSupportLoaderManager();
 
         Bundle args = new Bundle(4);
-        args.putString("measurementId", measurementId);
-        args.putString("ministryId", ministryId);
-        args.putString("mcc", mcc);
-        args.putString("period", period);
+        args.putString(Constants.ARG_MEASUREMENT_ID, measurementId);
+        args.putString(Constants.ARG_MINISTRY_ID, ministryId);
+        args.putString(Constants.ARG_MCC, mcc);
+        args.putString(Constants.ARG_PERIOD, period);
 
         manager.initLoader(LOADER_MEASUREMENT_DETAILS, args, measurementDetailsLoaderCallback);
     }
