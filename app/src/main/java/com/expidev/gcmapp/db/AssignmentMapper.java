@@ -21,6 +21,9 @@ public class AssignmentMapper extends BaseMapper<Assignment> {
             case Contract.Assignment.COLUMN_MINISTRY_ID:
                 values.put(field, assignment.getMinistryId());
                 break;
+            case Contract.Assignment.COLUMN_MCC:
+                values.put(field, assignment.getMcc().toString());
+                break;
             default:
                 super.mapField(values, field, assignment);
                 break;
@@ -40,6 +43,7 @@ public class AssignmentMapper extends BaseMapper<Assignment> {
         assignment.setId(this.getString(c, Contract.Assignment.COLUMN_ID, null));
         assignment.setRole(this.getString(c, Contract.Assignment.COLUMN_ROLE, null));
         assignment.setMinistryId(getNonNullString(c, Contract.Assignment.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
+        assignment.setMcc(Ministry.Mcc.fromRaw(getString(c, Contract.Assignment.COLUMN_MCC, null)));
         return assignment;
     }
 }
