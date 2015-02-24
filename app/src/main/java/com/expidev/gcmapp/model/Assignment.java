@@ -53,6 +53,8 @@ public class Assignment extends Base implements Serializable {
     private Role role = Role.UNKNOWN;
     @NonNull
     private String ministryId = Ministry.INVALID_ID;
+    @NonNull
+    private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
     private AssociatedMinistry ministry;
 
     public String getId()
@@ -85,6 +87,15 @@ public class Assignment extends Base implements Serializable {
 
     public void setMinistryId(@NonNull final String ministryId) {
         this.ministryId = ministryId;
+    }
+
+    @NonNull
+    public Ministry.Mcc getMcc() {
+        return mcc;
+    }
+
+    public void setMcc(@Nullable final Ministry.Mcc mcc) {
+        this.mcc = mcc != null ? mcc : Ministry.Mcc.UNKNOWN;
     }
 
     public AssociatedMinistry getMinistry()
