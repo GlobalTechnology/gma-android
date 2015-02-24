@@ -17,6 +17,7 @@ public class Constants {
     public static final String ARG_PERIOD = "period";
 
     /* common extra's */
+    public static final String EXTRA_GUID = "guid";
     public static final String EXTRA_CHURCH_IDS = "church_ids";
     public static final String EXTRA_MINISTRY_ID = "ministry_id";
     public static final String EXTRA_TRAINING_IDS = "training_ids";

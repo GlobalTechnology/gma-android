@@ -19,7 +19,7 @@ import me.thekey.android.lib.TheKeyImpl;
 public class CreateAssignmentTask extends AsyncTask<Void, Void, Assignment> {
     private final GmaApiClient mApi;
     protected final MinistriesDao mDao;
-    private final TheKey mTheKey;
+    protected final TheKey mTheKey;
 
     @Nullable
     private final String mEmail;

@@ -175,6 +175,7 @@ public class Contract {
                         AssociatedMinistry.COLUMN_MINISTRY_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_GUID + " = ? AND " + COLUMN_MINISTRY_ID + " = ?";
+        public static final String SQL_WHERE_GUID = COLUMN_GUID + " = ?";
         public static final String SQL_WHERE_MINISTRY = COLUMN_MINISTRY_ID + " = ?";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
