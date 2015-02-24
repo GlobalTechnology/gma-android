@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -401,16 +402,25 @@ public class MinistriesService extends ThreadedIntentService {
             }
 
             // update assignments in local database
-            for (final Assignment assignment : assignments) {
-                // update all attached ministries
+            final LinkedList<Assignment> toProcess = new LinkedList<>(assignments);
+            while (toProcess.size() > 0) {
+                final Assignment assignment = toProcess.pop();
+
+                // set the guid on this assignment
+                assignment.setGuid(guid);
+
+                // update the associated ministry
                 final AssociatedMinistry ministry = assignment.getMinistry();
                 if (ministry != null) {
-                    mDao.insertOrUpdateAssociatedMinistry(assignment.getMinistry());
+                    mDao.updateOrInsert(ministry, Contract.AssociatedMinistry.PROJECTION_ALL);
                 }
 
-                // now update assignment
+                // now update the actual assignment
                 mDao.updateOrInsert(assignment, new String[] {Contract.Assignment.COLUMN_ROLE,
                         Contract.Assignment.COLUMN_ID, Contract.Assignment.COLUMN_LAST_SYNCED});
+
+                // queue up sub assignments for processing
+                toProcess.addAll(assignment.getSubAssignments());
 
                 // remove it from the list of existing assignments
                 existing.remove(assignment.getMinistryId());
