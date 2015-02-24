@@ -25,7 +25,8 @@
         <activity
             android:name=".MainActivity"
             android:screenOrientation="sensorPortrait"
-            android:label="@string/title_activity_main">
+            android:label="@string/title_activity_main"
+            android:theme="@style/GmaTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

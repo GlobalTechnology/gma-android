@@ -4,6 +4,7 @@ import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
 import static com.expidev.gcmapp.Constants.ARG_GUID;
 import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
 import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
+import static com.expidev.gcmapp.Constants.PREF_CURRENT_MINISTRY;
 import static com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
 
 import android.app.AlertDialog;
@@ -11,6 +12,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,16 +20,20 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBar;
+import android.support.v4.util.LongSparseArray;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
+import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.map.ChurchMarker;
 import com.expidev.gcmapp.map.Marker;
 import com.expidev.gcmapp.map.MarkerRender;
@@ -42,6 +48,7 @@ import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.support.v4.content.ChurchesLoader;
 import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
+import com.expidev.gcmapp.support.v4.content.MinistriesCursorLoader;
 import com.expidev.gcmapp.support.v4.content.TrainingLoader;
 import com.expidev.gcmapp.support.v4.fragment.EditChurchFragment;
 import com.expidev.gcmapp.support.v4.fragment.EditTrainingFragment;
@@ -57,12 +64,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterManager;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.ccci.gto.android.common.util.CursorUtils;
 
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnItemSelected;
+import butterknife.Optional;
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
-import me.thekey.android.lib.support.v4.content.AttributesLoader;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 
 public class MainActivity extends ActionBarActivity
@@ -70,9 +81,9 @@ public class MainActivity extends ActionBarActivity
 {
     private final String TAG = this.getClass().getSimpleName();
 
-    private static final int LOADER_THEKEY_ATTRIBUTES = 1;
     private static final int LOADER_CHURCHES = 3;
     private static final int LOADER_TRAINING = 4;
+    private static final int LOADER_ASSIGNED_MINISTRIES = 5;
     private static final int LOADER_CURRENT_ASSIGNMENT = 6;
 
     private static final int MAP_LAYER_TRAINING = 0;
@@ -84,25 +95,41 @@ public class MainActivity extends ActionBarActivity
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
+    /* Background Services & Utilities */
     TheKey theKey;
     private LocalBroadcastManager manager;
     private GcmBroadcastReceiver gcmBroadcastReceiver;
-    private ActionBar actionBar;
     private SharedPreferences preferences;
 
     /* Loader callback objects */
     private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
-    private final AttributesLoaderCallbacks mLoaderCallbacksAttributes = new AttributesLoaderCallbacks();
     private final ChurchesLoaderCallbacks mLoaderCallbacksChurches = new ChurchesLoaderCallbacks();
     private final TrainingLoaderCallbacks mLoaderCallbacksTraining = new TrainingLoaderCallbacks();
+    private final CursorLoaderCallbacks mLoaderCallbacksCursor = new CursorLoaderCallbacks();
+
+    /* Data adapters */
+    private SimpleCursorAdapter mMinistryNavAdapter;
+
+    /* Views */
+    @Optional
+    @Nullable
+    @InjectView(R.id.toolbar_actionbar)
+    Toolbar mActionBar;
+    @Optional
+    @Nullable
+    @InjectView(R.id.toolbar_spinner_ministries)
+    Spinner mMinistriesSpinner;
+    Spinner mMccSpinner;
 
     /* map related objects */
-    private TextView mapOverlayText;
     @Nullable
     private GoogleMap map;
     private ClusterManager<Marker> clusterManager;
     private final boolean[] mMapLayers = new boolean[6];
 
+    /* loaded data */
+    @NonNull
+    private final LongSparseArray<String> mMinistryIds = new LongSparseArray<>();
     @Nullable
     private Assignment mAssignment;
     @Nullable
@@ -119,10 +146,8 @@ public class MainActivity extends ActionBarActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        actionBar = getSupportActionBar();
-        
-        mapOverlayText = (TextView) findViewById(R.id.map_text);
+        ButterKnife.inject(this);
+        setupActionBar();
 
         preferences = getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE);
 
@@ -202,11 +227,21 @@ public class MainActivity extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
 
-    void onLoadAttributes(@Nullable final TheKey.Attributes attrs) {
-        final ActionBar actionBar = getSupportActionBar();
-        //TODO: what should be the default text until attributes have been loaded
-        actionBar.setTitle(
-            "Welcome" + (attrs != null && attrs.getFirstName() != null ? " " + attrs.getFirstName() : ""));
+    void onLoadAssignedMinistries(@Nullable final Cursor cursor) {
+        // update the lookup table of ministry ids
+        mMinistryIds.clear();
+        if (cursor != null) {
+            cursor.moveToPosition(-1);
+            while (cursor.moveToNext()) {
+                mMinistryIds.put(CursorUtils.getLong(cursor, Contract.AssociatedMinistry.COLUMN_ROWID), CursorUtils
+                        .getString(cursor, Contract.AssociatedMinistry.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
+            }
+        }
+
+        // swap out the Cursor for the Ministry Navigation Spinner
+        if (mMinistryNavAdapter != null) {
+            mMinistryNavAdapter.swapCursor(cursor);
+        }
     }
 
     /**
@@ -284,6 +319,24 @@ public class MainActivity extends ActionBarActivity
 
     /* END lifecycle */
 
+    private void setupActionBar() {
+        if (mActionBar != null) {
+            setSupportActionBar(mActionBar);
+            setupMinistriesSpinner();
+        }
+    }
+
+    private void setupMinistriesSpinner() {
+        if (mMinistriesSpinner != null) {
+            // create nav adapter
+            mMinistryNavAdapter = new SimpleCursorAdapter(this, R.layout.toolbar_nav_item_ministry_selected, null,
+                                                          new String[] {Contract.AssociatedMinistry.COLUMN_NAME},
+                                                          new int[] {R.id.ministryName}, 0);
+            mMinistryNavAdapter.setDropDownViewResource(R.layout.toolbar_nav_item_ministry);
+            mMinistriesSpinner.setAdapter(mMinistryNavAdapter);
+        }
+    }
+
     private void startLoaders() {
         final LoaderManager manager = this.getSupportLoaderManager();
 
@@ -292,8 +345,7 @@ public class MainActivity extends ActionBarActivity
         args.putString(ARG_GUID, theKey.getGuid());
         args.putBoolean(ARG_LOAD_MINISTRY, true);
 
-        manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, mLoaderCallbacksAttributes);
-        manager.initLoader(LOADER_TRAINING, null, mLoaderCallbacksTraining);
+        manager.initLoader(LOADER_ASSIGNED_MINISTRIES, null, mLoaderCallbacksCursor);
         manager.initLoader(LOADER_CURRENT_ASSIGNMENT, args, mLoaderCallbacksAssignment);
         restartCurrentMinistryBasedLoaders();
     }
@@ -310,12 +362,14 @@ public class MainActivity extends ActionBarActivity
         manager.restartLoader(LOADER_TRAINING, args, mLoaderCallbacksTraining);
     }
 
-    private void updateMap(final boolean zoom) {
-        // update map overlay text
-        if (mapOverlayText != null) {
-            mapOverlayText.setText(mCurrentMinistry != null ? mCurrentMinistry.getName() : null);
-        }
+    @Optional
+    @OnItemSelected(R.id.toolbar_spinner_ministries)
+    void changeMinistry(final AdapterView<?> parent, final View view, final int position, final long id) {
+        // update the currently selected ministry
+        preferences.edit().putString(PREF_CURRENT_MINISTRY, mMinistryIds.get(id)).apply();
+    }
 
+    private void updateMap(final boolean zoom) {
         // update map itself if it exists
         if (map != null) {
             // refresh the list of map layers to display
@@ -618,28 +672,6 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
-    private class AttributesLoaderCallbacks extends SimpleLoaderCallbacks<TheKey.Attributes> {
-        @Override
-        public Loader<TheKey.Attributes> onCreateLoader(final int id, final Bundle args) {
-            switch (id) {
-                case LOADER_THEKEY_ATTRIBUTES:
-                    return new AttributesLoader(MainActivity.this, theKey);
-                default:
-                    return null;
-            }
-        }
-
-        @Override
-        public void onLoadFinished(@NonNull final Loader<TheKey.Attributes> loader,
-                                   @Nullable final TheKey.Attributes attrs) {
-            switch (loader.getId()) {
-                case LOADER_THEKEY_ATTRIBUTES:
-                    onLoadAttributes(attrs);
-                    break;
-            }
-        }
-    }
-
     private class ChurchesLoaderCallbacks extends SimpleLoaderCallbacks<List<Church>> {
         @Override
         public Loader<List<Church>> onCreateLoader(final int id, @Nullable final Bundle args) {
@@ -656,6 +688,28 @@ public class MainActivity extends ActionBarActivity
             switch (loader.getId()) {
                 case LOADER_CHURCHES:
                     onLoadChurches(churches);
+            }
+        }
+    }
+
+    private class CursorLoaderCallbacks extends SimpleLoaderCallbacks<Cursor> {
+        @Nullable
+        @Override
+        public Loader<Cursor> onCreateLoader(final int id, @Nullable final Bundle args) {
+            switch (id) {
+                case LOADER_ASSIGNED_MINISTRIES:
+                    return new MinistriesCursorLoader(MainActivity.this);
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull final Loader<Cursor> loader, @Nullable final Cursor cursor) {
+            switch (loader.getId()) {
+                case LOADER_ASSIGNED_MINISTRIES:
+                    onLoadAssignedMinistries(cursor);
+                    break;
             }
         }
     }
