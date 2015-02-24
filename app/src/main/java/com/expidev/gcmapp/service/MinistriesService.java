@@ -14,7 +14,6 @@ import android.util.Log;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.http.GmaApiClient;
-import com.expidev.gcmapp.json.AssignmentsJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
@@ -60,6 +59,7 @@ public class MinistriesService extends ThreadedIntentService {
 
     private static final String EXTRA_SYNCTYPE = "type";
     private static final String EXTRA_FORCE = MinistriesService.class.getName() + ".EXTRA_FORCE";
+    private static final String EXTRA_ASSIGNMENTS = MinistriesService.class.getName() + ".EXTRA_ASSIGNMENTS";
 
     // various stale data durations
     private static final long HOUR_IN_MS = 60 * 60 * 1000;
@@ -194,14 +194,9 @@ public class MinistriesService extends ThreadedIntentService {
                                                           @Nullable final JSONArray assignments) {
         Log.i(TAG, assignments != null ? assignments.toString() : "null");
 
-        Bundle extras = new Bundle(1);
+        Bundle extras = new Bundle(2);
         extras.putSerializable(EXTRA_SYNCTYPE, SAVE_ASSOCIATED_MINISTRIES);
-
-        if(assignments != null)
-        {
-            List<Assignment> assignmentList = AssignmentsJsonParser.parseAssignments(assignments);
-            extras.putSerializable("assignments", (ArrayList<Assignment>) assignmentList);
-        }
+        extras.putString(EXTRA_ASSIGNMENTS, assignments != null ? assignments.toString() : null);
 
         context.startService(baseIntent(context, extras));
     }
@@ -227,9 +222,9 @@ public class MinistriesService extends ThreadedIntentService {
 
         if (force || stale) {
             // fetch raw data from API & parse it
-            final JSONArray json = mApi.getAssignments(true);
-            if (json != null) {
-                this.updateAllAssignments(AssignmentsJsonParser.parseAssignments(json));
+            final List<Assignment> assignments = mApi.getAssignments(true);
+            if (assignments != null) {
+                this.updateAllAssignments(assignments);
             }
         }
     }
@@ -375,9 +370,15 @@ public class MinistriesService extends ThreadedIntentService {
 
     private void saveAssociatedMinistriesFromServer(Intent intent)
     {
-        List<Assignment> assignments = (ArrayList<Assignment>) intent.getSerializableExtra("assignments");
+        final String raw = intent.getStringExtra(EXTRA_ASSIGNMENTS);
+        if(raw != null) {
+            try {
+                final List<Assignment> assignments = Assignment.listFromJson(new JSONArray(raw));
 
-        this.updateAllAssignments(assignments);
+                this.updateAllAssignments(assignments);
+            } catch (final JSONException ignored) {
+            }
+        }
     }
 
     private void updateAllAssignments(@NonNull final List<Assignment> assignments) {
