@@ -101,6 +101,7 @@ public class MainActivity extends ActionBarActivity
     private final AttributesLoaderCallbacks mLoaderCallbacksAttributes = new AttributesLoaderCallbacks();
     private final ChurchesLoaderCallbacks mLoaderCallbacksChurches = new ChurchesLoaderCallbacks();
     private final TrainingLoaderCallbacks mLoaderCallbacksTraining = new TrainingLoaderCallbacks();
+    private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
 
     /* map related objects */
     private TextView mapOverlayText;
@@ -305,7 +306,7 @@ public class MainActivity extends ActionBarActivity
         manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, mLoaderCallbacksAttributes);
         manager.initLoader(LOADER_CURRENT_MINISTRY, null, mLoaderCallbacksMinistry);
         manager.initLoader(LOADER_TRAINING, null, mLoaderCallbacksTraining);
-        manager.initLoader(LOADER_CURRENT_ASSIGNMENT, null, new AssignmentLoaderCallbacks());
+        manager.initLoader(LOADER_CURRENT_ASSIGNMENT, null, mLoaderCallbacksAssignment);
         restartCurrentMinistryBasedLoaders();
     }
 
@@ -319,6 +320,7 @@ public class MainActivity extends ActionBarActivity
         // restart these loaders in case the ministry id has changed since the last start
         manager.restartLoader(LOADER_CHURCHES, args, mLoaderCallbacksChurches);
         manager.restartLoader(LOADER_TRAINING, args, mLoaderCallbacksTraining);
+        manager.restartLoader(LOADER_CURRENT_ASSIGNMENT, null, mLoaderCallbacksAssignment);
     }
 
     private void updateMap(final boolean zoom) {

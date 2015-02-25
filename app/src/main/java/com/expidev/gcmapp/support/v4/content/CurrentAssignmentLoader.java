@@ -29,27 +29,55 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
     {
         super(context, context.getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE));
         this.addIntentFilter(BroadcastUtils.updateAssignmentsFilter());
-        this.addPreferenceKey(PREF_CURRENT_ASSIGNMENT);
+        this.addPreferenceKey(PREF_CURRENT_MINISTRY);
         ministriesDao = MinistriesDao.getInstance(context);
     }
 
     @Override
     public Assignment loadInBackground()
     {
-        // load the current assignment
-        final String assignmentId = mPrefs.getString(PREF_CURRENT_ASSIGNMENT, null);
+        // Load from the chosen ministry, if there is one
+        String ministryId = mPrefs.getString(PREF_CURRENT_MINISTRY, null);
 
-        final Assignment currentAssignment = assignmentId != null
-            ? ministriesDao.find(Assignment.class, assignmentId)
-            : null;
-
-        if(currentAssignment != null)
+        if(ministryId != null)
         {
-            return currentAssignment;
+            return loadAssignmentFromMinistryId(ministryId);
         }
+        else
+        {
+            // load the current assignment
+            final String assignmentId = mPrefs.getString(PREF_CURRENT_ASSIGNMENT, null);
 
-        // if no current assignment is set, retrieve a default
-        return initCurrentAssignment();
+            final Assignment currentAssignment = assignmentId != null
+                ? ministriesDao.find(Assignment.class, assignmentId)
+                : null;
+
+            if(currentAssignment != null)
+            {
+                return currentAssignment;
+            }
+
+            // if no current assignment is set, retrieve a default
+            return initCurrentAssignment();
+        }
+    }
+
+    private Assignment loadAssignmentFromMinistryId(String ministryId)
+    {
+        List<Assignment> allAssignments = ministriesDao.get(
+            Assignment.class,
+            Contract.Assignment.SQL_WHERE_MINISTRY,
+            new String[] { ministryId });
+
+        switch(allAssignments.size())
+        {
+            case 0:
+                return null;
+            case 1:
+                return allAssignments.get(0);
+            default:
+                return getAssignmentBasedOnRole(allAssignments);
+        }
     }
 
     private Assignment initCurrentAssignment()
