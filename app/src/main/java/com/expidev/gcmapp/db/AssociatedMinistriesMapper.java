@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.expidev.gcmapp.model.AssociatedMinistry;
+import com.expidev.gcmapp.model.Ministry;
 
 /**
  * Created by William.Randall on 2/3/2015.
@@ -71,7 +72,8 @@ public class AssociatedMinistriesMapper extends BaseMapper<AssociatedMinistry>
     {
         final AssociatedMinistry ministry = super.toObject(cursor);
 
-        ministry.setMinistryId(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_MINISTRY_ID, "NO ID"));
+        ministry.setMinistryId(
+                getNonNullString(cursor, Contract.AssociatedMinistry.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
         ministry.setParentMinistryId(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_PARENT_MINISTRY_ID, null));
         ministry.setName(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_NAME, null));
         ministry.setMinistryCode(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_MIN_CODE, null));

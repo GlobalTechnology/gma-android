@@ -64,7 +64,7 @@ public class Church extends Location implements Cloneable {
 
     private long id = INVALID_ID;
     @NonNull
-    private String ministryId;
+    private String ministryId = Ministry.INVALID_ID;
     @Nullable
     private String name;
     @Nullable

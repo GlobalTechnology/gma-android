@@ -39,7 +39,7 @@ public class Contract {
                         COLUMN_LONGITUDE, COLUMN_DIRTY, COLUMN_LAST_SYNCED};
 
         private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
-        private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
+        private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT NOT NULL DEFAULT ''";
         private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_DATE = COLUMN_DATE + " TEXT";
         private static final String SQL_COLUMN_TYPE = COLUMN_TYPE + " TEXT";
@@ -94,7 +94,7 @@ public class Contract {
         static final String COLUMN_MINISTRY_ID = "ministry_id";
         public static final String COLUMN_NAME = "name";
 
-        static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
+        static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT NOT NULL DEFAULT ''";
         static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_MINISTRY_ID + ")";
 
@@ -163,7 +163,7 @@ public class Contract {
 
         private static final String SQL_COLUMN_ID = COLUMN_ID + " TEXT";
         private static final String SQL_COLUMN_ROLE = COLUMN_ROLE + " TEXT";
-        private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
+        private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT NOT NULL DEFAULT ''";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_ID + ")";
         private static final String SQL_FOREIGN_KEY_MINISTRIES =
                 "FOREIGN KEY(" + COLUMN_MINISTRY_ID + ") REFERENCES " + AssociatedMinistry.TABLE_NAME + "(" +
@@ -197,7 +197,7 @@ public class Contract {
                         COLUMN_LAST_SYNCED};
 
         private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
-        private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
+        private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT NOT NULL DEFAULT ''";
         private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_CONTACT_NAME = COLUMN_CONTACT_NAME + " TEXT";
         private static final String SQL_COLUMN_CONTACT_EMAIL = COLUMN_CONTACT_EMAIL + " TEXT";

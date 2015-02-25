@@ -51,8 +51,8 @@ public class Assignment extends Base implements Serializable {
     private String id;
     @NonNull
     private Role role = Role.UNKNOWN;
-    @Nullable
-    private String ministryId;
+    @NonNull
+    private String ministryId = Ministry.INVALID_ID;
     private AssociatedMinistry ministry;
 
     public String getId()
@@ -78,12 +78,12 @@ public class Assignment extends Base implements Serializable {
         this.role = role;
     }
 
-    @Nullable
+    @NonNull
     public String getMinistryId() {
         return ministryId;
     }
 
-    public void setMinistryId(@Nullable final String ministryId) {
+    public void setMinistryId(@NonNull final String ministryId) {
         this.ministryId = ministryId;
     }
 
