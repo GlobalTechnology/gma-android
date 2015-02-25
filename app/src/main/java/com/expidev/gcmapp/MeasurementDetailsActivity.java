@@ -829,5 +829,18 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             }
             return false;
         }
+
+        @Override
+        protected void onPostExecute(Boolean success)
+        {
+            if(success)
+            {
+                handleRetrievedMeasurementDetails(measurementDetails);
+            }
+            else
+            {
+                Log.e(TAG, "Failed to update Server");
+            }
+        }
     }
 }
