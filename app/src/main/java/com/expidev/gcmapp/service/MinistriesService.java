@@ -1,17 +1,5 @@
 package com.expidev.gcmapp.service;
 
-import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
-import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
-import static com.expidev.gcmapp.service.Type.RETRIEVE_ASSOCIATED_MINISTRIES;
-import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
-import static com.expidev.gcmapp.service.Type.SYNC_ASSIGNMENTS;
-import static com.expidev.gcmapp.service.Type.SYNC_CHURCHES;
-import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_CHURCHES;
-import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesReceivedBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.associatedMinistriesReceivedBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
-import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -47,6 +35,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
+import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
+import static com.expidev.gcmapp.service.Type.RETRIEVE_ASSOCIATED_MINISTRIES;
+import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
+import static com.expidev.gcmapp.service.Type.SYNC_ASSIGNMENTS;
+import static com.expidev.gcmapp.service.Type.SYNC_CHURCHES;
+import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_CHURCHES;
+import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesReceivedBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.associatedMinistriesReceivedBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 /**
  * Created by William.Randall on 1/22/2015.
@@ -138,6 +138,7 @@ public class MinistriesService extends ThreadedIntentService {
                     break;
                 case SYNC_DIRTY_CHURCHES:
                     syncDirtyChurches();
+                    break;
                 default:
                     break;
             }

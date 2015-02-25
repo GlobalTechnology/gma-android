@@ -1,7 +1,6 @@
 package com.expidev.gcmapp;
 
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
-import com.expidev.gcmapp.db.TrainingDao;
 import com.expidev.gcmapp.map.ChurchMarker;
 import com.expidev.gcmapp.map.Marker;
 import com.expidev.gcmapp.map.MarkerRender;
@@ -35,14 +33,12 @@ import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
-import com.expidev.gcmapp.service.Type;
 import com.expidev.gcmapp.support.v4.content.ChurchesLoader;
 import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
 import com.expidev.gcmapp.support.v4.content.CurrentMinistryLoader;
 import com.expidev.gcmapp.support.v4.content.TrainingLoader;
 import com.expidev.gcmapp.support.v4.fragment.EditChurchFragment;
 import com.expidev.gcmapp.support.v4.fragment.EditTrainingFragment;
-import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.Device;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -94,7 +90,6 @@ public class MainActivity extends ActionBarActivity
     private GcmBroadcastReceiver gcmBroadcastReceiver;
     private ActionBar actionBar;
     private SharedPreferences preferences;
-    private BroadcastReceiver broadcastReceiver;
 
     /* Loader callback objects */
     private final AssociatedMinistryLoaderCallbacks mLoaderCallbacksMinistry = new AssociatedMinistryLoaderCallbacks();
@@ -130,8 +125,6 @@ public class MainActivity extends ActionBarActivity
         mapOverlayText = (TextView) findViewById(R.id.map_text);
 
         preferences = getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE);
-
-        setupBroadcastReceivers();
 
         theKey = TheKeyImpl.getInstance(getApplicationContext(), THEKEY_CLIENTID);
 
@@ -577,59 +570,10 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
-    private void setupBroadcastReceivers()
-    {
-        manager = LocalBroadcastManager.getInstance(this);
-
-        this.broadcastReceiver = new BroadcastReceiver()
-        {
-            @Override
-            public void onReceive(Context context, Intent intent)
-            {
-                if (BroadcastUtils.ACTION_START.equals(intent.getAction()))
-                {
-                    Log.i(TAG, "Action Started");
-                }
-                else if (BroadcastUtils.ACTION_RUNNING.equals(intent.getAction()))
-                {
-                    Log.i(TAG, "Action Running");
-                }
-                else if (BroadcastUtils.ACTION_STOP.equals(intent.getAction()))
-                {
-                    Log.i(TAG, "Action Done");
-
-                    Type type = (Type) intent.getSerializableExtra(BroadcastUtils.ACTION_TYPE);
-                    
-                    switch (type)
-                    {
-                        case TRAINING:
-                            Log.i(TAG, "Training search complete and training saved");
-                            
-                            TrainingDao trainingDao = TrainingDao.getInstance(context);
-                            allTraining = mCurrentMinistry != null ?
-                                    trainingDao.getAllMinistryTraining(mCurrentMinistry.getMinistryId()) : null;
-
-                            updateMap(false);
-
-                            break;
-                        default:
-                            Log.i(TAG, "Unhandled Type: " + type);
-                    }
-                }
-            }
-        };
-
-        manager.registerReceiver(broadcastReceiver, BroadcastUtils.startFilter());
-        manager.registerReceiver(broadcastReceiver, BroadcastUtils.runningFilter());
-        manager.registerReceiver(broadcastReceiver, BroadcastUtils.stopFilter());
-    }
-
     private void removeBroadcastReceivers()
     {
         manager = LocalBroadcastManager.getInstance(this);
-        manager.unregisterReceiver(broadcastReceiver);
         manager.unregisterReceiver(gcmBroadcastReceiver);
-        broadcastReceiver = null;
         gcmBroadcastReceiver = null;
     }
     
