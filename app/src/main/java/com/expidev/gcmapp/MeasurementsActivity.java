@@ -110,6 +110,11 @@ public class MeasurementsActivity extends ActionBarActivity
 
     private void drawLayout(Ministry selectedMinistry, String mcc, List<Measurement> measurements)
     {
+        if(selectedMinistry == null)
+        {
+            return;
+        }
+
         TextView titleView = (TextView) findViewById(R.id.measurement_ministry_name);
         titleView.setText(selectedMinistry.getName() + " (" + mcc + ")");
 
