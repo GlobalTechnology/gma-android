@@ -3,10 +3,6 @@
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent" 
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.expidev.gcmapp.MainActivity">
 
     <android.support.v7.widget.Toolbar
@@ -15,10 +11,34 @@
         android:layout_width="match_parent"
         android:background="?attr/colorPrimary">
 
-        <Spinner
-            android:id="@+id/toolbar_spinner_ministries"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Spinner
+                android:id="@+id/toolbar_spinner_ministries"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                tools:listitem="@layout/toolbar_nav_item_ministry_selected"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_toLeftOf="@+id/toolbar_spinner_mccs"
+                android:layout_toStartOf="@+id/toolbar_spinner_mccs"/>
+
+            <Spinner
+                android:id="@+id/toolbar_spinner_mccs"
+                android:layout_width="65sp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                tools:listitem="@layout/toolbar_nav_item_mcc_selected"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                />
+
+        </RelativeLayout>
 
     </android.support.v7.widget.Toolbar>
 
@@ -33,7 +53,7 @@
         android:layout_alignParentEnd="true"
         android:layout_below="@id/toolbar_actionbar"
         tools:layout="@layout/activity_main">
-        
+
         <TextView
             android:id="@+id/map_text"
             android:layout_width="match_parent"
@@ -41,8 +61,8 @@
             android:paddingLeft="50dp"
             android:paddingTop="15dp"
             android:textSize="30dp"
-            android:textStyle="bold" />
-        
+            android:textStyle="bold"/>
+
         <android.support.v7.widget.SearchView
             android:id="@+id/map_search"
             android:layout_width="fill_parent"
@@ -51,8 +71,8 @@
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
             android:paddingTop="65dp"/>
-        
-        </fragment>
+
+    </fragment>
 
     <ImageButton
         android:layout_width="wrap_content"

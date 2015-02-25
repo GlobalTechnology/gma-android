@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -29,11 +30,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.db.Contract;
+import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.map.ChurchMarker;
 import com.expidev.gcmapp.map.Marker;
 import com.expidev.gcmapp.map.MarkerRender;
@@ -52,6 +55,7 @@ import com.expidev.gcmapp.support.v4.content.MinistriesCursorLoader;
 import com.expidev.gcmapp.support.v4.content.TrainingLoader;
 import com.expidev.gcmapp.support.v4.fragment.EditChurchFragment;
 import com.expidev.gcmapp.support.v4.fragment.EditTrainingFragment;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.Device;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -66,6 +70,7 @@ import com.google.maps.android.clustering.ClusterManager;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.util.CursorUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -108,7 +113,8 @@ public class MainActivity extends ActionBarActivity
     private final CursorLoaderCallbacks mLoaderCallbacksCursor = new CursorLoaderCallbacks();
 
     /* Data adapters */
-    private SimpleCursorAdapter mMinistryNavAdapter;
+    private SimpleCursorAdapter mMinistriesNavAdapter;
+    private ArrayAdapter<Ministry.Mcc> mMccsNavAdapter;
 
     /* Views */
     @Optional
@@ -119,7 +125,10 @@ public class MainActivity extends ActionBarActivity
     @Nullable
     @InjectView(R.id.toolbar_spinner_ministries)
     Spinner mMinistriesSpinner;
-    Spinner mMccSpinner;
+    @Optional
+    @Nullable
+    @InjectView(R.id.toolbar_spinner_mccs)
+    Spinner mMccsSpinner;
 
     /* map related objects */
     @Nullable
@@ -238,9 +247,10 @@ public class MainActivity extends ActionBarActivity
             }
         }
 
-        // swap out the Cursor for the Ministry Navigation Spinner
-        if (mMinistryNavAdapter != null) {
-            mMinistryNavAdapter.swapCursor(cursor);
+        // update the Ministry Navigation Spinner
+        if (mMinistriesNavAdapter != null) {
+            // swap out the Cursor
+            mMinistriesNavAdapter.swapCursor(cursor);
         }
     }
 
@@ -284,6 +294,9 @@ public class MainActivity extends ActionBarActivity
 
         // restart Loaders based off the current ministry
         restartCurrentMinistryBasedLoaders();
+
+        // update the navigation spinners
+        updateNavSpinners();
     }
     
     void onLoadTraining(@Nullable final List<Training> trainings)
@@ -315,6 +328,8 @@ public class MainActivity extends ActionBarActivity
     {
         super.onDestroy();
         removeBroadcastReceivers();
+        cleanupNavSpinners();
+        ButterKnife.reset(this);
     }
 
     /* END lifecycle */
@@ -323,18 +338,87 @@ public class MainActivity extends ActionBarActivity
         if (mActionBar != null) {
             setSupportActionBar(mActionBar);
             setupMinistriesSpinner();
+            setupMccsSpinner();
+            updateNavSpinners();
         }
     }
 
     private void setupMinistriesSpinner() {
         if (mMinistriesSpinner != null) {
-            // create nav adapter
-            mMinistryNavAdapter = new SimpleCursorAdapter(this, R.layout.toolbar_nav_item_ministry_selected, null,
-                                                          new String[] {Contract.AssociatedMinistry.COLUMN_NAME},
-                                                          new int[] {R.id.ministryName}, 0);
-            mMinistryNavAdapter.setDropDownViewResource(R.layout.toolbar_nav_item_ministry);
-            mMinistriesSpinner.setAdapter(mMinistryNavAdapter);
+            // create adapter
+            mMinistriesNavAdapter = new SimpleCursorAdapter(this, R.layout.toolbar_nav_item_ministry_selected, null,
+                                                            new String[] {Contract.AssociatedMinistry.COLUMN_NAME},
+                                                            new int[] {R.id.ministryName}, 0);
+            mMinistriesNavAdapter.setDropDownViewResource(R.layout.toolbar_nav_item_ministry);
+            mMinistriesSpinner.setAdapter(mMinistriesNavAdapter);
         }
+    }
+
+    private void setupMccsSpinner() {
+        if (mMccsSpinner != null) {
+            // create adapter
+            mMccsNavAdapter =
+                    new ArrayAdapter<>(this, R.layout.toolbar_nav_item_mcc_selected, R.id.mcc,
+                                       new ArrayList<Ministry.Mcc>());
+            mMccsNavAdapter.setDropDownViewResource(R.layout.toolbar_nav_item_mcc);
+            mMccsSpinner.setAdapter(mMccsNavAdapter);
+        }
+    }
+
+    private void updateNavSpinners() {
+        // only update the selected ministry in the ActionBar navigation if we have a loaded Assignment
+        if (mMinistriesSpinner != null && mMinistriesNavAdapter != null && mAssignment != null) {
+            final String ministryId = mAssignment.getMinistryId();
+
+            // only proceed if the value is currently incorrect
+            Cursor c = (Cursor) mMinistriesSpinner.getSelectedItem();
+            if (c == null ||
+                    !ministryId.equals(CursorUtils.getString(c, Contract.AssociatedMinistry.COLUMN_MINISTRY_ID))) {
+                // get current Cursor
+                c = mMinistriesNavAdapter.getCursor();
+                if (c != null) {
+                    c.moveToPosition(-1);
+                    while (c.moveToNext()) {
+                        if (ministryId
+                                .equals(CursorUtils.getString(c, Contract.AssociatedMinistry.COLUMN_MINISTRY_ID))) {
+                            final int pos = c.getPosition();
+                            mMinistriesSpinner.setSelection(pos);
+                            mMinistriesSpinner.setTag(R.id.pos, pos);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // update the list of MCCs
+        if (mMccsNavAdapter != null) {
+            // update the available MCCs
+            mMccsNavAdapter.clear();
+            if (mCurrentMinistry != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    mMccsNavAdapter.addAll(mCurrentMinistry.getMccs());
+                } else {
+                    for (final Ministry.Mcc mcc : mCurrentMinistry.getMccs()) {
+                        mMccsNavAdapter.add(mcc);
+                    }
+                }
+            }
+
+            // update the selected MCC
+            if (mMccsSpinner != null && mAssignment != null) {
+                final int pos = mMccsNavAdapter.getPosition(mAssignment.getMcc());
+                if (pos != -1 && pos != mMccsSpinner.getSelectedItemPosition()) {
+                    mMccsSpinner.setSelection(pos);
+                    mMccsSpinner.setTag(R.id.pos, pos);
+                }
+            }
+        }
+    }
+
+    private void cleanupNavSpinners() {
+        mMinistriesNavAdapter = null;
+        mMccsNavAdapter = null;
     }
 
     private void startLoaders() {
@@ -365,8 +449,43 @@ public class MainActivity extends ActionBarActivity
     @Optional
     @OnItemSelected(R.id.toolbar_spinner_ministries)
     void changeMinistry(final AdapterView<?> parent, final View view, final int position, final long id) {
-        // update the currently selected ministry
-        preferences.edit().putString(PREF_CURRENT_MINISTRY, mMinistryIds.get(id)).apply();
+        // only process if this isn't a change to an automatically set position
+        if (!Integer.valueOf(position).equals(parent.getTag(R.id.pos))) {
+            // update the currently selected ministry
+            preferences.edit().putString(PREF_CURRENT_MINISTRY, mMinistryIds.get(id)).apply();
+        }
+
+        // clear out a remaining position indicator
+        parent.setTag(R.id.pos, null);
+    }
+
+    @Optional
+    @OnItemSelected(R.id.toolbar_spinner_mccs)
+    void changeMcc(final AdapterView<?> parent, final View view, final int position, final long id) {
+        // only process if this isn't a change to an automatically set position
+        if (!Integer.valueOf(position).equals(parent.getTag(R.id.pos))) {
+            if (mAssignment != null) {
+                // update the selected MCC
+                final Assignment assignment = mAssignment.clone();
+                assignment.setMcc((Ministry.Mcc) parent.getItemAtPosition(position));
+
+                // persist the change in the database
+                final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(this);
+                final MinistriesDao dao = MinistriesDao.getInstance(this);
+                dao.async(new Runnable() {
+                    @Override
+                    public void run() {
+                        dao.updateOrInsert(assignment, new String[] {Contract.Assignment.COLUMN_MCC});
+
+                        // broadcast the update
+                        broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast());
+                    }
+                });
+            }
+        }
+
+        // clear out a remaining position indicator
+        parent.setTag(R.id.pos, null);
     }
 
     private void updateMap(final boolean zoom) {
