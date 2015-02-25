@@ -21,6 +21,8 @@ import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.AbstractDao.Transaction;
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -90,6 +92,11 @@ public class TrainingService extends IntentService
                     break;
                 case SYNC_TRAINING:
                     syncTraining(intent);
+                    break;
+                case SYNC_DIRTY_TRAINING:
+                    syncDirtyTraining();
+                    break;
+                default:
                     break;
             }
         }
@@ -221,6 +228,29 @@ public class TrainingService extends IntentService
         finally
         {
             tx.end();
+        }
+    }
+    
+    private synchronized void syncDirtyTraining() throws ApiException
+    {
+        final List<Training> dirty = mDao.get(Training.class, Contract.Training.SQL_WHERE_DIRTY, null);
+        
+        for (final Training training : dirty)
+        {
+            try
+            {
+                final JSONObject json = training.dirtyToJson();
+                final boolean success = mApi.updateTraining(training.getId(), json);
+                
+                if (success)
+                {
+                    training.setDirty(null);
+                    mDao.update(training, new String[] {Contract.Training.COLUMN_DIRTY});
+                }
+            }
+            catch (final JSONException ignored) {
+                
+            }
         }
     }
 }
