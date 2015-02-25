@@ -4,7 +4,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -15,10 +17,8 @@ public class AssociatedMinistry extends Ministry
     @Nullable
     private String parentMinistryId;
     private String ministryCode;
-    private boolean hasSlm;
-    private boolean hasLlm;
-    private boolean hasDs;
-    private boolean hasGcm;
+    @NonNull
+    private final EnumSet<Mcc> mccs = EnumSet.noneOf(Mcc.class);
     private double latitude;
     private double longitude;
     private int locationZoom;
@@ -45,44 +45,76 @@ public class AssociatedMinistry extends Ministry
         this.ministryCode = ministryCode;
     }
 
+    @NonNull
+    public EnumSet<Mcc> getMccs() {
+        return EnumSet.copyOf(this.mccs);
+    }
+
+    public boolean hasMcc(@NonNull final Mcc mcc) {
+        return this.mccs.contains(mcc);
+    }
+
+    public void setMccs(final Collection<Mcc> mccs) {
+        this.mccs.clear();
+        if (mccs != null) {
+            this.mccs.addAll(mccs);
+        }
+    }
+
     public boolean hasSlm()
     {
-        return hasSlm;
+        return hasMcc(Mcc.SLM);
     }
 
     public void setHasSlm(boolean hasSlm)
     {
-        this.hasSlm = hasSlm;
+        if (hasSlm) {
+            this.mccs.add(Mcc.SLM);
+        } else {
+            this.mccs.remove(Mcc.SLM);
+        }
     }
 
     public boolean hasLlm()
     {
-        return hasLlm;
+        return hasMcc(Mcc.LLM);
     }
 
     public void setHasLlm(boolean hasLlm)
     {
-        this.hasLlm = hasLlm;
+        if (hasLlm) {
+            this.mccs.add(Mcc.LLM);
+        } else {
+            this.mccs.remove(Mcc.LLM);
+        }
     }
 
     public boolean hasDs()
     {
-        return hasDs;
+        return hasMcc(Mcc.DS);
     }
 
     public void setHasDs(boolean hasDs)
     {
-        this.hasDs = hasDs;
+        if (hasDs) {
+            this.mccs.add(Mcc.DS);
+        } else {
+            this.mccs.remove(Mcc.DS);
+        }
     }
 
     public boolean hasGcm()
     {
-        return hasGcm;
+        return hasMcc(Mcc.GCM);
     }
 
     public void setHasGcm(boolean hasGcm)
     {
-        this.hasGcm = hasGcm;
+        if (hasGcm) {
+            this.mccs.add(Mcc.GCM);
+        } else {
+            this.mccs.remove(Mcc.GCM);
+        }
     }
 
     public double getLatitude() {
