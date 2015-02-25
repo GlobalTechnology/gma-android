@@ -424,7 +424,9 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         if(isLeader())
         {
-            EditText localNumber = createInputView(measurementDetails.getLocalValue(), LOCAL_MEASUREMENTS_TAG);
+            EditText localNumber = createInputView(
+                measurementDetails.getTotalLocalBreakdown().getAmount(),
+                LOCAL_MEASUREMENTS_TAG);
             LinearLayout localDataInputSection = createRow(createNameView("Local"), localNumber);
 
             dataSection.addView(localDataInputSection);
@@ -433,7 +435,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         {
             LinearLayout localDataInputSection = createRow(
                 "Local",
-                measurementDetails.getLocalValue()
+                measurementDetails.getTotalLocalBreakdown().getAmount()
             );
             dataSection.addView(localDataInputSection);
         }
@@ -443,7 +445,9 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         dataSection.addView(teamMembersSectionTitle);
 
-        EditText personalNumber = createInputView(measurementDetails.getPersonalValue(), PERSONAL_MEASUREMENTS_TAG);
+        EditText personalNumber = createInputView(
+            measurementDetails.getSelfBreakdown().get(0).getAmount(),
+            PERSONAL_MEASUREMENTS_TAG);
         LinearLayout personalDataInputSection = createRow(createNameView("You"), personalNumber);
 
         dataSection.addView(personalDataInputSection);
@@ -607,9 +611,11 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             switch(type)
             {
                 case LOCAL_MEASUREMENTS_TAG:
+                    measurementDetails.getTotalLocalBreakdown().setAmount(Integer.parseInt(value));
                     measurementDetails.setLocalValue(Integer.parseInt(value));
                     break;
                 case PERSONAL_MEASUREMENTS_TAG:
+                    measurementDetails.getSelfBreakdown().get(0).setAmount(Integer.parseInt(value));
                     measurementDetails.setPersonalValue(Integer.parseInt(value));
                     break;
             }

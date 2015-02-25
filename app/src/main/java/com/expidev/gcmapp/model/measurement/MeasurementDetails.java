@@ -183,4 +183,17 @@ public class MeasurementDetails extends Base implements Serializable
     {
         this.personalValue = personalValue;
     }
+
+    public BreakdownData getTotalLocalBreakdown()
+    {
+        for(final BreakdownData breakdownData : getLocalBreakdown())
+        {
+            if("total".equals(breakdownData.getSource()))
+            {
+                return breakdownData;
+            }
+        }
+
+        return null;
+    }
 }
