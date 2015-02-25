@@ -22,12 +22,14 @@ import android.widget.Toast;
 
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
+import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.measurement.BreakdownData;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.model.measurement.SixMonthAmounts;
 import com.expidev.gcmapp.model.measurement.SubMinistryDetails;
 import com.expidev.gcmapp.model.measurement.TeamMemberDetails;
 import com.expidev.gcmapp.service.MeasurementsService;
+import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
 import com.expidev.gcmapp.support.v4.content.MeasurementDetailsLoader;
 import com.expidev.gcmapp.utils.ViewUtils;
 import com.expidev.gcmapp.view.HorizontalLineView;
@@ -84,8 +86,10 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     private String period;
 
     private MeasurementDetails measurementDetails;
+    private Assignment currentAssignment;
 
     private static final int LOADER_MEASUREMENT_DETAILS = 1;
+    private static final int LOADER_CURRENT_ASSIGNMENT = 2;
 
     private static final String LOCAL_MEASUREMENTS_TAG = "local";
     private static final String PERSONAL_MEASUREMENTS_TAG = "personal";
@@ -123,6 +127,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         args.putString(Constants.ARG_PERIOD, period);
 
         manager.initLoader(LOADER_MEASUREMENT_DETAILS, args, measurementDetailsLoaderCallback);
+        manager.initLoader(LOADER_CURRENT_ASSIGNMENT, null, new AssignmentLoaderCallbacks());
     }
 
     private void handleRetrievedMeasurementDetails(MeasurementDetails measurementDetails)
@@ -393,6 +398,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
     private void initializeDataSection(MeasurementDetails measurementDetails)
     {
+        Assignment.Role currentRole = currentAssignment.getRole();
         TextHeaderView totalNumberTitle = new TextHeaderView(this);
         totalNumberTitle.setText(ministryName);
 
@@ -458,6 +464,33 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             {
                 LinearLayout row = createRow(subMinistryDetails.getName(), subMinistryDetails.getTotal());
                 dataSection.addView(row);
+            }
+        }
+
+        if(currentRole == Assignment.Role.LEADER || currentRole == Assignment.Role.INHERITED_LEADER)
+        {
+            List<TeamMemberDetails> selfAssignedDetails = measurementDetails.getSelfAssignedDetails();
+            if(!selfAssignedDetails.isEmpty())
+            {
+                TextHeaderView selfAssignedHeader = new TextHeaderView(this);
+                selfAssignedHeader.setText("Self Assigned");
+
+                dataSection.addView(selfAssignedHeader);
+
+                int index = 0;
+                for(TeamMemberDetails selfAssignedRow : selfAssignedDetails)
+                {
+                    if(index > 0)
+                    {
+                        HorizontalLineView horizontalLine = new HorizontalLineView(this);
+                        dataSection.addView(horizontalLine);
+                    }
+
+                    String name = selfAssignedRow.getFirstName() + " " + selfAssignedRow.getLastName();
+                    LinearLayout row = createRow(name, selfAssignedRow.getTotal());
+                    dataSection.addView(row);
+                    index++;
+                }
             }
         }
     }
@@ -622,6 +655,15 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         }
     }
 
+    private void onLoadAssignment(@Nullable Assignment assignment)
+    {
+        if(assignment != null)
+        {
+            currentAssignment = assignment;
+            Log.i(TAG, "Current assignment loaded");
+        }
+    }
+
     private class MeasurementDetailsLoaderCallbacks extends SimpleLoaderCallbacks<MeasurementDetails>
     {
         @Override
@@ -646,6 +688,31 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                 case LOADER_MEASUREMENT_DETAILS:
                     onLoadMeasurementDetails(measurementDetails);
                     break;
+            }
+        }
+    }
+
+    private class AssignmentLoaderCallbacks extends SimpleLoaderCallbacks<Assignment>
+    {
+        @Override
+        public Loader<Assignment> onCreateLoader(final int id, @Nullable final Bundle args)
+        {
+            switch(id)
+            {
+                case LOADER_CURRENT_ASSIGNMENT:
+                    return new CurrentAssignmentLoader(MeasurementDetailsActivity.this);
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull final Loader<Assignment> loader, @Nullable final Assignment assignment)
+        {
+            switch(loader.getId())
+            {
+                case LOADER_CURRENT_ASSIGNMENT:
+                    onLoadAssignment(assignment);
             }
         }
     }
