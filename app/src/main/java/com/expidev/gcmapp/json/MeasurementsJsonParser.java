@@ -189,7 +189,8 @@ public class MeasurementsJsonParser
      */
     public static JSONObject createJsonForMeasurementDetails(
         MeasurementDetails measurementDetails,
-        String type) throws JSONException
+        String type,
+        String assignmentId) throws JSONException
     {
         JSONObject jsonObject = new JSONObject();
 
@@ -198,16 +199,17 @@ public class MeasurementsJsonParser
             case "local":
                 jsonObject.put("measurement_type_id", measurementDetails.getMeasurementTypeIds().getLocal());
                 jsonObject.put("value", measurementDetails.getLocalValue());
+                jsonObject.put("related_entity_id", measurementDetails.getMinistryId());
                 break;
             case "personal":
                 jsonObject.put("measurement_type_id", measurementDetails.getMeasurementTypeIds().getPerson());
                 jsonObject.put("value", measurementDetails.getPersonalValue());
+                jsonObject.put("related_entity_id", assignmentId);
                 break;
             default:
                 break;
         }
 
-        jsonObject.put("related_entity_id", measurementDetails.getMinistryId());
         jsonObject.put("period", measurementDetails.getPeriod());
         jsonObject.put("mcc", measurementDetails.getMcc().toLowerCase() + "_gma-app");
 

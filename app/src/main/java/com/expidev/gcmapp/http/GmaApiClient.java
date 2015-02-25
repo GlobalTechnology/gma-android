@@ -1,6 +1,8 @@
 package com.expidev.gcmapp.http;
 
 import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
+import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
+import static com.expidev.gcmapp.Constants.PREF_CURRENT_ASSIGNMENT;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -66,10 +68,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
     // XXX: temporary until mContext from AbstractApi is visible
     private final Context mContext;
+    private final SharedPreferences mPrefs;
 
     private GmaApiClient(final Context context) {
         super(context, TheKeyImpl.getInstance(context, THEKEY_CLIENTID), BuildConfig.GCM_BASE_URI, "gcm_api_sessions");
         mContext = context;
+        mPrefs = mContext.getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE);
     }
 
     public static GmaApiClient getInstance(final Context context) {
@@ -387,17 +391,18 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     public boolean updateMeasurementDetails(List<MeasurementDetails> measurementDetailsList)
         throws JSONException, ApiException
     {
+        String assignmentId = mPrefs.getString(PREF_CURRENT_ASSIGNMENT, null);
         List<JSONObject> data = new ArrayList<>();
         for(MeasurementDetails measurementDetails : measurementDetailsList)
         {
             // Can be positive or negative
             if(measurementDetails.getLocalValue() != 0)
             {
-                data.add(MeasurementsJsonParser.createJsonForMeasurementDetails(measurementDetails, "local"));
+                data.add(MeasurementsJsonParser.createJsonForMeasurementDetails(measurementDetails, "local", assignmentId));
             }
             if(measurementDetails.getPersonalValue() != 0)
             {
-                data.add(MeasurementsJsonParser.createJsonForMeasurementDetails(measurementDetails, "personal"));
+                data.add(MeasurementsJsonParser.createJsonForMeasurementDetails(measurementDetails, "personal", assignmentId));
             }
         }
 
@@ -416,6 +421,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         try
         {
             conn = this.sendRequest(request);
+            Log.i(TAG, "Response Code: " + conn.getResponseCode());
+            Log.i(TAG, "Data POSTed: " + data.toString());
 
             // is this a successful response?
             return conn.getResponseCode() == HttpURLConnection.HTTP_CREATED;
