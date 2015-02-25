@@ -1,5 +1,11 @@
 package com.expidev.gcmapp;
 
+import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
+import static com.expidev.gcmapp.Constants.ARG_GUID;
+import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
+import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
+import static com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,14 +32,16 @@ import com.expidev.gcmapp.map.ChurchMarker;
 import com.expidev.gcmapp.map.Marker;
 import com.expidev.gcmapp.map.MarkerRender;
 import com.expidev.gcmapp.map.TrainingMarker;
+import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.support.v4.content.ChurchesLoader;
-import com.expidev.gcmapp.support.v4.content.CurrentMinistryLoader;
+import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
 import com.expidev.gcmapp.support.v4.content.TrainingLoader;
 import com.expidev.gcmapp.support.v4.fragment.EditChurchFragment;
 import com.expidev.gcmapp.support.v4.fragment.EditTrainingFragment;
@@ -57,20 +65,15 @@ import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.content.AttributesLoader;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 
-import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
-import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
-import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
-
-
 public class MainActivity extends ActionBarActivity
     implements OnMapReadyCallback
 {
     private final String TAG = this.getClass().getSimpleName();
 
     private static final int LOADER_THEKEY_ATTRIBUTES = 1;
-    private static final int LOADER_CURRENT_MINISTRY = 2;
     private static final int LOADER_CHURCHES = 3;
     private static final int LOADER_TRAINING = 4;
+    private static final int LOADER_CURRENT_ASSIGNMENT = 6;
 
     private static final int MAP_LAYER_TRAINING = 0;
     private static final int MAP_LAYER_TARGET = 1;
@@ -88,7 +91,7 @@ public class MainActivity extends ActionBarActivity
     private SharedPreferences preferences;
 
     /* Loader callback objects */
-    private final AssociatedMinistryLoaderCallbacks mLoaderCallbacksMinistry = new AssociatedMinistryLoaderCallbacks();
+    private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
     private final AttributesLoaderCallbacks mLoaderCallbacksAttributes = new AttributesLoaderCallbacks();
     private final ChurchesLoaderCallbacks mLoaderCallbacksChurches = new ChurchesLoaderCallbacks();
     private final TrainingLoaderCallbacks mLoaderCallbacksTraining = new TrainingLoaderCallbacks();
@@ -100,6 +103,8 @@ public class MainActivity extends ActionBarActivity
     private ClusterManager<Marker> clusterManager;
     private final boolean[] mMapLayers = new boolean[6];
 
+    @Nullable
+    private Assignment mAssignment;
     @Nullable
     private AssociatedMinistry mCurrentMinistry;
     @Nullable
@@ -155,9 +160,9 @@ public class MainActivity extends ActionBarActivity
             MinistriesService.syncAllMinistries(this);
             MinistriesService.syncAssignments(this, theKey.getGuid());
 
-            if(mCurrentMinistry != null)
-            {
-                MeasurementsService.syncMeasurements(this, mCurrentMinistry.getMinistryId(), getChosenMcc(), null);
+            if (mAssignment != null) {
+                MeasurementsService
+                        .syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc().toString(), null);
             }
         }
     }
@@ -186,9 +191,10 @@ public class MainActivity extends ActionBarActivity
             case R.id.action_refresh:
                 MinistriesService.syncAllMinistries(this, true);
                 MinistriesService.syncAssignments(this, theKey.getGuid(), true);
-                if (mCurrentMinistry != null) {
-                    MinistriesService.syncChurches(this, mCurrentMinistry.getMinistryId());
-                    MeasurementsService.syncMeasurements(this, mCurrentMinistry.getMinistryId(), getChosenMcc(), null);
+                if (mAssignment != null) {
+                    MinistriesService.syncChurches(this, mAssignment.getMinistryId());
+                    MeasurementsService
+                            .syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc().toString(), null);
                 }
 
                 return true;
@@ -204,23 +210,25 @@ public class MainActivity extends ActionBarActivity
     }
 
     /**
-     * This event is triggered when a new currentMinistry object is loaded
+     * This event is triggered when a fresh assignment object is loaded
      *
-     * @param ministry the new current ministry object
+     * @param assignment the new assignment object
      */
-    void onLoadCurrentMinistry(@Nullable final AssociatedMinistry ministry) {
+    void onLoadCurrentAssignment(@Nullable final Assignment assignment) {
+        mAssignment = assignment;
+
         // store the current ministry
         final AssociatedMinistry old = mCurrentMinistry;
-        mCurrentMinistry = ministry;
+        mCurrentMinistry = assignment != null ? assignment.getMinistry() : null;
 
         // determine if the current ministry changed
-        final String oldId = old != null ? old.getMinistryId() : null;
-        final String newId = ministry != null ? ministry.getMinistryId() : null;
-        final boolean changed = oldId != null ? !oldId.equals(newId) : newId != null;
+        final String oldId = old != null ? old.getMinistryId() : Ministry.INVALID_ID;
+        final String newId = mCurrentMinistry != null ? mCurrentMinistry.getMinistryId() : Ministry.INVALID_ID;
+        final boolean changed = !oldId.equals(newId);
 
         // trigger some additional actions if we are changing our current ministry
         if (changed) {
-            onChangeCurrentMinistry();
+            onChangeCurrentAssignment();
         }
 
         // update the map
@@ -230,13 +238,13 @@ public class MainActivity extends ActionBarActivity
     /**
      * This event is triggered when the current ministry is changing from one to another
      */
-    void onChangeCurrentMinistry() {
+    void onChangeCurrentAssignment() {
         // sync churches & trainings
-        if (mCurrentMinistry != null) {
-            String mcc = getChosenMcc();
-            MinistriesService.syncChurches(this, mCurrentMinistry.getMinistryId());
-            TrainingService.downloadTraining(this, mCurrentMinistry.getMinistryId(), mcc != null ? mcc : "slm");
-            MeasurementsService.syncMeasurements(this, mCurrentMinistry.getMinistryId(), mcc, null);
+        if (mAssignment != null) {
+            MinistriesService.syncChurches(this, mAssignment.getMinistryId());
+            TrainingService.downloadTraining(this, mAssignment.getMinistryId(), mAssignment.getMcc());
+            MeasurementsService
+                    .syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc().toString(), null);
         }
 
         // restart Loaders based off the current ministry
@@ -278,9 +286,15 @@ public class MainActivity extends ActionBarActivity
 
     private void startLoaders() {
         final LoaderManager manager = this.getSupportLoaderManager();
+
+        // build the args used for various loaders
+        final Bundle args = new Bundle(1);
+        args.putString(ARG_GUID, theKey.getGuid());
+        args.putBoolean(ARG_LOAD_MINISTRY, true);
+
         manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, mLoaderCallbacksAttributes);
-        manager.initLoader(LOADER_CURRENT_MINISTRY, null, mLoaderCallbacksMinistry);
         manager.initLoader(LOADER_TRAINING, null, mLoaderCallbacksTraining);
+        manager.initLoader(LOADER_CURRENT_ASSIGNMENT, args, mLoaderCallbacksAssignment);
         restartCurrentMinistryBasedLoaders();
     }
 
@@ -289,7 +303,7 @@ public class MainActivity extends ActionBarActivity
 
         // build the args used for ministry based loaders
         final Bundle args = new Bundle(1);
-        args.putString(ARG_MINISTRY_ID, mCurrentMinistry != null ? mCurrentMinistry.getMinistryId() : null);
+        args.putString(ARG_MINISTRY_ID, mAssignment != null ? mAssignment.getMinistryId() : Ministry.INVALID_ID);
 
         // restart these loaders in case the ministry id has changed since the last start
         manager.restartLoader(LOADER_CHURCHES, args, mLoaderCallbacksChurches);
@@ -556,49 +570,24 @@ public class MainActivity extends ActionBarActivity
         manager.unregisterReceiver(gcmBroadcastReceiver);
         gcmBroadcastReceiver = null;
     }
-    
-    @Nullable
-    private String getChosenMcc() {
-        if (mCurrentMinistry != null) {
-            String mcc = preferences.getString("chosen_mcc", null);
 
-            if (mcc == null || "No MCC Options".equals(mcc)) {
-                if (mCurrentMinistry.hasSlm()) {
-                    mcc = "SLM";
-                } else if (mCurrentMinistry.hasGcm()) {
-                    mcc = "GCM";
-                } else if (mCurrentMinistry.hasLlm()) {
-                    mcc = "LLM";
-                } else if (mCurrentMinistry.hasDs()) {
-                    mcc = "DS";
-                }
-
-                preferences.edit().putString("chosen_mcc", mcc).apply();
-            }
-
-            return mcc;
-        }
-
-        return null;
-    }
-
-    private class AssociatedMinistryLoaderCallbacks extends SimpleLoaderCallbacks<AssociatedMinistry> {
+    private class AssignmentLoaderCallbacks extends SimpleLoaderCallbacks<Assignment> {
+        @Nullable
         @Override
-        public Loader<AssociatedMinistry> onCreateLoader(final int id, final Bundle bundle) {
+        public Loader<Assignment> onCreateLoader(final int id, @Nullable final Bundle bundle) {
             switch (id) {
-                case LOADER_CURRENT_MINISTRY:
-                    return new CurrentMinistryLoader(MainActivity.this);
+                case LOADER_CURRENT_ASSIGNMENT:
+                    return new CurrentAssignmentLoader(MainActivity.this, bundle);
                 default:
                     return null;
             }
         }
 
         @Override
-        public void onLoadFinished(final Loader<AssociatedMinistry> loader,
-                                   @Nullable final AssociatedMinistry ministry) {
+        public void onLoadFinished(@NonNull final Loader<Assignment> loader, @Nullable final Assignment assignment) {
             switch (loader.getId()) {
-                case LOADER_CURRENT_MINISTRY:
-                    onLoadCurrentMinistry(ministry);
+                case LOADER_CURRENT_ASSIGNMENT:
+                    onLoadCurrentAssignment(assignment);
                     break;
             }
         }
