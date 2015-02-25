@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.expidev.gcmapp.model.Assignment;
+import com.expidev.gcmapp.model.Ministry;
 
 public class AssignmentMapper extends BaseMapper<Assignment> {
     @Override
@@ -38,7 +39,7 @@ public class AssignmentMapper extends BaseMapper<Assignment> {
         final Assignment assignment = super.toObject(c);
         assignment.setId(this.getString(c, Contract.Assignment.COLUMN_ID, null));
         assignment.setRole(this.getString(c, Contract.Assignment.COLUMN_ROLE, null));
-        assignment.setMinistryId(this.getString(c, Contract.Assignment.COLUMN_MINISTRY_ID, null));
+        assignment.setMinistryId(getNonNullString(c, Contract.Assignment.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
         return assignment;
     }
 }

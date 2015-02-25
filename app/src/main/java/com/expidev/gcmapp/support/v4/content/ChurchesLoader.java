@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.model.Church;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.ccci.gto.android.common.support.v4.content.AsyncTaskBroadcastReceiverLoader;
@@ -19,7 +20,7 @@ import java.util.List;
 
 public class ChurchesLoader extends AsyncTaskBroadcastReceiverLoader<List<Church>> {
     private final MinistriesDao mDao;
-    @Nullable
+    @NonNull
     private final String mMinistryId;
 
     public ChurchesLoader(@NonNull final Context context, @Nullable final Bundle args,
@@ -35,12 +36,12 @@ public class ChurchesLoader extends AsyncTaskBroadcastReceiverLoader<List<Church
             addIntentFilter(BroadcastUtils.updateChurchesFilter());
         }
         mDao = MinistriesDao.getInstance(context);
-        mMinistryId = ministryId;
+        mMinistryId = ministryId != null ? ministryId : Ministry.INVALID_ID;
     }
 
     @Override
     public List<Church> loadInBackground() {
-        if (mMinistryId != null) {
+        if (!Ministry.INVALID_ID.equals(mMinistryId)) {
             return mDao.get(Church.class, Contract.Church.SQL_WHERE_MINISTRY_ID, new String[] {mMinistryId});
         }
         return null;

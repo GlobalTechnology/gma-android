@@ -44,7 +44,7 @@ public class MinistriesMapper extends BaseMapper<Ministry>
     {
         final Ministry ministry = new Ministry();
 
-        ministry.setMinistryId(this.getString(cursor, Contract.Ministry.COLUMN_MINISTRY_ID, "NO ID"));
+        ministry.setMinistryId(getNonNullString(cursor, Contract.Ministry.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
         ministry.setName(this.getString(cursor, Contract.Ministry.COLUMN_NAME));
 
         return ministry;

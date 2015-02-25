@@ -26,7 +26,8 @@ public class Training extends Location implements Cloneable
     public static final long INVALID_ID = -1;
     
     private long id;
-    private String ministryId;
+    @NonNull
+    private String ministryId = Ministry.INVALID_ID;
     private String name;
     private Date date;
     private String type;
@@ -84,13 +85,13 @@ public class Training extends Location implements Cloneable
         this.id = id;
     }
 
+    @NonNull
     public String getMinistryId()
     {
         return ministryId;
     }
 
-    public void setMinistryId(String ministryId)
-    {
+    public void setMinistryId(@NonNull final String ministryId) {
         this.ministryId = ministryId;
     }
 
