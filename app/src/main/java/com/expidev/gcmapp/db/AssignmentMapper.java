@@ -39,8 +39,7 @@ public class AssignmentMapper extends BaseMapper<Assignment> {
         final Assignment assignment = super.toObject(c);
         assignment.setId(this.getString(c, Contract.Assignment.COLUMN_ID, null));
         assignment.setRole(this.getString(c, Contract.Assignment.COLUMN_ROLE, null));
-        final String ministryId = getString(c, Contract.Assignment.COLUMN_MINISTRY_ID, Ministry.INVALID_ID);
-        assignment.setMinistryId(ministryId != null ? ministryId : Ministry.INVALID_ID);
+        assignment.setMinistryId(getNonNullString(c, Contract.Assignment.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
         return assignment;
     }
 }
