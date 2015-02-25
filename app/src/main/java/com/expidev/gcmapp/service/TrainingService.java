@@ -14,6 +14,7 @@ import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.TrainingDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.TrainingJsonParser;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
@@ -115,13 +116,13 @@ public class TrainingService extends IntentService
         }
         return intent;
     }
-    
-    public static void downloadTraining(final Context context, String ministryId, String mcc)
-    {
+
+    public static void downloadTraining(@NonNull final Context context, @NonNull final String ministryId,
+                                        @NonNull final Ministry.Mcc mcc) {
         final Bundle extras = new Bundle(3);
         extras.putSerializable(EXTRA_TYPE, DOWNLOAD_TRAINING);
         extras.putString(MINISTRY_ID, ministryId);
-        extras.putString(MINISTRY_MCC, mcc);
+        extras.putString(MINISTRY_MCC, mcc.toString());
         final Intent intent = baseIntent(context, extras);
         context.startService(intent);
     }
