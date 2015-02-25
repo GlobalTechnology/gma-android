@@ -183,7 +183,7 @@ public class MeasurementsJsonParser
     /**
      * Returns a single {@link org.json.JSONObject} to be posted to the server, this will be part
      * of a {@link org.json.JSONArray} created using
-     * {@link #createPostJsonForMeasurementDetails(org.json.JSONObject...)}
+     * {@link #createPostJsonForMeasurementDetails(List<MeasurementDetails>)}
      *
      * @param type either local or personal depending on which value is being updated
      */
