@@ -422,10 +422,21 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             dataSection.addView(new HorizontalLineView(this));
         }
 
-        EditText localNumber = createInputView(measurementDetails.getLocalValue(), LOCAL_MEASUREMENTS_TAG);
-        LinearLayout localDataInputSection = createRow(createNameView("Local"), localNumber);
+        if(isLeader())
+        {
+            EditText localNumber = createInputView(measurementDetails.getLocalValue(), LOCAL_MEASUREMENTS_TAG);
+            LinearLayout localDataInputSection = createRow(createNameView("Local"), localNumber);
 
-        dataSection.addView(localDataInputSection);
+            dataSection.addView(localDataInputSection);
+        }
+        else // Member
+        {
+            LinearLayout localDataInputSection = createRow(
+                "Local",
+                measurementDetails.getLocalValue()
+            );
+            dataSection.addView(localDataInputSection);
+        }
 
         TextHeaderView teamMembersSectionTitle = new TextHeaderView(this);
         teamMembersSectionTitle.setText(R.string.team_members_title);
