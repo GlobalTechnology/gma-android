@@ -398,7 +398,6 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
     private void initializeDataSection(MeasurementDetails measurementDetails)
     {
-        Assignment.Role currentRole = currentAssignment.getRole();
         TextHeaderView totalNumberTitle = new TextHeaderView(this);
         totalNumberTitle.setText(ministryName);
 
@@ -438,13 +437,19 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         dataSection.addView(personalDataInputSection);
 
-        addTeamMemberSection(dataSection, measurementDetails);
-        addSubMinistriesSection(dataSection, measurementDetails);
-
-        if(currentRole == Assignment.Role.LEADER || currentRole == Assignment.Role.INHERITED_LEADER)
+        if(isLeader())
         {
+            addTeamMemberSection(dataSection, measurementDetails);
+            addSubMinistriesSection(dataSection, measurementDetails);
             addSelfAssignedSection(dataSection, measurementDetails);
         }
+    }
+
+    private boolean isLeader()
+    {
+        return currentAssignment != null &&
+            (currentAssignment.getRole() == Assignment.Role.LEADER ||
+                currentAssignment.getRole() == Assignment.Role.INHERITED_LEADER);
     }
 
     private void addTeamMemberSection(LinearLayout dataSection, MeasurementDetails measurementDetails)
