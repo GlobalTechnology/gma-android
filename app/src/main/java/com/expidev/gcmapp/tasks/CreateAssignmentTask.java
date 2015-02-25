@@ -6,9 +6,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.expidev.gcmapp.BuildConfig;
+import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.model.Assignment;
+import com.expidev.gcmapp.model.AssociatedMinistry;
 
 import org.ccci.gto.android.common.api.ApiException;
 
@@ -65,8 +67,17 @@ public class CreateAssignmentTask extends AsyncTask<Void, Void, Assignment> {
             try {
                 final Assignment assignment = mApi.createAssignment(email, mMinistryId, mRole);
                 if (assignment != null) {
+                    // TODO: I'm not happy with saving the assignment here
+                    assignment.setGuid(mTheKey.getGuid());
+
+                    // update attached ministry
+                    final AssociatedMinistry ministry = assignment.getMinistry();
+                    if(ministry != null) {
+                        mDao.updateOrInsert(ministry);
+                    }
+
                     // save created assignment
-                    mDao.updateOrInsertAssignment(assignment);
+                    mDao.updateOrInsert(assignment, Contract.Assignment.PROJECTION_API_CREATE_ASSIGNMENT);
 
                     // return assignment
                     return assignment;

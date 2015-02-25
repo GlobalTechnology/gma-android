@@ -163,6 +163,8 @@ public class Contract {
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_GUID, COLUMN_ID, COLUMN_ROLE, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_LAST_SYNCED};
+        public static final String[] PROJECTION_API_GET_ASSIGNMENT = {COLUMN_ID, COLUMN_ROLE, COLUMN_LAST_SYNCED};
+        public static final String[] PROJECTION_API_CREATE_ASSIGNMENT = PROJECTION_API_GET_ASSIGNMENT;
 
         private static final String SQL_COLUMN_GUID = COLUMN_GUID + " TEXT NOT NULL DEFAULT ''";
         private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT NOT NULL DEFAULT ''";
