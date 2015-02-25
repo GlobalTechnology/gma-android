@@ -175,39 +175,6 @@ public class MinistriesDao extends AbstractDao
         return this.get(AssociatedMinistry.class);
     }
 
-    public void updateOrInsertAssignment(@NonNull final Assignment assignment) {
-        final SQLiteDatabase db = dbHelper.getWritableDatabase();
-        try {
-            db.beginTransaction();
-
-            // first store the associated ministries
-            final AssociatedMinistry associatedMinistry = assignment.getMinistry();
-            associatedMinistry.setParentMinistryId(null);
-            insertOrUpdateAssociatedMinistry(associatedMinistry);
-
-            // then store the assignment
-            this.updateOrInsert(assignment);
-
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
-    }
-
-    public void insertOrUpdateAssociatedMinistry(@NonNull final AssociatedMinistry ministry) {
-        final SQLiteDatabase db = dbHelper.getWritableDatabase();
-        try {
-            db.beginTransaction();
-
-            // insert this AssociatedMinistry
-            this.updateOrInsert(ministry, Contract.AssociatedMinistry.PROJECTION_ALL);
-
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
-    }
-
     void deleteAllData()
     {
         final SQLiteDatabase database = dbHelper.getWritableDatabase();
