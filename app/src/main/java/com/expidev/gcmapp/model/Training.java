@@ -39,7 +39,7 @@ public class Training extends Location implements Cloneable
 
     public static final String JSON_ID = "id";
     public static final String JSON_NAME = "name";
-    public static final String JSON_MINISTRY_ID = "ministryId";
+    public static final String JSON_MINISTRY_ID = "ministry_id";
     public static final String JSON_TYPE = "type";
     public static final String JSON_DATE = "date";
     public static final String JSON_MCC = "mcc";

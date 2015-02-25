@@ -95,6 +95,7 @@ public class TrainingService extends IntentService
                     break;
                 case SYNC_DIRTY_TRAINING:
                     syncDirtyTraining();
+                    break;
                 default:
                     break;
             }
