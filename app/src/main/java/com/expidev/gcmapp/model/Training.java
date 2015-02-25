@@ -2,6 +2,10 @@ package com.expidev.gcmapp.model;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -10,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -32,9 +37,12 @@ public class Training extends Location implements Cloneable
     @NonNull
     private final Set<String> mDirty = new HashSet<>();
 
+    public static final String JSON_ID = "id";
     public static final String JSON_NAME = "name";
+    public static final String JSON_MINISTRY_ID = "ministryId";
     public static final String JSON_TYPE = "type";
     public static final String JSON_DATE = "date";
+    public static final String JSON_MCC = "mcc";
     
     public Training()
     {       
@@ -182,6 +190,35 @@ public class Training extends Location implements Cloneable
     public boolean isDirty()
     {
         return !mDirty.isEmpty();
+    }
+    
+    public void setDirty(@Nullable final String dirty)
+    {
+        mDirty.clear();
+        if (dirty != null) Collections.addAll(mDirty, TextUtils.split(dirty, ","));
+    }
+    
+    public JSONObject dirtyToJson() throws JSONException
+    {
+        final JSONObject json = this.toJson();
+        final Iterator<String> keys = json.keys();
+        while (keys.hasNext())
+        {
+            if (!this.mDirty.contains(keys.next())) keys.remove();
+        }
+        return json;
+    }
+    
+    public JSONObject toJson() throws JSONException
+    {
+        final JSONObject json = new JSONObject();
+        json.put(JSON_ID, this.getId());
+        json.put(JSON_NAME, this.getName());
+        json.put(JSON_MINISTRY_ID, this.getMinistryId());
+        json.put(JSON_DATE, this.getDate());
+        json.put(JSON_TYPE, this.getType());
+        json.put(JSON_MCC, this.getMcc());
+        return json;
     }
 
     public static class GCMTrainingCompletions extends Base

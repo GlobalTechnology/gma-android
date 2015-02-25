@@ -1,7 +1,5 @@
 package com.expidev.gcmapp.http;
 
-import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -18,6 +16,7 @@ import com.expidev.gcmapp.json.MinistryJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.service.MinistriesService;
 
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
@@ -44,6 +43,8 @@ import java.util.Set;
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.TheKeyImpl;
+
+import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
 
 /**
  * Created by matthewfrederick on 1/23/15.
@@ -472,6 +473,29 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
 
         return null;
+    }
+    
+    public boolean updateTraining(final long id, @NonNull final JSONObject training) throws ApiException
+    {
+        if (id == Training.INVALID_ID) return false;
+        
+        final Request<Session> request = new Request<>(TRAINING + "/" + id);
+        request.method = Method.PUT;
+        request.setContent(training);
+
+        HttpURLConnection connn = null;
+        try
+        {
+            connn = this.sendRequest(request);
+            return connn.getResponseCode() == HttpURLConnection.HTTP_CREATED;
+        } catch (final IOException e)
+        {
+            throw new ApiSocketException(e);
+        }
+        finally
+        {
+            IOUtils.closeQuietly(connn);
+        }
     }
 
     protected static class Session extends AbstractTheKeyApi.Session {
