@@ -1,7 +1,5 @@
 package com.expidev.gcmapp.http;
 
-import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
-import static com.expidev.gcmapp.Constants.PREF_CURRENT_ASSIGNMENT;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -19,8 +17,8 @@ import com.expidev.gcmapp.json.MinistryJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
-import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.model.Training;
+import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.service.MinistriesService;
 
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
@@ -69,12 +67,10 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
     // XXX: temporary until mContext from AbstractApi is visible
     private final Context mContext;
-    private final SharedPreferences mPrefs;
 
     private GmaApiClient(final Context context) {
         super(context, TheKeyImpl.getInstance(context, THEKEY_CLIENTID), BuildConfig.GCM_BASE_URI, "gcm_api_sessions");
         mContext = context;
-        mPrefs = mContext.getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE);
     }
 
     public static GmaApiClient getInstance(final Context context) {
@@ -389,10 +385,9 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         return null;
     }
 
-    public boolean updateMeasurementDetails(List<MeasurementDetails> measurementDetailsList)
+    public boolean updateMeasurementDetails(List<MeasurementDetails> measurementDetailsList, String assignmentId)
         throws JSONException, ApiException
     {
-        String assignmentId = mPrefs.getString(PREF_CURRENT_ASSIGNMENT, null);
         List<JSONObject> data = new ArrayList<>();
         for(MeasurementDetails measurementDetails : measurementDetailsList)
         {
