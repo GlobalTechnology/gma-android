@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Assignment extends Base implements Serializable {
+public class Assignment extends Base implements Cloneable, Serializable {
     private static final long serialVersionUID = 0L;
 
     public static final String JSON_ID = "id";
@@ -100,6 +100,23 @@ public class Assignment extends Base implements Serializable {
         return assignment;
     }
 
+    public Assignment() {}
+
+    protected Assignment(@NonNull final Assignment assignment) {
+        super(assignment);
+        this.guid = assignment.guid;
+        this.id = assignment.id;
+        this.role = assignment.role;
+        this.ministryId = assignment.ministryId;
+        this.mcc = assignment.mcc;
+        for(final Assignment sub : assignment.subAssignments) {
+            this.subAssignments.add(sub.clone());
+        }
+
+        //TODO: clone ministry
+        this.ministry = assignment.ministry;
+    }
+
     @NonNull
     public String getGuid() {
         return guid;
@@ -170,6 +187,11 @@ public class Assignment extends Base implements Serializable {
         json.put(JSON_ROLE, this.role.raw);
         json.put(JSON_MINISTRY_ID, this.ministryId);
         return json;
+    }
+
+    @Override
+    public Assignment clone() {
+        return new Assignment(this);
     }
 
     @Override
