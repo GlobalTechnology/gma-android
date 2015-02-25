@@ -364,7 +364,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         // build request
         final Request<Session> request = new Request<>(MEASUREMENTS + "/" + measurementId);
         request.params.add(param("ministry_id", ministryId));
-        request.params.add(param("mcc", mcc));
+        request.params.add(param("mcc", mcc.toLowerCase()));
         if (period != null) {
             request.params.add(param("period", period));
         }
