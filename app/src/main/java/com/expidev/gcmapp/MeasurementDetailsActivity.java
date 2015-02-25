@@ -438,6 +438,17 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         dataSection.addView(personalDataInputSection);
 
+        addTeamMemberSection(dataSection, measurementDetails);
+        addSubMinistriesSection(dataSection, measurementDetails);
+
+        if(currentRole == Assignment.Role.LEADER || currentRole == Assignment.Role.INHERITED_LEADER)
+        {
+            addSelfAssignedSection(dataSection, measurementDetails);
+        }
+    }
+
+    private void addTeamMemberSection(LinearLayout dataSection, MeasurementDetails measurementDetails)
+    {
         List<TeamMemberDetails> teamMemberDetailsList = measurementDetails.getTeamMemberDetails();
 
         for(TeamMemberDetails teamMemberDetails : teamMemberDetailsList)
@@ -450,7 +461,10 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             LinearLayout row = createRow(name, teamMemberDetails.getTotal());
             dataSection.addView(row);
         }
+    }
 
+    private void addSubMinistriesSection(LinearLayout dataSection, MeasurementDetails measurementDetails)
+    {
         List<SubMinistryDetails> subMinistryDetailsList = measurementDetails.getSubMinistryDetails();
 
         if(subMinistryDetailsList.size() > 0)
@@ -466,31 +480,31 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                 dataSection.addView(row);
             }
         }
+    }
 
-        if(currentRole == Assignment.Role.LEADER || currentRole == Assignment.Role.INHERITED_LEADER)
+    private void addSelfAssignedSection(LinearLayout dataSection, MeasurementDetails measurementDetails)
+    {
+        List<TeamMemberDetails> selfAssignedDetails = measurementDetails.getSelfAssignedDetails();
+        if(!selfAssignedDetails.isEmpty())
         {
-            List<TeamMemberDetails> selfAssignedDetails = measurementDetails.getSelfAssignedDetails();
-            if(!selfAssignedDetails.isEmpty())
+            TextHeaderView selfAssignedHeader = new TextHeaderView(this);
+            selfAssignedHeader.setText("Self Assigned");
+
+            dataSection.addView(selfAssignedHeader);
+
+            int index = 0;
+            for(TeamMemberDetails selfAssignedRow : selfAssignedDetails)
             {
-                TextHeaderView selfAssignedHeader = new TextHeaderView(this);
-                selfAssignedHeader.setText("Self Assigned");
-
-                dataSection.addView(selfAssignedHeader);
-
-                int index = 0;
-                for(TeamMemberDetails selfAssignedRow : selfAssignedDetails)
+                if(index > 0)
                 {
-                    if(index > 0)
-                    {
-                        HorizontalLineView horizontalLine = new HorizontalLineView(this);
-                        dataSection.addView(horizontalLine);
-                    }
-
-                    String name = selfAssignedRow.getFirstName() + " " + selfAssignedRow.getLastName();
-                    LinearLayout row = createRow(name, selfAssignedRow.getTotal());
-                    dataSection.addView(row);
-                    index++;
+                    HorizontalLineView horizontalLine = new HorizontalLineView(this);
+                    dataSection.addView(horizontalLine);
                 }
+
+                String name = selfAssignedRow.getFirstName() + " " + selfAssignedRow.getLastName();
+                LinearLayout row = createRow(name, selfAssignedRow.getTotal());
+                dataSection.addView(row);
+                index++;
             }
         }
     }
