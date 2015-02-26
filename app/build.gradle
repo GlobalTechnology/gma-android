@@ -11,16 +11,27 @@ buildscript {
 apply plugin: 'com.android.application'
 apply plugin: 'newrelic'
 
+version '0.8.5-SNAPSHOT'
+
+def generateVersionCode(version) {
+    def code = 0;
+    version.replaceAll('[^0-9\\.]','').split('\\.').each{
+        code = (1000 * code) + Integer.valueOf(it);
+    }
+    return code;
+}
+
 android {
     compileSdkVersion 21
     buildToolsVersion '19.1.0'
 
     defaultConfig {
+        versionName project.version
+        versionCode generateVersionCode(project.version)
+
         applicationId "com.expidev.gcmapp"
         minSdkVersion 10
         targetSdkVersion 19
-        versionCode 1
-        versionName "1.0"
 
         buildConfigField "String", "GCM_BASE_URI", "\"https://measurements.global-registry.org/v1/\""
         buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA3128e4005a5f2d68e0d232aebec6e9936950e042\""
