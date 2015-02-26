@@ -36,7 +36,7 @@ android {
         versionName "1.0"
 
         buildConfigField "String", "GCM_BASE_URI", "\"https://measurements.global-registry.org/v1/\""
-        buildConfigField "String", "NEW_RELIC_API_KEY", "\"AAfd80ddf74e333f27c92d3f89f125be5cecf9c532\""
+        buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA3128e4005a5f2d68e0d232aebec6e9936950e042\""
         buildConfigField "long", "THEKEY_CLIENTID", "7439283632057308L"
     }
 
@@ -51,6 +51,7 @@ android {
             versionNameSuffix "-debug"
 
             buildConfigField "String", "GCM_BASE_URI", "\"https://stage-measurements.global-registry.org/v1/\""
+            buildConfigField "String", "NEW_RELIC_API_KEY", "\"AAfd80ddf74e333f27c92d3f89f125be5cecf9c532\""
         }
         release {
             minifyEnabled false
