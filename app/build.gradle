@@ -54,7 +54,7 @@ android {
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AAfd80ddf74e333f27c92d3f89f125be5cecf9c532\""
         }
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -95,6 +95,11 @@ dependencies {
 apply from: 'maven_publish.gradle'
 afterEvaluate { project ->
     artifacts {
+        archives(file("build/outputs/mapping/release/mapping.txt")) {
+            classifier 'mapping'
+            type 'txt'
+            builtBy proguardRelease
+        }
         archives artifactSourcesJar
     }
 }
