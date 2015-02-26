@@ -23,7 +23,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPreferencesChangeLoader<Assignment> {
-    public static final String ARG_LOAD_MINISTRY = CurrentMinistryLoader.class.getSimpleName() + ".ARG_LOAD_MINISTRY";
+    public static final String ARG_LOAD_MINISTRY = CurrentAssignmentLoader.class.getSimpleName() + ".ARG_LOAD_MINISTRY";
 
     private final MinistriesDao mDao;
 
