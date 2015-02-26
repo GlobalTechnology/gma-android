@@ -144,11 +144,27 @@ public class SettingsFragment extends PreferenceFragment {
                 names[i++] = mcc.name();
             }
 
+            mPrefMcc.setEnabled(count != 0);
             mPrefMcc.setEntries(names);
             mPrefMcc.setEntryValues(names);
 
             if (mCurrentAssignment != null) {
                 mPrefMcc.setValue(mCurrentAssignment.getMcc().toString());
+            }
+
+            // update summary as necessary
+            updateMccPrefSummary();
+        }
+    }
+
+    private void updateMccPrefSummary() {
+        if (mPrefMcc != null) {
+            if (mPrefMcc.getEntries().length == 0) {
+                mPrefMcc.setSummary(R.string.pref_summary_mcc_none_available);
+            } else if (mPrefMcc.getEntry() == null) {
+                mPrefMcc.setSummary(R.string.pref_summary_mcc_none_set);
+            } else {
+                mPrefMcc.setSummary(R.string.pref_summary_mcc);
             }
         }
     }
@@ -175,6 +191,9 @@ public class SettingsFragment extends PreferenceFragment {
                         broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast());
                     }
                 });
+
+                // update summary as necessary
+                updateMccPrefSummary();
             }
 
             return true;
