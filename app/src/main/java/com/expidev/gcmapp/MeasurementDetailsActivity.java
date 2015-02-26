@@ -60,6 +60,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import me.thekey.android.TheKey;
+import me.thekey.android.lib.TheKeyImpl;
+
 /**
  * Created by William.Randall on 1/28/2015.
  */
@@ -67,6 +70,8 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 {
     private final String TAG = getClass().getSimpleName();
     private final MeasurementDetailsLoaderCallbacks measurementDetailsLoaderCallback = new MeasurementDetailsLoaderCallbacks();
+
+    private TheKey mTheKey;
 
     // The main dataset that includes all the series that go into a chart
     private XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
@@ -101,6 +106,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.base_graph);
+        mTheKey = TheKeyImpl.getInstance(this);
 
         measurementId = getIntent().getStringExtra(Constants.ARG_MEASUREMENT_ID);
         ministryId = getIntent().getStringExtra(Constants.ARG_MINISTRY_ID);
@@ -121,14 +127,15 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     {
         final LoaderManager manager = this.getSupportLoaderManager();
 
-        Bundle args = new Bundle(4);
+        Bundle args = new Bundle(5);
+        args.putString(Constants.ARG_GUID, mTheKey.getGuid());
         args.putString(Constants.ARG_MEASUREMENT_ID, measurementId);
         args.putString(Constants.ARG_MINISTRY_ID, ministryId);
         args.putString(Constants.ARG_MCC, mcc);
         args.putString(Constants.ARG_PERIOD, period);
 
         manager.initLoader(LOADER_MEASUREMENT_DETAILS, args, measurementDetailsLoaderCallback);
-        manager.initLoader(LOADER_CURRENT_ASSIGNMENT, null, new AssignmentLoaderCallbacks());
+        manager.initLoader(LOADER_CURRENT_ASSIGNMENT, args, new AssignmentLoaderCallbacks());
     }
 
     private void handleRetrievedMeasurementDetails(MeasurementDetails measurementDetails)
@@ -737,7 +744,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             switch(id)
             {
                 case LOADER_CURRENT_ASSIGNMENT:
-                    return new CurrentAssignmentLoader(MeasurementDetailsActivity.this);
+                    return new CurrentAssignmentLoader(MeasurementDetailsActivity.this, args);
                 default:
                     return null;
             }

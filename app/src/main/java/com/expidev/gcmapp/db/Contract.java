@@ -186,7 +186,7 @@ public class Contract {
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
         @Deprecated
-        public static final String SQL_V10_MCC = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_MCC;
+        public static final String SQL_V11_MCC = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_MCC;
     }
 
     public static final class Church extends Location {

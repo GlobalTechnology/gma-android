@@ -81,7 +81,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
                     db.execSQL(Contract.MeasurementDetails.SQL_V10_ALTER_PERSONAL);
                     break;
                 case 11:
-                    db.execSQL(Contract.Assignment.SQL_V10_MCC);
+                    db.execSQL(Contract.Assignment.SQL_V11_MCC);
                     break;
                 case 12:
                     db.execSQL(Contract.Assignment.SQL_DELETE_TABLE);
