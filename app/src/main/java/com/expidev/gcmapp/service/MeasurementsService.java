@@ -2,7 +2,6 @@ package com.expidev.gcmapp.service;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -26,10 +25,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import static com.expidev.gcmapp.service.Type.RETRIEVE_AND_SAVE_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENT_DETAILS;
 import static com.expidev.gcmapp.service.Type.SYNC_MEASUREMENTS;
@@ -49,12 +48,7 @@ public class MeasurementsService extends ThreadedIntentService
     private static final String PREFS_SYNC = "gma_sync";
     private static final String PREF_SYNC_TIME_MEASUREMENTS = "last_synced.measurements";
     private static final String PREF_SYNC_TIME_MEASUREMENT_DETAILS = "last_synced.measurement_details";
-    private static final String EXTRA_FORCE = MeasurementsService.class.getName() + ".EXTRA_FORCE";
     private static final String EXTRA_TYPE = "type";
-
-    private static final long HOUR_IN_MS = 60 * 60 * 1000;
-    private static final long DAY_IN_MS = 24 * HOUR_IN_MS;
-    private static final long STALE_DURATION_MEASUREMENTS = DAY_IN_MS;
 
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
 
@@ -97,9 +91,6 @@ public class MeasurementsService extends ThreadedIntentService
                 case SYNC_MEASUREMENTS:
                     syncMeasurements(intent);
                     break;
-                case RETRIEVE_AND_SAVE_MEASUREMENTS:
-                    retrieveAndSaveInitialMeasurementsAndDetails(intent);
-                    break;
                 case SAVE_MEASUREMENT_DETAILS:
                     saveMeasurementDetailsToDatabase(intent);
                     break;
@@ -136,29 +127,7 @@ public class MeasurementsService extends ThreadedIntentService
         context.startService(baseIntent(context, extras));
     }
 
-    public static void syncMeasurements(final Context context, String ministryId, String mcc, String period)
-    {
-        syncMeasurements(context, ministryId, mcc, period, false);
-    }
-
     public static void syncMeasurements(
-        final Context context,
-        String ministryId,
-        String mcc,
-        String period,
-        final boolean force)
-    {
-        Bundle extras = new Bundle(5);
-        extras.putSerializable(EXTRA_TYPE, SYNC_MEASUREMENTS);
-        extras.putString(Constants.ARG_MINISTRY_ID, ministryId);
-        extras.putString(Constants.ARG_MCC, mcc);
-        extras.putString(Constants.ARG_PERIOD, setPeriodToCurrentIfNecessary(period));
-        extras.putBoolean(EXTRA_FORCE, force);
-
-        context.startService(baseIntent(context, extras));
-    }
-
-    public static void retrieveAndSaveInitialMeasurements(
         final Context context,
         String ministryId,
         String mcc,
@@ -166,7 +135,7 @@ public class MeasurementsService extends ThreadedIntentService
     {
         Bundle extras = new Bundle(4);
 
-        extras.putSerializable(EXTRA_TYPE, RETRIEVE_AND_SAVE_MEASUREMENTS);
+        extras.putSerializable(EXTRA_TYPE, SYNC_MEASUREMENTS);
         extras.putString(Constants.ARG_MINISTRY_ID, ministryId);
         extras.putString(Constants.ARG_MCC, mcc);
         extras.putString(Constants.ARG_PERIOD, setPeriodToCurrentIfNecessary(period));
@@ -254,30 +223,6 @@ public class MeasurementsService extends ThreadedIntentService
         Log.i(TAG, "Measurements saved to the database");
     }
 
-    private void syncMeasurements(Intent intent) throws ApiException
-    {
-        final SharedPreferences prefs = this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE);
-        final boolean force = intent.getBooleanExtra(EXTRA_FORCE, false);
-        final boolean stale =
-            System.currentTimeMillis() - prefs.getLong(PREF_SYNC_TIME_MEASUREMENTS, 0) > STALE_DURATION_MEASUREMENTS;
-
-        // only sync if being forced or the data is stale
-        if(force || stale)
-        {
-            String ministryId = intent.getStringExtra(Constants.ARG_MINISTRY_ID);
-            String mcc = intent.getStringExtra(Constants.ARG_MCC);
-            String period = intent.getStringExtra(Constants.ARG_PERIOD);
-
-            List<Measurement> measurements = searchMeasurements(ministryId, mcc, period);
-
-            // only update the saved measurements if we received any back
-            if(measurements != null)
-            {
-                updateMeasurements(measurements);
-            }
-        }
-    }
-
     private void updateMeasurements(List<Measurement> measurements)
     {
         // save measurements for the given period, ministry, and mcc to the database
@@ -290,6 +235,7 @@ public class MeasurementsService extends ThreadedIntentService
             // update measurements in local database
             for(final Measurement measurement : measurements)
             {
+                measurement.setLastSynced(new Date());
                 measurementDao.saveMeasurement(measurement);
             }
 
@@ -313,7 +259,7 @@ public class MeasurementsService extends ThreadedIntentService
         }
     }
 
-    private void retrieveAndSaveInitialMeasurementsAndDetails(Intent intent) throws ApiException
+    private void syncMeasurements(Intent intent) throws ApiException
     {
         String ministryId = intent.getStringExtra(Constants.ARG_MINISTRY_ID);
         String mcc = intent.getStringExtra(Constants.ARG_MCC);
@@ -382,6 +328,7 @@ public class MeasurementsService extends ThreadedIntentService
 
             for(MeasurementDetails measurementDetails : measurementDetailsList)
             {
+                measurementDetails.setLastSynced(new Date());
                 measurementDao.saveMeasurementDetails(measurementDetails);
             }
 
