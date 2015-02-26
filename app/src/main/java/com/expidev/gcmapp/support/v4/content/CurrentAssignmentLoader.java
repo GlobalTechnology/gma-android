@@ -19,6 +19,7 @@ import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.ccci.gto.android.common.support.v4.content.AsyncTaskBroadcastReceiverSharedPreferencesChangeLoader;
 
+import java.util.EnumSet;
 import java.util.List;
 
 public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPreferencesChangeLoader<Assignment> {
@@ -92,20 +93,14 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
         // set the MCC based off of what is available for the ministry
         final AssociatedMinistry ministry = assignment.getMinistry();
         if (ministry != null) {
-            if (ministry.hasSlm()) {
-                assignment.setMcc(Ministry.Mcc.SLM);
-            } else if (ministry.hasLlm()) {
-                assignment.setMcc(Ministry.Mcc.LLM);
-            } else if (ministry.hasGcm()) {
-                assignment.setMcc(Ministry.Mcc.GCM);
-            } else if (ministry.hasDs()) {
-                assignment.setMcc(Ministry.Mcc.DS);
-            } else {
-                assignment.setMcc(Ministry.Mcc.UNKNOWN);
-            }
+            // pick a random MCC
+            final EnumSet<Ministry.Mcc> mccs = ministry.getMccs();
+            assignment.setMcc(mccs.size() > 0 ? mccs.iterator().next() : Ministry.Mcc.UNKNOWN);
 
             // update the assignment
             mDao.update(assignment, new String[] {Contract.Assignment.COLUMN_MCC});
+
+            //TODO: should we broadcast this update?
         }
     }
 

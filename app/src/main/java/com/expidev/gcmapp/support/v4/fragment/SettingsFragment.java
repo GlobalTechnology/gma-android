@@ -169,7 +169,7 @@ public class SettingsFragment extends PreferenceFragment {
                     @Override
                     public void run() {
                         // store changes
-                        dao.updateOrInsert(assignment, new String[] {Contract.Assignment.COLUMN_MCC});
+                        dao.update(assignment, new String[] {Contract.Assignment.COLUMN_MCC});
 
                         // broadcast the update
                         broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast());
