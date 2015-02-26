@@ -43,8 +43,7 @@ public class AssignmentMapper extends BaseMapper<Assignment> {
     @Override
     public Assignment toObject(@NonNull final Cursor c) {
         final Assignment assignment = super.toObject(c);
-        final String guid = getString(c, Contract.Assignment.COLUMN_GUID);
-        assignment.setGuid(guid != null ? guid : "");
+        assignment.setGuid(getNonNullString(c, Contract.Assignment.COLUMN_GUID, ""));
         assignment.setId(this.getString(c, Contract.Assignment.COLUMN_ID, null));
         assignment.setRole(this.getString(c, Contract.Assignment.COLUMN_ROLE, null));
         assignment.setMinistryId(getNonNullString(c, Contract.Assignment.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
