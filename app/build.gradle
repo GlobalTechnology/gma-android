@@ -11,6 +11,7 @@ buildscript {
 apply plugin: 'com.android.application'
 apply plugin: 'newrelic'
 
+group 'org.ccci.gto.android'
 version '0.8.5-SNAPSHOT'
 
 def generateVersionCode(version) {
@@ -89,4 +90,11 @@ dependencies {
 
     compile 'com.github.machinarius:preferencefragment:0.1.1'
     compile 'org.achartengine:achartengine:1.2.0'
+}
+
+apply from: 'maven_publish.gradle'
+afterEvaluate { project ->
+    artifacts {
+        archives artifactSourcesJar
+    }
 }
