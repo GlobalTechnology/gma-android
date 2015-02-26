@@ -26,6 +26,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -290,6 +291,7 @@ public class MeasurementsService extends ThreadedIntentService
             // update measurements in local database
             for(final Measurement measurement : measurements)
             {
+                measurement.setLastSynced(new Date());
                 measurementDao.saveMeasurement(measurement);
             }
 
@@ -371,6 +373,7 @@ public class MeasurementsService extends ThreadedIntentService
 
             for(MeasurementDetails measurementDetails : measurementDetailsList)
             {
+                measurementDetails.setLastSynced(new Date());
                 measurementDao.saveMeasurementDetails(measurementDetails);
             }
 
