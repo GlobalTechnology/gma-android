@@ -551,12 +551,12 @@ public class MeasurementsActivity extends ActionBarActivity
         protected List<Measurement> doInBackground(String... periods) {
             String period = periods[0];
 
-            if (mAssignment != null) {
+            if (assignment != null) {
                 try {
                     GmaApiClient apiClient = GmaApiClient.getInstance(MeasurementsActivity.this);
 
                     JSONArray results = apiClient
-                            .searchMeasurements(mAssignment.getMinistryId(), mAssignment.getMcc().toString(), period);
+                            .searchMeasurements(assignment.getMinistryId(), assignment.getMcc().toString(), period);
 
                     if (results == null) {
                         Log.w(TAG, "No measurements found!");
@@ -564,7 +564,7 @@ public class MeasurementsActivity extends ActionBarActivity
                     }
 
                     return MeasurementsJsonParser
-                            .parseMeasurements(results, mAssignment.getMinistryId(), mAssignment.getMcc().toString(),
+                            .parseMeasurements(results, assignment.getMinistryId(), assignment.getMcc().toString(),
                                                period);
                 } catch (ApiException e) {
                     Log.e(TAG, "Failed to retrieve measurements from API", e);
