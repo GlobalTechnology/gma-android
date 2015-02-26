@@ -26,10 +26,11 @@ android {
     buildToolsVersion '19.1.0'
 
     defaultConfig {
+        applicationId "com.expidevapps.android.gma_app"
+
         versionName project.version
         versionCode generateVersionCode(project.version)
 
-        applicationId "com.expidev.gcmapp"
         minSdkVersion 10
         targetSdkVersion 19
 
