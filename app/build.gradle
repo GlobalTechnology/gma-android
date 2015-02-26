@@ -11,19 +11,6 @@ buildscript {
 apply plugin: 'com.android.application'
 apply plugin: 'newrelic'
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven {
-        name "maven.gcx.org"
-        url "https://maven.gcx.org/"
-    }
-    maven {
-        name "achartengine"
-        url "https://repository-achartengine.forge.cloudbees.com/snapshot/"
-    }
-}
-
 android {
     compileSdkVersion 21
     buildToolsVersion '19.1.0'
@@ -57,6 +44,19 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        name "maven.gcx.org"
+        url "https://maven.gcx.org/"
+    }
+    maven {
+        name "achartengine"
+        url "https://repository-achartengine.forge.cloudbees.com/snapshot/"
     }
 }
 
