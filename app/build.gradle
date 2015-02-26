@@ -45,6 +45,15 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
+    signingConfigs {
+        release {
+            storeFile file(androidKeystorePath)
+            storePassword androidKeystoreStorePassword
+            keyAlias androidKeystoreKeyAlias
+            keyPassword androidKeystoreKeyPassword
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
@@ -56,6 +65,7 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }
