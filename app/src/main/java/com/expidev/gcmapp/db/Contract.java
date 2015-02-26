@@ -314,10 +314,10 @@ public class Contract {
 
         // DB migration queries
         @Deprecated
-        public static final String SQL_V9_ALTER_LOCAL = "ALTER TABLE " + TABLE_NAME +
+        public static final String SQL_V10_ALTER_LOCAL = "ALTER TABLE " + TABLE_NAME +
             " ADD COLUMN " + SQL_COLUMN_LOCAL_AMOUNT + ";";
         @Deprecated
-        public static final String SQL_V9_ALTER_PERSONAL = "ALTER TABLE " + TABLE_NAME +
+        public static final String SQL_V10_ALTER_PERSONAL = "ALTER TABLE " + TABLE_NAME +
             " ADD COLUMN " + SQL_COLUMN_PERSONAL_AMOUNT + ";";
     }
 

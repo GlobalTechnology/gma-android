@@ -73,8 +73,10 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
                     break;
                 case 9:
                     db.execSQL(Contract.Church.SQL_V9_ALTER_DIRTY);
-                    db.execSQL(Contract.MeasurementDetails.SQL_V9_ALTER_LOCAL);
-                    db.execSQL(Contract.MeasurementDetails.SQL_V9_ALTER_PERSONAL);
+                    break;
+                case 10:
+                    db.execSQL(Contract.MeasurementDetails.SQL_V10_ALTER_LOCAL);
+                    db.execSQL(Contract.MeasurementDetails.SQL_V10_ALTER_PERSONAL);
                     break;
                 default:
                     // unrecognized version, let's just reset the database and return
