@@ -18,13 +18,14 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.expidev.gcmapp.activity.SettingsActivity;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
-import com.expidev.gcmapp.model.AssociatedMinistry;
+import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.service.MeasurementsService;
-import com.expidev.gcmapp.support.v4.content.CurrentMinistryLoader;
+import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
 import com.expidev.gcmapp.support.v4.content.MeasurementsLoader;
 import com.expidev.gcmapp.utils.ViewUtils;
 import com.expidev.gcmapp.view.TextHeaderView;
@@ -42,6 +43,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import me.thekey.android.TheKey;
+import me.thekey.android.lib.TheKeyImpl;
+
 /**
  * Created by William.Randall on 2/3/2015.
  */
@@ -51,25 +55,31 @@ public class MeasurementsActivity extends ActionBarActivity
 
     private final String PREF_NAME = "gcm_prefs";
 
+    private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
     private final MeasurementsLoaderCallbacks measurementsLoaderCallbacks = new MeasurementsLoaderCallbacks();
-    private final AssociatedMinistryLoaderCallbacks ministryLoaderCallbacks = new AssociatedMinistryLoaderCallbacks();
 
+    private TheKey mTheKey;
     private SharedPreferences preferences;
+
+    @Nullable
+    private Assignment mAssignment = null;
+    @Nullable
     private Ministry chosenMinistry;
-    private String chosenMcc;
     private String currentPeriod = null;
 
-    private static final int LOADER_CURRENT_MINISTRY = 1;
     private static final int LOADER_MEASUREMENTS = 2;
+    private static final int LOADER_CURRENT_ASSIGNMENT = 3;
+
+    /* BEGIN lifecycle */
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_measurements);
+        mTheKey = TheKeyImpl.getInstance(this);
 
         preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        chosenMcc = preferences.getString("chosen_mcc", null);
     }
 
     @Override
@@ -85,38 +95,34 @@ public class MeasurementsActivity extends ActionBarActivity
     {
         final LoaderManager manager = this.getSupportLoaderManager();
 
-        manager.initLoader(LOADER_CURRENT_MINISTRY, null, ministryLoaderCallbacks);
+        // build args for the loader
+        final Bundle args = new Bundle(2);
+        args.putBoolean(CurrentAssignmentLoader.ARG_LOAD_MINISTRY, true);
+        args.putString(Constants.ARG_GUID, mTheKey.getGuid());
+
+        manager.initLoader(LOADER_CURRENT_ASSIGNMENT, args, mLoaderCallbacksAssignment);
     }
 
-    @Override
-    protected void onPostResume()
-    {
-        super.onPostResume();
-        Log.i(TAG, "Resuming");
-        chosenMcc = preferences.getString("chosen_mcc", null);
-    }
-
-    private void restartMeasurementLoader(String ministryId, String mcc, String period)
-    {
+    private void restartMeasurementLoader(String period) {
         final LoaderManager manager = this.getSupportLoaderManager();
 
         Bundle args = new Bundle(3);
-        args.putString(Constants.ARG_MINISTRY_ID, ministryId);
-        args.putString(Constants.ARG_MCC, mcc);
+        args.putString(Constants.ARG_MINISTRY_ID,
+                       mAssignment != null ? mAssignment.getMinistryId() : Ministry.INVALID_ID);
+        args.putString(Constants.ARG_MCC,
+                       (mAssignment != null ? mAssignment.getMcc() : Ministry.Mcc.UNKNOWN).toString());
         args.putString(Constants.ARG_PERIOD, period);
 
         manager.restartLoader(LOADER_MEASUREMENTS, args, measurementsLoaderCallbacks);
     }
 
-    private void drawLayout(Ministry selectedMinistry, String mcc, List<Measurement> measurements)
-    {
-        if(selectedMinistry == null)
-        {
+    private void drawLayout(List<Measurement> measurements) {
+        if (mAssignment == null || chosenMinistry == null) {
             return;
         }
 
         TextView titleView = (TextView) findViewById(R.id.measurement_ministry_name);
-        titleView.setText(selectedMinistry.getName() + " (" + mcc + ")");
+        titleView.setText(chosenMinistry.getName() + " (" + mAssignment.getMcc() + ")");
 
         TextView periodView = (TextView) findViewById(R.id.currentPeriod);
         if(currentPeriod == null)
@@ -357,7 +363,8 @@ public class MeasurementsActivity extends ActionBarActivity
         goToMeasurementDetails.putExtra(Constants.ARG_MEASUREMENT_ID, measurement.getMeasurementId());
         goToMeasurementDetails.putExtra(Constants.ARG_MINISTRY_ID, chosenMinistry.getMinistryId());
         goToMeasurementDetails.putExtra("ministryName", chosenMinistry.getName());
-        goToMeasurementDetails.putExtra(Constants.ARG_MCC, chosenMcc);
+        goToMeasurementDetails.putExtra(Constants.ARG_MCC, (mAssignment != null ? mAssignment.getMcc() :
+                Ministry.Mcc.UNKNOWN).toString());
         goToMeasurementDetails.putExtra("measurementName", measurement.getName());
 
         if(currentPeriod != null)
@@ -394,7 +401,7 @@ public class MeasurementsActivity extends ActionBarActivity
         LinearLayout dataContainer = (LinearLayout) findViewById(R.id.measurement_data_Layout);
         dataContainer.removeAllViews();
 
-        restartMeasurementLoader(chosenMinistry.getMinistryId(), chosenMcc, previousPeriodString);
+        restartMeasurementLoader(previousPeriodString);
     }
 
     public void goToNextPeriod(View view)
@@ -431,22 +438,16 @@ public class MeasurementsActivity extends ActionBarActivity
         LinearLayout dataContainer = (LinearLayout) findViewById(R.id.measurement_data_Layout);
         dataContainer.removeAllViews();
 
-        restartMeasurementLoader(chosenMinistry.getMinistryId(), chosenMcc, nextPeriodString);
+        restartMeasurementLoader(nextPeriodString);
     }
 
-    /**
-     * This event is triggered when a new currentMinistry object is loaded
-     *
-     * @param ministry the new current ministry object
-     */
-    void onLoadCurrentMinistry(@Nullable final AssociatedMinistry ministry)
-    {
-        chosenMinistry = ministry;
+    void onLoadCurrentAssignment(@Nullable final Assignment assignment) {
+        mAssignment = assignment;
+        chosenMinistry = mAssignment != null ? mAssignment.getMinistry() : null;
 
-        if(ministry != null)
-        {
+        if (chosenMinistry != null) {
             Log.i(TAG, "Associated Ministries retrieved");
-            restartMeasurementLoader(ministry.getMinistryId(), chosenMcc, currentPeriod);
+            restartMeasurementLoader(currentPeriod);
         }
         else
         {
@@ -465,36 +466,32 @@ public class MeasurementsActivity extends ActionBarActivity
 
         if(measurements != null && !measurements.isEmpty())
         {
-            drawLayout(chosenMinistry, chosenMcc, measurements);
+            drawLayout(measurements);
         }
         else
         {
             Log.w(TAG, "No measurement data in local database, try searching from API");
-            new NewMeasurementsPageRetrieverTask().execute(chosenMinistry.getMinistryId(), chosenMcc, currentPeriod);
+            new NewMeasurementsPageRetrieverTask(mAssignment).execute(currentPeriod);
         }
     }
 
-    private class AssociatedMinistryLoaderCallbacks extends SimpleLoaderCallbacks<AssociatedMinistry>
-    {
+    private class AssignmentLoaderCallbacks extends SimpleLoaderCallbacks<Assignment> {
+        @Nullable
         @Override
-        public Loader<AssociatedMinistry> onCreateLoader(final int id, final Bundle bundle)
-        {
+        public Loader<Assignment> onCreateLoader(final int id, @Nullable final Bundle bundle) {
             switch (id) {
-                case LOADER_CURRENT_MINISTRY:
-                    return new CurrentMinistryLoader(MeasurementsActivity.this);
+                case LOADER_CURRENT_ASSIGNMENT:
+                    return new CurrentAssignmentLoader(MeasurementsActivity.this, bundle);
                 default:
                     return null;
             }
         }
 
         @Override
-        public void onLoadFinished(
-            @NonNull final Loader<AssociatedMinistry> loader,
-            @Nullable final AssociatedMinistry ministry)
-        {
+        public void onLoadFinished(@NonNull final Loader<Assignment> loader, @Nullable final Assignment assignment) {
             switch (loader.getId()) {
-                case LOADER_CURRENT_MINISTRY:
-                    onLoadCurrentMinistry(ministry);
+                case LOADER_CURRENT_ASSIGNMENT:
+                    onLoadCurrentAssignment(assignment);
                     break;
             }
         }
@@ -532,7 +529,7 @@ public class MeasurementsActivity extends ActionBarActivity
     {
         if(measurements != null)
         {
-            drawLayout(chosenMinistry, chosenMcc, measurements);
+            drawLayout(measurements);
 
             // Save the measurements to the database for quicker loading next time
             MeasurementsService.saveMeasurementsToDatabase(MeasurementsActivity.this, measurements);
@@ -543,45 +540,39 @@ public class MeasurementsActivity extends ActionBarActivity
         }
     }
 
-    private class NewMeasurementsPageRetrieverTask extends AsyncTask<Object, Void, List<Measurement>>
-    {
+    private class NewMeasurementsPageRetrieverTask extends AsyncTask<String, Void, List<Measurement>> {
+        private final Assignment assignment;
+
+        private NewMeasurementsPageRetrieverTask(final Assignment assignment) {
+            this.assignment = assignment;
+        }
+
         @Override
-        protected List<Measurement> doInBackground(Object... params)
-        {
-            String ministryId = (String) params[0];
-            String mcc = (String) params[1];
-            String period = (String) params[2];
+        protected List<Measurement> doInBackground(String... periods) {
+            String period = periods[0];
 
-            if(ministryId == null || mcc == null)
-            {
-                String logMessage = "Null";
-                if(ministryId == null && mcc == null) logMessage += " Ministry ID and MCC";
-                else if(ministryId == null) logMessage += " Ministry ID";
-                else logMessage += " MCC";
+            if (assignment != null) {
+                try {
+                    GmaApiClient apiClient = GmaApiClient.getInstance(MeasurementsActivity.this);
 
-                Log.w(TAG, logMessage);
-                return null;
-            }
+                    JSONArray results = apiClient
+                            .searchMeasurements(assignment.getMinistryId(), assignment.getMcc().toString(), period);
 
-            try
-            {
-                GmaApiClient apiClient = GmaApiClient.getInstance(MeasurementsActivity.this);
+                    if (results == null) {
+                        Log.w(TAG, "No measurements found!");
+                        return null;
+                    }
 
-                JSONArray results = apiClient.searchMeasurements(ministryId, mcc, period);
-
-                if(results == null)
-                {
-                    Log.w(TAG, "No measurements found!");
+                    return MeasurementsJsonParser
+                            .parseMeasurements(results, assignment.getMinistryId(), assignment.getMcc().toString(),
+                                               period);
+                } catch (ApiException e) {
+                    Log.e(TAG, "Failed to retrieve measurements from API", e);
                     return null;
                 }
+            }
 
-                return MeasurementsJsonParser.parseMeasurements(results, ministryId, mcc, period);
-            }
-            catch(ApiException e)
-            {
-                Log.e(TAG, "Failed to retrieve measurements from API", e);
-                return null;
-            }
+            return null;
         }
 
         @Override

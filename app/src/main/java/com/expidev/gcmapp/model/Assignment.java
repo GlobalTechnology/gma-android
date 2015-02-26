@@ -3,13 +3,21 @@ package com.expidev.gcmapp.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import java.io.Serializable;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-/**
- * Created by William.Randall on 1/23/2015.
- */
-public class Assignment extends Base implements Serializable {
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Assignment extends Base implements Cloneable, Serializable {
     private static final long serialVersionUID = 0L;
+
+    public static final String JSON_ID = "id";
+    public static final String JSON_MINISTRY_ID = "ministry_id";
+    public static final String JSON_ROLE = "team_role";
+    public static final String JSON_SUB_ASSIGNMENTS = "sub_ministries";
 
     private static final String ROLE_LEADER = "leader";
     private static final String ROLE_INHERITED_LEADER = "inherited_leader";
@@ -48,20 +56,83 @@ public class Assignment extends Base implements Serializable {
         }
     }
 
+    @NonNull
+    private String guid;
+    @Nullable
     private String id;
     @NonNull
     private Role role = Role.UNKNOWN;
     @NonNull
     private String ministryId = Ministry.INVALID_ID;
+    @NonNull
+    private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
+    @Nullable
     private AssociatedMinistry ministry;
 
+    @NonNull
+    private final List<Assignment> subAssignments = new ArrayList<>();
+
+    @NonNull
+    public static List<Assignment> listFromJson(@NonNull final JSONArray json) throws JSONException {
+        final List<Assignment> assignments = new ArrayList<>();
+        for (int i = 0; i < json.length(); i++) {
+            assignments.add(fromJson(json.getJSONObject(i)));
+        }
+        return assignments;
+    }
+
+    @NonNull
+    public static Assignment fromJson(@NonNull final JSONObject json) throws JSONException {
+        final Assignment assignment = new Assignment();
+        assignment.id = json.optString(JSON_ID);
+        assignment.ministryId = json.getString(JSON_MINISTRY_ID);
+        assignment.role = Role.fromRaw(json.optString(JSON_ROLE));
+
+        // parse any inherited assignments
+        final JSONArray subAssignments = json.optJSONArray(JSON_SUB_ASSIGNMENTS);
+        if (subAssignments != null) {
+            assignment.subAssignments.addAll(listFromJson(subAssignments));
+        }
+
+        // parse the merged ministry object
+        assignment.setMinistry(AssociatedMinistry.fromJson(json));
+
+        return assignment;
+    }
+
+    public Assignment() {}
+
+    protected Assignment(@NonNull final Assignment assignment) {
+        super(assignment);
+        this.guid = assignment.guid;
+        this.id = assignment.id;
+        this.role = assignment.role;
+        this.ministryId = assignment.ministryId;
+        this.mcc = assignment.mcc;
+        for(final Assignment sub : assignment.subAssignments) {
+            this.subAssignments.add(sub.clone());
+        }
+
+        //TODO: clone ministry
+        this.ministry = assignment.ministry;
+    }
+
+    @NonNull
+    public String getGuid() {
+        return guid;
+    }
+
+    public void setGuid(@NonNull String guid) {
+        this.guid = guid;
+    }
+
+    @Nullable
     public String getId()
     {
         return id;
     }
 
-    public void setId(String id)
-    {
+    public void setId(@Nullable final String id) {
         this.id = id;
     }
 
@@ -87,6 +158,15 @@ public class Assignment extends Base implements Serializable {
         this.ministryId = ministryId;
     }
 
+    @NonNull
+    public Ministry.Mcc getMcc() {
+        return mcc;
+    }
+
+    public void setMcc(@Nullable final Ministry.Mcc mcc) {
+        this.mcc = mcc != null ? mcc : Ministry.Mcc.UNKNOWN;
+    }
+
     public AssociatedMinistry getMinistry()
     {
         return ministry;
@@ -97,11 +177,26 @@ public class Assignment extends Base implements Serializable {
         this.ministry = ministry;
     }
 
+    @NonNull
+    public List<Assignment> getSubAssignments() {
+        return subAssignments;
+    }
+
+    public JSONObject toJson() throws JSONException {
+        final JSONObject json = new JSONObject();
+        json.put(JSON_ROLE, this.role.raw);
+        json.put(JSON_MINISTRY_ID, this.ministryId);
+        return json;
+    }
+
+    @Override
+    public Assignment clone() {
+        return new Assignment(this);
+    }
+
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("id: " + id + ", ");
-        return sb.toString();
+        return "id: " + id;
     }
 }

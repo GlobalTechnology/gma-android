@@ -67,8 +67,7 @@ public class CurrentMinistryLoader extends AsyncTaskBroadcastReceiverSharedPrefe
         }
 
         // save found ministry as the currentMinistry
-        mPrefs.edit().putString(PREF_CURRENT_MINISTRY, ministry.getMinistryId()).putString("chosen_ministry",
-                                                                                           ministry.getName()).apply();
+        mPrefs.edit().putString(PREF_CURRENT_MINISTRY, ministry.getMinistryId()).apply();
 
         // return the found ministry
         return ministry;

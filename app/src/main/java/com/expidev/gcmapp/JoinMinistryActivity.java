@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.FilterQueryProvider;
 
+import com.expidev.gcmapp.activity.SettingsActivity;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.model.Assignment;
@@ -106,7 +107,7 @@ public class JoinMinistryActivity extends ActionBarActivity
 
                 if (assignment != null) {
                     // trigger a forced background sync of all assignments
-                    MinistriesService.syncAssignments(JoinMinistryActivity.this, true);
+                    MinistriesService.syncAssignments(JoinMinistryActivity.this, mTheKey.getGuid(), true);
 
                     // display dialog on success
                     // TODO: we should display the dialog when starting and change state to complete when we finish
