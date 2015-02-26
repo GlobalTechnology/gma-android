@@ -15,7 +15,7 @@
     <ListPreference
         android:key="mcc_list"
         android:title="@string/pref_title_mcc"
-        android:summary="%s"
+        android:summary="@string/pref_summary_mcc"
         android:defaultValue="0"
         android:persistent="false"
         android:negativeButtonText="@null"
