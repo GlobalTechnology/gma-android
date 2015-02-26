@@ -47,8 +47,6 @@ import me.thekey.android.TheKey;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.TheKeyImpl;
 
-import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
-
 /**
  * Created by matthewfrederick on 1/23/15.
  */
@@ -69,7 +67,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     private final Context mContext;
 
     private GmaApiClient(final Context context) {
-        super(context, TheKeyImpl.getInstance(context, THEKEY_CLIENTID), BuildConfig.GCM_BASE_URI, "gcm_api_sessions");
+        super(context, TheKeyImpl.getInstance(context), BuildConfig.GCM_BASE_URI, "gcm_api_sessions");
         mContext = context;
     }
 

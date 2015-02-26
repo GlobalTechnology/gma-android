@@ -1,15 +1,25 @@
 package com.expidev.gcmapp;
 
 import static com.expidev.gcmapp.BuildConfig.NEW_RELIC_API_KEY;
+import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
 
 import android.app.Application;
 
 import com.newrelic.agent.android.NewRelic;
 
-public class GcmApplication extends Application {
+import me.thekey.android.TheKey;
+import me.thekey.android.TheKeyContext;
+import me.thekey.android.lib.TheKeyImpl;
+
+public class GcmApplication extends Application implements TheKeyContext {
     @Override
     public void onCreate() {
         super.onCreate();
         NewRelic.withApplicationToken(NEW_RELIC_API_KEY).start(this);
+    }
+
+    @Override
+    public TheKey getTheKey() {
+        return TheKeyImpl.getInstance(this, THEKEY_CLIENTID);
     }
 }

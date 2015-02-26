@@ -121,7 +121,7 @@ public class MainActivity extends ActionBarActivity
 
         preferences = getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE);
 
-        theKey = TheKeyImpl.getInstance(getApplicationContext(), THEKEY_CLIENTID);
+        theKey = TheKeyImpl.getInstance(this);
 
         manager = LocalBroadcastManager.getInstance(getApplicationContext());
         gcmBroadcastReceiver = new GcmBroadcastReceiver(theKey, this);
