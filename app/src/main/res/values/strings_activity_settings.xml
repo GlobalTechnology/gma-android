@@ -3,5 +3,5 @@
     <!-- Strings related to Settings -->
     <string name="pref_header_general">General</string>
     <string name="pref_title_ministry_team_text">Ministry/Team:</string>
-    <string name="pref_title_mcc">MCC</string>
+    <string name="pref_title_mcc">MCC:</string>
 </resources>

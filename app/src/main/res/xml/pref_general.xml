@@ -4,8 +4,9 @@
          dismiss it. -->
     <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
     <ListPreference
-        android:key="ministry_team_list"
+        android:key="currentMinistry"
         android:title="@string/pref_title_ministry_team_text"
+        android:summary="%s"
         android:defaultValue="0"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null" />
@@ -14,7 +15,9 @@
     <ListPreference
         android:key="mcc_list"
         android:title="@string/pref_title_mcc"
+        android:summary="%s"
         android:defaultValue="0"
+        android:persistent="false"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null" />
 

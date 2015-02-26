@@ -75,5 +75,6 @@ dependencies {
 
     compile 'org.ccci.gto.android:gto-support:0.4.3-SNAPSHOT'
 
+    compile 'com.github.machinarius:preferencefragment:0.1.1'
     compile 'org.achartengine:achartengine:1.2.0'
 }
