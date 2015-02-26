@@ -73,8 +73,15 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
             return null;
         }
 
-        // use the first found Assignment as the active assignment
-        final Assignment assignment = assignments.get(0);
+        // find the default assignment based on role
+        Assignment assignment = null;
+        for (final Assignment current : assignments) {
+            // XXX: this currently relies on Roles being ordered from most important to least important
+            if (assignment == null || current.getRole().ordinal() < assignment.getRole().ordinal()) {
+                assignment = current;
+            }
+        }
+        assert assignment != null : "there is at least 1 assignment in assignments, so this should never be null";
 
         // set an MCC if one is not already selected
         if (assignment.getMcc() == Ministry.Mcc.UNKNOWN) {
