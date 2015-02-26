@@ -23,6 +23,7 @@ public class Measurement extends Base implements Serializable
     private String period; // The period passed in to the API
     private String ministryId;
     private String mcc;
+    private int sortOrder;
 
     public String getName()
     {
@@ -132,5 +133,15 @@ public class Measurement extends Base implements Serializable
     public void setMcc(String mcc)
     {
         this.mcc = mcc;
+    }
+
+    public int getSortOrder()
+    {
+        return sortOrder;
+    }
+
+    public void setSortOrder(int sortOrder)
+    {
+        this.sortOrder = sortOrder;
     }
 }

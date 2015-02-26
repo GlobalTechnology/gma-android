@@ -259,10 +259,11 @@ public class Contract {
         static final String COLUMN_MINISTRY_ID = "ministry_id";
         static final String COLUMN_MCC = "mcc";
         static final String COLUMN_PERIOD = "period";
+        static final String COLUMN_SORT_ORDER = "sort_order";
 
         static final String[] PROJECTION_ALL = {
             COLUMN_MEASUREMENT_ID, COLUMN_NAME, COLUMN_PERM_LINK, COLUMN_CUSTOM, COLUMN_SECTION, COLUMN_COLUMN,
-            COLUMN_TOTAL, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERIOD, COLUMN_LAST_SYNCED
+            COLUMN_TOTAL, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERIOD, COLUMN_SORT_ORDER, COLUMN_LAST_SYNCED
         };
 
         private static final String SQL_COLUMN_MEASUREMENT_ID = COLUMN_MEASUREMENT_ID + " TEXT";
@@ -275,6 +276,7 @@ public class Contract {
         private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
         private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
         private static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
+        private static final String SQL_COLUMN_SORT_ORDER = COLUMN_SORT_ORDER + " INTEGER";
 
         public static final String SQL_WHERE_UNIQUE = COLUMN_MEASUREMENT_ID + " = ? AND " +
             COLUMN_MINISTRY_ID + " = ? AND " + COLUMN_MCC + " = ? AND " + COLUMN_PERIOD + " = ?";
@@ -284,11 +286,16 @@ public class Contract {
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
             .join(",", new Object[]{ SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_NAME, SQL_COLUMN_PERM_LINK,
                 SQL_COLUMN_CUSTOM, SQL_COLUMN_SECTION, SQL_COLUMN_COLUMN, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_MCC,
-                SQL_COLUMN_PERIOD, SQL_COLUMN_TOTAL, SQL_COLUMN_LAST_SYNCED }) + ");";
+                SQL_COLUMN_PERIOD, SQL_COLUMN_TOTAL, SQL_COLUMN_SORT_ORDER, SQL_COLUMN_LAST_SYNCED }) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
         public static final String SQL_CREATE_INDEX = "CREATE UNIQUE INDEX " + INDEX_NAME + " ON " + TABLE_NAME + "(" +
             TextUtils.join(",", new Object[] { COLUMN_MEASUREMENT_ID, COLUMN_MINISTRY_ID, COLUMN_MCC,
                 COLUMN_PERIOD }) + ");";
+
+        // DB migration queries
+        @Deprecated
+        public static final String SQL_V13_ALTER_SORT = "ALTER TABLE " + TABLE_NAME +
+            " ADD COLUMN " + SQL_COLUMN_SORT_ORDER + ";";
     }
 
     public static final class MeasurementDetails extends Base
