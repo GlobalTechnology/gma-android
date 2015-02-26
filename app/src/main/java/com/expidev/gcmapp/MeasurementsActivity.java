@@ -272,62 +272,22 @@ public class MeasurementsActivity extends ActionBarActivity
                 }
             }
 
-            // Now sort it according to section
-            Collections.sort(measurementGroup, sectionComparator());
+            // Now sort it according to sort_order
+            Collections.sort(measurementGroup, sortOrderComparator());
             sortedMeasurements.addAll(measurementGroup);
         }
 
         return sortedMeasurements;
     }
 
-    /**
-     * Sorts measurements first in order of section: win, build, send
-     * Then alphabetically by name, if they have the same section
-     */
-    private Comparator<Measurement> sectionComparator()
+    private Comparator<Measurement> sortOrderComparator()
     {
         return new Comparator<Measurement>()
         {
             @Override
             public int compare(Measurement lhs, Measurement rhs)
             {
-                if("win".equals(lhs.getSection()))
-                {
-                    if(rhs.getSection().equals("win"))
-                    {
-                        return lhs.getName().compareTo(rhs.getName());
-                    }
-                    else
-                    {
-                        return -1;
-                    }
-                }
-                else if(lhs.getSection().equals("build"))
-                {
-                    if(rhs.getSection().equals("win"))
-                    {
-                        return 1;
-                    }
-                    else if(rhs.getSection().equals("build"))
-                    {
-                        return lhs.getName().compareTo(rhs.getName());
-                    }
-                    else
-                    {
-                        return -1;
-                    }
-                }
-                else
-                {
-                    if(rhs.getSection().equals("send"))
-                    {
-                        return lhs.getName().compareTo(rhs.getName());
-                    }
-                    else
-                    {
-                        return 1;
-                    }
-                }
+                return Integer.compare(lhs.getSortOrder(), rhs.getSortOrder());
             }
         };
     }
