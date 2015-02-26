@@ -4,7 +4,6 @@ public class Constants {
     /* SharedPreference constants */
     public static final String PREFS_SETTINGS = "gcm_prefs";
     public static final String PREF_CURRENT_MINISTRY = "currentMinistry";
-    public static final String PREF_CURRENT_ASSIGNMENT = "currentAssignment"; // stores the assignment ID
 
     /* common args */
     public static final String ARG_MINISTRY_ID = "ministry_id";
