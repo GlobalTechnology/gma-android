@@ -188,8 +188,7 @@ public class MainActivity extends ActionBarActivity
                 MinistriesService.syncAssignments(this, true);
                 if (mCurrentMinistry != null) {
                     MinistriesService.syncChurches(this, mCurrentMinistry.getMinistryId());
-                    MeasurementsService.syncMeasurements(
-                            this, mCurrentMinistry.getMinistryId(), getChosenMcc(), null, true);
+                    MeasurementsService.syncMeasurements(this, mCurrentMinistry.getMinistryId(), getChosenMcc(), null);
                 }
 
                 return true;
@@ -237,7 +236,7 @@ public class MainActivity extends ActionBarActivity
             String mcc = getChosenMcc();
             MinistriesService.syncChurches(this, mCurrentMinistry.getMinistryId());
             TrainingService.downloadTraining(this, mCurrentMinistry.getMinistryId(), mcc != null ? mcc : "slm");
-            MeasurementsService.retrieveAndSaveInitialMeasurements(this, mCurrentMinistry.getMinistryId(), mcc, null);
+            MeasurementsService.syncMeasurements(this, mCurrentMinistry.getMinistryId(), mcc, null);
         }
 
         // restart Loaders based off the current ministry
