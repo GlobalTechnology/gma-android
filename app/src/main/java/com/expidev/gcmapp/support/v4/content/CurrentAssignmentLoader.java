@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
-import static com.expidev.gcmapp.Constants.PREF_CURRENT_ASSIGNMENT;
 import static com.expidev.gcmapp.Constants.PREF_CURRENT_MINISTRY;
 
 /**
@@ -45,18 +44,6 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
         }
         else
         {
-            // load the current assignment
-            final String assignmentId = mPrefs.getString(PREF_CURRENT_ASSIGNMENT, null);
-
-            final Assignment currentAssignment = assignmentId != null
-                ? ministriesDao.find(Assignment.class, assignmentId)
-                : null;
-
-            if(currentAssignment != null)
-            {
-                return currentAssignment;
-            }
-
             // if no current assignment is set, retrieve a default
             return initCurrentAssignment();
         }

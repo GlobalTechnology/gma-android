@@ -26,7 +26,6 @@ import com.expidev.gcmapp.map.ChurchMarker;
 import com.expidev.gcmapp.map.Marker;
 import com.expidev.gcmapp.map.MarkerRender;
 import com.expidev.gcmapp.map.TrainingMarker;
-import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Training;
@@ -34,7 +33,6 @@ import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.support.v4.content.ChurchesLoader;
-import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
 import com.expidev.gcmapp.support.v4.content.CurrentMinistryLoader;
 import com.expidev.gcmapp.support.v4.content.TrainingLoader;
 import com.expidev.gcmapp.support.v4.fragment.EditChurchFragment;
@@ -62,7 +60,6 @@ import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
 import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
 import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
-import static com.expidev.gcmapp.Constants.PREF_CURRENT_ASSIGNMENT;
 
 
 public class MainActivity extends ActionBarActivity
@@ -74,7 +71,6 @@ public class MainActivity extends ActionBarActivity
     private static final int LOADER_CURRENT_MINISTRY = 2;
     private static final int LOADER_CHURCHES = 3;
     private static final int LOADER_TRAINING = 4;
-    private static final int LOADER_CURRENT_ASSIGNMENT = 5;
 
     private static final int MAP_LAYER_TRAINING = 0;
     private static final int MAP_LAYER_TARGET = 1;
@@ -96,7 +92,6 @@ public class MainActivity extends ActionBarActivity
     private final AttributesLoaderCallbacks mLoaderCallbacksAttributes = new AttributesLoaderCallbacks();
     private final ChurchesLoaderCallbacks mLoaderCallbacksChurches = new ChurchesLoaderCallbacks();
     private final TrainingLoaderCallbacks mLoaderCallbacksTraining = new TrainingLoaderCallbacks();
-    private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
 
     /* map related objects */
     private TextView mapOverlayText;
@@ -262,18 +257,6 @@ public class MainActivity extends ActionBarActivity
         updateMap(false);
     }
 
-    void onLoadAssignment(@Nullable final Assignment assignment)
-    {
-        if(assignment != null)
-        {
-            Log.i(TAG, "Current assignment: " + assignment.getId());
-            preferences
-                .edit()
-                .putString(PREF_CURRENT_ASSIGNMENT, assignment.getId())
-                .apply();
-        }
-    }
-
     @Override
     protected void onPostResume()
     {
@@ -299,7 +282,6 @@ public class MainActivity extends ActionBarActivity
         manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, mLoaderCallbacksAttributes);
         manager.initLoader(LOADER_CURRENT_MINISTRY, null, mLoaderCallbacksMinistry);
         manager.initLoader(LOADER_TRAINING, null, mLoaderCallbacksTraining);
-        manager.initLoader(LOADER_CURRENT_ASSIGNMENT, null, mLoaderCallbacksAssignment);
         restartCurrentMinistryBasedLoaders();
     }
 
@@ -313,7 +295,6 @@ public class MainActivity extends ActionBarActivity
         // restart these loaders in case the ministry id has changed since the last start
         manager.restartLoader(LOADER_CHURCHES, args, mLoaderCallbacksChurches);
         manager.restartLoader(LOADER_TRAINING, args, mLoaderCallbacksTraining);
-        manager.restartLoader(LOADER_CURRENT_ASSIGNMENT, null, mLoaderCallbacksAssignment);
     }
 
     private void updateMap(final boolean zoom) {
@@ -687,31 +668,6 @@ public class MainActivity extends ActionBarActivity
             switch (loader.getId()) {
                 case LOADER_CHURCHES:
                     onLoadChurches(churches);
-            }
-        }
-    }
-
-    private class AssignmentLoaderCallbacks extends SimpleLoaderCallbacks<Assignment>
-    {
-        @Override
-        public Loader<Assignment> onCreateLoader(final int id, @Nullable final Bundle args)
-        {
-            switch(id)
-            {
-                case LOADER_CURRENT_ASSIGNMENT:
-                    return new CurrentAssignmentLoader(MainActivity.this);
-                default:
-                    return null;
-            }
-        }
-
-        @Override
-        public void onLoadFinished(@NonNull final Loader<Assignment> loader, @Nullable final Assignment assignment)
-        {
-            switch(loader.getId())
-            {
-                case LOADER_CURRENT_ASSIGNMENT:
-                    onLoadAssignment(assignment);
             }
         }
     }

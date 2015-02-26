@@ -1,8 +1,6 @@
 package com.expidev.gcmapp;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -61,9 +59,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
-import static com.expidev.gcmapp.Constants.PREF_CURRENT_ASSIGNMENT;
-
 /**
  * Created by William.Randall on 1/28/2015.
  */
@@ -90,8 +85,6 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     private String mcc;
     private String period;
 
-    private SharedPreferences preferences;
-
     private MeasurementDetails measurementDetails;
     private Assignment currentAssignment;
 
@@ -114,8 +107,6 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         period = getIntent().getStringExtra(Constants.ARG_PERIOD);
         measurementName = getIntent().getStringExtra("measurementName");
         ministryName = getIntent().getStringExtra("ministryName");
-
-        preferences = getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -826,7 +817,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                 MeasurementsService.saveMeasurementDetailsToDatabase(MeasurementDetailsActivity.this, measurementDetails);
 
                 Log.i(TAG, "Sending new measurements to the server");
-                return apiClient.updateMeasurementDetails(data, preferences.getString(PREF_CURRENT_ASSIGNMENT, null));
+                return apiClient.updateMeasurementDetails(data, currentAssignment.getId());
             }
             catch(ApiException ae)
             {
