@@ -12,11 +12,13 @@ import android.util.Log;
 
 import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.http.GmaApiClient.Session;
+import com.expidev.gcmapp.json.MeasurementsJsonParser;
 import com.expidev.gcmapp.json.MinistryJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
+import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.service.MinistriesService;
 
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
@@ -32,6 +34,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -325,7 +328,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         // build request
         final Request<Session> request = new Request<>(MEASUREMENTS);
         request.params.add(param("ministry_id", ministryId));
-        request.params.add(param("mcc", mcc));
+        request.params.add(param("mcc", mcc.toLowerCase()));
         if (period != null) {
             request.params.add(param("period", period));
         }
@@ -357,7 +360,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         // build request
         final Request<Session> request = new Request<>(MEASUREMENTS + "/" + measurementId);
         request.params.add(param("ministry_id", ministryId));
-        request.params.add(param("mcc", mcc));
+        request.params.add(param("mcc", mcc.toLowerCase()));
         if (period != null) {
             request.params.add(param("period", period));
         }
@@ -380,6 +383,54 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
 
         return null;
+    }
+
+    public boolean updateMeasurementDetails(List<MeasurementDetails> measurementDetailsList, String assignmentId)
+        throws JSONException, ApiException
+    {
+        List<JSONObject> data = new ArrayList<>();
+        for(MeasurementDetails measurementDetails : measurementDetailsList)
+        {
+            // Can be positive or negative
+            if(measurementDetails.getLocalValue() != 0)
+            {
+                data.add(MeasurementsJsonParser.createJsonForMeasurementDetails(measurementDetails, "local", assignmentId));
+            }
+            if(measurementDetails.getPersonalValue() != 0)
+            {
+                data.add(MeasurementsJsonParser.createJsonForMeasurementDetails(measurementDetails, "personal", assignmentId));
+            }
+        }
+
+        return updateMeasurementDetails(MeasurementsJsonParser.createPostJsonForMeasurementDetails(data));
+    }
+
+    public boolean updateMeasurementDetails(JSONArray data) throws ApiException
+    {
+        // build request
+        final Request<Session> request = new Request<>(MEASUREMENTS);
+        request.method = Method.POST;
+        request.setContent(data);
+
+        // process request
+        HttpURLConnection conn = null;
+        try
+        {
+            conn = this.sendRequest(request);
+            Log.i(TAG, "Response Code: " + conn.getResponseCode());
+            Log.i(TAG, "Data POSTed: " + data.toString());
+
+            // is this a successful response?
+            return conn.getResponseCode() == HttpURLConnection.HTTP_CREATED;
+        }
+        catch (final IOException e)
+        {
+            throw new ApiSocketException(e);
+        }
+        finally
+        {
+            IOUtils.closeQuietly(conn);
+        }
     }
 
     @Nullable

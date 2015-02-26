@@ -1,6 +1,5 @@
 package com.expidev.gcmapp;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -10,23 +9,27 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
+import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.measurement.BreakdownData;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.model.measurement.SixMonthAmounts;
 import com.expidev.gcmapp.model.measurement.SubMinistryDetails;
 import com.expidev.gcmapp.model.measurement.TeamMemberDetails;
 import com.expidev.gcmapp.service.MeasurementsService;
+import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
 import com.expidev.gcmapp.support.v4.content.MeasurementDetailsLoader;
 import com.expidev.gcmapp.utils.ViewUtils;
 import com.expidev.gcmapp.view.HorizontalLineView;
@@ -41,6 +44,7 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
@@ -81,7 +85,14 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     private String mcc;
     private String period;
 
+    private MeasurementDetails measurementDetails;
+    private Assignment currentAssignment;
+
     private static final int LOADER_MEASUREMENT_DETAILS = 1;
+    private static final int LOADER_CURRENT_ASSIGNMENT = 2;
+
+    private static final String LOCAL_MEASUREMENTS_TAG = "local";
+    private static final String PERSONAL_MEASUREMENTS_TAG = "personal";
 
 
     @Override
@@ -116,6 +127,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         args.putString(Constants.ARG_PERIOD, period);
 
         manager.initLoader(LOADER_MEASUREMENT_DETAILS, args, measurementDetailsLoaderCallback);
+        manager.initLoader(LOADER_CURRENT_ASSIGNMENT, null, new AssignmentLoaderCallbacks());
     }
 
     private void handleRetrievedMeasurementDetails(MeasurementDetails measurementDetails)
@@ -264,6 +276,14 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
     private void initializeSeriesData(MeasurementDetails measurementDetails)
     {
+        if(currentSeries != null)
+        {
+            currentSeries.clear();
+        }
+        if(dataset != null)
+        {
+            dataset.clear();
+        }
         initializeTotalSeries(measurementDetails.getSixMonthTotalAmounts());
         initializeLocalSeries(measurementDetails.getSixMonthLocalAmounts());
         initializeMySeries(measurementDetails.getSixMonthPersonalAmounts());
@@ -378,14 +398,16 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
     private void initializeDataSection(MeasurementDetails measurementDetails)
     {
-        TextView totalNumberTitle = (TextView) findViewById(R.id.md_total_number_title);
+        TextHeaderView totalNumberTitle = new TextHeaderView(this);
         totalNumberTitle.setText(ministryName);
 
         LinearLayout dataSection = (LinearLayout) findViewById(R.id.md_chart_data);
+        dataSection.removeAllViews();
+
+        dataSection.addView(totalNumberTitle);
 
         List<BreakdownData> localBreakdown = measurementDetails.getLocalBreakdown();
 
-        int layoutPosition = 1;
         for(BreakdownData localDataSource : localBreakdown)
         {
             //TODO: Should we skip 0 value rows?
@@ -395,13 +417,58 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             }
 
             LinearLayout row = createRow(localDataSource.getSource(), localDataSource.getAmount());
-            dataSection.addView(row, layoutPosition);
-            layoutPosition++;
+            dataSection.addView(row);
 
-            dataSection.addView(new HorizontalLineView(this), layoutPosition);
-            layoutPosition++;
+            dataSection.addView(new HorizontalLineView(this));
         }
 
+        if(isLeader())
+        {
+            EditText localNumber = createInputView(
+                measurementDetails.getTotalLocalBreakdown().getAmount(),
+                LOCAL_MEASUREMENTS_TAG);
+            LinearLayout localDataInputSection = createRow(createNameView("Local"), localNumber);
+
+            dataSection.addView(localDataInputSection);
+        }
+        else // Member
+        {
+            LinearLayout localDataInputSection = createRow(
+                "Local",
+                measurementDetails.getTotalLocalBreakdown().getAmount()
+            );
+            dataSection.addView(localDataInputSection);
+        }
+
+        TextHeaderView teamMembersSectionTitle = new TextHeaderView(this);
+        teamMembersSectionTitle.setText(R.string.team_members_title);
+
+        dataSection.addView(teamMembersSectionTitle);
+
+        EditText personalNumber = createInputView(
+            measurementDetails.getSelfBreakdown().get(0).getAmount(),
+            PERSONAL_MEASUREMENTS_TAG);
+        LinearLayout personalDataInputSection = createRow(createNameView("You"), personalNumber);
+
+        dataSection.addView(personalDataInputSection);
+
+        if(isLeader())
+        {
+            addTeamMemberSection(dataSection, measurementDetails);
+            addSubMinistriesSection(dataSection, measurementDetails);
+            addSelfAssignedSection(dataSection, measurementDetails);
+        }
+    }
+
+    private boolean isLeader()
+    {
+        return currentAssignment != null &&
+            (currentAssignment.getRole() == Assignment.Role.LEADER ||
+                currentAssignment.getRole() == Assignment.Role.INHERITED_LEADER);
+    }
+
+    private void addTeamMemberSection(LinearLayout dataSection, MeasurementDetails measurementDetails)
+    {
         List<TeamMemberDetails> teamMemberDetailsList = measurementDetails.getTeamMemberDetails();
 
         for(TeamMemberDetails teamMemberDetails : teamMemberDetailsList)
@@ -414,7 +481,10 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             LinearLayout row = createRow(name, teamMemberDetails.getTotal());
             dataSection.addView(row);
         }
+    }
 
+    private void addSubMinistriesSection(LinearLayout dataSection, MeasurementDetails measurementDetails)
+    {
         List<SubMinistryDetails> subMinistryDetailsList = measurementDetails.getSubMinistryDetails();
 
         if(subMinistryDetailsList.size() > 0)
@@ -428,6 +498,33 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             {
                 LinearLayout row = createRow(subMinistryDetails.getName(), subMinistryDetails.getTotal());
                 dataSection.addView(row);
+            }
+        }
+    }
+
+    private void addSelfAssignedSection(LinearLayout dataSection, MeasurementDetails measurementDetails)
+    {
+        List<TeamMemberDetails> selfAssignedDetails = measurementDetails.getSelfAssignedDetails();
+        if(!selfAssignedDetails.isEmpty())
+        {
+            TextHeaderView selfAssignedHeader = new TextHeaderView(this);
+            selfAssignedHeader.setText("Self Assigned");
+
+            dataSection.addView(selfAssignedHeader);
+
+            int index = 0;
+            for(TeamMemberDetails selfAssignedRow : selfAssignedDetails)
+            {
+                if(index > 0)
+                {
+                    HorizontalLineView horizontalLine = new HorizontalLineView(this);
+                    dataSection.addView(horizontalLine);
+                }
+
+                String name = selfAssignedRow.getFirstName() + " " + selfAssignedRow.getLastName();
+                LinearLayout row = createRow(name, selfAssignedRow.getTotal());
+                dataSection.addView(row);
+                index++;
             }
         }
     }
@@ -461,11 +558,41 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         return valueView;
     }
 
+    private EditText createInputView(int value, String tag)
+    {
+        EditText inputView = new EditText(this);
+        inputView.setTag(tag);
+        inputView.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
+        inputView.setText(Integer.toString(value));
+        inputView.setOnFocusChangeListener(new View.OnFocusChangeListener()
+        {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus)
+            {
+                if(!hasFocus)
+                {
+                    EditText view = (EditText) v;
+                    onInputFocusLost(view.getText().toString(), (String) view.getTag());
+                }
+            }
+        });
+
+        LinearLayout.LayoutParams inputLayoutParams = new LinearLayout.LayoutParams(
+            LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        inputLayoutParams.setMargins(0, 0, ViewUtils.dpToPixels(this, 20), 0);
+
+        inputView.setLayoutParams(inputLayoutParams);
+
+        return inputView;
+    }
+
     private LinearLayout createRow(String name, int value)
     {
-        TextView nameView = createNameView(name);
-        TextView valueView = createValueView(Integer.toString(value));
+        return createRow(createNameView(name), createValueView(Integer.toString(value)));
+    }
 
+    private LinearLayout createRow(TextView nameView, TextView valueView)
+    {
         LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
         linearLayout.setLayoutParams(
@@ -477,6 +604,30 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         return linearLayout;
     }
 
+    private void onInputFocusLost(String value, String type)
+    {
+        try
+        {
+            switch(type)
+            {
+                case LOCAL_MEASUREMENTS_TAG:
+                    measurementDetails.getTotalLocalBreakdown().setAmount(Integer.parseInt(value));
+                    measurementDetails.setLocalValue(Integer.parseInt(value));
+                    break;
+                case PERSONAL_MEASUREMENTS_TAG:
+                    measurementDetails.getSelfBreakdown().get(0).setAmount(Integer.parseInt(value));
+                    measurementDetails.setPersonalValue(Integer.parseInt(value));
+                    break;
+            }
+
+            new SaveMeasurementsToServer().execute(measurementDetails);
+        }
+        catch(NumberFormatException e)
+        {
+            Log.w(TAG, "Invalid number: " + value);
+        }
+    }
+
     /**
      * This event triggers when measurement details are loaded from local storage
      *
@@ -486,6 +637,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     {
         if(measurementDetails != null)
         {
+            this.measurementDetails = measurementDetails;
             handleRetrievedMeasurementDetails(measurementDetails);
         }
         else
@@ -539,6 +691,15 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         }
     }
 
+    private void onLoadAssignment(@Nullable Assignment assignment)
+    {
+        if(assignment != null)
+        {
+            currentAssignment = assignment;
+            Log.i(TAG, "Current assignment loaded");
+        }
+    }
+
     private class MeasurementDetailsLoaderCallbacks extends SimpleLoaderCallbacks<MeasurementDetails>
     {
         @Override
@@ -563,6 +724,31 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                 case LOADER_MEASUREMENT_DETAILS:
                     onLoadMeasurementDetails(measurementDetails);
                     break;
+            }
+        }
+    }
+
+    private class AssignmentLoaderCallbacks extends SimpleLoaderCallbacks<Assignment>
+    {
+        @Override
+        public Loader<Assignment> onCreateLoader(final int id, @Nullable final Bundle args)
+        {
+            switch(id)
+            {
+                case LOADER_CURRENT_ASSIGNMENT:
+                    return new CurrentAssignmentLoader(MeasurementDetailsActivity.this);
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull final Loader<Assignment> loader, @Nullable final Assignment assignment)
+        {
+            switch(loader.getId())
+            {
+                case LOADER_CURRENT_ASSIGNMENT:
+                    onLoadAssignment(assignment);
             }
         }
     }
@@ -611,6 +797,50 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         protected void onPostExecute(MeasurementDetails measurementDetails)
         {
             onLoadDetailsFromServer(measurementDetails);
+        }
+    }
+
+    private class SaveMeasurementsToServer extends AsyncTask<MeasurementDetails, Void, Boolean>
+    {
+        @Override
+        protected Boolean doInBackground(MeasurementDetails... params)
+        {
+            MeasurementDetails measurementDetails = params[0];
+            GmaApiClient apiClient = GmaApiClient.getInstance(MeasurementDetailsActivity.this);
+
+            try
+            {
+                List<MeasurementDetails> data = new ArrayList<>();
+                data.add(measurementDetails);
+
+                Log.i(TAG, "Saving new measurements to the database");
+                MeasurementsService.saveMeasurementDetailsToDatabase(MeasurementDetailsActivity.this, measurementDetails);
+
+                Log.i(TAG, "Sending new measurements to the server");
+                return apiClient.updateMeasurementDetails(data, currentAssignment.getId());
+            }
+            catch(ApiException ae)
+            {
+                Log.e(TAG, "Error saving measurement details", ae);
+            }
+            catch(JSONException je)
+            {
+                Log.e(TAG, "Error parsing measurement details into JSON", je);
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success)
+        {
+            if(success)
+            {
+                handleRetrievedMeasurementDetails(measurementDetails);
+            }
+            else
+            {
+                Log.e(TAG, "Failed to update Server");
+            }
         }
     }
 }

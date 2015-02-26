@@ -31,6 +31,12 @@ public class MeasurementDetailsMapper extends BaseMapper<MeasurementDetails>
             case Contract.MeasurementDetails.COLUMN_PERIOD:
                 values.put(field, measurementDetails.getPeriod());
                 break;
+            case Contract.MeasurementDetails.COLUMN_LOCAL_AMOUNT:
+                values.put(field, measurementDetails.getLocalValue());
+                break;
+            case Contract.MeasurementDetails.COLUMN_PERSONAL_AMOUNT:
+                values.put(field, measurementDetails.getPersonalValue());
+                break;
             default:
                 super.mapField(values, field, measurementDetails);
                 break;
@@ -54,6 +60,8 @@ public class MeasurementDetailsMapper extends BaseMapper<MeasurementDetails>
         measurementDetails.setMinistryId(this.getString(cursor, Contract.MeasurementDetails.COLUMN_MINISTRY_ID, null));
         measurementDetails.setMcc(this.getString(cursor, Contract.MeasurementDetails.COLUMN_MCC, null));
         measurementDetails.setPeriod(this.getString(cursor, Contract.MeasurementDetails.COLUMN_PERIOD, null));
+        measurementDetails.setLocalValue(this.getInt(cursor, Contract.MeasurementDetails.COLUMN_LOCAL_AMOUNT, 0));
+        measurementDetails.setPersonalValue(this.getInt(cursor, Contract.MeasurementDetails.COLUMN_PERSONAL_AMOUNT, 0));
 
         return measurementDetails;
     }

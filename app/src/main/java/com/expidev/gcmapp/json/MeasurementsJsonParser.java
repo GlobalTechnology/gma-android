@@ -179,4 +179,58 @@ public class MeasurementsJsonParser
 
         return teamMemberDetailsList;
     }
+
+    /**
+     * Returns a single {@link org.json.JSONObject} to be posted to the server, this will be part
+     * of a {@link org.json.JSONArray} created using
+     * {@link #createPostJsonForMeasurementDetails(List<MeasurementDetails>)}
+     *
+     * @param type either local or personal depending on which value is being updated
+     */
+    public static JSONObject createJsonForMeasurementDetails(
+        MeasurementDetails measurementDetails,
+        String type,
+        String assignmentId) throws JSONException
+    {
+        JSONObject jsonObject = new JSONObject();
+
+        switch(type)
+        {
+            case "local":
+                jsonObject.put("measurement_type_id", measurementDetails.getMeasurementTypeIds().getLocal());
+                jsonObject.put("value", measurementDetails.getLocalValue());
+                jsonObject.put("related_entity_id", measurementDetails.getMinistryId());
+                break;
+            case "personal":
+                jsonObject.put("measurement_type_id", measurementDetails.getMeasurementTypeIds().getPerson());
+                jsonObject.put("value", measurementDetails.getPersonalValue());
+                jsonObject.put("related_entity_id", assignmentId);
+                break;
+            default:
+                break;
+        }
+
+        jsonObject.put("period", measurementDetails.getPeriod());
+        jsonObject.put("mcc", measurementDetails.getMcc().toLowerCase() + "_gma-app");
+
+        return jsonObject;
+    }
+
+    /**
+     * Returns a {@link org.json.JSONArray} that can be posted to the server in order to
+     * add or update measurements
+     *
+     * @param objectsToPost individual {@link org.json.JSONObject}s that will make up the POST request
+     */
+    public static JSONArray createPostJsonForMeasurementDetails(List<JSONObject> objectsToPost)
+    {
+        JSONArray data = new JSONArray();
+
+        for(JSONObject object : objectsToPost)
+        {
+            data.put(object);
+        }
+
+        return data;
+    }
 }

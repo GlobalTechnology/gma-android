@@ -110,6 +110,11 @@ public class MeasurementsActivity extends ActionBarActivity
 
     private void drawLayout(Ministry selectedMinistry, String mcc, List<Measurement> measurements)
     {
+        if(selectedMinistry == null)
+        {
+            return;
+        }
+
         TextView titleView = (TextView) findViewById(R.id.measurement_ministry_name);
         titleView.setText(selectedMinistry.getName() + " (" + mcc + ")");
 
@@ -546,6 +551,17 @@ public class MeasurementsActivity extends ActionBarActivity
             String ministryId = (String) params[0];
             String mcc = (String) params[1];
             String period = (String) params[2];
+
+            if(ministryId == null || mcc == null)
+            {
+                String logMessage = "Null";
+                if(ministryId == null && mcc == null) logMessage += " Ministry ID and MCC";
+                else if(ministryId == null) logMessage += " Ministry ID";
+                else logMessage += " MCC";
+
+                Log.w(TAG, logMessage);
+                return null;
+            }
 
             try
             {

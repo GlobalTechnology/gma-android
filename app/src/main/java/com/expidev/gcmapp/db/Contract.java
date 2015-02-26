@@ -170,7 +170,7 @@ public class Contract {
                         AssociatedMinistry.COLUMN_MINISTRY_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
-        static final String SQL_WHERE_MINISTRY = COLUMN_MINISTRY_ID + " = ?";
+        public static final String SQL_WHERE_MINISTRY = COLUMN_MINISTRY_ID + " = ?";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_ID, SQL_COLUMN_ROLE, SQL_COLUMN_MINISTRY_ID,
@@ -288,24 +288,37 @@ public class Contract {
         static final String COLUMN_MCC = "mcc";
         static final String COLUMN_MINISTRY_ID = "ministry_id";
         static final String COLUMN_PERIOD = "period";
+        static final String COLUMN_LOCAL_AMOUNT = "local_amount";
+        static final String COLUMN_PERSONAL_AMOUNT = "personal_amount";
 
         static final String[] PROJECTION_ALL = {
             COLUMN_MEASUREMENT_ID, COLUMN_MCC, COLUMN_MINISTRY_ID,
-            COLUMN_PERIOD, COLUMN_LAST_SYNCED
+            COLUMN_PERIOD, COLUMN_LOCAL_AMOUNT, COLUMN_PERSONAL_AMOUNT, COLUMN_LAST_SYNCED
         };
 
         private static final String SQL_COLUMN_MEASUREMENT_ID = COLUMN_MEASUREMENT_ID + " TEXT";
         private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
         private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
         private static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
+        private static final String SQL_COLUMN_LOCAL_AMOUNT = COLUMN_LOCAL_AMOUNT + " INTEGER";
+        private static final String SQL_COLUMN_PERSONAL_AMOUNT = COLUMN_PERSONAL_AMOUNT + " INTEGER";
 
         public static final String SQL_WHERE_MEASUREMENT = COLUMN_MEASUREMENT_ID + " = ? AND " +
             COLUMN_MINISTRY_ID + " = ? AND " + COLUMN_MCC + " = ? AND " + COLUMN_PERIOD + " = ?";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
             .join(",", new Object[] { SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_ID, SQL_COLUMN_MCC,
-                SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_PERIOD, SQL_COLUMN_LAST_SYNCED }) + ");";
+                SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_PERIOD, SQL_COLUMN_LOCAL_AMOUNT,
+                SQL_COLUMN_PERSONAL_AMOUNT, SQL_COLUMN_LAST_SYNCED }) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+
+        // DB migration queries
+        @Deprecated
+        public static final String SQL_V10_ALTER_LOCAL = "ALTER TABLE " + TABLE_NAME +
+            " ADD COLUMN " + SQL_COLUMN_LOCAL_AMOUNT + ";";
+        @Deprecated
+        public static final String SQL_V10_ALTER_PERSONAL = "ALTER TABLE " + TABLE_NAME +
+            " ADD COLUMN " + SQL_COLUMN_PERSONAL_AMOUNT + ";";
     }
 
     public static abstract class MeasurementDetailsData extends Base
