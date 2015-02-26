@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
+import com.expidev.gcmapp.activity.SettingsActivity;
 import com.expidev.gcmapp.map.ChurchMarker;
 import com.expidev.gcmapp.map.Marker;
 import com.expidev.gcmapp.map.MarkerRender;
@@ -185,8 +186,7 @@ public class MainActivity extends ActionBarActivity
     public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                Intent goToSettings = new Intent(this, SettingsActivity.class);
-                startActivity(goToSettings);
+                startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.action_refresh:
                 MinistriesService.syncAllMinistries(this, true);

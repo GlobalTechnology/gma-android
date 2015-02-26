@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.FilterQueryProvider;
 
+import com.expidev.gcmapp.activity.SettingsActivity;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.model.Assignment;
