@@ -321,6 +321,17 @@ public class MeasurementsService extends ThreadedIntentService
         String mcc = intent.getStringExtra(Constants.ARG_MCC);
         String period = intent.getStringExtra(Constants.ARG_PERIOD);
 
+        if(ministryId == null || mcc == null)
+        {
+            String logMessage = "Null";
+            if(ministryId == null && mcc == null) logMessage += " Ministry ID and MCC";
+            else if(ministryId == null) logMessage += " Ministry ID";
+            else logMessage += " MCC";
+
+            Log.w(TAG, logMessage);
+            return;
+        }
+
         Calendar previousMonth = Calendar.getInstance();
         previousMonth.add(Calendar.MONTH, -1);
 

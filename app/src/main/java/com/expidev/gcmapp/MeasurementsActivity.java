@@ -552,6 +552,17 @@ public class MeasurementsActivity extends ActionBarActivity
             String mcc = (String) params[1];
             String period = (String) params[2];
 
+            if(ministryId == null || mcc == null)
+            {
+                String logMessage = "Null";
+                if(ministryId == null && mcc == null) logMessage += " Ministry ID and MCC";
+                else if(ministryId == null) logMessage += " Ministry ID";
+                else logMessage += " MCC";
+
+                Log.w(TAG, logMessage);
+                return null;
+            }
+
             try
             {
                 GmaApiClient apiClient = GmaApiClient.getInstance(MeasurementsActivity.this);
