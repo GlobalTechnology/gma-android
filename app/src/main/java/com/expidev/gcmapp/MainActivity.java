@@ -618,7 +618,7 @@ public class MainActivity extends ActionBarActivity
         switch(churchSecurity)
         {
             case 0:
-                return mAssignment.isLeadership() || mAssignment.isMember();
+                return mAssignment.isLeader() || mAssignment.isMember();
             case 1:
                 return mAssignment.isLeadership();
             case 2:
