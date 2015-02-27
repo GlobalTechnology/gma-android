@@ -562,12 +562,19 @@ public class MainActivity extends ActionBarActivity
 
     private void addTrainingMarkersToMap() {
         // show training activities when the Training layer is enabled and we have trainings
-        if (mMapLayers[MAP_LAYER_TRAINING] && allTraining != null) {
+        if (mMapLayers[MAP_LAYER_TRAINING] && allTraining != null
+            && mAssignment != null && canViewTraining()) {
+
             for (Training training : allTraining)
             {
                 clusterManager.addItem(new TrainingMarker(training));
             }
         }
+    }
+
+    private boolean canViewTraining()
+    {
+        return mAssignment != null && !(mAssignment.isBlocked() || mAssignment.isSelfAssigned());
     }
 
     private void addChurchMarkersToMap() {
