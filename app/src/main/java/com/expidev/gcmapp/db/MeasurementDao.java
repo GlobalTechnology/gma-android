@@ -229,12 +229,11 @@ public class MeasurementDao extends AbstractDao
         }
         else if(obj instanceof MeasurementDetails)
         {
-            String mcc = ((MeasurementDetails) obj).getMcc();
             return getPrimaryKeyWhere(
                 MeasurementDetails.class,
                 ((MeasurementDetails) obj).getMeasurementId(),
                 ((MeasurementDetails) obj).getMinistryId(),
-                mcc != null ? mcc : "SLM",
+                ((MeasurementDetails) obj).getMcc(),
                 ((MeasurementDetails) obj).getPeriod());
         }
         else if(obj instanceof SixMonthAmounts)
@@ -296,7 +295,7 @@ public class MeasurementDao extends AbstractDao
     {
         String measurementId = measurementDetails.getMeasurementId();
         String ministryId = measurementDetails.getMinistryId();
-        String mcc = measurementDetails.getMcc();
+        String mcc = measurementDetails.getMcc().toString();
         String period = measurementDetails.getPeriod();
 
         this.updateOrInsert(measurementDetails, Contract.MeasurementDetails.PROJECTION_ALL);

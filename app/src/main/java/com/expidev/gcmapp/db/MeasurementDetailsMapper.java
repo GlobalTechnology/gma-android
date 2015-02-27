@@ -26,7 +26,7 @@ public class MeasurementDetailsMapper extends BaseMapper<MeasurementDetails>
                 values.put(field, measurementDetails.getMinistryId());
                 break;
             case Contract.MeasurementDetails.COLUMN_MCC:
-                values.put(field, measurementDetails.getMcc());
+                values.put(field, measurementDetails.getMcc().toString());
                 break;
             case Contract.MeasurementDetails.COLUMN_PERIOD:
                 values.put(field, measurementDetails.getPeriod());

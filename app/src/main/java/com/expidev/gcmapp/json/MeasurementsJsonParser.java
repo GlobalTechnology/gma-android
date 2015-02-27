@@ -212,7 +212,7 @@ public class MeasurementsJsonParser
         }
 
         jsonObject.put("period", measurementDetails.getPeriod());
-        jsonObject.put("mcc", measurementDetails.getMcc().toLowerCase() + "_gma-app");
+        jsonObject.put("mcc", measurementDetails.getMcc().raw + "_gma-app");
 
         return jsonObject;
     }

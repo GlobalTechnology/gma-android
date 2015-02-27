@@ -848,7 +848,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                     MeasurementDetails measurementDetails = MeasurementsJsonParser.parseMeasurementDetails(results);
                     measurementDetails.setMeasurementId(measurementId);
                     measurementDetails.setMinistryId(ministryId);
-                    measurementDetails.setMcc(mcc.raw);
+                    measurementDetails.setMcc(mcc);
                     measurementDetails.setPeriod(period);
 
                     return measurementDetails;

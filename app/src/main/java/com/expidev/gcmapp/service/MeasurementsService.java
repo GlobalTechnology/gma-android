@@ -209,7 +209,7 @@ public class MeasurementsService extends ThreadedIntentService
 
             measurementDetails.setMeasurementId(measurementId);
             measurementDetails.setMinistryId(ministryId);
-            measurementDetails.setMcc(mcc.raw);
+            measurementDetails.setMcc(mcc);
             measurementDetails.setPeriod(period);
 
             return measurementDetails;
