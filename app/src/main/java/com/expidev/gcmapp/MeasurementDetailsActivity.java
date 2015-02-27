@@ -420,8 +420,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         for(BreakdownData localDataSource : localBreakdown)
         {
-            //TODO: Should we skip 0 value rows?
-            if("total".equals(localDataSource.getSource())) // || localDataSource.getSource() == 0)
+            if("total".equals(localDataSource.getSource()))
             {
                 continue;
             }
