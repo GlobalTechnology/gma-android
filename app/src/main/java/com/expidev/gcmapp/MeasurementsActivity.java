@@ -1,6 +1,8 @@
 package com.expidev.gcmapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -405,6 +407,25 @@ public class MeasurementsActivity extends ActionBarActivity
 
     void onLoadCurrentAssignment(@Nullable final Assignment assignment) {
         mAssignment = assignment;
+
+        if(mAssignment != null && mAssignment.getRole() == Assignment.Role.BLOCKED)
+        {
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle("Blocked")
+                .setMessage("You are not allowed to view measurements for this ministry")
+                .setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.dismiss();
+                        finish();
+                    }
+                })
+                .create();
+
+            alertDialog.show();
+        }
+        
         chosenMinistry = mAssignment != null ? mAssignment.getMinistry() : null;
 
         if (chosenMinistry != null) {
