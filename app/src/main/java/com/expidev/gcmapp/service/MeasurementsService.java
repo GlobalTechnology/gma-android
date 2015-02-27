@@ -13,6 +13,7 @@ import com.expidev.gcmapp.db.MeasurementDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
 import com.expidev.gcmapp.model.Assignment;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 
@@ -266,14 +267,14 @@ public class MeasurementsService extends ThreadedIntentService
     private void syncMeasurements(Intent intent) throws ApiException
     {
         String ministryId = intent.getStringExtra(Constants.ARG_MINISTRY_ID);
-        String mcc = intent.getStringExtra(Constants.ARG_MCC);
+        final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(intent.getStringExtra(Constants.ARG_MCC));
         String period = intent.getStringExtra(Constants.ARG_PERIOD);
         Assignment.Role role = (Assignment.Role) intent.getSerializableExtra("role");
 
-        if(ministryId == null || mcc == null)
+        if(ministryId == null || mcc == Ministry.Mcc.UNKNOWN)
         {
             String logMessage = "Null";
-            if(ministryId == null && mcc == null) logMessage += " Ministry ID and MCC";
+            if(ministryId == null && mcc == Ministry.Mcc.UNKNOWN) logMessage += " Ministry ID and MCC";
             else if(ministryId == null) logMessage += " Ministry ID";
             else logMessage += " MCC";
 
@@ -287,8 +288,8 @@ public class MeasurementsService extends ThreadedIntentService
         String previousPeriod = dateFormat.format(previousMonth.getTime());
 
         // retrieve and save the measurements for the current and previous period
-        List<Measurement> measurements = searchMeasurements(ministryId, mcc, period);
-        List<Measurement> previousPeriodMeasurements = searchMeasurements(ministryId, mcc, previousPeriod);
+        List<Measurement> measurements = searchMeasurements(ministryId, mcc.raw, period);
+        List<Measurement> previousPeriodMeasurements = searchMeasurements(ministryId, mcc.raw, previousPeriod);
         if(previousPeriodMeasurements != null)
         {
             measurements.addAll(previousPeriodMeasurements);
