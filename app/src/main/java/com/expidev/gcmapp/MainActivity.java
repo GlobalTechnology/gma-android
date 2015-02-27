@@ -397,8 +397,8 @@ public class MainActivity extends ActionBarActivity
         if(mAssignment != null && mAssignment.getRole() == Assignment.Role.BLOCKED)
         {
             AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle("Blocked")
-                .setMessage("You are not allowed to view measurements for this ministry")
+                .setTitle(getString(R.string.title_dialog_blocked))
+                .setMessage(getString(R.string.disallowed_measurements))
                 .setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener()
                 {
                     public void onClick(DialogInterface dialog, int which)

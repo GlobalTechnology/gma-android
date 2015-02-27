@@ -1,5 +1,7 @@
 package com.expidev.gcmapp;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -705,6 +707,25 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         {
             currentAssignment = assignment;
             Log.i(TAG, "Current assignment loaded");
+
+            if(currentAssignment.getRole() == Assignment.Role.BLOCKED)
+            {
+                AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.title_dialog_blocked))
+                    .setMessage(getString(R.string.disallowed_measurements))
+                    .setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            dialog.dismiss();
+                            setResult(Constants.BLOCKED_MINISTRY);
+                            finish();
+                        }
+                    })
+                    .create();
+
+                alertDialog.show();
+            }
         }
     }
 

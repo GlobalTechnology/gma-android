@@ -21,4 +21,10 @@ public class Constants {
     public static final String EXTRA_CHURCH_IDS = "church_ids";
     public static final String EXTRA_MINISTRY_ID = "ministry_id";
     public static final String EXTRA_TRAINING_IDS = "training_ids";
+
+    /* result codes */
+    public static final int BLOCKED_MINISTRY = 0;
+
+    /* request codes */
+    public static final int REQUEST_EXIT = 1;
 }

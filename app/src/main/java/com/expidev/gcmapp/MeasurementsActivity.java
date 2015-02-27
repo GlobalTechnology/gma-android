@@ -93,6 +93,18 @@ public class MeasurementsActivity extends ActionBarActivity
         startLoaders();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if(requestCode == Constants.REQUEST_EXIT)
+        {
+            if(resultCode == Constants.BLOCKED_MINISTRY)
+            {
+                finish();
+            }
+        }
+    }
+
     private void startLoaders()
     {
         final LoaderManager manager = this.getSupportLoaderManager();
@@ -336,7 +348,7 @@ public class MeasurementsActivity extends ActionBarActivity
             goToMeasurementDetails.putExtra(Constants.ARG_PERIOD, currentPeriod);
         }
 
-        startActivity(goToMeasurementDetails);
+        startActivityForResult(goToMeasurementDetails, Constants.REQUEST_EXIT);
     }
 
     public void goToPreviousPeriod(View view)
@@ -411,8 +423,8 @@ public class MeasurementsActivity extends ActionBarActivity
         if(mAssignment != null && mAssignment.getRole() == Assignment.Role.BLOCKED)
         {
             AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle("Blocked")
-                .setMessage("You are not allowed to view measurements for this ministry")
+                .setTitle(getString(R.string.title_dialog_blocked))
+                .setMessage(getString(R.string.disallowed_measurements))
                 .setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener()
                 {
                     public void onClick(DialogInterface dialog, int which)
@@ -425,7 +437,7 @@ public class MeasurementsActivity extends ActionBarActivity
 
             alertDialog.show();
         }
-        
+
         chosenMinistry = mAssignment != null ? mAssignment.getMinistry() : null;
 
         if (chosenMinistry != null) {

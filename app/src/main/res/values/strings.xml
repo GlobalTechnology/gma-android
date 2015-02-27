@@ -9,6 +9,7 @@
     <string name="title_activity_measurements">Measurements</string>
     <string name="title_activity_measurement_details">Measurement Details</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="title_dialog_blocked">Blocked</string>
 
     <!-- Menu items -->
     <string name="menu_refresh">Refresh</string>
@@ -46,6 +47,7 @@
     <!-- Messages -->
     <string name="no_internet">No network connection detected</string>
     <string name="logout_message">Are you sure you want to logout?</string>
+    <string name="disallowed_measurements">You are not allowed to view measurements for this ministry</string>
 
     <!-- Map Settings -->
     <string name="map_settings">Map Settings</string>
