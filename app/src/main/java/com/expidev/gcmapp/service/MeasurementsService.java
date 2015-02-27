@@ -191,11 +191,11 @@ public class MeasurementsService extends ThreadedIntentService
     private MeasurementDetails retrieveDetailsForMeasurement(
         String measurementId,
         String ministryId,
-        String mcc,
+        @NonNull final Ministry.Mcc mcc,
         String period) throws ApiException
     {
         GmaApiClient apiClient = GmaApiClient.getInstance(this);
-        JSONObject json = apiClient.getDetailsForMeasurement(measurementId, ministryId, mcc, period);
+        JSONObject json = apiClient.getDetailsForMeasurement(measurementId, ministryId, mcc.raw, period);
 
         if(json == null)
         {

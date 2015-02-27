@@ -220,12 +220,11 @@ public class MeasurementDao extends AbstractDao
     {
         if(obj instanceof Measurement)
         {
-            String mcc = ((Measurement) obj).getMcc();
             return getPrimaryKeyWhere(
                 Measurement.class,
                 ((Measurement) obj).getMeasurementId(),
                 ((Measurement) obj).getMinistryId(),
-                mcc != null ? mcc : "SLM",
+                ((Measurement) obj).getMcc(),
                 ((Measurement) obj).getPeriod());
         }
         else if(obj instanceof MeasurementDetails)

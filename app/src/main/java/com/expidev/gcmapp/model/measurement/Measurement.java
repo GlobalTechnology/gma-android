@@ -129,9 +129,9 @@ public class Measurement extends Base implements Serializable
         this.ministryId = ministryId;
     }
 
-    public String getMcc()
-    {
-        return mcc.raw;
+    @NonNull
+    public Ministry.Mcc getMcc() {
+        return this.mcc;
     }
 
     public void setMcc(@Nullable final String mcc) {
