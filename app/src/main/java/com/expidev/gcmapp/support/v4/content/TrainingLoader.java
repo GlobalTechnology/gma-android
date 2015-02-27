@@ -49,7 +49,7 @@ public class TrainingLoader extends AsyncTaskBroadcastReceiverLoader<List<Traini
     {
         if (mMinistyId != null)
         {
-            return mDao.get(Training.class, Contract.Training.SQL_WHERE_MINISTRY_ID, new String[] {mMinistyId});
+            return mDao.get(Training.class, Contract.Training.SQL_WHERE_MINISTRY, new String[] {mMinistyId});
         }
         return null;
     }

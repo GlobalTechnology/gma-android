@@ -252,7 +252,7 @@ public class MinistriesService extends ThreadedIntentService {
                 // load current churches
                 final LongSparseArray<Church> current = new LongSparseArray<>();
                 for (final Church church : mDao
-                        .get(Church.class, Contract.Church.SQL_WHERE_MINISTRY_ID, bindValues(ministryId))) {
+                        .get(Church.class, Contract.Church.SQL_WHERE_MINISTRY, bindValues(ministryId))) {
                     current.put(church.getId(), church);
                 }
 

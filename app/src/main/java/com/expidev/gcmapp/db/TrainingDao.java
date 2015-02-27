@@ -143,7 +143,7 @@ public class TrainingDao extends AbstractDao
         try
         {
             final List<Training> trainings =
-                    this.get(Training.class, Contract.Training.SQL_WHERE_MINISTRY_ID, this.getBindValues(ministry_id));
+                    this.get(Training.class, Contract.Training.SQL_WHERE_MINISTRY, this.getBindValues(ministry_id));
             for (final Training training : trainings) {
                 training.setCompletions(getCompletedTrainingByTrainingId(training.getId()));
             }
