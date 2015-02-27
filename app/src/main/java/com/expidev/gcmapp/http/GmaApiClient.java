@@ -64,12 +64,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     private static final Object LOCK_INSTANCE = new Object();
     private static GmaApiClient INSTANCE;
 
-    // XXX: temporary until mContext from AbstractApi is visible
-    private final Context mContext;
-
     private GmaApiClient(final Context context) {
         super(context, TheKeyImpl.getInstance(context), BuildConfig.GCM_BASE_URI, "gcm_api_sessions");
-        mContext = context;
     }
 
     public static GmaApiClient getInstance(final Context context) {
