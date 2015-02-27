@@ -500,10 +500,16 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     @Nullable
     public List<Training> searchTraining(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc)
             throws ApiException {
+        // short-circuit on invalid requests
+        if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
+            return null;
+        }
+        assert mcc.raw != null : "Only Unknown MCC's should have null raw values";
+
         // build request
         final Request<Session> request = new Request<>(TRAINING);
         request.params.add(param("ministry_id", ministryId));
-        request.params.add(param("mcc", mcc.toString()));
+        request.params.add(param("mcc", mcc.raw));
 
         // process request
         HttpURLConnection conn = null;
