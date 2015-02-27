@@ -14,6 +14,7 @@ import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.http.GmaApiClient.Session;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
 import com.expidev.gcmapp.json.MinistryJsonParser;
+import com.expidev.gcmapp.json.TrainingJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
@@ -497,7 +498,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Nullable
-    public JSONArray searchTraining(@NonNull final String ministryId, @NonNull final String mcc) throws ApiException {
+    public List<Training> searchTraining(@NonNull final String ministryId, @NonNull final String mcc)
+            throws ApiException {
         // build request
         final Request<Session> request = new Request<>(TRAINING);
         request.params.add(param("ministry_id", ministryId));
@@ -511,7 +513,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                return new JSONArray(IOUtils.readString(conn.getInputStream()));
+                return TrainingJsonParser.parseTrainings(new JSONArray(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
             Log.e(TAG, "error parsing searchTraining response", e);

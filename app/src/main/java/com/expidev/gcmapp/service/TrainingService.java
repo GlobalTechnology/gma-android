@@ -13,13 +13,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.support.v4.util.LongSparseArray;
+import android.util.Log;
 
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.TrainingDao;
 import com.expidev.gcmapp.http.GmaApiClient;
-import com.expidev.gcmapp.json.TrainingJsonParser;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.utils.BroadcastUtils;
@@ -27,7 +26,6 @@ import com.expidev.gcmapp.utils.BroadcastUtils;
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.AbstractDao.Transaction;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -137,13 +135,9 @@ public class TrainingService extends IntentService
     {
         try
         {
-            JSONArray jsonArray = mApi.searchTraining(ministryId, mcc);
+            final List<Training> trainings = mApi.searchTraining(ministryId, mcc.toString());
 
-            if (jsonArray != null)
-            {
-                // parse returned trainings
-                final List<Training> trainings = TrainingJsonParser.parseTrainings(jsonArray);
-
+            if (trainings != null) {
                 // save all trainings to the database
                 TrainingDao trainingDao = TrainingDao.getInstance(this);
                 final AbstractDao.Transaction tx = trainingDao.newTransaction();
@@ -175,7 +169,10 @@ public class TrainingService extends IntentService
     
     private void syncTraining(final Intent intent) throws ApiException
     {
-        final String ministryId = intent.getStringExtra(MINISTRY_ID);
+        String ministryId = intent.getStringExtra(MINISTRY_ID);
+        if (ministryId == null) {
+            ministryId = Ministry.INVALID_ID;
+        }
         final String mcc = intent.getStringExtra(MINISTRY_MCC);
 
         final Transaction tx = mDao.newTransaction();
@@ -184,40 +181,33 @@ public class TrainingService extends IntentService
         try
         {
             // get list of training from api
-            JSONArray jsonArray = mApi.searchTraining(ministryId, mcc);
-            
-            if (jsonArray != null)
-            {
-                final List<Training> trainings = TrainingJsonParser.parseTrainings(jsonArray);
-                
-                if (trainings != null)
-                {
-                    final LongSparseArray<Training> current = new LongSparseArray<>();
-                    for (final Training training : mDao.get(Training.class, Contract.Training.SQL_WHERE_MINISTRY_ID_MCC,
-                                                            bindValues(ministryId, mcc))) {
-                        current.put(training.getId(), training);
-                    }
-                    
-                    long[] ids = new long[current.size() + trainings.size()];
-                    int j = 0;
-                    for (final Training training : trainings)
-                    {
-                        training.setLastSynced(new Date());
-                        current.remove(training.getId());
-                        ids[j++] = training.getId();
-                    }
-                    
-                    for (int i = 0; i < current.size(); i++)
-                    {
-                        final Training training = current.valueAt(i);
-                        mDao.delete(training);
-                        ids[j++] = training.getId();
-                    }
-                    
-                    tx.setSuccessful();
-                    
-                    broadcastManager.sendBroadcast(BroadcastUtils.updateTrainingBroadcast(ministryId, Arrays.copyOf(ids, j)));
+            final List<Training> trainings = mApi.searchTraining(ministryId, mcc);
+
+            if (trainings != null) {
+                final LongSparseArray<Training> current = new LongSparseArray<>();
+                for (final Training training : mDao.get(Training.class, Contract.Training.SQL_WHERE_MINISTRY_ID_MCC,
+                                                        bindValues(ministryId, mcc))) {
+                    current.put(training.getId(), training);
                 }
+
+                long[] ids = new long[current.size() + trainings.size()];
+                int j = 0;
+                for (final Training training : trainings) {
+                    training.setLastSynced(new Date());
+                    current.remove(training.getId());
+                    ids[j++] = training.getId();
+                }
+
+                for (int i = 0; i < current.size(); i++) {
+                    final Training training = current.valueAt(i);
+                    mDao.delete(training);
+                    ids[j++] = training.getId();
+                }
+
+                tx.setSuccessful();
+
+                broadcastManager.sendBroadcast(
+                        BroadcastUtils.updateTrainingBroadcast(ministryId, Arrays.copyOf(ids, j)));
             }
         } catch (Exception e)
         {
