@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.MeasurementDetailsData;
 
 /**
@@ -23,7 +24,7 @@ public abstract class MeasurementDetailsDataMapper<T extends MeasurementDetailsD
                 values.put(field, obj.getMinistryId());
                 break;
             case Contract.MeasurementDetailsData.COLUMN_MCC:
-                values.put(field, obj.getMcc());
+                values.put(field, obj.getMcc().toString());
                 break;
             case Contract.MeasurementDetailsData.COLUMN_PERIOD:
                 values.put(field, obj.getPeriod());
@@ -41,7 +42,7 @@ public abstract class MeasurementDetailsDataMapper<T extends MeasurementDetailsD
         final T obj = super.toObject(cursor);
         obj.setMeasurementId(this.getString(cursor, Contract.MeasurementDetailsData.COLUMN_MEASUREMENT_ID, null));
         obj.setMinistryId(this.getString(cursor, Contract.MeasurementDetailsData.COLUMN_MINISTRY_ID, null));
-        obj.setMcc(this.getString(cursor, Contract.MeasurementDetailsData.COLUMN_MCC, null));
+        obj.setMcc(Ministry.Mcc.fromRaw(getString(cursor, Contract.MeasurementDetailsData.COLUMN_MCC, null)));
         obj.setPeriod(this.getString(cursor, Contract.MeasurementDetailsData.COLUMN_PERIOD, null));
         return obj;
     }

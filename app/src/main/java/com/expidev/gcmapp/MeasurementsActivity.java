@@ -657,8 +657,7 @@ public class MeasurementsActivity extends ActionBarActivity
                     }
 
                     return MeasurementsJsonParser
-                            .parseMeasurements(results, assignment.getMinistryId(), assignment.getMcc().toString(),
-                                               period);
+                            .parseMeasurements(results, assignment.getMinistryId(), assignment.getMcc(), period);
                 } catch (ApiException e) {
                     Log.e(TAG, "Failed to retrieve measurements from API", e);
                     return null;
