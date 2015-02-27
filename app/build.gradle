@@ -61,11 +61,15 @@ android {
 
             buildConfigField "String", "GCM_BASE_URI", "\"https://stage-measurements.global-registry.org/v1/\""
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AAfd80ddf74e333f27c92d3f89f125be5cecf9c532\""
+
+            resValue "string", "google_maps_api_key", "AIzaSyCsM4eK9ZND1yZXv9Lg004peeepnKGH0EY"
         }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+
+            resValue "string", "google_maps_api_key", "AIzaSyAATaK4l6LRKP5KA61KI2NkHAXd4ilS7NM"
         }
     }
 }
