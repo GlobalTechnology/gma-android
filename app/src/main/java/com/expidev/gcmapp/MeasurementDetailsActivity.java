@@ -437,15 +437,15 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                 dataSection.addView(row);
 
                 dataSection.addView(new HorizontalLineView(this));
-
-                // Only leaders and inherited leaders can edit local values
-                EditText localNumber = createInputView(
-                    measurementDetails.getTotalLocalBreakdown().getAmount(),
-                    LOCAL_MEASUREMENTS_TAG);
-                LinearLayout localDataInputSection = createRow(createNameView("Local"), localNumber);
-
-                dataSection.addView(localDataInputSection);
             }
+
+            // Only leaders and inherited leaders can edit local values
+            EditText localNumber = createInputView(
+                measurementDetails.getTotalLocalBreakdown().getAmount(),
+                LOCAL_MEASUREMENTS_TAG);
+            LinearLayout localDataInputSection = createRow(createNameView("Local"), localNumber);
+
+            dataSection.addView(localDataInputSection);
         }
         else if(currentAssignment.isMember())
         {
