@@ -23,7 +23,7 @@ public class Constants {
     public static final String EXTRA_TRAINING_IDS = "training_ids";
 
     /* result codes */
-    public static final int BLOCKED_MINISTRY = 0;
+    public static final int BLOCKED_MINISTRY = 1;
 
     /* request codes */
     public static final int REQUEST_EXIT = 1;
