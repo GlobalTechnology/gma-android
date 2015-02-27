@@ -100,6 +100,9 @@ public class SettingsFragment extends PreferenceFragment {
 
     private void setupPreferences() {
         mPrefMinistry = (ListPreference) findPreference(PREF_CURRENT_MINISTRY);
+        if (mPrefMinistry != null) {
+            mPrefMinistry.setOnPreferenceChangeListener(new MinistryChangeListener());
+        }
         mPrefMcc = (ListPreference) findPreference("mcc_list");
         if (mPrefMcc != null) {
             mPrefMcc.setOnPreferenceChangeListener(new MccChangeListener());
@@ -129,6 +132,9 @@ public class SettingsFragment extends PreferenceFragment {
 
             mPrefMinistry.setEntries(names);
             mPrefMinistry.setEntryValues(ids);
+
+            // update summary as necessary
+            updateMinistryPrefSummary();
         }
     }
 
@@ -157,6 +163,18 @@ public class SettingsFragment extends PreferenceFragment {
         }
     }
 
+    private void updateMinistryPrefSummary() {
+        if (mPrefMinistry != null) {
+            if (mPrefMinistry.getEntries().length == 0) {
+                mPrefMinistry.setSummary(R.string.pref_summary_ministry_none_available);
+            } else if (mPrefMinistry.getEntry() == null) {
+                mPrefMinistry.setSummary(R.string.pref_summary_mcc_none_set);
+            } else {
+                mPrefMinistry.setSummary(R.string.pref_summary_ministry);
+            }
+        }
+    }
+
     private void updateMccPrefSummary() {
         if (mPrefMcc != null) {
             if (mPrefMcc.getEntries().length == 0) {
@@ -166,6 +184,16 @@ public class SettingsFragment extends PreferenceFragment {
             } else {
                 mPrefMcc.setSummary(R.string.pref_summary_mcc);
             }
+        }
+    }
+
+    private class MinistryChangeListener implements Preference.OnPreferenceChangeListener {
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            // update summary as necessary
+            updateMinistryPrefSummary();
+
+            return false;
         }
     }
 
@@ -191,10 +219,10 @@ public class SettingsFragment extends PreferenceFragment {
                         broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast());
                     }
                 });
-
-                // update summary as necessary
-                updateMccPrefSummary();
             }
+
+            // update summary as necessary
+            updateMccPrefSummary();
 
             return true;
         }
