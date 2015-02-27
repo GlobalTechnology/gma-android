@@ -12,11 +12,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -123,9 +125,9 @@ public class MeasurementsActivity extends ActionBarActivity
 
         Bundle args = new Bundle(3);
         args.putString(Constants.ARG_MINISTRY_ID,
-                       mAssignment != null ? mAssignment.getMinistryId() : Ministry.INVALID_ID);
+            mAssignment != null ? mAssignment.getMinistryId() : Ministry.INVALID_ID);
         args.putString(Constants.ARG_MCC,
-                       (mAssignment != null ? mAssignment.getMcc() : Ministry.Mcc.UNKNOWN).toString());
+            (mAssignment != null ? mAssignment.getMcc() : Ministry.Mcc.UNKNOWN).toString());
         args.putString(Constants.ARG_PERIOD, period);
 
         manager.restartLoader(LOADER_MEASUREMENTS, args, measurementsLoaderCallbacks);
@@ -158,6 +160,18 @@ public class MeasurementsActivity extends ActionBarActivity
         // Clear out the data container in case the user is coming back from the measurement details page
         dataContainer.removeAllViews();
 
+        if(mAssignment.isLeadership() || mAssignment.isMember())
+        {
+            buildLayoutForDrillDown(sortedMeasurements, dataContainer);
+        }
+        else if(mAssignment.isSelfAssigned())
+        {
+            buildLayoutForDataEntry(sortedMeasurements, dataContainer);
+        }
+    }
+
+    private void buildLayoutForDrillDown(List<Measurement> sortedMeasurements, LinearLayout dataContainer)
+    {
         String previousColumn = sortedMeasurements.get(0).getColumn();
         String firstMeasurementId = sortedMeasurements.get(0).getMeasurementId();
 
@@ -178,6 +192,30 @@ public class MeasurementsActivity extends ActionBarActivity
                 measurement.getName(),
                 measurement.getTotal(),
                 measurement);
+
+            dataContainer.addView(row);
+        }
+    }
+
+    private void buildLayoutForDataEntry(List<Measurement> sortedMeasurements, LinearLayout dataContainer)
+    {
+        String previousColumn = sortedMeasurements.get(0).getColumn();
+        String firstMeasurementId = sortedMeasurements.get(0).getMeasurementId();
+
+        for(Measurement measurement : sortedMeasurements)
+        {
+            String column = measurement.getColumn();
+
+            if(!column.equals(previousColumn) || measurement.getMeasurementId().equals(firstMeasurementId))
+            {
+                // Add the new header and the data
+                TextHeaderView headerView = new TextHeaderView(this);
+                headerView.setText(column);
+                dataContainer.addView(headerView);
+
+                previousColumn = column;
+            }
+            LinearLayout row = createDataEntryRow(measurement);
 
             dataContainer.addView(row);
         }
@@ -239,6 +277,51 @@ public class MeasurementsActivity extends ActionBarActivity
         return totalView;
     }
 
+    private LinearLayout createDataEntryRow( Measurement measurement)
+    {
+        TextView nameView = createNameView(measurement.getName());
+        EditText dataInputView = createDataInputView(measurement.getTotal(), measurement);
+
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setLayoutParams(new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        row.addView(nameView);
+        row.addView(dataInputView);
+        row.setClickable(false);
+
+        return row;
+    }
+
+    private EditText createDataInputView(int total, Measurement measurement)
+    {
+        EditText dataInputView = new EditText(this);
+        dataInputView.setText(Integer.toString(total));
+        dataInputView.setTag(measurement);
+        dataInputView.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
+        dataInputView.setOnFocusChangeListener(new View.OnFocusChangeListener()
+        {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus)
+            {
+                if(!hasFocus)
+                {
+                    EditText view = (EditText) v;
+                    onInputFocusLost(view.getText().toString(), (Measurement) view.getTag());
+                }
+            }
+        });
+
+        LinearLayout.LayoutParams dataInputLayoutParams = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dataInputLayoutParams.setMargins(0, 0, ViewUtils.dpToPixels(this, 5), 0);
+
+        dataInputView.setLayoutParams(dataInputLayoutParams);
+
+        return dataInputView;
+    }
+
     private TextView createArrowView()
     {
         TextView arrowView = new TextView(this);
@@ -295,6 +378,19 @@ public class MeasurementsActivity extends ActionBarActivity
         return sortedMeasurements;
     }
 
+    private void onInputFocusLost(String value, Measurement measurement)
+    {
+        try
+        {
+            measurement.setTotal(Integer.parseInt(value));
+            new SaveMeasurementsToLocalDatabase().execute(measurement);
+        }
+        catch(NumberFormatException e)
+        {
+            Log.w(TAG, "Invalid number: " + value);
+        }
+    }
+
     private Comparator<Measurement> sortOrderComparator()
     {
         return new Comparator<Measurement>()
@@ -338,7 +434,8 @@ public class MeasurementsActivity extends ActionBarActivity
     {
         Intent goToMeasurementDetails = new Intent(this, MeasurementDetailsActivity.class);
         goToMeasurementDetails.putExtra(Constants.ARG_MEASUREMENT_ID, measurement.getMeasurementId());
-        goToMeasurementDetails.putExtra(Constants.ARG_MINISTRY_ID, chosenMinistry.getMinistryId());
+        goToMeasurementDetails.putExtra(
+            Constants.ARG_MINISTRY_ID, chosenMinistry != null ? chosenMinistry.getMinistryId() : Ministry.INVALID_ID);
         goToMeasurementDetails.putExtra("ministryName", chosenMinistry.getName());
         goToMeasurementDetails.putExtra(Constants.ARG_MCC, (mAssignment != null ? mAssignment.getMcc() :
                 Ministry.Mcc.UNKNOWN).toString());
@@ -575,6 +672,19 @@ public class MeasurementsActivity extends ActionBarActivity
         protected void onPostExecute(List<Measurement> measurements)
         {
             onLoadMeasurementsFromServer(measurements);
+        }
+    }
+
+    private class SaveMeasurementsToLocalDatabase extends AsyncTask<Measurement, Void, Void>
+    {
+
+        @Override
+        protected Void doInBackground(Measurement... params)
+        {
+            List<Measurement> measurements = new ArrayList<>();
+            measurements.addAll(Arrays.asList(params));
+            MeasurementsService.saveMeasurementsToDatabase(MeasurementsActivity.this, measurements);
+            return null;
         }
     }
 }
