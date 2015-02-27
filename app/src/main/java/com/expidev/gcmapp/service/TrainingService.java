@@ -24,7 +24,6 @@ import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.ccci.gto.android.common.api.ApiException;
-import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.AbstractDao.Transaction;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -86,8 +85,6 @@ public class TrainingService extends IntentService
             switch (type)
             {
                 case DOWNLOAD_TRAINING:
-                    searchTraining(intent);
-                    break;
                 case SYNC_TRAINING:
                     syncTraining(intent);
                     break;
@@ -131,47 +128,6 @@ public class TrainingService extends IntentService
         context.startService(intent);
     }
 
-    private void searchTraining(@NonNull final Intent intent) {
-        String ministryId = intent.getStringExtra(MINISTRY_ID);
-        if (ministryId == null) {
-            ministryId = Ministry.INVALID_ID;
-        }
-        final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(intent.getStringExtra(MINISTRY_MCC));
-
-        try
-        {
-            final List<Training> trainings = mApi.searchTraining(ministryId, mcc);
-
-            if (trainings != null) {
-                // save all trainings to the database
-                TrainingDao trainingDao = TrainingDao.getInstance(this);
-                final AbstractDao.Transaction tx = trainingDao.newTransaction();
-                try {
-                    tx.begin();
-
-                    // save trainings
-                    for (final Training training : trainings) {
-                        trainingDao.saveTraining(training);
-                    }
-
-                    // TODO: remove missing trainings for this ministry & mcc
-
-                    tx.setSuccessful();
-                } finally {
-                    tx.end();
-                }
-            }
-            else
-            {
-                Log.d(TAG, "JSON Object is null");
-            }
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
-        }
-    }
-    
     private void syncTraining(final Intent intent) throws ApiException
     {
         String ministryId = intent.getStringExtra(MINISTRY_ID);
@@ -198,11 +154,23 @@ public class TrainingService extends IntentService
                 long[] ids = new long[current.size() + trainings.size()];
                 int j = 0;
                 for (final Training training : trainings) {
-                    training.setLastSynced(new Date());
-                    current.remove(training.getId());
-                    ids[j++] = training.getId();
+                    final long id = training.getId();
+                    final Training existing = current.get(id);
+
+                    // persist training in database (if it doesn't exist or isn't dirty)
+                    if (existing == null || !existing.isDirty()) {
+                        training.setLastSynced(new Date());
+                        mDao.saveTraining(training);
+
+                        // mark this id as having been changed
+                        ids[j++] = id;
+                    }
+
+                    // remove this training from the list of trainings
+                    current.remove(id);
                 }
 
+                // delete any remaining trainings that weren't returned from the API
                 for (int i = 0; i < current.size(); i++) {
                     final Training training = current.valueAt(i);
                     mDao.delete(training);
