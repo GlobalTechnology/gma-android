@@ -394,7 +394,26 @@ public class MainActivity extends ActionBarActivity
 
     public void goToMeasurements(MenuItem menuItem)
     {
-        startActivity(new Intent(getApplicationContext(), MeasurementsActivity.class));
+        if(mAssignment != null && mAssignment.getRole() == Assignment.Role.BLOCKED)
+        {
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle("Blocked")
+                .setMessage("You are not allowed to view measurements for this ministry")
+                .setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+
+            alertDialog.show();
+        }
+        else
+        {
+            startActivity(new Intent(getApplicationContext(), MeasurementsActivity.class));
+        }
     }
 
     public void reset(MenuItem menuItem)
