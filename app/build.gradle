@@ -35,9 +35,9 @@ android {
         minSdkVersion 10
         targetSdkVersion 21
 
-        buildConfigField "String", "GCM_BASE_URI", "\"https://measurements.global-registry.org/v1/\""
-        buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA3128e4005a5f2d68e0d232aebec6e9936950e042\""
         buildConfigField "long", "THEKEY_CLIENTID", "7439283632057308L"
+
+        resValue "string", "google_maps_api_key", "AIzaSyAATaK4l6LRKP5KA61KI2NkHAXd4ilS7NM"
     }
 
     compileOptions {
@@ -46,6 +46,12 @@ android {
     }
 
     signingConfigs {
+        demo {
+            storeFile file(androidKeystorePath)
+            storePassword androidKeystoreStorePassword
+            keyAlias androidKeystoreDemoKeyAlias
+            keyPassword androidKeystoreKeyPassword
+        }
         release {
             storeFile file(androidKeystorePath)
             storePassword androidKeystoreStorePassword
@@ -59,17 +65,29 @@ android {
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
 
-            buildConfigField "String", "GCM_BASE_URI", "\"https://stage-measurements.global-registry.org/v1/\""
+            buildConfigField "String", "GCM_BASE_URI", "\"https://stage-measurements.global-registry.org/v2/\""
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AAfd80ddf74e333f27c92d3f89f125be5cecf9c532\""
 
             resValue "string", "google_maps_api_key", "AIzaSyCsM4eK9ZND1yZXv9Lg004peeepnKGH0EY"
+        }
+        demo {
+            applicationIdSuffix ".demo"
+            versionNameSuffix "-demo"
+
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.demo
+
+            buildConfigField "String", "GCM_BASE_URI", "\"https://stage-measurements.global-registry.org/v1/\""
+            buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA8cb9761bdbec4e9ada73f4f4953f5c347f315d37\""
         }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
 
-            resValue "string", "google_maps_api_key", "AIzaSyAATaK4l6LRKP5KA61KI2NkHAXd4ilS7NM"
+            buildConfigField "String", "GCM_BASE_URI", "\"https://measurements.global-registry.org/v1/\""
+            buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA3128e4005a5f2d68e0d232aebec6e9936950e042\""
         }
     }
 }
@@ -113,6 +131,16 @@ afterEvaluate { project ->
             classifier 'mapping'
             type 'txt'
             builtBy proguardRelease
+        }
+        archives(file("build/outputs/apk/app-demo.apk")) {
+            classifier 'demo'
+            type 'apk'
+            builtBy assembleDemo
+        }
+        archives(file("build/outputs/mapping/demo/mapping.txt")) {
+            classifier 'demo-mapping'
+            type 'txt'
+            builtBy proguardDemo
         }
         archives artifactSourcesJar
     }
