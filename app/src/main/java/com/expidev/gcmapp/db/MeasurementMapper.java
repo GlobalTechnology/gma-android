@@ -49,6 +49,9 @@ public class MeasurementMapper extends BaseMapper<Measurement>
             case Contract.Measurement.COLUMN_PERIOD:
                 values.put(field, measurement.getPeriod());
                 break;
+            case Contract.Measurement.COLUMN_SORT_ORDER:
+                values.put(field, measurement.getSortOrder());
+                break;
             default:
                 super.mapField(values, field, measurement);
                 break;
@@ -78,6 +81,7 @@ public class MeasurementMapper extends BaseMapper<Measurement>
         measurement.setMinistryId(this.getString(cursor, Contract.Measurement.COLUMN_MINISTRY_ID, null));
         measurement.setMcc(this.getString(cursor, Contract.Measurement.COLUMN_MCC, null));
         measurement.setPeriod(this.getString(cursor, Contract.Measurement.COLUMN_PERIOD, null));
+        measurement.setSortOrder(this.getInt(cursor, Contract.Measurement.COLUMN_SORT_ORDER, 0));
 
         return measurement;
     }

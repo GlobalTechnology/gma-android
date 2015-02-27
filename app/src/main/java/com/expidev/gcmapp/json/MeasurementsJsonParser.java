@@ -91,6 +91,7 @@ public class MeasurementsJsonParser
         measurement.setSection(measurementJson.getString("section"));
         measurement.setColumn(measurementJson.getString("column"));
         measurement.setTotal(measurementJson.optInt("total"));
+        measurement.setSortOrder(measurementJson.optInt("sort_order"));
 
         return measurement;
     }
