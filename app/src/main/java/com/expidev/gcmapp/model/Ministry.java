@@ -14,17 +14,25 @@ public class Ministry extends Base implements Serializable
     private static final long serialVersionUID = 0L;
 
     public enum Mcc {
-        UNKNOWN, SLM, LLM, DS, GCM;
+        UNKNOWN(null), SLM("slm"), LLM("llm"), DS("ds"), GCM("gcm");
 
+        @Nullable
+        public final String raw;
+
+        private Mcc(final String raw) {
+            this.raw = raw;
+        }
+
+        @NonNull
         public static Mcc fromRaw(@Nullable final String raw) {
-            switch (raw != null ? raw.toUpperCase(Locale.US) : "") {
-                case "SLM":
+            switch (raw != null ? raw.toLowerCase(Locale.US) : "") {
+                case "slm":
                     return SLM;
-                case "LLM":
+                case "llm":
                     return LLM;
-                case "DS":
+                case "ds":
                     return DS;
-                case "GCM":
+                case "gcm":
                     return GCM;
                 default:
                     return UNKNOWN;

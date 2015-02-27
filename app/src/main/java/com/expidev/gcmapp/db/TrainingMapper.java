@@ -28,7 +28,7 @@ public class TrainingMapper extends LocationMapper<Training> {
                 values.put(field, training.getType());
                 break;
             case Contract.Training.COLUMN_MCC:
-                values.put(field, training.getMcc());
+                values.put(field, training.getMcc().toString());
                 break;
             default:
                 super.mapField(values, field, training);

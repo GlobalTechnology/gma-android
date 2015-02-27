@@ -15,6 +15,15 @@ public class Contract {
         static final String SQL_COLUMN_LAST_SYNCED = COLUMN_LAST_SYNCED + " INTEGER";
     }
 
+    private static interface MinistryId {
+        public static final String COLUMN_MINISTRY_ID = "ministry_id";
+
+        public static final String SQL_COLUMN_MINISTRY_ID =
+                COLUMN_MINISTRY_ID + " TEXT COLLATE NOCASE NOT NULL DEFAULT ''";
+
+        public static final String SQL_WHERE_MINISTRY = COLUMN_MINISTRY_ID + " = ?";
+    }
+
     public static abstract class Location extends Base {
         static final String COLUMN_LATITUDE = "latitude";
         static final String COLUMN_LONGITUDE = "longitude";
@@ -23,11 +32,10 @@ public class Contract {
         static final String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
     }
 
-    public static final class Training extends Location {
+    public static final class Training extends Location implements MinistryId {
         public static final String TABLE_NAME = "training";
 
         static final String COLUMN_ID = _ID;
-        static final String COLUMN_MINISTRY_ID = "ministry_id";
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_DATE = "date";
         public static final String COLUMN_TYPE = "type";
@@ -39,16 +47,15 @@ public class Contract {
                         COLUMN_LONGITUDE, COLUMN_DIRTY, COLUMN_LAST_SYNCED};
 
         private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
-        private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT NOT NULL DEFAULT ''";
+        private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
         private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_DATE = COLUMN_DATE + " TEXT";
         private static final String SQL_COLUMN_TYPE = COLUMN_TYPE + " TEXT";
-        private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
         private static final String SQL_COLUMN_DIRTY = COLUMN_DIRTY + " TEXT";
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
-        public static final String SQL_WHERE_MINISTRY_ID = COLUMN_MINISTRY_ID + " = ?";
+        public static final String SQL_WHERE_MINISTRY_ID_MCC = SQL_WHERE_MINISTRY + " AND " + COLUMN_MCC + " = ?";
         public static final String SQL_WHERE_DIRTY = COLUMN_DIRTY + " != ''";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + TextUtils
@@ -89,15 +96,13 @@ public class Contract {
         }
     }
 
-    public static abstract class MinistryBase extends Base {
-        public static final String COLUMN_MINISTRY_ID = "ministry_id";
+    public static abstract class MinistryBase extends Base implements MinistryId {
         public static final String COLUMN_NAME = "name";
 
-        static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT NOT NULL DEFAULT ''";
         static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_MINISTRY_ID + ")";
 
-        static final String SQL_WHERE_PRIMARY_KEY = COLUMN_MINISTRY_ID + " = ?";
+        static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_MINISTRY;
     }
 
     public static final class Ministry extends MinistryBase
@@ -151,11 +156,10 @@ public class Contract {
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
-    public static final class Assignment extends Base {
+    public static final class Assignment extends Base implements MinistryId {
         public static final String TABLE_NAME = "assignments";
 
         public static final String COLUMN_GUID = "guid";
-        public static final String COLUMN_MINISTRY_ID = "ministry_id";
         public static final String COLUMN_ROLE = "team_role";
         public static final String COLUMN_MCC = "mcc";
         public static final String COLUMN_ID = "assignment_id";
@@ -166,7 +170,6 @@ public class Contract {
         public static final String[] PROJECTION_API_CREATE_ASSIGNMENT = PROJECTION_API_GET_ASSIGNMENT;
 
         private static final String SQL_COLUMN_GUID = COLUMN_GUID + " TEXT NOT NULL DEFAULT ''";
-        private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT NOT NULL DEFAULT ''";
         private static final String SQL_COLUMN_ROLE = COLUMN_ROLE + " TEXT";
         private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT NOT NULL DEFAULT ''";
         private static final String SQL_COLUMN_ID = COLUMN_ID + " TEXT";
@@ -177,7 +180,6 @@ public class Contract {
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_GUID + " = ? AND " + COLUMN_MINISTRY_ID + " = ?";
         public static final String SQL_WHERE_GUID = COLUMN_GUID + " = ?";
-        public static final String SQL_WHERE_MINISTRY = COLUMN_MINISTRY_ID + " = ?";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_GUID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_ID,
@@ -189,11 +191,10 @@ public class Contract {
         public static final String SQL_V11_MCC = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_MCC;
     }
 
-    public static final class Church extends Location {
+    public static final class Church extends Location implements MinistryId {
         public static final String TABLE_NAME = "churches";
 
         static final String COLUMN_ID = _ID;
-        static final String COLUMN_MINISTRY_ID = "ministry_id";
         static final String COLUMN_NAME = "name";
         public static final String COLUMN_CONTACT_NAME = "contact_name";
         public static final String COLUMN_CONTACT_EMAIL = "contact_email";
@@ -208,7 +209,6 @@ public class Contract {
                         COLUMN_LAST_SYNCED};
 
         private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
-        private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT NOT NULL DEFAULT ''";
         private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_CONTACT_NAME = COLUMN_CONTACT_NAME + " TEXT";
         private static final String SQL_COLUMN_CONTACT_EMAIL = COLUMN_CONTACT_EMAIL + " TEXT";
@@ -219,7 +219,6 @@ public class Contract {
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
-        public static final String SQL_WHERE_MINISTRY_ID = COLUMN_MINISTRY_ID + " = ?";
         public static final String SQL_WHERE_DIRTY = COLUMN_DIRTY + " != ''";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
@@ -244,8 +243,7 @@ public class Contract {
     //              Measurement Contracts                       //
     //////////////////////////////////////////////////////////////
 
-    public static final class Measurement extends Base
-    {
+    public static final class Measurement extends Base implements MinistryId {
         public static final String TABLE_NAME = "measurements";
         private static final String INDEX_NAME = "measurements_unique_index";
 
@@ -256,7 +254,6 @@ public class Contract {
         static final String COLUMN_SECTION = "section";
         static final String COLUMN_COLUMN = "measurement_column";
         static final String COLUMN_TOTAL = "total";
-        static final String COLUMN_MINISTRY_ID = "ministry_id";
         static final String COLUMN_MCC = "mcc";
         static final String COLUMN_PERIOD = "period";
         static final String COLUMN_SORT_ORDER = "sort_order";
@@ -273,14 +270,13 @@ public class Contract {
         private static final String SQL_COLUMN_SECTION= COLUMN_SECTION + " TEXT";
         private static final String SQL_COLUMN_COLUMN = COLUMN_COLUMN + " TEXT";
         private static final String SQL_COLUMN_TOTAL = COLUMN_TOTAL + " INTEGER";
-        private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
         private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
         private static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
         private static final String SQL_COLUMN_SORT_ORDER = COLUMN_SORT_ORDER + " INTEGER";
 
         public static final String SQL_WHERE_UNIQUE = COLUMN_MEASUREMENT_ID + " = ? AND " +
             COLUMN_MINISTRY_ID + " = ? AND " + COLUMN_MCC + " = ? AND " + COLUMN_PERIOD + " = ?";
-        public static final String SQL_WHERE_MINISTRY_MCC_PERIOD = COLUMN_MINISTRY_ID + " = ? AND " +
+        public static final String SQL_WHERE_MINISTRY_MCC_PERIOD = SQL_WHERE_MINISTRY + " AND " +
             COLUMN_MCC + " = ? AND " + COLUMN_PERIOD + " = ?";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
@@ -298,13 +294,11 @@ public class Contract {
             " ADD COLUMN " + SQL_COLUMN_SORT_ORDER + ";";
     }
 
-    public static final class MeasurementDetails extends Base
-    {
+    public static final class MeasurementDetails extends Base implements MinistryId {
         public static final String TABLE_NAME = "measurement_details";
 
         static final String COLUMN_MEASUREMENT_ID = "measurement_id"; //Foreign key for Measurement
         static final String COLUMN_MCC = "mcc";
-        static final String COLUMN_MINISTRY_ID = "ministry_id";
         static final String COLUMN_PERIOD = "period";
         static final String COLUMN_LOCAL_AMOUNT = "local_amount";
         static final String COLUMN_PERSONAL_AMOUNT = "personal_amount";
@@ -316,7 +310,6 @@ public class Contract {
 
         private static final String SQL_COLUMN_MEASUREMENT_ID = COLUMN_MEASUREMENT_ID + " TEXT";
         private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
-        private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
         private static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
         private static final String SQL_COLUMN_LOCAL_AMOUNT = COLUMN_LOCAL_AMOUNT + " INTEGER";
         private static final String SQL_COLUMN_PERSONAL_AMOUNT = COLUMN_PERSONAL_AMOUNT + " INTEGER";
@@ -339,15 +332,12 @@ public class Contract {
             " ADD COLUMN " + SQL_COLUMN_PERSONAL_AMOUNT + ";";
     }
 
-    public static abstract class MeasurementDetailsData extends Base
-    {
+    public static abstract class MeasurementDetailsData extends Base implements MinistryId {
         static final String COLUMN_MEASUREMENT_ID = "measurement_id"; //Link to which Measurement this is
-        static final String COLUMN_MINISTRY_ID = "ministry_id";
         static final String COLUMN_MCC = "mcc";
         static final String COLUMN_PERIOD = "period";
 
         static final String SQL_COLUMN_MEASUREMENT_ID = COLUMN_MEASUREMENT_ID + " TEXT";
-        static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT";
         static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
         static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
 

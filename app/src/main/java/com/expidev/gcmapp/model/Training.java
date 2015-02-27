@@ -31,7 +31,8 @@ public class Training extends Location implements Cloneable
     private String name;
     private Date date;
     private String type;
-    private String mcc;
+    @NonNull
+    private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
     @NonNull
     private final List<GCMTrainingCompletions> completions = new ArrayList<>();
     private boolean mTrackingChanges = false;
@@ -57,7 +58,7 @@ public class Training extends Location implements Cloneable
         this.name = training.getName();
         this.date = training.getDate();
         this.type = training.getType();
-        this.mcc = training.getMcc();
+        this.mcc = training.mcc;
         this.setCompletions(training.getCompletions());
         mDirty.clear();
         mDirty.addAll(training.mDirty);
@@ -150,16 +151,18 @@ public class Training extends Location implements Cloneable
         }
     }
 
-    public String getMcc()
-    {
+    public Ministry.Mcc getMcc() {
         return mcc;
     }
 
-    public void setMcc(String mcc)
-    {
+    public void setMcc(@Nullable final String mcc) {
+        setMcc(Ministry.Mcc.fromRaw(mcc));
+    }
+
+    public void setMcc(@NonNull final Ministry.Mcc mcc) {
         this.mcc = mcc;
     }
-    
+
     public void trackingChanges(final boolean state)
     {
         mTrackingChanges = state;
@@ -218,7 +221,7 @@ public class Training extends Location implements Cloneable
         json.put(JSON_MINISTRY_ID, this.getMinistryId());
         json.put(JSON_DATE, this.getDate());
         json.put(JSON_TYPE, this.getType());
-        json.put(JSON_MCC, this.getMcc());
+        json.put(JSON_MCC, this.getMcc().raw);
         return json;
     }
 

@@ -42,7 +42,7 @@ public class ChurchesLoader extends AsyncTaskBroadcastReceiverLoader<List<Church
     @Override
     public List<Church> loadInBackground() {
         if (!Ministry.INVALID_ID.equals(mMinistryId)) {
-            return mDao.get(Church.class, Contract.Church.SQL_WHERE_MINISTRY_ID, new String[] {mMinistryId});
+            return mDao.get(Church.class, Contract.Church.SQL_WHERE_MINISTRY, new String[] {mMinistryId});
         }
         return null;
     }
