@@ -389,16 +389,21 @@ public class MainActivity extends ActionBarActivity
 
     void showEditChurch(final long churchId) {
         final FragmentManager fm = this.getSupportFragmentManager();
-        if (fm.findFragmentByTag("editChurch") == null) {
+        if (fm.findFragmentByTag("editChurch") == null && canEditChurchOrTraining()) {
             EditChurchFragment fragment = EditChurchFragment.newInstance(churchId);
             fragment.show(fm.beginTransaction().addToBackStack("editChurch"), "editChurch");
         }
+    }
+
+    private boolean canEditChurchOrTraining()
+    {
+        return mAssignment != null && mAssignment.isLeadership();
     }
     
     void showEditTraining(final long trainingId)
     {
         final FragmentManager fm = this.getSupportFragmentManager();
-        if (fm.findFragmentByTag("editTraining") == null)
+        if (fm.findFragmentByTag("editTraining") == null && canEditChurchOrTraining())
         {
             EditTrainingFragment fragment = EditTrainingFragment.newInstance(trainingId);
             fragment.show(fm.beginTransaction().addToBackStack("editTraining"), "editTraining");
@@ -562,12 +567,19 @@ public class MainActivity extends ActionBarActivity
 
     private void addTrainingMarkersToMap() {
         // show training activities when the Training layer is enabled and we have trainings
-        if (mMapLayers[MAP_LAYER_TRAINING] && allTraining != null) {
+        if (mMapLayers[MAP_LAYER_TRAINING] && allTraining != null
+            && mAssignment != null && canViewTraining()) {
+
             for (Training training : allTraining)
             {
                 clusterManager.addItem(new TrainingMarker(training));
             }
         }
+    }
+
+    private boolean canViewTraining()
+    {
+        return mAssignment != null && !(mAssignment.isBlocked() || mAssignment.isSelfAssigned());
     }
 
     private void addChurchMarkersToMap() {
@@ -589,10 +601,31 @@ public class MainActivity extends ActionBarActivity
                         break;
                 }
 
-                if (render) {
+                if (render && canViewChurch(church.getSecurity())) {
                     clusterManager.addItem(new ChurchMarker(church));
                 }
             }
+        }
+    }
+
+    private boolean canViewChurch(int churchSecurity)
+    {
+        if(mAssignment == null)
+        {
+            return false;
+        }
+
+        switch(churchSecurity)
+        {
+            case 0:
+                return mAssignment.isLeader() || mAssignment.isMember();
+            case 1:
+                return mAssignment.isLeadership();
+            case 2:
+            case 3:
+                return true;
+            default:
+                return false;
         }
     }
 
