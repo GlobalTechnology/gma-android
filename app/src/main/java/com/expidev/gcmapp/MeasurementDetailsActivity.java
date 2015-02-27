@@ -431,7 +431,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             dataSection.addView(new HorizontalLineView(this));
         }
 
-        if(isLeader())
+        if(isLeader() || isInheritedLeader())
         {
             EditText localNumber = createInputView(
                 measurementDetails.getTotalLocalBreakdown().getAmount(),
