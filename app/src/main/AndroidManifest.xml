@@ -25,11 +25,6 @@
             android:name=".MainActivity"
             android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_main">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".JoinMinistryActivity"
@@ -66,6 +61,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.expidev.gcmapp.MeasurementsActivity" />
         </activity>
+
+        <activity-alias
+            android:name="com.expidevapps.android.measurements.activity.MainActivity"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
 
         <meta-data
             android:name="com.google.android.gms.version"
