@@ -76,7 +76,9 @@ android {
 
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.demo
+            if(signingConfigs.demo.storeFile.exists()) {
+                signingConfig signingConfigs.demo
+            }
 
             buildConfigField "String", "GCM_BASE_URI", "\"https://stage-measurements.global-registry.org/v1/\""
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA8cb9761bdbec4e9ada73f4f4953f5c347f315d37\""
@@ -84,7 +86,9 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            if(signingConfigs.release.storeFile.exists()) {
+                signingConfig signingConfigs.release
+            }
 
             buildConfigField "String", "GCM_BASE_URI", "\"https://measurements.global-registry.org/v1/\""
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA3128e4005a5f2d68e0d232aebec6e9936950e042\""
