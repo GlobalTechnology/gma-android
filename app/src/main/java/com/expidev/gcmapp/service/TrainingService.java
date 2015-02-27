@@ -1,5 +1,11 @@
 package com.expidev.gcmapp.service;
 
+import static com.expidev.gcmapp.service.Type.DOWNLOAD_TRAINING;
+import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_TRAINING;
+import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
+
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
@@ -28,12 +34,6 @@ import org.json.JSONObject;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import static com.expidev.gcmapp.service.Type.DOWNLOAD_TRAINING;
-import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_TRAINING;
-import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 
 /**
  * Created by matthewfrederick on 1/26/15.
@@ -193,9 +193,9 @@ public class TrainingService extends IntentService
                 if (trainings != null)
                 {
                     final LongSparseArray<Training> current = new LongSparseArray<>();
-                    for (final Training training : mDao.get(Training.class, Contract.Training.SQL_WHERE_MINISTRY_ID, new String[]{ministryId}))
-                    {
-                        current.put(training.getId(), training);   
+                    for (final Training training : mDao.get(Training.class, Contract.Training.SQL_WHERE_MINISTRY_ID_MCC,
+                                                            bindValues(ministryId, mcc))) {
+                        current.put(training.getId(), training);
                     }
                     
                     long[] ids = new long[current.size() + trainings.size()];

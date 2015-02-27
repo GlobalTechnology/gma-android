@@ -40,15 +40,16 @@ public class Contract {
 
         private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
         private static final String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT NOT NULL DEFAULT ''";
+        private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
         private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_DATE = COLUMN_DATE + " TEXT";
         private static final String SQL_COLUMN_TYPE = COLUMN_TYPE + " TEXT";
-        private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
         private static final String SQL_COLUMN_DIRTY = COLUMN_DIRTY + " TEXT";
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
         public static final String SQL_WHERE_MINISTRY_ID = COLUMN_MINISTRY_ID + " = ?";
+        public static final String SQL_WHERE_MINISTRY_ID_MCC = COLUMN_MINISTRY_ID + " = ? AND " + COLUMN_MCC + " = ?";
         public static final String SQL_WHERE_DIRTY = COLUMN_DIRTY + " != ''";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + TextUtils
