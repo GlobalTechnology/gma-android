@@ -389,10 +389,15 @@ public class MainActivity extends ActionBarActivity
 
     void showEditChurch(final long churchId) {
         final FragmentManager fm = this.getSupportFragmentManager();
-        if (fm.findFragmentByTag("editChurch") == null) {
+        if (fm.findFragmentByTag("editChurch") == null && canEditChurch()) {
             EditChurchFragment fragment = EditChurchFragment.newInstance(churchId);
             fragment.show(fm.beginTransaction().addToBackStack("editChurch"), "editChurch");
         }
+    }
+
+    private boolean canEditChurch()
+    {
+        return mAssignment != null && mAssignment.isLeadership();
     }
     
     void showEditTraining(final long trainingId)
