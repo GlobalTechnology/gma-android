@@ -133,7 +133,7 @@ public class MeasurementsService extends ThreadedIntentService
     public static void syncMeasurements(
         final Context context,
         String ministryId,
-        String mcc,
+        @NonNull final Ministry.Mcc mcc,
         String period,
         Assignment.Role role)
     {
@@ -141,7 +141,7 @@ public class MeasurementsService extends ThreadedIntentService
 
         extras.putSerializable(EXTRA_TYPE, SYNC_MEASUREMENTS);
         extras.putString(Constants.ARG_MINISTRY_ID, ministryId);
-        extras.putString(Constants.ARG_MCC, mcc);
+        extras.putString(Constants.ARG_MCC, mcc.toString());
         extras.putString(Constants.ARG_PERIOD, setPeriodToCurrentIfNecessary(period));
         extras.putSerializable("role", role);
 
