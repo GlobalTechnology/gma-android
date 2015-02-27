@@ -3,117 +3,120 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:padding="15dp">
 
     <ImageView
+        android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/icon"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:src="@drawable/churchicon"/>
 
     <TextView
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/title"
         android:layout_gravity="center_horizontal"
         android:layout_alignParentTop="true"
         tools:text="Long Title"
-        android:layout_alignBottom="@+id/icon"
+        android:layout_alignBottom="@id/icon"
         android:gravity="center_vertical|center_horizontal"
-        android:layout_toRightOf="@+id/icon"
-        android:layout_toEndOf="@+id/icon"
+        android:layout_toRightOf="@id/icon"
+        android:layout_toEndOf="@id/icon"
         android:ellipsize="end"
         android:lines="2"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/label_church_contact_name"
-        android:id="@+id/contactNameLabel"
-        android:layout_alignTop="@+id/contactName"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignBottom="@+id/contactName"
-        android:gravity="center_vertical|end"/>
-
-    <EditText
+    <TableLayout
+        android:id="@+id/data"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/contactName"
-        android:layout_gravity="center_horizontal"
-        tools:text="contactName"
-        android:layout_below="@+id/title"
-        android:layout_toRightOf="@+id/contactNameLabel"
-        android:layout_toEndOf="@+id/contactNameLabel"/>
+        android:layout_below="@id/icon"
+        android:layout_marginTop="10dp"
+        android:stretchColumns="1">
 
-    <TextView
+        <TableRow>
+
+            <TextView
+                android:id="@+id/contactNameLabel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical|start"
+                android:text="@string/label_church_contact_name"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_gravity="center_vertical"/>
+
+            <EditText
+                android:id="@+id/contactName"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:text="Contact Name"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:id="@+id/contactEmailLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:gravity="center_vertical|start"
+                android:text="@string/label_church_contact_email"
+                android:layout_gravity="center_vertical"/>
+
+            <EditText
+                android:id="@+id/contactEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:ems="10"
+                tools:text="contact@email.com"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:id="@+id/sizeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:gravity="center_vertical|start"
+                android:text="@string/label_church_size"/>
+
+            <EditText
+                android:id="@+id/size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:ems="10"
+                tools:text="1234"/>
+        </TableRow>
+    </TableLayout>
+
+    <Button
+        android:id="@+id/save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/label_church_contact_email"
-        android:id="@+id/contactEmailLabel"
-        android:gravity="center_vertical|end"
-        android:layout_below="@+id/contactNameLabel"
-        android:layout_above="@+id/size"/>
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textEmailAddress"
-        android:ems="10"
-        android:id="@+id/contactEmail"
-        android:layout_gravity="center_horizontal"
-        android:layout_below="@+id/contactName"
-        tools:text="contactEmail"
-        android:layout_toRightOf="@+id/contactEmailLabel"
-        android:layout_toEndOf="@+id/contactEmailLabel"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/label_church_size"
-        android:id="@+id/sizeLabel"
-        android:gravity="center_vertical|end"
-        android:layout_below="@+id/contactEmailLabel"
-        android:layout_toLeftOf="@+id/contactName"
-        android:layout_toStartOf="@+id/contactName"
-        android:layout_alignBottom="@+id/size"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:ems="10"
-        android:id="@+id/size"
-        android:layout_gravity="center_horizontal"
-        android:layout_below="@+id/contactEmail"
-        tools:text="1234"
-        android:layout_toEndOf="@+id/sizeLabel"
-        android:layout_toRightOf="@+id/sizeLabel"/>
+        android:layout_below="@id/data"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="10dp"
+        android:text="@string/update_button"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/cancel_button"
         android:id="@+id/cancel"
-        android:layout_alignTop="@+id/save"
+        android:layout_alignTop="@id/save"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/update_button"
-        android:id="@+id/save"
-        android:layout_below="@+id/size"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"/>
-
 </RelativeLayout>
