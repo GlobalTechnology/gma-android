@@ -27,7 +27,7 @@ android {
     buildToolsVersion '19.1.0'
 
     defaultConfig {
-        applicationId "com.expidevapps.android.gma_app"
+        applicationId "com.expidevapps.android.measurements"
 
         versionName project.version
         versionCode generateVersionCode(project.version)
