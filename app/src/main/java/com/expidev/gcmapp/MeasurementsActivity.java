@@ -1,6 +1,8 @@
 package com.expidev.gcmapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -37,6 +39,7 @@ import org.json.JSONArray;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -89,6 +92,18 @@ public class MeasurementsActivity extends ActionBarActivity
 
         currentPeriod = preferences.getString("currentPeriod", null);
         startLoaders();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if(requestCode == Constants.REQUEST_EXIT)
+        {
+            if(resultCode == Constants.BLOCKED_MINISTRY)
+            {
+                finish();
+            }
+        }
     }
 
     private void startLoaders()
@@ -287,7 +302,9 @@ public class MeasurementsActivity extends ActionBarActivity
             @Override
             public int compare(Measurement lhs, Measurement rhs)
             {
-                return Integer.compare(lhs.getSortOrder(), rhs.getSortOrder());
+                return lhs.getSortOrder() < rhs.getSortOrder()
+                    ? -1
+                    : (lhs.getSortOrder() == rhs.getSortOrder() ? 0 : 1);
             }
         };
     }
@@ -332,7 +349,7 @@ public class MeasurementsActivity extends ActionBarActivity
             goToMeasurementDetails.putExtra(Constants.ARG_PERIOD, currentPeriod);
         }
 
-        startActivity(goToMeasurementDetails);
+        startActivityForResult(goToMeasurementDetails, Constants.REQUEST_EXIT);
     }
 
     public void goToPreviousPeriod(View view)
@@ -403,6 +420,25 @@ public class MeasurementsActivity extends ActionBarActivity
 
     void onLoadCurrentAssignment(@Nullable final Assignment assignment) {
         mAssignment = assignment;
+
+        if(mAssignment != null && mAssignment.isBlocked())
+        {
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.title_dialog_blocked))
+                .setMessage(getString(R.string.disallowed_measurements))
+                .setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.dismiss();
+                        finish();
+                    }
+                })
+                .create();
+
+            alertDialog.show();
+        }
+
         chosenMinistry = mAssignment != null ? mAssignment.getMinistry() : null;
 
         if (chosenMinistry != null) {

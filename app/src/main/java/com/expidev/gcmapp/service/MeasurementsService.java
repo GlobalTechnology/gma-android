@@ -12,6 +12,7 @@ import com.expidev.gcmapp.Constants;
 import com.expidev.gcmapp.db.MeasurementDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
+import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 
@@ -24,6 +25,7 @@ import org.json.JSONObject;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -131,7 +133,8 @@ public class MeasurementsService extends ThreadedIntentService
         final Context context,
         String ministryId,
         String mcc,
-        String period)
+        String period,
+        Assignment.Role role)
     {
         Bundle extras = new Bundle(4);
 
@@ -139,6 +142,7 @@ public class MeasurementsService extends ThreadedIntentService
         extras.putString(Constants.ARG_MINISTRY_ID, ministryId);
         extras.putString(Constants.ARG_MCC, mcc);
         extras.putString(Constants.ARG_PERIOD, setPeriodToCurrentIfNecessary(period));
+        extras.putSerializable("role", role);
 
         context.startService(baseIntent(context, extras));
     }
@@ -264,6 +268,7 @@ public class MeasurementsService extends ThreadedIntentService
         String ministryId = intent.getStringExtra(Constants.ARG_MINISTRY_ID);
         String mcc = intent.getStringExtra(Constants.ARG_MCC);
         String period = intent.getStringExtra(Constants.ARG_PERIOD);
+        Assignment.Role role = (Assignment.Role) intent.getSerializableExtra("role");
 
         if(ministryId == null || mcc == null)
         {
@@ -289,32 +294,47 @@ public class MeasurementsService extends ThreadedIntentService
             measurements.addAll(previousPeriodMeasurements);
         }
 
+        if(measurements == null)
+        {
+            return;
+        }
+
         if(!measurements.isEmpty())
         {
             updateMeasurements(measurements);
         }
 
-        List<MeasurementDetails> measurementDetailsList = new ArrayList<>();
+        final List<Assignment.Role> rolesWithDetailsPermissions = Arrays.asList(
+            Assignment.Role.LEADER,
+            Assignment.Role.INHERITED_LEADER,
+            Assignment.Role.MEMBER
+        );
 
-        // retrieve and save all measurement details for the measurements retrieved
-        for(Measurement measurement : measurements)
+        // Skip loading measurement details if it just returns a 401 anyway
+        if(rolesWithDetailsPermissions.contains(role))
         {
-            MeasurementDetails measurementDetails = retrieveDetailsForMeasurement(
-                measurement.getMeasurementId(),
-                measurement.getMinistryId(),
-                measurement.getMcc(),
-                measurement.getPeriod());
+            List<MeasurementDetails> measurementDetailsList = new ArrayList<>();
 
-            if(measurementDetails != null)
+            // retrieve and save all measurement details for the measurements retrieved
+            for(Measurement measurement : measurements)
             {
-                measurementDetailsList.add(measurementDetails);
-            }
-        }
+                MeasurementDetails measurementDetails = retrieveDetailsForMeasurement(
+                    measurement.getMeasurementId(),
+                    measurement.getMinistryId(),
+                    measurement.getMcc(),
+                    measurement.getPeriod());
 
-        if(!measurementDetailsList.isEmpty())
-        {
-            Log.d(TAG, "Updating measurement details...");
-            updateMeasurementDetails(measurementDetailsList);
+                if(measurementDetails != null)
+                {
+                    measurementDetailsList.add(measurementDetails);
+                }
+            }
+
+            if(!measurementDetailsList.isEmpty())
+            {
+                Log.d(TAG, "Updating measurement details...");
+                updateMeasurementDetails(measurementDetailsList);
+            }
         }
     }
 

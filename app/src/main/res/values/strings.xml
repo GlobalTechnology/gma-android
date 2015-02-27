@@ -2,20 +2,21 @@
 <resources>
 
     <!-- Titles -->
-    <string name="app_name">GCM App</string>
-    <string name="title_activity_main">GCM App</string>
-    <string name="title_activity_join_ministry">GCM App</string>
+    <string name="app_name">GMA App</string>
+    <string name="title_activity_main">GMA App</string>
+    <string name="title_activity_join_ministry">Join Ministry</string>
     <string name="title_activity_map_settings">MapSettings</string>
     <string name="title_activity_measurements">Measurements</string>
     <string name="title_activity_measurement_details">Measurement Details</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="title_dialog_blocked">Blocked</string>
 
     <!-- Menu items -->
     <string name="menu_refresh">Refresh</string>
 
     <!-- Main Activity -->
     <string name="logout">Logout</string>
-    <string name="hello_world">Welcome to the GCM App!</string>
+    <string name="hello_world">Welcome to the GMA App!</string>
     <string name="action_settings">Settings</string>
     <string name="reset">Reset</string>
     <string name="action_join_new_ministry">Join new ministry</string>
@@ -46,6 +47,7 @@
     <!-- Messages -->
     <string name="no_internet">No network connection detected</string>
     <string name="logout_message">Are you sure you want to logout?</string>
+    <string name="disallowed_measurements">You are not allowed to view measurements for this ministry</string>
 
     <!-- Map Settings -->
     <string name="map_settings">Map Settings</string>

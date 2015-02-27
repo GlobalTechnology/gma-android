@@ -1,5 +1,7 @@
 package com.expidev.gcmapp;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -406,6 +408,11 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
     private void initializeDataSection(MeasurementDetails measurementDetails)
     {
+        if(currentAssignment == null)
+        {
+            return;
+        }
+
         TextHeaderView totalNumberTitle = new TextHeaderView(this);
         totalNumberTitle.setText(ministryName);
 
@@ -414,24 +421,25 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         dataSection.addView(totalNumberTitle);
 
-        List<BreakdownData> localBreakdown = measurementDetails.getLocalBreakdown();
-
-        for(BreakdownData localDataSource : localBreakdown)
+        // Only leaders and inherited leaders can see the local breakdown
+        if(currentAssignment.isLeadership())
         {
-            //TODO: Should we skip 0 value rows?
-            if("total".equals(localDataSource.getSource())) // || localDataSource.getSource() == 0)
+            List<BreakdownData> localBreakdown = measurementDetails.getLocalBreakdown();
+
+            for(BreakdownData localDataSource : localBreakdown)
             {
-                continue;
+                if("total".equals(localDataSource.getSource()))
+                {
+                    continue;
+                }
+
+                LinearLayout row = createRow(localDataSource.getSource(), localDataSource.getAmount());
+                dataSection.addView(row);
+
+                dataSection.addView(new HorizontalLineView(this));
             }
 
-            LinearLayout row = createRow(localDataSource.getSource(), localDataSource.getAmount());
-            dataSection.addView(row);
-
-            dataSection.addView(new HorizontalLineView(this));
-        }
-
-        if(isLeader())
-        {
+            // Only leaders and inherited leaders can edit local values
             EditText localNumber = createInputView(
                 measurementDetails.getTotalLocalBreakdown().getAmount(),
                 LOCAL_MEASUREMENTS_TAG);
@@ -439,8 +447,9 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
             dataSection.addView(localDataInputSection);
         }
-        else // Member
+        else if(currentAssignment.isMember())
         {
+            // Members can see the local total, but not edit it
             LinearLayout localDataInputSection = createRow(
                 "Local",
                 measurementDetails.getTotalLocalBreakdown().getAmount()
@@ -453,26 +462,44 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         dataSection.addView(teamMembersSectionTitle);
 
-        EditText personalNumber = createInputView(
-            measurementDetails.getSelfBreakdown().get(0).getAmount(),
-            PERSONAL_MEASUREMENTS_TAG);
-        LinearLayout personalDataInputSection = createRow(createNameView("You"), personalNumber);
+        // Inherited leaders do not have personal measurements
+        if(!currentAssignment.isInheritedLeader())
+        {
+            EditText personalNumber = createInputView(
+                measurementDetails.getSelfBreakdown().get(0).getAmount(),
+                PERSONAL_MEASUREMENTS_TAG);
+            LinearLayout personalDataInputSection = createRow(createNameView("You"), personalNumber);
 
-        dataSection.addView(personalDataInputSection);
+            dataSection.addView(personalDataInputSection);
+        }
 
-        if(isLeader())
+        // Only leaders and inherited leaders can see team member details
+        if(currentAssignment.isLeadership())
         {
             addTeamMemberSection(dataSection, measurementDetails);
+
+            HorizontalLineView horizontalLine = new HorizontalLineView(this);
+            dataSection.addView(horizontalLine);
+
+            addTeamMemberTotalSection(dataSection, measurementDetails);
+        }
+        else if(currentAssignment.isMember())
+        {
+            // Members can view the total team member amount
+            addTeamMemberTotalSection(dataSection, measurementDetails);
+        }
+
+        // Everyone except self-assigned (and blocked, who can't get to this page) can see sub-ministry details
+        if(!currentAssignment.isSelfAssigned())
+        {
             addSubMinistriesSection(dataSection, measurementDetails);
+        }
+
+        // Only leaders and inherited leaders can see self-assigned details
+        if(currentAssignment.isLeadership())
+        {
             addSelfAssignedSection(dataSection, measurementDetails);
         }
-    }
-
-    private boolean isLeader()
-    {
-        return currentAssignment != null &&
-            (currentAssignment.getRole() == Assignment.Role.LEADER ||
-                currentAssignment.getRole() == Assignment.Role.INHERITED_LEADER);
     }
 
     private void addTeamMemberSection(LinearLayout dataSection, MeasurementDetails measurementDetails)
@@ -489,6 +516,22 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             LinearLayout row = createRow(name, teamMemberDetails.getTotal());
             dataSection.addView(row);
         }
+    }
+
+    private void addTeamMemberTotalSection(LinearLayout dataSection, MeasurementDetails measurementDetails)
+    {
+        int total = 0;
+        List<TeamMemberDetails> teamMemberDetailsList = measurementDetails.getTeamMemberDetails();
+
+        for(TeamMemberDetails teamMemberDetails : teamMemberDetailsList)
+        {
+            total += teamMemberDetails.getTotal();
+        }
+
+        total += measurementDetails.getSelfBreakdown().get(0).getAmount();
+
+        LinearLayout row = createRow("TOTAL", total);
+        dataSection.addView(row);
     }
 
     private void addSubMinistriesSection(LinearLayout dataSection, MeasurementDetails measurementDetails)
@@ -705,6 +748,25 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         {
             currentAssignment = assignment;
             Log.i(TAG, "Current assignment loaded");
+
+            if(currentAssignment.isBlocked())
+            {
+                AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.title_dialog_blocked))
+                    .setMessage(getString(R.string.disallowed_measurements))
+                    .setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            dialog.dismiss();
+                            setResult(Constants.BLOCKED_MINISTRY);
+                            finish();
+                        }
+                    })
+                    .create();
+
+                alertDialog.show();
+            }
         }
     }
 
