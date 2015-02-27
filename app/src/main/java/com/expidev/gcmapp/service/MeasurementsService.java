@@ -289,6 +289,11 @@ public class MeasurementsService extends ThreadedIntentService
             measurements.addAll(previousPeriodMeasurements);
         }
 
+        if(measurements == null)
+        {
+            return;
+        }
+
         if(!measurements.isEmpty())
         {
             updateMeasurements(measurements);
