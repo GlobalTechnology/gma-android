@@ -9,7 +9,6 @@ import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
@@ -45,15 +44,12 @@ public class TrainingService extends IntentService
 
     private static final String EXTRA_SYNCTYPE = "type";
 
-    private final String PREF_NAME = "gcm_prefs";
-
     @NonNull
     private GmaApiClient mApi;
     @NonNull
     private TrainingDao mDao;
     private LocalBroadcastManager broadcastManager;
-    private SharedPreferences sharedPreferences;
-    
+
     public TrainingService()
     {
         super("TrainingService");        
@@ -66,8 +62,6 @@ public class TrainingService extends IntentService
         mApi = GmaApiClient.getInstance(this);
         broadcastManager = LocalBroadcastManager.getInstance(this);
         mDao = TrainingDao.getInstance(this);
-
-        sharedPreferences = this.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
 
         this.broadcastManager.sendBroadcast(startBroadcast());
     }
