@@ -622,7 +622,6 @@ public class MainActivity extends ActionBarActivity
             case 1:
                 return mAssignment.isLeadership();
             case 2:
-                return true;
             case 3:
                 return true;
             default:
