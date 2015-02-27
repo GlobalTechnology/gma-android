@@ -199,4 +199,29 @@ public class Assignment extends Base implements Cloneable, Serializable {
     {
         return "id: " + id;
     }
+
+    public boolean isLeader()
+    {
+        return getRole() == Assignment.Role.LEADER;
+    }
+
+    public boolean isInheritedLeader()
+    {
+        return getRole() == Assignment.Role.INHERITED_LEADER;
+    }
+
+    public boolean isLeadership()
+    {
+        return isLeader() || isInheritedLeader();
+    }
+
+    public boolean isMember()
+    {
+        return getRole() == Assignment.Role.MEMBER;
+    }
+
+    public boolean isSelfAssigned()
+    {
+        return getRole() == Assignment.Role.SELF_ASSIGNED;
+    }
 }

@@ -408,6 +408,11 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
     private void initializeDataSection(MeasurementDetails measurementDetails)
     {
+        if(currentAssignment == null)
+        {
+            return;
+        }
+
         TextHeaderView totalNumberTitle = new TextHeaderView(this);
         totalNumberTitle.setText(ministryName);
 
@@ -417,7 +422,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         dataSection.addView(totalNumberTitle);
 
         // Only leaders and inherited leaders can see the local breakdown
-        if(isLeader() || isInheritedLeader())
+        if(currentAssignment.isLeadership())
         {
             List<BreakdownData> localBreakdown = measurementDetails.getLocalBreakdown();
 
@@ -442,7 +447,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                 dataSection.addView(localDataInputSection);
             }
         }
-        else if(isMember())
+        else if(currentAssignment.isMember())
         {
             // Members can see the local total, but not edit it
             LinearLayout localDataInputSection = createRow(
@@ -458,7 +463,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         dataSection.addView(teamMembersSectionTitle);
 
         // Inherited leaders do not have personal measurements
-        if(!isInheritedLeader())
+        if(!currentAssignment.isInheritedLeader())
         {
             EditText personalNumber = createInputView(
                 measurementDetails.getSelfBreakdown().get(0).getAmount(),
@@ -469,7 +474,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         }
 
         // Only leaders and inherited leaders can see team member details
-        if(isLeader() || isInheritedLeader())
+        if(currentAssignment.isLeadership())
         {
             addTeamMemberSection(dataSection, measurementDetails);
 
@@ -478,43 +483,23 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
             addTeamMemberTotalSection(dataSection, measurementDetails);
         }
-        else if(isMember())
+        else if(currentAssignment.isMember())
         {
             // Members can view the total team member amount
             addTeamMemberTotalSection(dataSection, measurementDetails);
         }
 
         // Everyone except self-assigned (and blocked, who can't get to this page) can see sub-ministry details
-        if(!isSelfAssigned())
+        if(!currentAssignment.isSelfAssigned())
         {
             addSubMinistriesSection(dataSection, measurementDetails);
         }
 
         // Only leaders and inherited leaders can see self-assigned details
-        if(isLeader() || isInheritedLeader())
+        if(currentAssignment.isLeadership())
         {
             addSelfAssignedSection(dataSection, measurementDetails);
         }
-    }
-
-    private boolean isLeader()
-    {
-        return currentAssignment != null && currentAssignment.getRole() == Assignment.Role.LEADER;
-    }
-
-    private boolean isInheritedLeader()
-    {
-        return currentAssignment != null && currentAssignment.getRole() == Assignment.Role.INHERITED_LEADER;
-    }
-
-    private boolean isMember()
-    {
-        return currentAssignment != null && currentAssignment.getRole() == Assignment.Role.MEMBER;
-    }
-
-    private boolean isSelfAssigned()
-    {
-        return currentAssignment != null && currentAssignment.getRole() == Assignment.Role.SELF_ASSIGNED;
     }
 
     private void addTeamMemberSection(LinearLayout dataSection, MeasurementDetails measurementDetails)
