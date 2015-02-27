@@ -473,6 +473,11 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         {
             addTeamMemberSection(dataSection, measurementDetails);
         }
+        else if(isMember())
+        {
+            // Members can view the total team member amount
+            addTeamMemberTotalSection(dataSection, measurementDetails);
+        }
 
         // Everyone except self-assigned (and blocked, who can't get to this page) can see sub-ministry details
         if(!isSelfAssigned())
@@ -521,6 +526,20 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             LinearLayout row = createRow(name, teamMemberDetails.getTotal());
             dataSection.addView(row);
         }
+    }
+
+    private void addTeamMemberTotalSection(LinearLayout dataSection, MeasurementDetails measurementDetails)
+    {
+        int total = 0;
+        List<TeamMemberDetails> teamMemberDetailsList = measurementDetails.getTeamMemberDetails();
+
+        for(TeamMemberDetails teamMemberDetails : teamMemberDetailsList)
+        {
+            total += teamMemberDetails.getTotal();
+        }
+
+        LinearLayout row = createRow("Others:", total);
+        dataSection.addView(row);
     }
 
     private void addSubMinistriesSection(LinearLayout dataSection, MeasurementDetails measurementDetails)
