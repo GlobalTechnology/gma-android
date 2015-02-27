@@ -86,7 +86,7 @@ public class TrainingService extends IntentService
             switch (type)
             {
                 case DOWNLOAD_TRAINING:
-                    searchTraining(intent.getStringExtra(MINISTRY_ID), intent.getStringExtra(MINISTRY_MCC));
+                    searchTraining(intent);
                     break;
                 case SYNC_TRAINING:
                     syncTraining(intent);
@@ -130,12 +130,17 @@ public class TrainingService extends IntentService
         intent.putExtra(EXTRA_SYNCTYPE, SYNC_DIRTY_TRAINING);
         context.startService(intent);
     }
-    
-    private void searchTraining(String ministryId, String mcc)
-    {
+
+    private void searchTraining(@NonNull final Intent intent) {
+        String ministryId = intent.getStringExtra(MINISTRY_ID);
+        if (ministryId == null) {
+            ministryId = Ministry.INVALID_ID;
+        }
+        final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(intent.getStringExtra(MINISTRY_MCC));
+
         try
         {
-            final List<Training> trainings = mApi.searchTraining(ministryId, mcc.toString());
+            final List<Training> trainings = mApi.searchTraining(ministryId, mcc);
 
             if (trainings != null) {
                 // save all trainings to the database
@@ -173,7 +178,7 @@ public class TrainingService extends IntentService
         if (ministryId == null) {
             ministryId = Ministry.INVALID_ID;
         }
-        final String mcc = intent.getStringExtra(MINISTRY_MCC);
+        final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(intent.getStringExtra(MINISTRY_MCC));
 
         final Transaction tx = mDao.newTransaction();
         tx.begin();

@@ -498,12 +498,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Nullable
-    public List<Training> searchTraining(@NonNull final String ministryId, @NonNull final String mcc)
+    public List<Training> searchTraining(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc)
             throws ApiException {
         // build request
         final Request<Session> request = new Request<>(TRAINING);
         request.params.add(param("ministry_id", ministryId));
-        request.params.add(param("mcc", mcc));
+        request.params.add(param("mcc", mcc.toString()));
 
         // process request
         HttpURLConnection conn = null;
