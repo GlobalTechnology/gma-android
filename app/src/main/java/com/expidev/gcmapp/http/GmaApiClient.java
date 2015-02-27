@@ -318,12 +318,18 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     /* END church methods */
 
     @Nullable
-    public JSONArray searchMeasurements(@NonNull final String ministryId, @NonNull final String mcc,
+    public JSONArray searchMeasurements(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
                                         @Nullable final String period) throws ApiException {
+        // short-circuit if we don't have a valid ministryId or mcc
+        if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
+            return null;
+        }
+        assert mcc.raw != null : "only Mcc.UNKNOWN has a null raw value";
+
         // build request
         final Request<Session> request = new Request<>(MEASUREMENTS);
         request.params.add(param("ministry_id", ministryId));
-        request.params.add(param("mcc", mcc.toLowerCase()));
+        request.params.add(param("mcc", mcc.raw));
         if (period != null) {
             request.params.add(param("period", period));
         }

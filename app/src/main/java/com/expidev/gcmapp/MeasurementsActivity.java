@@ -648,8 +648,8 @@ public class MeasurementsActivity extends ActionBarActivity
                 try {
                     GmaApiClient apiClient = GmaApiClient.getInstance(MeasurementsActivity.this);
 
-                    JSONArray results = apiClient
-                            .searchMeasurements(assignment.getMinistryId(), assignment.getMcc().toString(), period);
+                    JSONArray results =
+                            apiClient.searchMeasurements(assignment.getMinistryId(), assignment.getMcc(), period);
 
                     if (results == null) {
                         Log.w(TAG, "No measurements found!");

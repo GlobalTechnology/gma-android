@@ -175,7 +175,7 @@ public class MeasurementsService extends ThreadedIntentService
             throws ApiException {
         final GmaApiClient apiClient = GmaApiClient.getInstance(this);
         period = setPeriodToCurrentIfNecessary(period);
-        JSONArray results = apiClient.searchMeasurements(ministryId, mcc.raw, period);
+        JSONArray results = apiClient.searchMeasurements(ministryId, mcc, period);
 
         if(results == null)
         {
