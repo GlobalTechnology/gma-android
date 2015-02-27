@@ -171,11 +171,11 @@ public class MeasurementsService extends ThreadedIntentService
     //           Actions                              //
     ////////////////////////////////////////////////////
 
-    private List<Measurement> searchMeasurements(String ministryId, String mcc, String period) throws ApiException
-    {
+    private List<Measurement> searchMeasurements(String ministryId, @NonNull final Ministry.Mcc mcc, String period)
+            throws ApiException {
         final GmaApiClient apiClient = GmaApiClient.getInstance(this);
         period = setPeriodToCurrentIfNecessary(period);
-        JSONArray results = apiClient.searchMeasurements(ministryId, mcc, period);
+        JSONArray results = apiClient.searchMeasurements(ministryId, mcc.raw, period);
 
         if(results == null)
         {
@@ -184,7 +184,7 @@ public class MeasurementsService extends ThreadedIntentService
         }
         else
         {
-            return MeasurementsJsonParser.parseMeasurements(results, ministryId, mcc, period);
+            return MeasurementsJsonParser.parseMeasurements(results, ministryId, mcc.raw, period);
         }
     }
 
@@ -288,8 +288,8 @@ public class MeasurementsService extends ThreadedIntentService
         String previousPeriod = dateFormat.format(previousMonth.getTime());
 
         // retrieve and save the measurements for the current and previous period
-        List<Measurement> measurements = searchMeasurements(ministryId, mcc.raw, period);
-        List<Measurement> previousPeriodMeasurements = searchMeasurements(ministryId, mcc.raw, previousPeriod);
+        List<Measurement> measurements = searchMeasurements(ministryId, mcc, period);
+        List<Measurement> previousPeriodMeasurements = searchMeasurements(ministryId, mcc, previousPeriod);
         if(previousPeriodMeasurements != null)
         {
             measurements.addAll(previousPeriodMeasurements);
