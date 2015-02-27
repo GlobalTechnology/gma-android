@@ -504,7 +504,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
             return null;
         }
-        assert mcc.raw != null : "Only Unknown MCC's should have null raw values";
+        assert mcc.raw != null : "Only Mcc.UNKNOWN should have a null raw value";
 
         // build request
         final Request<Session> request = new Request<>(TRAINING);
