@@ -31,7 +31,6 @@ import java.util.List;
 
 import static com.expidev.gcmapp.service.Type.DOWNLOAD_TRAINING;
 import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_TRAINING;
-import static com.expidev.gcmapp.service.Type.TRAINING;
 import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
@@ -167,8 +166,6 @@ public class TrainingService extends IntentService
             {
                 Log.d(TAG, "JSON Object is null");
             }
-            
-            broadcastManager.sendBroadcast(stopBroadcast(TRAINING));
         }
         catch (Exception e)
         {
