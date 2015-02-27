@@ -203,6 +203,7 @@ public class MainActivity extends ActionBarActivity
                         mAssignment.getMcc().toString(),
                         null,
                         mAssignment.getRole());
+                    TrainingService.syncTraining(this, mAssignment.getMinistryId(), mAssignment.getMcc());
                 }
 
                 return true;
