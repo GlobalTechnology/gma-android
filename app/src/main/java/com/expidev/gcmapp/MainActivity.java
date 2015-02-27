@@ -389,13 +389,13 @@ public class MainActivity extends ActionBarActivity
 
     void showEditChurch(final long churchId) {
         final FragmentManager fm = this.getSupportFragmentManager();
-        if (fm.findFragmentByTag("editChurch") == null && canEditChurch()) {
+        if (fm.findFragmentByTag("editChurch") == null && canEditChurchOrTraining()) {
             EditChurchFragment fragment = EditChurchFragment.newInstance(churchId);
             fragment.show(fm.beginTransaction().addToBackStack("editChurch"), "editChurch");
         }
     }
 
-    private boolean canEditChurch()
+    private boolean canEditChurchOrTraining()
     {
         return mAssignment != null && mAssignment.isLeadership();
     }
@@ -403,7 +403,7 @@ public class MainActivity extends ActionBarActivity
     void showEditTraining(final long trainingId)
     {
         final FragmentManager fm = this.getSupportFragmentManager();
-        if (fm.findFragmentByTag("editTraining") == null)
+        if (fm.findFragmentByTag("editTraining") == null && canEditChurchOrTraining())
         {
             EditTrainingFragment fragment = EditTrainingFragment.newInstance(trainingId);
             fragment.show(fm.beginTransaction().addToBackStack("editTraining"), "editTraining");
