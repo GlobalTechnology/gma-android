@@ -191,6 +191,7 @@ public class SettingsFragment extends PreferenceFragment {
         @Override
         public boolean onPreferenceChange(Preference preference, Object newValue) {
             // update summary as necessary
+            mPrefMinistry.setValue(newValue.toString());
             updateMinistryPrefSummary();
 
             return false;
