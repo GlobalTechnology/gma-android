@@ -287,7 +287,9 @@ public class MeasurementsActivity extends ActionBarActivity
             @Override
             public int compare(Measurement lhs, Measurement rhs)
             {
-                return Integer.compare(lhs.getSortOrder(), rhs.getSortOrder());
+                return lhs.getSortOrder() < rhs.getSortOrder()
+                    ? -1
+                    : (lhs.getSortOrder() == rhs.getSortOrder() ? 0 : 1);
             }
         };
     }
