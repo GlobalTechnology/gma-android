@@ -468,10 +468,21 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             dataSection.addView(personalDataInputSection);
         }
 
+        // Only leaders and inherited leaders can see team member details
         if(isLeader() || isInheritedLeader())
         {
             addTeamMemberSection(dataSection, measurementDetails);
+        }
+
+        // Everyone except self-assigned (and blocked, who can't get to this page) can see sub-ministry details
+        if(!isSelfAssigned())
+        {
             addSubMinistriesSection(dataSection, measurementDetails);
+        }
+
+        // Only leaders and inherited leaders can see self-assigned details
+        if(isLeader() || isInheritedLeader())
+        {
             addSelfAssignedSection(dataSection, measurementDetails);
         }
     }
@@ -489,6 +500,11 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     private boolean isMember()
     {
         return currentAssignment != null && currentAssignment.getRole() == Assignment.Role.MEMBER;
+    }
+
+    private boolean isSelfAssigned()
+    {
+        return currentAssignment != null && currentAssignment.getRole() == Assignment.Role.SELF_ASSIGNED;
     }
 
     private void addTeamMemberSection(LinearLayout dataSection, MeasurementDetails measurementDetails)
