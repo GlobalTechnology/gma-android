@@ -189,10 +189,20 @@ public class SettingsFragment extends PreferenceFragment {
 
     private class MinistryChangeListener implements Preference.OnPreferenceChangeListener {
         @Override
-        public boolean onPreferenceChange(Preference preference, Object newValue) {
-            // update summary as necessary
-            updateMinistryPrefSummary();
+        public boolean onPreferenceChange(final Preference preference, final Object newValue) {
+            // only fire if this update is for mPrefMinistry (this is probably over-paranoid)
+            if(preference == mPrefMinistry && mPrefMinistry != null) {
+                // we need to manually set the preference before updating summary to allow summary to be updated based on correct state
+                mPrefMinistry.setValue(newValue != null ? newValue.toString() : null);
 
+                // update summary as necessary
+                updateMinistryPrefSummary();
+
+                // we already updated the value, no need to update it again
+                return false;
+            }
+
+            // this should probably never happen, but if it does we want to let the Preference update normally
             return true;
         }
     }
