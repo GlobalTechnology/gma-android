@@ -193,7 +193,7 @@ public class SettingsFragment extends PreferenceFragment {
             // update summary as necessary
             updateMinistryPrefSummary();
 
-            return false;
+            return true;
         }
     }
 
