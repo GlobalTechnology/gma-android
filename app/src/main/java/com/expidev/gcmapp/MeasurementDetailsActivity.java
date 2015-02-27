@@ -441,7 +441,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
             dataSection.addView(localDataInputSection);
         }
-        else // Member
+        else if(isMember())
         {
             LinearLayout localDataInputSection = createRow(
                 "Local",
@@ -455,14 +455,17 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         dataSection.addView(teamMembersSectionTitle);
 
-        EditText personalNumber = createInputView(
-            measurementDetails.getSelfBreakdown().get(0).getAmount(),
-            PERSONAL_MEASUREMENTS_TAG);
-        LinearLayout personalDataInputSection = createRow(createNameView("You"), personalNumber);
+        if(!isInheritedLeader())
+        {
+            EditText personalNumber = createInputView(
+                measurementDetails.getSelfBreakdown().get(0).getAmount(),
+                PERSONAL_MEASUREMENTS_TAG);
+            LinearLayout personalDataInputSection = createRow(createNameView("You"), personalNumber);
 
-        dataSection.addView(personalDataInputSection);
+            dataSection.addView(personalDataInputSection);
+        }
 
-        if(isLeader())
+        if(isLeader() || isInheritedLeader())
         {
             addTeamMemberSection(dataSection, measurementDetails);
             addSubMinistriesSection(dataSection, measurementDetails);
@@ -472,9 +475,17 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
     private boolean isLeader()
     {
-        return currentAssignment != null &&
-            (currentAssignment.getRole() == Assignment.Role.LEADER ||
-                currentAssignment.getRole() == Assignment.Role.INHERITED_LEADER);
+        return currentAssignment != null && currentAssignment.getRole() == Assignment.Role.LEADER;
+    }
+
+    private boolean isInheritedLeader()
+    {
+        return currentAssignment != null && currentAssignment.getRole() == Assignment.Role.INHERITED_LEADER;
+    }
+
+    private boolean isMember()
+    {
+        return currentAssignment != null && currentAssignment.getRole() == Assignment.Role.MEMBER;
     }
 
     private void addTeamMemberSection(LinearLayout dataSection, MeasurementDetails measurementDetails)
