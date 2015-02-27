@@ -749,7 +749,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             currentAssignment = assignment;
             Log.i(TAG, "Current assignment loaded");
 
-            if(currentAssignment.getRole() == Assignment.Role.BLOCKED)
+            if(currentAssignment.isBlocked())
             {
                 AlertDialog alertDialog = new AlertDialog.Builder(this)
                     .setTitle(getString(R.string.title_dialog_blocked))

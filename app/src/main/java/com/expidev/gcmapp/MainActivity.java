@@ -406,7 +406,7 @@ public class MainActivity extends ActionBarActivity
 
     public void goToMeasurements(MenuItem menuItem)
     {
-        if(mAssignment != null && mAssignment.getRole() == Assignment.Role.BLOCKED)
+        if(mAssignment != null && mAssignment.isBlocked())
         {
             AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.title_dialog_blocked))

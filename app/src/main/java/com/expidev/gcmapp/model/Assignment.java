@@ -202,12 +202,12 @@ public class Assignment extends Base implements Cloneable, Serializable {
 
     public boolean isLeader()
     {
-        return getRole() == Assignment.Role.LEADER;
+        return getRole() == Role.LEADER;
     }
 
     public boolean isInheritedLeader()
     {
-        return getRole() == Assignment.Role.INHERITED_LEADER;
+        return getRole() == Role.INHERITED_LEADER;
     }
 
     public boolean isLeadership()
@@ -217,11 +217,16 @@ public class Assignment extends Base implements Cloneable, Serializable {
 
     public boolean isMember()
     {
-        return getRole() == Assignment.Role.MEMBER;
+        return getRole() == Role.MEMBER;
     }
 
     public boolean isSelfAssigned()
     {
-        return getRole() == Assignment.Role.SELF_ASSIGNED;
+        return getRole() == Role.SELF_ASSIGNED;
+    }
+
+    public boolean isBlocked()
+    {
+        return getRole() == Role.BLOCKED;
     }
 }
