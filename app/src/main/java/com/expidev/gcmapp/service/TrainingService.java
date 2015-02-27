@@ -1,7 +1,7 @@
 package com.expidev.gcmapp.service;
 
-import static com.expidev.gcmapp.service.Type.DOWNLOAD_TRAINING;
 import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_TRAINING;
+import static com.expidev.gcmapp.service.Type.SYNC_TRAINING;
 import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
@@ -78,7 +78,6 @@ public class TrainingService extends IntentService
         {
             switch (type)
             {
-                case DOWNLOAD_TRAINING:
                 case SYNC_TRAINING:
                     syncTraining(intent);
                     break;
@@ -105,10 +104,10 @@ public class TrainingService extends IntentService
         return intent;
     }
 
-    public static void downloadTraining(@NonNull final Context context, @NonNull final String ministryId,
-                                        @NonNull final Ministry.Mcc mcc) {
+    public static void syncTraining(@NonNull final Context context, @NonNull final String ministryId,
+                                    @NonNull final Ministry.Mcc mcc) {
         final Bundle extras = new Bundle(3);
-        extras.putSerializable(EXTRA_TYPE, DOWNLOAD_TRAINING);
+        extras.putSerializable(EXTRA_TYPE, SYNC_TRAINING);
         extras.putString(MINISTRY_ID, ministryId);
         extras.putString(MINISTRY_MCC, mcc.toString());
         final Intent intent = baseIntent(context, extras);

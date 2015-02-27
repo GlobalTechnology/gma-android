@@ -250,7 +250,7 @@ public class MainActivity extends ActionBarActivity
         // sync churches & trainings
         if (mAssignment != null) {
             MinistriesService.syncChurches(this, mAssignment.getMinistryId());
-            TrainingService.downloadTraining(this, mAssignment.getMinistryId(), mAssignment.getMcc());
+            TrainingService.syncTraining(this, mAssignment.getMinistryId(), mAssignment.getMcc());
             MeasurementsService.syncMeasurements(
                 this,
                 mAssignment.getMinistryId(),
