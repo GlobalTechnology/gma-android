@@ -472,6 +472,11 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         if(isLeader() || isInheritedLeader())
         {
             addTeamMemberSection(dataSection, measurementDetails);
+
+            HorizontalLineView horizontalLine = new HorizontalLineView(this);
+            dataSection.addView(horizontalLine);
+
+            addTeamMemberTotalSection(dataSection, measurementDetails);
         }
         else if(isMember())
         {
@@ -538,7 +543,9 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             total += teamMemberDetails.getTotal();
         }
 
-        LinearLayout row = createRow("Others:", total);
+        total += measurementDetails.getSelfBreakdown().get(0).getAmount();
+
+        LinearLayout row = createRow("TOTAL", total);
         dataSection.addView(row);
     }
 
