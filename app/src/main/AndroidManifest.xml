@@ -25,11 +25,6 @@
             android:name=".MainActivity"
             android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_main">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".JoinMinistryActivity"
@@ -67,12 +62,21 @@
                 android:value="com.expidev.gcmapp.MeasurementsActivity" />
         </activity>
 
+        <activity-alias
+            android:name="com.expidevapps.android.measurements.activity.MainActivity"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyCsM4eK9ZND1yZXv9Lg004peeepnKGH0EY" />
+            android:value="@string/google_maps_api_key" />
 
         <receiver android:name=".Sync.ConnectionBroadcastReceiver" >
             <intent-filter>
