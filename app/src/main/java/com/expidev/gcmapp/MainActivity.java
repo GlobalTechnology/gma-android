@@ -596,10 +596,30 @@ public class MainActivity extends ActionBarActivity
                         break;
                 }
 
-                if (render) {
+                if (render && canViewChurch(church.getSecurity())) {
                     clusterManager.addItem(new ChurchMarker(church));
                 }
             }
+        }
+    }
+
+    private boolean canViewChurch(int churchSecurity)
+    {
+        if(mAssignment == null)
+        {
+            return false;
+        }
+
+        switch(churchSecurity)
+        {
+            case 0:
+                return mAssignment.isLeadership() || mAssignment.isMember();
+            case 1:
+                return mAssignment.isLeadership();
+            case 2:
+                return true;
+            default:
+                return false;
         }
     }
 
