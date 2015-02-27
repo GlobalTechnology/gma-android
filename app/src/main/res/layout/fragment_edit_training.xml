@@ -111,9 +111,10 @@
         android:text="@string/update_button"
         android:id="@+id/training_update"
         android:layout_below="@+id/et_training_date"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="15dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="15dp"
+        android:layout_marginEnd="15dp"
         android:layout_marginBottom="15dp"
         android:layout_marginTop="10dp"/>
 
@@ -123,11 +124,9 @@
         android:text="@string/cancel_button"
         android:id="@+id/training_cancel"
         android:layout_alignTop="@+id/training_update"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="15dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginStart="15dp"
         android:layout_marginBottom="15dp"/>
-
-    
-
 </RelativeLayout>
