@@ -416,32 +416,35 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         dataSection.addView(totalNumberTitle);
 
-        List<BreakdownData> localBreakdown = measurementDetails.getLocalBreakdown();
-
-        for(BreakdownData localDataSource : localBreakdown)
-        {
-            if("total".equals(localDataSource.getSource()))
-            {
-                continue;
-            }
-
-            LinearLayout row = createRow(localDataSource.getSource(), localDataSource.getAmount());
-            dataSection.addView(row);
-
-            dataSection.addView(new HorizontalLineView(this));
-        }
-
+        // Only leaders and inherited leaders can see the local breakdown
         if(isLeader() || isInheritedLeader())
         {
-            EditText localNumber = createInputView(
-                measurementDetails.getTotalLocalBreakdown().getAmount(),
-                LOCAL_MEASUREMENTS_TAG);
-            LinearLayout localDataInputSection = createRow(createNameView("Local"), localNumber);
+            List<BreakdownData> localBreakdown = measurementDetails.getLocalBreakdown();
 
-            dataSection.addView(localDataInputSection);
+            for(BreakdownData localDataSource : localBreakdown)
+            {
+                if("total".equals(localDataSource.getSource()))
+                {
+                    continue;
+                }
+
+                LinearLayout row = createRow(localDataSource.getSource(), localDataSource.getAmount());
+                dataSection.addView(row);
+
+                dataSection.addView(new HorizontalLineView(this));
+
+                // Only leaders and inherited leaders can edit local values
+                EditText localNumber = createInputView(
+                    measurementDetails.getTotalLocalBreakdown().getAmount(),
+                    LOCAL_MEASUREMENTS_TAG);
+                LinearLayout localDataInputSection = createRow(createNameView("Local"), localNumber);
+
+                dataSection.addView(localDataInputSection);
+            }
         }
         else if(isMember())
         {
+            // Members can see the local total, but not edit it
             LinearLayout localDataInputSection = createRow(
                 "Local",
                 measurementDetails.getTotalLocalBreakdown().getAmount()
@@ -454,6 +457,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         dataSection.addView(teamMembersSectionTitle);
 
+        // Inherited leaders do not have personal measurements
         if(!isInheritedLeader())
         {
             EditText personalNumber = createInputView(
