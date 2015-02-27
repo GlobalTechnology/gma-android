@@ -6,7 +6,7 @@
     <ListPreference
         android:key="currentMinistry"
         android:title="@string/pref_title_ministry_team_text"
-        android:summary="%s"
+        android:summary="@string/pref_summary_ministry"
         android:defaultValue="0"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null" />
