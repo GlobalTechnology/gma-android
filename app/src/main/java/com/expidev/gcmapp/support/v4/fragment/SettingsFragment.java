@@ -266,7 +266,7 @@ public class SettingsFragment extends PreferenceFragment {
         public Loader<Cursor> onCreateLoader(final int id, @Nullable final Bundle args) {
             switch (id) {
                 case LOADER_MINISTRIES:
-                    return new MinistriesCursorLoader(getActivity());
+                    return new MinistriesCursorLoader(getActivity(), args);
                 default:
                     return null;
             }

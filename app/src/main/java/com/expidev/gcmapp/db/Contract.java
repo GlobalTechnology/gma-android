@@ -3,6 +3,8 @@ package com.expidev.gcmapp.db;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
+import org.ccci.gto.android.common.db.Join;
+
 public class Contract {
     private Contract() {
     }
@@ -146,7 +148,15 @@ public class Contract {
         private static final String SQL_COLUMN_LOCATION_ZOOM = COLUMN_LOCATION_ZOOM + " INTEGER";
         private static final String SQL_COLUMN_PARENT_MINISTRY_ID = COLUMN_PARENT_MINISTRY_ID + " TEXT";
 
+        private static final String SQL_PREFIX = TABLE_NAME + ".";
+
         static final String SQL_WHERE_PARENT = COLUMN_PARENT_MINISTRY_ID + " = ?";
+
+        private static final String SQL_JOIN_ON_ASSIGNMENT =
+                SQL_PREFIX + COLUMN_MINISTRY_ID + " = " + Assignment.SQL_PREFIX + Assignment.COLUMN_MINISTRY_ID;
+        public static final Join<com.expidev.gcmapp.model.AssociatedMinistry, com.expidev.gcmapp.model.Assignment>
+                JOIN_ASSIGNMENT = Join.create(com.expidev.gcmapp.model.AssociatedMinistry.class,
+                                              com.expidev.gcmapp.model.Assignment.class).on(SQL_JOIN_ON_ASSIGNMENT);
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME, SQL_COLUMN_MIN_CODE,
@@ -178,7 +188,9 @@ public class Contract {
                 "FOREIGN KEY(" + COLUMN_MINISTRY_ID + ") REFERENCES " + AssociatedMinistry.TABLE_NAME + "(" +
                         AssociatedMinistry.COLUMN_MINISTRY_ID + ")";
 
-        public static final String SQL_WHERE_GUID = COLUMN_GUID + " = ?";
+        private static final String SQL_PREFIX = TABLE_NAME + ".";
+
+        public static final String SQL_WHERE_GUID = SQL_PREFIX + COLUMN_GUID + " = ?";
         static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_GUID + " AND " + SQL_WHERE_MINISTRY;
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
