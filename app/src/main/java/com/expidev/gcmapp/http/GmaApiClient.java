@@ -1,10 +1,8 @@
 package com.expidev.gcmapp.http;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -28,6 +26,7 @@ import org.ccci.gto.android.common.api.AbstractTheKeyApi;
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.api.ApiSocketException;
 import org.ccci.gto.android.common.util.IOUtils;
+import org.ccci.gto.android.common.util.SharedPreferencesUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,6 +52,8 @@ import me.thekey.android.lib.TheKeyImpl;
  */
 public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Session>, Session> {
     private final String TAG = getClass().getSimpleName();
+
+    private static final String PREF_COOKIES = "cookies";
 
     private static final String ASSIGNMENTS = "assignments";
     private static final String CHURCHES = "churches";
@@ -564,43 +565,22 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             this.cookies = Collections.unmodifiableSet(new HashSet<>(cookies));
         }
 
-        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
         Session(@NonNull final SharedPreferences prefs, @NonNull final String guid) {
             super(prefs, guid);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                this.cookies = Collections.unmodifiableSet(new HashSet<>(
-                        prefs.getStringSet(this.getPrefAttrName("cookies"), Collections.<String>emptySet())));
-            } else {
-                // work around missing getStringSet
-                final Set<String> cookies = new HashSet<>();
-                try {
-                    final JSONArray json =
-                            new JSONArray(prefs.getString(this.getPrefAttrName("cookies"), null));
-                    for (int i = 0; i < json.length(); i++) {
-                        cookies.add(json.getString(i));
-                    }
-                } catch (final JSONException ignored) {
-                }
-                this.cookies = Collections.unmodifiableSet(cookies);
-            }
+            this.cookies = Collections.unmodifiableSet(SharedPreferencesUtils.getStringSet(
+                    prefs, getPrefAttrName(PREF_COOKIES), Collections.<String>emptySet()));
         }
 
         @Override
-        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
         protected void save(@NonNull final SharedPreferences.Editor prefs) {
             super.save(prefs);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                prefs.putStringSet(this.getPrefAttrName("cookies"), this.cookies);
-            } else {
-                // work around missing putStringSet
-                prefs.putString(this.getPrefAttrName("cookies"), new JSONArray(this.cookies).toString());
-            }
+            SharedPreferencesUtils.putStringSet(prefs, getPrefAttrName(PREF_COOKIES), this.cookies);
         }
 
         @Override
         protected void delete(@NonNull SharedPreferences.Editor prefs) {
             super.delete(prefs);
-            prefs.remove(this.getPrefAttrName("cookies"));
+            prefs.remove(getPrefAttrName(PREF_COOKIES));
         }
 
         @Override
