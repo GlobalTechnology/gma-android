@@ -43,6 +43,7 @@ public class MinistriesCursorLoader extends CursorBroadcastReceiverLoader {
         }
 
         return mDao.getCursor(AssociatedMinistry.class, Contract.AssociatedMinistry.JOIN_ASSIGNMENT, PROJECTION,
-                              Contract.Assignment.SQL_WHERE_GUID, bindValues(mGuid), null);
+                              Contract.Assignment.SQL_WHERE_GUID, bindValues(mGuid),
+                              Contract.AssociatedMinistry.COLUMN_NAME);
     }
 }
