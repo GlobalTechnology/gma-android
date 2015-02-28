@@ -429,7 +429,7 @@ public class MinistriesService extends ThreadedIntentService {
                     .putLong(PREF_SYNC_TIME_ASSIGNMENTS, System.currentTimeMillis()).apply();
 
             // send broadcasts for updated data
-            broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast());
+            broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast(guid));
             broadcastManager.sendBroadcast(stopBroadcast(SAVE_ASSOCIATED_MINISTRIES));
         } catch (final SQLException e) {
             Log.d(TAG, "error updating assignments", e);

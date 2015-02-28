@@ -28,7 +28,9 @@ public class MinistriesCursorLoader extends CursorBroadcastReceiverLoader {
         mGuid = args != null ? args.getString(ARG_GUID) : null;
 
         // configure Broadcast listeners
-        addIntentFilter(BroadcastUtils.updateAssignmentsFilter());
+        if(mGuid != null) {
+            addIntentFilter(BroadcastUtils.updateAssignmentsFilter(mGuid));
+        }
     }
 
     private static final String[] PROJECTION =

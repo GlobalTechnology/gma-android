@@ -49,6 +49,14 @@ public final class BroadcastUtils
         return URI_ASSIGNMENTS;
     }
 
+    private static Uri.Builder assignmentsUriBuilder() {
+        return URI_ASSIGNMENTS.buildUpon();
+    }
+
+    private static Uri assignmentsUri(@NonNull final String guid) {
+        return assignmentsUriBuilder().appendPath(guid.toUpperCase(Locale.US)).build();
+    }
+
     private static Uri churchesUri() {
         return URI_CHURCHES;
     }
@@ -125,6 +133,10 @@ public final class BroadcastUtils
         return new Intent(ACTION_UPDATE_ASSIGNMENTS, assignmentsUri());
     }
 
+    public static Intent updateAssignmentsBroadcast(@NonNull final String guid) {
+        return new Intent(ACTION_UPDATE_ASSIGNMENTS, assignmentsUri(guid));
+    }
+
     public static Intent updateChurchesBroadcast(@NonNull final long... ids) {
         return updateChurchesBroadcast(null, ids);
     }
@@ -155,7 +167,13 @@ public final class BroadcastUtils
 
     public static IntentFilter updateAssignmentsFilter() {
         final IntentFilter filter = new IntentFilter(ACTION_UPDATE_ASSIGNMENTS);
-        addDataUri(filter, assignmentsUri(), PatternMatcher.PATTERN_LITERAL);
+        addDataUri(filter, assignmentsUri(), PatternMatcher.PATTERN_PREFIX);
+        return filter;
+    }
+
+    public static IntentFilter updateAssignmentsFilter(@NonNull final String guid) {
+        final IntentFilter filter = new IntentFilter(ACTION_UPDATE_ASSIGNMENTS);
+        addDataUri(filter, assignmentsUri(guid), PatternMatcher.PATTERN_LITERAL);
         return filter;
     }
 

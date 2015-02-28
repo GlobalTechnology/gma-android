@@ -33,11 +33,15 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
 
     public CurrentAssignmentLoader(@NonNull final Context context, @Nullable final Bundle args) {
         super(context, context.getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE));
-        this.addIntentFilter(BroadcastUtils.updateAssignmentsFilter());
-        this.addPreferenceKey(PREF_CURRENT_MINISTRY);
         mDao = MinistriesDao.getInstance(context);
         mGuid = args != null ? args.getString(ARG_GUID) : null;
         mLoadMinistry = args != null && args.getBoolean(ARG_LOAD_MINISTRY, false);
+
+        // setup listeners for events
+        if(mGuid != null) {
+            addPreferenceKey(PREF_CURRENT_MINISTRY);
+            addIntentFilter(BroadcastUtils.updateAssignmentsFilter(mGuid));
+        }
     }
 
     @Override
