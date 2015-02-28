@@ -171,7 +171,7 @@ public class MeasurementsService extends ThreadedIntentService
     //           Actions                              //
     ////////////////////////////////////////////////////
 
-    private List<Measurement> searchMeasurements(String ministryId, @NonNull final Ministry.Mcc mcc, String period)
+    private List<Measurement> searchMeasurements(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc, String period)
             throws ApiException {
         final GmaApiClient apiClient = GmaApiClient.getInstance(this);
         period = setPeriodToCurrentIfNecessary(period);
@@ -267,15 +267,18 @@ public class MeasurementsService extends ThreadedIntentService
     private void syncMeasurements(Intent intent) throws ApiException
     {
         String ministryId = intent.getStringExtra(Constants.ARG_MINISTRY_ID);
+        if(ministryId == null) {
+            ministryId = Ministry.INVALID_ID;
+        }
         final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(intent.getStringExtra(Constants.ARG_MCC));
         String period = intent.getStringExtra(Constants.ARG_PERIOD);
         Assignment.Role role = (Assignment.Role) intent.getSerializableExtra("role");
 
-        if(ministryId == null || mcc == Ministry.Mcc.UNKNOWN)
+        if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN)
         {
             String logMessage = "Null";
-            if(ministryId == null && mcc == Ministry.Mcc.UNKNOWN) logMessage += " Ministry ID and MCC";
-            else if(ministryId == null) logMessage += " Ministry ID";
+            if(ministryId.equals(Ministry.INVALID_ID) && mcc == Ministry.Mcc.UNKNOWN) logMessage += " Ministry ID and MCC";
+            else if(ministryId.equals(Ministry.INVALID_ID)) logMessage += " Ministry ID";
             else logMessage += " MCC";
 
             Log.w(TAG, logMessage);

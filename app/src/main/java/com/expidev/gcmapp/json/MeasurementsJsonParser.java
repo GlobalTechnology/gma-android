@@ -28,7 +28,7 @@ public class MeasurementsJsonParser
 
     public static List<Measurement> parseMeasurements(
         JSONArray measurementsJson,
-        String ministryId,
+        @NonNull final String ministryId,
         @NonNull final Ministry.Mcc mcc,
         String period)
     {

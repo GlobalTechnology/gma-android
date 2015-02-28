@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.Measurement;
 
 /**
@@ -78,7 +79,8 @@ public class MeasurementMapper extends BaseMapper<Measurement>
         measurement.setSection(this.getString(cursor, Contract.Measurement.COLUMN_SECTION, null));
         measurement.setColumn(this.getString(cursor, Contract.Measurement.COLUMN_COLUMN, null));
         measurement.setTotal(this.getInt(cursor, Contract.Measurement.COLUMN_TOTAL, 0));
-        measurement.setMinistryId(this.getString(cursor, Contract.Measurement.COLUMN_MINISTRY_ID, null));
+        measurement
+                .setMinistryId(getNonNullString(cursor, Contract.Measurement.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
         measurement.setMcc(this.getString(cursor, Contract.Measurement.COLUMN_MCC, null));
         measurement.setPeriod(this.getString(cursor, Contract.Measurement.COLUMN_PERIOD, null));
         measurement.setSortOrder(this.getInt(cursor, Contract.Measurement.COLUMN_SORT_ORDER, 0));
