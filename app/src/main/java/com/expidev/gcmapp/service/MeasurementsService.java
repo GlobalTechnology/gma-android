@@ -184,7 +184,7 @@ public class MeasurementsService extends ThreadedIntentService
         }
         else
         {
-            return MeasurementsJsonParser.parseMeasurements(results, ministryId, mcc.raw, period);
+            return MeasurementsJsonParser.parseMeasurements(results, ministryId, mcc, period);
         }
     }
 
