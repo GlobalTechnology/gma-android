@@ -46,8 +46,6 @@ public final class BroadcastUtils
     
     public static final String ACTION_TYPE = BroadcastUtils.class.getName() + ".ACTION_TYPE";
 
-    public static final String TRAINING_RECEIVED = TrainingService.class.getName() + ".TRAINING_RECEIVED";
-
     private static Uri assignmentsUri() {
         return URI_ASSIGNMENTS;
     }
@@ -115,26 +113,6 @@ public final class BroadcastUtils
         Intent intent = new Intent(ACTION_STOP);
         intent.putExtra(ACTION_TYPE, type);
         return intent;
-    }
-
-    public static IntentFilter startFilter()
-    {
-        return new IntentFilter(ACTION_START);
-    }
-
-    public static IntentFilter runningFilter()
-    {
-        return new IntentFilter(ACTION_RUNNING);
-    }
-
-    public static IntentFilter stopFilter()
-    {
-        return new IntentFilter(ACTION_STOP);
-    }
-
-    public static Intent trainingReceivedBroadcast()
-    {
-        return new Intent(TRAINING_RECEIVED);
     }
 
     public static Intent allMinistriesReceivedBroadcast(ArrayList<Ministry> allMinistries)
