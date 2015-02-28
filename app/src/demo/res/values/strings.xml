@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Titles -->
-    <string name="app_name">GMA App (Demo)</string>
-    <string name="title_activity_main">GMA App (Demo)</string>
+    <string name="app_name">GMA (Demo)</string>
+    <string name="title_activity_main">GMA (Demo)</string>
 </resources>

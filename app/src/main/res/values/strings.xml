@@ -2,8 +2,8 @@
 <resources>
 
     <!-- Titles -->
-    <string name="app_name">GMA App</string>
-    <string name="title_activity_main">GMA App</string>
+    <string name="app_name">GMA</string>
+    <string name="title_activity_main">GMA</string>
     <string name="title_activity_join_ministry">Join Ministry</string>
     <string name="title_activity_map_settings">MapSettings</string>
     <string name="title_activity_measurements">Measurements</string>
@@ -16,7 +16,6 @@
 
     <!-- Main Activity -->
     <string name="logout">Logout</string>
-    <string name="hello_world">Welcome to the GMA App!</string>
     <string name="action_settings">Settings</string>
     <string name="reset">Reset</string>
     <string name="action_join_new_ministry">Join new ministry</string>
