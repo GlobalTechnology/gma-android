@@ -27,7 +27,6 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
 
     private final MinistriesDao mDao;
 
-    //TODO: utilize guid when loading assignments
     @Nullable
     private final String mGuid;
     private final boolean mLoadMinistry;
@@ -43,11 +42,14 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
 
     @Override
     public Assignment loadInBackground() {
+        // short-circuit if we don't have a valid guid
+        if (mGuid == null) {
+            return null;
+        }
+
         // load the current active assignment
         final String ministryId = mPrefs.getString(PREF_CURRENT_MINISTRY, Ministry.INVALID_ID);
-        final List<Assignment> assignments =
-                mDao.get(Assignment.class, Contract.Assignment.SQL_WHERE_MINISTRY, bindValues(ministryId));
-        Assignment assignment = assignments.size() > 0 ? assignments.get(0) : null;
+        Assignment assignment = mDao.find(Assignment.class, mGuid, ministryId);
 
         // reset to default assignment if a current current assignment isn't found
         if (assignment == null) {
@@ -66,7 +68,8 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
     }
 
     private Assignment initActiveAssignment() {
-        final List<Assignment> assignments = mDao.get(Assignment.class);
+        final List<Assignment> assignments =
+                mDao.get(Assignment.class, Contract.Assignment.SQL_WHERE_GUID, bindValues(mGuid));
 
         // short-circuit if there are no assignments for the current user
         if (assignments.size() == 0) {
