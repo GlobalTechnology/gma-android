@@ -51,6 +51,18 @@ public final class BroadcastUtils
         return URI_ASSIGNMENTS;
     }
 
+    private static Uri churchesUri() {
+        return URI_CHURCHES;
+    }
+
+    private static Uri.Builder churchesUriBuilder() {
+        return URI_CHURCHES.buildUpon();
+    }
+
+    private static Uri churchesUri(@NonNull final String ministryId) {
+        return churchesUriBuilder().appendPath(ministryId).build();
+    }
+
     private static Uri ministriesUri() {
         return URI_MINISTRIES;
     }
@@ -147,8 +159,8 @@ public final class BroadcastUtils
     }
 
     public static Intent updateChurchesBroadcast(@Nullable final String ministryId, @NonNull final long... ids) {
-        final Intent intent = new Intent(ACTION_UPDATE_CHURCHES);
-        intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
+        final Intent intent =
+                new Intent(ACTION_UPDATE_CHURCHES, ministryId != null ? churchesUri(ministryId) : churchesUri());
         intent.putExtra(EXTRA_CHURCH_IDS, ids);
         return intent;
     }
@@ -177,7 +189,17 @@ public final class BroadcastUtils
     }
 
     public static IntentFilter updateChurchesFilter() {
-        return new IntentFilter(ACTION_UPDATE_CHURCHES);
+        return updateChurchesFilter(null);
+    }
+
+    public static IntentFilter updateChurchesFilter(@Nullable final String ministryId) {
+        final IntentFilter filter = new IntentFilter(ACTION_UPDATE_CHURCHES);
+        if (ministryId == null) {
+            addDataUri(filter, churchesUri(), PatternMatcher.PATTERN_PREFIX);
+        } else {
+            addDataUri(filter, churchesUri(ministryId), PatternMatcher.PATTERN_LITERAL);
+        }
+        return filter;
     }
 
     public static IntentFilter updateMinistriesFilter() {
