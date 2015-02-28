@@ -122,7 +122,7 @@ dependencies {
     compile 'me.thekey.android:thekey-api:0.7.1'
     compile 'me.thekey.android:thekey-lib:0.7.1'
 
-    compile 'org.ccci.gto.android:gto-support:0.4.3'
+    compile 'org.ccci.gto.android:gto-support:0.4.4-SNAPSHOT'
 
     compile 'com.github.machinarius:preferencefragment:0.1.1'
     compile 'org.achartengine:achartengine:1.2.0'
