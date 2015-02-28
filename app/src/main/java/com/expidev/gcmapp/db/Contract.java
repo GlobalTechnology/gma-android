@@ -178,8 +178,8 @@ public class Contract {
                 "FOREIGN KEY(" + COLUMN_MINISTRY_ID + ") REFERENCES " + AssociatedMinistry.TABLE_NAME + "(" +
                         AssociatedMinistry.COLUMN_MINISTRY_ID + ")";
 
-        static final String SQL_WHERE_PRIMARY_KEY = COLUMN_GUID + " = ? AND " + COLUMN_MINISTRY_ID + " = ?";
         public static final String SQL_WHERE_GUID = COLUMN_GUID + " = ?";
+        static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_GUID + " AND " + SQL_WHERE_MINISTRY;
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_GUID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_ID,
