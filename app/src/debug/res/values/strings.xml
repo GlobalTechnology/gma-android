@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Titles -->
+    <string name="app_name">GMA App (Dev)</string>
+    <string name="title_activity_main">GMA App (Dev)</string>
+</resources>
