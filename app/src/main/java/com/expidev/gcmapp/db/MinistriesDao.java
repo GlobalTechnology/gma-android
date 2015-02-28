@@ -15,8 +15,6 @@ import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.Mapper;
 
-import java.util.List;
-
 /**
  * Created by William.Randall on 1/21/2015.
  */
@@ -167,12 +165,6 @@ public class MinistriesDao extends AbstractDao
         }
 
         return super.getPrimaryKeyWhere(obj);
-    }
-
-    @NonNull
-    public List<AssociatedMinistry> retrieveAssociatedMinistriesList()
-    {
-        return this.get(AssociatedMinistry.class);
     }
 
     void deleteAllData()

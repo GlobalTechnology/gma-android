@@ -11,7 +11,6 @@ import android.os.PatternMatcher;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.MinistriesService;
@@ -119,13 +118,6 @@ public final class BroadcastUtils
     {
         Intent intent = stopBroadcast(Type.RETRIEVE_ALL_MINISTRIES);
         intent.putExtra("allMinistries", allMinistries);
-        return intent;
-    }
-
-    public static Intent associatedMinistriesReceivedBroadcast(ArrayList<AssociatedMinistry> associatedMinistries)
-    {
-        Intent intent = stopBroadcast(Type.RETRIEVE_ASSOCIATED_MINISTRIES);
-        intent.putExtra("associatedMinistries", associatedMinistries);
         return intent;
     }
 

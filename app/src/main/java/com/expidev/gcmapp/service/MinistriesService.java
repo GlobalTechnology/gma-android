@@ -3,13 +3,11 @@ package com.expidev.gcmapp.service;
 import static com.expidev.gcmapp.Constants.EXTRA_GUID;
 import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
-import static com.expidev.gcmapp.service.Type.RETRIEVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.SYNC_ASSIGNMENTS;
 import static com.expidev.gcmapp.service.Type.SYNC_CHURCHES;
 import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_CHURCHES;
 import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesReceivedBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.associatedMinistriesReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
@@ -128,9 +126,6 @@ public class MinistriesService extends ThreadedIntentService {
 
         try {
             switch (type) {
-                case RETRIEVE_ASSOCIATED_MINISTRIES:
-                    retrieveAssociatedMinistries();
-                    break;
                 case RETRIEVE_ALL_MINISTRIES:
                     syncAllMinistries(intent);
                     break;
@@ -171,18 +166,6 @@ public class MinistriesService extends ThreadedIntentService {
     }
 
     /**
-     * Retrieve ministries this user is associated with
-     * from the local database
-     */
-    public static void retrieveMinistries(final Context context)
-    {
-        Bundle extras = new Bundle(1);
-        extras.putSerializable(EXTRA_SYNCTYPE, RETRIEVE_ASSOCIATED_MINISTRIES);
-
-        context.startService(baseIntent(context, extras));
-    }
-
-    /**
      * Retrieve all ministries from the GCM API
      */
     public static void syncAllMinistries(final Context context) {
@@ -213,14 +196,6 @@ public class MinistriesService extends ThreadedIntentService {
     /////////////////////////////////////////////////////
     //           Actions                              //
     ////////////////////////////////////////////////////
-    private void retrieveAssociatedMinistries()
-    {
-        MinistriesDao ministriesDao = MinistriesDao.getInstance(this);
-        List<AssociatedMinistry> associatedMinistries = ministriesDao.retrieveAssociatedMinistriesList();
-        Log.i(TAG, "Retrieved associated ministries");
-
-        broadcastManager.sendBroadcast(associatedMinistriesReceivedBroadcast((ArrayList<AssociatedMinistry>) associatedMinistries));
-    }
 
     private void syncAssignments(final Intent intent) throws ApiException {
         final SharedPreferences prefs = this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE);
