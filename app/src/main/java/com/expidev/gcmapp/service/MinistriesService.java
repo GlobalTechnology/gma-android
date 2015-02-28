@@ -32,6 +32,9 @@ import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.BroadcastUtils;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.primitives.Longs;
 
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.app.ThreadedIntentService;
@@ -300,6 +303,9 @@ public class MinistriesService extends ThreadedIntentService {
     private synchronized void syncDirtyChurches() throws ApiException {
         final List<Church> dirty = mDao.get(Church.class, Contract.Church.SQL_WHERE_DIRTY, null);
 
+        // ministry_id => church_id
+        final Multimap<String, Long> broadcasts = HashMultimap.create();
+
         // process all churches that are dirty
         for (final Church church : dirty) {
             try {
@@ -309,14 +315,24 @@ public class MinistriesService extends ThreadedIntentService {
                 // update the church
                 final boolean success = mApi.updateChurch(church.getId(), json);
 
-                // clear dirty attributes if update was successful
+                // was successful update?
                 if (success) {
+                    // clear dirty attributes
                     church.setDirty(null);
                     mDao.update(church, new String[] {Contract.Church.COLUMN_DIRTY});
+
+                    // add church to list of broadcasts
+                    broadcasts.put(church.getMinistryId(), church.getId());
                 }
             } catch (final JSONException ignored) {
                 // this shouldn't happen when generating json
             }
+        }
+
+        // send broadcasts for each ministryId with churches that were changed
+        for (final String ministryId : broadcasts.keySet()) {
+            broadcastManager.sendBroadcast(
+                    BroadcastUtils.updateChurchesBroadcast(ministryId, Longs.toArray(broadcasts.get(ministryId))));
         }
     }
 
