@@ -13,6 +13,7 @@ import com.expidev.gcmapp.db.MeasurementDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
 import com.expidev.gcmapp.model.Assignment;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 
@@ -132,7 +133,7 @@ public class MeasurementsService extends ThreadedIntentService
     public static void syncMeasurements(
         final Context context,
         String ministryId,
-        String mcc,
+        @NonNull final Ministry.Mcc mcc,
         String period,
         Assignment.Role role)
     {
@@ -140,7 +141,7 @@ public class MeasurementsService extends ThreadedIntentService
 
         extras.putSerializable(EXTRA_TYPE, SYNC_MEASUREMENTS);
         extras.putString(Constants.ARG_MINISTRY_ID, ministryId);
-        extras.putString(Constants.ARG_MCC, mcc);
+        extras.putString(Constants.ARG_MCC, mcc.toString());
         extras.putString(Constants.ARG_PERIOD, setPeriodToCurrentIfNecessary(period));
         extras.putSerializable("role", role);
 
@@ -170,8 +171,8 @@ public class MeasurementsService extends ThreadedIntentService
     //           Actions                              //
     ////////////////////////////////////////////////////
 
-    private List<Measurement> searchMeasurements(String ministryId, String mcc, String period) throws ApiException
-    {
+    private List<Measurement> searchMeasurements(String ministryId, @NonNull final Ministry.Mcc mcc, String period)
+            throws ApiException {
         final GmaApiClient apiClient = GmaApiClient.getInstance(this);
         period = setPeriodToCurrentIfNecessary(period);
         JSONArray results = apiClient.searchMeasurements(ministryId, mcc, period);
@@ -190,7 +191,7 @@ public class MeasurementsService extends ThreadedIntentService
     private MeasurementDetails retrieveDetailsForMeasurement(
         String measurementId,
         String ministryId,
-        String mcc,
+        @NonNull final Ministry.Mcc mcc,
         String period) throws ApiException
     {
         GmaApiClient apiClient = GmaApiClient.getInstance(this);
@@ -266,14 +267,14 @@ public class MeasurementsService extends ThreadedIntentService
     private void syncMeasurements(Intent intent) throws ApiException
     {
         String ministryId = intent.getStringExtra(Constants.ARG_MINISTRY_ID);
-        String mcc = intent.getStringExtra(Constants.ARG_MCC);
+        final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(intent.getStringExtra(Constants.ARG_MCC));
         String period = intent.getStringExtra(Constants.ARG_PERIOD);
         Assignment.Role role = (Assignment.Role) intent.getSerializableExtra("role");
 
-        if(ministryId == null || mcc == null)
+        if(ministryId == null || mcc == Ministry.Mcc.UNKNOWN)
         {
             String logMessage = "Null";
-            if(ministryId == null && mcc == null) logMessage += " Ministry ID and MCC";
+            if(ministryId == null && mcc == Ministry.Mcc.UNKNOWN) logMessage += " Ministry ID and MCC";
             else if(ministryId == null) logMessage += " Ministry ID";
             else logMessage += " MCC";
 

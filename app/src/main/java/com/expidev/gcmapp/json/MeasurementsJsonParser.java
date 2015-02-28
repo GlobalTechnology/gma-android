@@ -1,7 +1,9 @@
 package com.expidev.gcmapp.json;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.BreakdownData;
 import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
@@ -27,7 +29,7 @@ public class MeasurementsJsonParser
     public static List<Measurement> parseMeasurements(
         JSONArray measurementsJson,
         String ministryId,
-        String mcc,
+        @NonNull final Ministry.Mcc mcc,
         String period)
     {
         List<Measurement> measurementList = new ArrayList<>();
@@ -212,7 +214,7 @@ public class MeasurementsJsonParser
         }
 
         jsonObject.put("period", measurementDetails.getPeriod());
-        jsonObject.put("mcc", measurementDetails.getMcc().toLowerCase() + "_gma-app");
+        jsonObject.put("mcc", measurementDetails.getMcc().raw + "_gma-app");
 
         return jsonObject;
     }

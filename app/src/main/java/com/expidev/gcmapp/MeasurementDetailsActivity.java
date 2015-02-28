@@ -26,6 +26,7 @@ import com.expidev.gcmapp.activity.SettingsActivity;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
 import com.expidev.gcmapp.model.Assignment;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.BreakdownData;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.model.measurement.SixMonthAmounts;
@@ -830,11 +831,10 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         {
             String measurementId = (String) params[0];
             String ministryId = (String) params[1];
-            String mcc = (String) params[2];
+            final Ministry.Mcc mcc = Ministry.Mcc.fromRaw((String) params[2]);
             String period = (String) params[3];
 
-            if(measurementId != null && ministryId != null && mcc != null && period != null)
-            {
+            if (measurementId != null && ministryId != null && mcc != Ministry.Mcc.UNKNOWN && period != null) {
                 try
                 {
                     GmaApiClient apiClient = GmaApiClient.getInstance(MeasurementDetailsActivity.this);

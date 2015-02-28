@@ -1,6 +1,10 @@
 package com.expidev.gcmapp.model.measurement;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.expidev.gcmapp.model.Base;
+import com.expidev.gcmapp.model.Ministry;
 
 import java.io.Serializable;
 import java.util.List;
@@ -14,7 +18,8 @@ public class MeasurementDetails extends Base implements Serializable
 
     private String measurementId;
     private String ministryId;
-    private String mcc;
+    @NonNull
+    private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
     private String period;
     private MeasurementTypeIds measurementTypeIds;
 
@@ -54,13 +59,16 @@ public class MeasurementDetails extends Base implements Serializable
         this.ministryId = ministryId;
     }
 
-    public String getMcc()
-    {
+    @NonNull
+    public Ministry.Mcc getMcc() {
         return mcc;
     }
 
-    public void setMcc(String mcc)
-    {
+    public void setMcc(@Nullable final String mcc) {
+        setMcc(Ministry.Mcc.fromRaw(mcc));
+    }
+
+    public void setMcc(@NonNull final Ministry.Mcc mcc) {
         this.mcc = mcc;
     }
 

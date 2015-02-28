@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Pair;
 
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.BreakdownData;
 import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
@@ -220,68 +221,62 @@ public class MeasurementDao extends AbstractDao
     {
         if(obj instanceof Measurement)
         {
-            String mcc = ((Measurement) obj).getMcc();
             return getPrimaryKeyWhere(
                 Measurement.class,
                 ((Measurement) obj).getMeasurementId(),
                 ((Measurement) obj).getMinistryId(),
-                mcc != null ? mcc : "SLM",
+                ((Measurement) obj).getMcc(),
                 ((Measurement) obj).getPeriod());
         }
         else if(obj instanceof MeasurementDetails)
         {
-            String mcc = ((MeasurementDetails) obj).getMcc();
             return getPrimaryKeyWhere(
                 MeasurementDetails.class,
                 ((MeasurementDetails) obj).getMeasurementId(),
                 ((MeasurementDetails) obj).getMinistryId(),
-                mcc != null ? mcc : "SLM",
+                ((MeasurementDetails) obj).getMcc(),
                 ((MeasurementDetails) obj).getPeriod());
         }
         else if(obj instanceof SixMonthAmounts)
         {
-            String mcc = ((SixMonthAmounts) obj).getMcc();
             return getPrimaryKeyWhere(
                 SixMonthAmounts.class,
                 ((SixMonthAmounts) obj).getMeasurementId(),
                 ((SixMonthAmounts) obj).getMinistryId(),
-                mcc != null ? mcc : "SLM",
+                ((SixMonthAmounts) obj).getMcc(),
                 ((SixMonthAmounts) obj).getPeriod(),
                 ((SixMonthAmounts) obj).getMonth(),
                 ((SixMonthAmounts) obj).getAmountType());
         }
         else if(obj instanceof BreakdownData)
         {
-            String mcc = ((BreakdownData) obj).getMcc();
             return getPrimaryKeyWhere(
                 BreakdownData.class,
                 ((BreakdownData) obj).getMeasurementId(),
                 ((BreakdownData) obj).getMinistryId(),
-                mcc != null ? mcc : "SLM",
+                ((BreakdownData) obj).getMcc(),
                 ((BreakdownData) obj).getPeriod(),
                 ((BreakdownData) obj).getSource(),
                 ((BreakdownData) obj).getType());
         }
         else if(obj instanceof TeamMemberDetails)
         {
-            String mcc = ((TeamMemberDetails) obj).getMcc();
             return getPrimaryKeyWhere(
                 TeamMemberDetails.class,
                 ((TeamMemberDetails) obj).getMeasurementId(),
                 ((TeamMemberDetails) obj).getMinistryId(),
-                mcc != null ? mcc : "SLM",
+                ((TeamMemberDetails) obj).getMcc(),
                 ((TeamMemberDetails) obj).getPeriod(),
                 ((TeamMemberDetails) obj).getType(),
                 ((TeamMemberDetails) obj).getPersonId());
         }
         else if(obj instanceof MeasurementDetailsData)
         {
-            String mcc = ((MeasurementDetailsData) obj).getMcc();
             return getPrimaryKeyWhere(
                 MeasurementDetailsData.class,
                 ((MeasurementDetailsData) obj).getMeasurementId(),
                 ((MeasurementDetailsData) obj).getMinistryId(),
-                mcc != null ? mcc : "SLM",
+                ((MeasurementDetailsData) obj).getMcc(),
                 ((MeasurementDetailsData) obj).getPeriod());
         }
 
@@ -297,7 +292,7 @@ public class MeasurementDao extends AbstractDao
     {
         String measurementId = measurementDetails.getMeasurementId();
         String ministryId = measurementDetails.getMinistryId();
-        String mcc = measurementDetails.getMcc();
+        final Ministry.Mcc mcc = measurementDetails.getMcc();
         String period = measurementDetails.getPeriod();
 
         this.updateOrInsert(measurementDetails, Contract.MeasurementDetails.PROJECTION_ALL);
@@ -321,7 +316,7 @@ public class MeasurementDao extends AbstractDao
         MeasurementTypeIds ids,
         String measurementId,
         String ministryId,
-        String mcc,
+        @NonNull final Ministry.Mcc mcc,
         String period)
     {
         ids.setMeasurementId(measurementId);
@@ -335,7 +330,7 @@ public class MeasurementDao extends AbstractDao
         List<SixMonthAmounts> amounts,
         String measurementId,
         String ministryId,
-        String mcc,
+        @NonNull final Ministry.Mcc mcc,
         String period)
     {
         for(SixMonthAmounts row : amounts)
@@ -352,7 +347,7 @@ public class MeasurementDao extends AbstractDao
         List<BreakdownData> breakdownDataList,
         String measurementId,
         String ministryId,
-        String mcc,
+        @NonNull final Ministry.Mcc mcc,
         String period)
     {
         for(BreakdownData row : breakdownDataList)
@@ -369,7 +364,7 @@ public class MeasurementDao extends AbstractDao
         List<TeamMemberDetails> teamMemberDetailsList,
         String measurementId,
         String ministryId,
-        String mcc,
+        @NonNull final Ministry.Mcc mcc,
         String period)
     {
         for(TeamMemberDetails row : teamMemberDetailsList)
@@ -386,7 +381,7 @@ public class MeasurementDao extends AbstractDao
         List<SubMinistryDetails> subMinistryDetailsList,
         String measurementId,
         String ministryId,
-        String mcc,
+        @NonNull final Ministry.Mcc mcc,
         String period)
     {
         for(SubMinistryDetails row : subMinistryDetailsList)

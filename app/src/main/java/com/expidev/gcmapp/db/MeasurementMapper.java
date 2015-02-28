@@ -44,7 +44,7 @@ public class MeasurementMapper extends BaseMapper<Measurement>
                 values.put(field, measurement.getMinistryId());
                 break;
             case Contract.Measurement.COLUMN_MCC:
-                values.put(field, measurement.getMcc());
+                values.put(field, measurement.getMcc().toString());
                 break;
             case Contract.Measurement.COLUMN_PERIOD:
                 values.put(field, measurement.getPeriod());

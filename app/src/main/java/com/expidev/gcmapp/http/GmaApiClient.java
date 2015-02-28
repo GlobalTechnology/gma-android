@@ -65,12 +65,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     private static final Object LOCK_INSTANCE = new Object();
     private static GmaApiClient INSTANCE;
 
-    // XXX: temporary until mContext from AbstractApi is visible
-    private final Context mContext;
-
     private GmaApiClient(final Context context) {
         super(context, TheKeyImpl.getInstance(context), BuildConfig.GCM_BASE_URI, "gcm_api_sessions");
-        mContext = context;
     }
 
     public static GmaApiClient getInstance(final Context context) {
@@ -323,12 +319,18 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     /* END church methods */
 
     @Nullable
-    public JSONArray searchMeasurements(@NonNull final String ministryId, @NonNull final String mcc,
+    public JSONArray searchMeasurements(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
                                         @Nullable final String period) throws ApiException {
+        // short-circuit if we don't have a valid ministryId or mcc
+        if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
+            return null;
+        }
+        assert mcc.raw != null : "only Mcc.UNKNOWN has a null raw value";
+
         // build request
         final Request<Session> request = new Request<>(MEASUREMENTS);
         request.params.add(param("ministry_id", ministryId));
-        request.params.add(param("mcc", mcc.toLowerCase()));
+        request.params.add(param("mcc", mcc.raw));
         if (period != null) {
             request.params.add(param("period", period));
         }
@@ -355,12 +357,18 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
     @Nullable
     public JSONObject getDetailsForMeasurement(@NonNull final String measurementId, @NonNull final String ministryId,
-                                               @NonNull final String mcc, @Nullable final String period)
+                                               @NonNull final Ministry.Mcc mcc, @Nullable final String period)
             throws ApiException {
+        // short-circuit if we don't have a valid ministryId and mcc
+        if (ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
+            return null;
+        }
+        assert mcc.raw != null : "Only Mcc.UNKNOWN has a null raw value";
+
         // build request
         final Request<Session> request = new Request<>(MEASUREMENTS + "/" + measurementId);
         request.params.add(param("ministry_id", ministryId));
-        request.params.add(param("mcc", mcc.toLowerCase()));
+        request.params.add(param("mcc", mcc.raw));
         if (period != null) {
             request.params.add(param("period", period));
         }

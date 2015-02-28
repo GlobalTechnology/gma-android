@@ -165,7 +165,7 @@ public class MainActivity extends ActionBarActivity
                 MeasurementsService.syncMeasurements(
                     this,
                     mAssignment.getMinistryId(),
-                    mAssignment.getMcc().toString(),
+                    mAssignment.getMcc(),
                     null,
                     mAssignment.getRole());
             }
@@ -200,7 +200,7 @@ public class MainActivity extends ActionBarActivity
                     MeasurementsService.syncMeasurements(
                         this,
                         mAssignment.getMinistryId(),
-                        mAssignment.getMcc().toString(),
+                        mAssignment.getMcc(),
                         null,
                         mAssignment.getRole());
                     TrainingService.syncTraining(this, mAssignment.getMinistryId(), mAssignment.getMcc());
@@ -255,7 +255,7 @@ public class MainActivity extends ActionBarActivity
             MeasurementsService.syncMeasurements(
                 this,
                 mAssignment.getMinistryId(),
-                mAssignment.getMcc().toString(),
+                mAssignment.getMcc(),
                 null,
                 mAssignment.getRole());
         }
