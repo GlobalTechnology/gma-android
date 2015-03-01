@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.model.AssociatedMinistry;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.ccci.gto.android.common.support.v4.content.AsyncTaskBroadcastReceiverSharedPreferencesChangeLoader;
@@ -16,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CurrentMinistryLoader extends AsyncTaskBroadcastReceiverSharedPreferencesChangeLoader<AssociatedMinistry> {
+public class CurrentMinistryLoader extends AsyncTaskBroadcastReceiverSharedPreferencesChangeLoader<Ministry> {
     private final MinistriesDao mDao;
 
     public CurrentMinistryLoader(@NonNull final Context context) {
@@ -27,10 +28,10 @@ public class CurrentMinistryLoader extends AsyncTaskBroadcastReceiverSharedPrefe
     }
 
     @Override
-    public AssociatedMinistry loadInBackground() {
+    public Ministry loadInBackground() {
         // load the set current ministry
         final String ministryId = mPrefs.getString(PREF_CURRENT_MINISTRY, null);
-        final AssociatedMinistry ministry = ministryId != null ? mDao.find(AssociatedMinistry.class, ministryId) : null;
+        final Ministry ministry = ministryId != null ? mDao.find(AssociatedMinistry.class, ministryId) : null;
 
         // reset to default ministry if current ministry isn't found
         if (ministry == null) {
@@ -40,11 +41,11 @@ public class CurrentMinistryLoader extends AsyncTaskBroadcastReceiverSharedPrefe
         return ministry;
     }
 
-    private AssociatedMinistry initCurrentMinistry() {
+    private Ministry initCurrentMinistry() {
         final List<AssociatedMinistry> ministries = mDao.get(AssociatedMinistry.class);
 
         // set the default ministry based on how many AssociatedMinistries exist
-        AssociatedMinistry ministry;
+        Ministry ministry;
         switch (ministries.size()) {
             case 0:
                 return null;
@@ -54,8 +55,8 @@ public class CurrentMinistryLoader extends AsyncTaskBroadcastReceiverSharedPrefe
                 break;
             default:
                 // convert to a Map for quick lookups
-                final Map<String, AssociatedMinistry> ministriesMap = new HashMap<>();
-                for (final AssociatedMinistry ministry2 : ministries) {
+                final Map<String, Ministry> ministriesMap = new HashMap<>();
+                for (final Ministry ministry2 : ministries) {
                     ministriesMap.put(ministry2.getMinistryId(), ministry2);
                 }
 

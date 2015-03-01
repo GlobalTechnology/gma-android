@@ -21,7 +21,6 @@ import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.model.Assignment;
-import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
 import com.expidev.gcmapp.support.v4.content.MinistriesCursorLoader;
@@ -140,7 +139,7 @@ public class SettingsFragment extends PreferenceFragment {
 
     private void updateMccsPreference() {
         if (mPrefMcc != null) {
-            final AssociatedMinistry ministry = mCurrentAssignment != null ? mCurrentAssignment.getMinistry() : null;
+            final Ministry ministry = mCurrentAssignment != null ? mCurrentAssignment.getMinistry() : null;
             final Set<Ministry.Mcc> mccs = ministry != null ? ministry.getMccs() : Collections.<Ministry.Mcc>emptySet();
 
             final int count = mccs.size();

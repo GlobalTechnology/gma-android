@@ -105,7 +105,7 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
         loadMinistry(assignment);
 
         // set the MCC based off of what is available for the ministry
-        final AssociatedMinistry ministry = assignment.getMinistry();
+        final Ministry ministry = assignment.getMinistry();
         if (ministry != null) {
             // pick a random MCC
             final EnumSet<Ministry.Mcc> mccs = ministry.getMccs();

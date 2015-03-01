@@ -67,7 +67,7 @@ public class Assignment extends Base implements Cloneable, Serializable {
     @NonNull
     private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
     @Nullable
-    private AssociatedMinistry ministry;
+    private Ministry ministry;
 
     @NonNull
     private final List<Assignment> subAssignments = new ArrayList<>();
@@ -167,13 +167,11 @@ public class Assignment extends Base implements Cloneable, Serializable {
         this.mcc = mcc != null ? mcc : Ministry.Mcc.UNKNOWN;
     }
 
-    public AssociatedMinistry getMinistry()
-    {
+    public Ministry getMinistry() {
         return ministry;
     }
 
-    public void setMinistry(AssociatedMinistry ministry)
-    {
+    public void setMinistry(final Ministry ministry) {
         this.ministry = ministry;
     }
 

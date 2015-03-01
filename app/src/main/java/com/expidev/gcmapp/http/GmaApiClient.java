@@ -13,7 +13,6 @@ import com.expidev.gcmapp.http.GmaApiClient.Session;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
 import com.expidev.gcmapp.json.TrainingJsonParser;
 import com.expidev.gcmapp.model.Assignment;
-import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
@@ -200,12 +199,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Nullable
-    public List<AssociatedMinistry> getAllMinistries() throws ApiException {
+    public List<? extends Ministry> getAllMinistries() throws ApiException {
         return this.getAllMinistries(false);
     }
 
     @Nullable
-    public List<AssociatedMinistry> getAllMinistries(final boolean refresh) throws ApiException {
+    public List<? extends Ministry> getAllMinistries(final boolean refresh) throws ApiException {
         // build request
         final Request<Session> request = new Request<>(MINISTRIES);
         request.params.add(param("refresh", refresh));

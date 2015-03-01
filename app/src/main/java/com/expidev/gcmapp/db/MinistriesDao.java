@@ -9,6 +9,7 @@ import android.util.Pair;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
 import org.ccci.gto.android.common.db.AbstractDao;
@@ -127,9 +128,9 @@ public class MinistriesDao extends AbstractDao
     @Override
     protected Pair<String, String[]> getPrimaryKeyWhere(@NonNull final Object obj)
     {
-        if(obj instanceof AssociatedMinistry)
+        if(obj instanceof Ministry)
         {
-            return getPrimaryKeyWhere(AssociatedMinistry.class, ((AssociatedMinistry) obj).getMinistryId());
+            return getPrimaryKeyWhere(AssociatedMinistry.class, ((Ministry) obj).getMinistryId());
         } else if (obj instanceof Assignment) {
             return getPrimaryKeyWhere(Assignment.class, ((Assignment) obj).getGuid(),
                                       ((Assignment) obj).getMinistryId());
