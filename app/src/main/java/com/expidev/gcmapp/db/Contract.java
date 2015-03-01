@@ -100,14 +100,13 @@ public class Contract {
 
     @Deprecated
     public static final class LegacyTables {
-        private static final String ALL_MINISTRIES_TABLE_NAME = "all_ministries";
-
-        public static final String SQL_DELETE_ALL_MINISTRIES_TABLE =
-                "DROP TABLE IF EXISTS " + ALL_MINISTRIES_TABLE_NAME;
+        public static final String SQL_DELETE_ALL_MINISTRIES_TABLE = "DROP TABLE IF EXISTS all_ministries";
+        public static final String SQL_DELETE_ASSOCIATED_MINISTRIES_TABLE =
+                "DROP TABLE IF EXISTS associated_ministries";
     }
 
     public static final class Ministry extends Base implements MinistryId {
-        public static final String TABLE_NAME = "associated_ministries";
+        public static final String TABLE_NAME = "ministries";
 
         static final String COLUMN_MIN_CODE = "min_code";
         public static final String COLUMN_NAME = "name";
@@ -154,6 +153,9 @@ public class Contract {
                         SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE, SQL_COLUMN_LOCATION_ZOOM,
                         SQL_COLUMN_PARENT_MINISTRY_ID, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+
+        @Deprecated
+        public static final String SQL_V15_RENAME_TABLE = "ALTER TABLE associated_ministries RENAME TO " + TABLE_NAME;
     }
 
     public static final class Assignment extends Base implements MinistryId {
