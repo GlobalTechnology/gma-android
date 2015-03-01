@@ -6,7 +6,7 @@ import android.test.RenamingDelegatingContext;
 import android.util.Log;
 
 import com.expidev.gcmapp.model.Assignment;
-import com.expidev.gcmapp.model.AssociatedMinistry;
+import com.expidev.gcmapp.model.Ministry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,14 +57,14 @@ public class MinistriesDaoTest extends InstrumentationTestCase
      *     - Sub Ministry 4
      *       - Sub Ministry 5
      */
-    private AssociatedMinistry mockMinistry()
+    private Ministry mockMinistry()
     {
-        AssociatedMinistry mockMinistry = new AssociatedMinistry();
-        AssociatedMinistry subMinistry1 = new AssociatedMinistry();
-        AssociatedMinistry subMinistry2 = new AssociatedMinistry();
-        AssociatedMinistry subMinistry3 = new AssociatedMinistry();
-        AssociatedMinistry subMinistry4 = new AssociatedMinistry();
-        AssociatedMinistry subMinistry5 = new AssociatedMinistry();
+        Ministry mockMinistry = new Ministry();
+        Ministry subMinistry1 = new Ministry();
+        Ministry subMinistry2 = new Ministry();
+        Ministry subMinistry3 = new Ministry();
+        Ministry subMinistry4 = new Ministry();
+        Ministry subMinistry5 = new Ministry();
 
         mockMinistry.setName("Mock Ministry");
         subMinistry1.setName("Sub Ministry 1");
@@ -87,10 +87,10 @@ public class MinistriesDaoTest extends InstrumentationTestCase
         subMinistry4.setMinistryCode("MIN_4");
         subMinistry5.setMinistryCode("MIN_5");
 
-        List<AssociatedMinistry> subMinistryList1 = new ArrayList<AssociatedMinistry>();
-        List<AssociatedMinistry> subMinistryList2 = new ArrayList<AssociatedMinistry>();
-        List<AssociatedMinistry> subMinistryList3 = new ArrayList<AssociatedMinistry>();
-        List<AssociatedMinistry> subMinistryList4 = new ArrayList<AssociatedMinistry>();
+        List<Ministry> subMinistryList1 = new ArrayList<>();
+        List<Ministry> subMinistryList2 = new ArrayList<>();
+        List<Ministry> subMinistryList3 = new ArrayList<>();
+        List<Ministry> subMinistryList4 = new ArrayList<>();
 
         subMinistryList1.add(subMinistry1);
         subMinistryList2.add(subMinistry2);
