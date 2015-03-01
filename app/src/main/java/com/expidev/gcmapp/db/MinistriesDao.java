@@ -9,7 +9,6 @@ import android.util.Pair;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
-import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
 import org.ccci.gto.android.common.db.AbstractDao;
@@ -26,7 +25,6 @@ public class MinistriesDao extends AbstractDao
     private static MinistriesDao instance;
 
     private static final Mapper<Assignment> ASSIGNMENT_MAPPER = new AssignmentMapper();
-    private static final Mapper<Ministry> ALL_MINISTRIES_MAPPER = new MinistriesMapper();
     private static final Mapper<AssociatedMinistry> ASSOCIATED_MINISTRIES_MAPPER = new AssociatedMinistriesMapper();
     private static final Mapper<Church> CHURCH_MAPPER = new ChurchMapper();
 
@@ -52,12 +50,7 @@ public class MinistriesDao extends AbstractDao
     @Override
     protected String getTable(@NonNull final Class<?> clazz)
     {
-        if(Ministry.class.equals(clazz))
-        {
-            return Contract.Ministry.TABLE_NAME;
-        }
-        else if(AssociatedMinistry.class.equals(clazz))
-        {
+        if (AssociatedMinistry.class.equals(clazz)) {
             return Contract.AssociatedMinistry.TABLE_NAME;
         } else if (Assignment.class.equals(clazz)) {
             return Contract.Assignment.TABLE_NAME;
@@ -72,12 +65,7 @@ public class MinistriesDao extends AbstractDao
     @Override
     protected String[] getFullProjection(@NonNull final Class<?> clazz)
     {
-        if(Ministry.class.equals(clazz))
-        {
-            return Contract.Ministry.PROJECTION_ALL;
-        }
-        else if(AssociatedMinistry.class.equals(clazz))
-        {
+        if (AssociatedMinistry.class.equals(clazz)) {
             return Contract.AssociatedMinistry.PROJECTION_ALL;
         } else if (Assignment.class.equals(clazz)) {
             return Contract.Assignment.PROJECTION_ALL;
@@ -93,12 +81,7 @@ public class MinistriesDao extends AbstractDao
     @SuppressWarnings("unchecked")
     protected <T> Mapper<T> getMapper(@NonNull final Class<T> clazz)
     {
-        if(Ministry.class.equals(clazz))
-        {
-            return (Mapper<T>) ALL_MINISTRIES_MAPPER;
-        }
-        else if(AssociatedMinistry.class.equals(clazz))
-        {
+        if (AssociatedMinistry.class.equals(clazz)) {
             return (Mapper<T>) ASSOCIATED_MINISTRIES_MAPPER;
         } else if (Assignment.class.equals(clazz)) {
             return (Mapper<T>) ASSIGNMENT_MAPPER;
@@ -116,13 +99,7 @@ public class MinistriesDao extends AbstractDao
         final int keyLength;
         final String where;
 
-        if(Ministry.class.equals(clazz))
-        {
-            keyLength = 1;
-            where = Contract.Ministry.SQL_WHERE_PRIMARY_KEY;
-        }
-        else if(AssociatedMinistry.class.equals(clazz))
-        {
+        if (AssociatedMinistry.class.equals(clazz)) {
             keyLength = 1;
             where = Contract.AssociatedMinistry.SQL_WHERE_PRIMARY_KEY;
         } else if (Assignment.class.equals(clazz)) {
@@ -153,10 +130,6 @@ public class MinistriesDao extends AbstractDao
         if(obj instanceof AssociatedMinistry)
         {
             return getPrimaryKeyWhere(AssociatedMinistry.class, ((AssociatedMinistry) obj).getMinistryId());
-        }
-        else if(obj instanceof Ministry)
-        {
-            return getPrimaryKeyWhere(Ministry.class, ((Ministry) obj).getMinistryId());
         } else if (obj instanceof Assignment) {
             return getPrimaryKeyWhere(Assignment.class, ((Assignment) obj).getGuid(),
                                       ((Assignment) obj).getMinistryId());

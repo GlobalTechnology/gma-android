@@ -7,7 +7,6 @@ import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.SYNC_ASSIGNMENTS;
 import static com.expidev.gcmapp.service.Type.SYNC_CHURCHES;
 import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_CHURCHES;
-import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
@@ -28,7 +27,6 @@ import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
-import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -42,7 +40,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -320,7 +317,7 @@ public class MinistriesService extends ThreadedIntentService {
         // only sync if being forced or the data is stale
         if (force || stale) {
             // refresh the list of ministries if the load is being forced
-            final List<Ministry> ministries = mApi.getAllMinistries();
+            final List<AssociatedMinistry> ministries = mApi.getAllMinistries();
 
             // only update the saved ministries if we received any back
             if (ministries != null) {
@@ -330,13 +327,13 @@ public class MinistriesService extends ThreadedIntentService {
                     tx.begin();
 
                     // load current ministries
-                    final Map<String, Ministry> current = new HashMap<>();
-                    for (final Ministry ministry : mDao.get(Ministry.class)) {
+                    final Map<String, AssociatedMinistry> current = new HashMap<>();
+                    for (final AssociatedMinistry ministry : mDao.get(AssociatedMinistry.class)) {
                         current.put(ministry.getMinistryId(), ministry);
                     }
 
                     // update all the ministry names
-                    for (final Ministry ministry : ministries) {
+                    for (final AssociatedMinistry ministry : ministries) {
                         // this is only a very minimal update, so don't log last synced for new ministries
                         ministry.setLastSynced(0);
                         mDao.updateOrInsert(ministry, new String[] {Contract.Ministry.COLUMN_NAME});
@@ -346,7 +343,7 @@ public class MinistriesService extends ThreadedIntentService {
                     }
 
                     // remove any current ministries we didn't see, we can do this because we just retrieved a complete list
-                    for (final Ministry ministry : current.values()) {
+                    for (final AssociatedMinistry ministry : current.values()) {
                         mDao.delete(ministry);
                     }
 
@@ -357,7 +354,6 @@ public class MinistriesService extends ThreadedIntentService {
 
                     // send broadcasts that data has been updated in the database
                     broadcastManager.sendBroadcast(BroadcastUtils.updateMinistriesBroadcast());
-                    broadcastManager.sendBroadcast(allMinistriesReceivedBroadcast((ArrayList<Ministry>) ministries));
                 } finally {
                     tx.end();
                 }

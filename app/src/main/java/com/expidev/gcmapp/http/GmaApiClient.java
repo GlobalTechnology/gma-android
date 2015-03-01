@@ -11,9 +11,9 @@ import android.util.Log;
 import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.http.GmaApiClient.Session;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
-import com.expidev.gcmapp.json.MinistryJsonParser;
 import com.expidev.gcmapp.json.TrainingJsonParser;
 import com.expidev.gcmapp.model.Assignment;
+import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
@@ -200,12 +200,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Nullable
-    public List<Ministry> getAllMinistries() throws ApiException {
+    public List<AssociatedMinistry> getAllMinistries() throws ApiException {
         return this.getAllMinistries(false);
     }
 
     @Nullable
-    public List<Ministry> getAllMinistries(final boolean refresh) throws ApiException {
+    public List<AssociatedMinistry> getAllMinistries(final boolean refresh) throws ApiException {
         // build request
         final Request<Session> request = new Request<>(MINISTRIES);
         request.params.add(param("refresh", refresh));
@@ -220,8 +220,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                final JSONArray json = new JSONArray(IOUtils.readString(conn.getInputStream()));
-                return MinistryJsonParser.parseMinistriesJson(json);
+                return AssociatedMinistry.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
             Log.e(TAG, "error parsing getAllMinistries response", e);

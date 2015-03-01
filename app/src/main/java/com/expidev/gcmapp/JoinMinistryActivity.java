@@ -24,7 +24,6 @@ import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.AssociatedMinistry;
-import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.tasks.CreateAssignmentTask;
 
@@ -71,7 +70,7 @@ public class JoinMinistryActivity extends ActionBarActivity
         if (mMinistriesTextView != null) {
             // create & attach adapter
             mMinistriesAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_dropdown_item_1line, null,
-                                                         new String[] {Contract.Ministry.COLUMN_NAME},
+                                                         new String[] {Contract.AssociatedMinistry.COLUMN_NAME},
                                                          new int[] {android.R.id.text1}, 0);
             final MinistriesCursorProvider provider = new MinistriesCursorProvider(this);
             mMinistriesAdapter.setFilterQueryProvider(provider);
@@ -131,15 +130,10 @@ public class JoinMinistryActivity extends ActionBarActivity
     @Nullable
     private AssociatedMinistry getMinistryByName(final String name) {
         //TODO: we shouldn't be using the DB on the UI Thread
-        final List<Ministry> ministries =
-                mDao.get(Ministry.class, Contract.Ministry.COLUMN_NAME + "=?", new String[] {name});
+        final List<AssociatedMinistry> ministries =
+                mDao.get(AssociatedMinistry.class, Contract.Ministry.COLUMN_NAME + "=?", new String[] {name});
         if (ministries.size() > 0) {
-            final Ministry ministry = ministries.get(0);
-            AssociatedMinistry associatedMinistry = new AssociatedMinistry();
-            associatedMinistry.setMinistryId(ministry.getMinistryId());
-            associatedMinistry.setName(ministry.getName());
-            associatedMinistry.setLastSynced(ministry.getLastSynced());
-            return associatedMinistry;
+            return ministries.get(0);
         }
 
         return null;
@@ -187,23 +181,23 @@ public class JoinMinistryActivity extends ActionBarActivity
         }
 
         private static final String[] PROJECTION_FIELDS =
-                new String[] {Contract.Ministry.COLUMN_ROWID, Contract.Ministry.COLUMN_NAME};
-        private static final String ORDER_BY_NAME = Contract.Ministry.COLUMN_NAME;
-        private static final String WHERE_NAME_LIKE = Contract.Ministry.COLUMN_NAME + " LIKE ?";
+                new String[] {Contract.AssociatedMinistry.COLUMN_ROWID, Contract.AssociatedMinistry.COLUMN_NAME};
+        private static final String ORDER_BY_NAME = Contract.AssociatedMinistry.COLUMN_NAME;
+        private static final String WHERE_NAME_LIKE = Contract.AssociatedMinistry.COLUMN_NAME + " LIKE ?";
 
         @Override
         public Cursor runQuery(final CharSequence constraint) {
             if (TextUtils.isEmpty(constraint)) {
-                return mDao.getCursor(Ministry.class, PROJECTION_FIELDS, null, null, ORDER_BY_NAME);
+                return mDao.getCursor(AssociatedMinistry.class, PROJECTION_FIELDS, null, null, ORDER_BY_NAME);
             } else {
-                return mDao.getCursor(Ministry.class, PROJECTION_FIELDS, WHERE_NAME_LIKE,
+                return mDao.getCursor(AssociatedMinistry.class, PROJECTION_FIELDS, WHERE_NAME_LIKE,
                                       new String[] {"%" + constraint + "%"}, ORDER_BY_NAME);
             }
         }
 
         @Override
         public CharSequence convertToString(final Cursor cursor) {
-            return CursorUtils.getString(cursor, Contract.Ministry.COLUMN_NAME, "");
+            return CursorUtils.getString(cursor, Contract.AssociatedMinistry.COLUMN_NAME, "");
         }
     }
 }
