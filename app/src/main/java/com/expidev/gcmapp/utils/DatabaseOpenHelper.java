@@ -23,8 +23,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      * 10: 2015-02-24
      * 11: 2015-02-23
      * 13: 2015-02-26
+     * 14: 2015-03-01
      */
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 14;
     private static final String DATABASE_NAME = "gcm_data.db";
 
     private static final Object LOCK_INSTANCE = new Object();
@@ -52,7 +53,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         Log.i(TAG, "Creating database...");
         createAssociatedMinistryTable(db);
         createAssignmentsTable(db);
-        createAllMinistriesTable(db);
         createTrainingTables(db);
         db.execSQL(Contract.Church.SQL_CREATE_TABLE);
         createMeasurementsTables(db);
@@ -90,6 +90,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
                 case 13:
                     db.execSQL(Contract.Measurement.SQL_V13_ALTER_SORT);
                     break;
+                case 14:
+                    db.execSQL(Contract.Ministry.SQL_DELETE_TABLE);
+                    break;
                 default:
                     // unrecognized version, let's just reset the database and return
                     resetDatabase(db);
@@ -114,8 +117,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     }
 
     /**
-     * This table holds information for ministries the current user
-     * has already joined or requested to join.
+     * This table holds information for ministries in GMA.
      */
     private void createAssociatedMinistryTable(SQLiteDatabase db)
     {
@@ -137,16 +139,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     {
         db.execSQL(Contract.Training.SQL_CREATE_TABLE);
         db.execSQL(Contract.Training.Completion.SQL_CREATE_TABLE);
-    }
-
-    /**
-     * This table holds information for all ministries on the server
-     * that are visible for the autocomplete text field on the
-     * Join Ministry page.
-     */
-    private void createAllMinistriesTable(SQLiteDatabase db)
-    {
-        db.execSQL(Contract.Ministry.SQL_CREATE_TABLE);
     }
 
     /**
