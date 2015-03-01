@@ -131,7 +131,7 @@ public class JoinMinistryActivity extends ActionBarActivity
     private Ministry getMinistryByName(final String name) {
         //TODO: we shouldn't be using the DB on the UI Thread
         final List<Ministry> ministries =
-                mDao.get(Ministry.class, Contract.Ministry.COLUMN_NAME + "=?", new String[] {name});
+                mDao.get(Ministry.class, Contract.AssociatedMinistry.COLUMN_NAME + "=?", new String[] {name});
         if (ministries.size() > 0) {
             return ministries.get(0);
         }

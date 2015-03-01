@@ -98,27 +98,19 @@ public class Contract {
         }
     }
 
-    public static abstract class MinistryBase extends Base implements MinistryId {
-        public static final String COLUMN_NAME = "name";
+    @Deprecated
+    public static final class LegacyTables {
+        private static final String ALL_MINISTRIES_TABLE_NAME = "all_ministries";
 
-        static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
-        static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_MINISTRY_ID + ")";
-
-        static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_MINISTRY;
+        public static final String SQL_DELETE_ALL_MINISTRIES_TABLE =
+                "DROP TABLE IF EXISTS " + ALL_MINISTRIES_TABLE_NAME;
     }
 
-    public static final class Ministry extends MinistryBase
-    {
-        public static final String TABLE_NAME = "all_ministries";
-
-        public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
-    }
-
-    public static final class AssociatedMinistry extends MinistryBase
-    {
+    public static final class AssociatedMinistry extends Base implements MinistryId {
         public static final String TABLE_NAME = "associated_ministries";
 
         static final String COLUMN_MIN_CODE = "min_code";
+        public static final String COLUMN_NAME = "name";
         static final String COLUMN_HAS_SLM = "has_slm";
         static final String COLUMN_HAS_LLM = "has_llm";
         static final String COLUMN_HAS_DS = "has_ds";
@@ -133,6 +125,7 @@ public class Contract {
                         COLUMN_HAS_GCM, COLUMN_LATITUDE, COLUMN_LONGITUDE, COLUMN_LOCATION_ZOOM,
                         COLUMN_PARENT_MINISTRY_ID, COLUMN_LAST_SYNCED};
 
+        static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_MIN_CODE = COLUMN_MIN_CODE + " TEXT";
         private static final String SQL_COLUMN_HAS_SLM = COLUMN_HAS_SLM + " INTEGER";
         private static final String SQL_COLUMN_HAS_LLM = COLUMN_HAS_LLM + " INTEGER";
@@ -142,9 +135,11 @@ public class Contract {
         private static final String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
         private static final String SQL_COLUMN_LOCATION_ZOOM = COLUMN_LOCATION_ZOOM + " INTEGER";
         private static final String SQL_COLUMN_PARENT_MINISTRY_ID = COLUMN_PARENT_MINISTRY_ID + " TEXT";
+        static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_MINISTRY_ID + ")";
 
         private static final String SQL_PREFIX = TABLE_NAME + ".";
 
+        static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_MINISTRY;
         static final String SQL_WHERE_PARENT = COLUMN_PARENT_MINISTRY_ID + " = ?";
 
         private static final String SQL_JOIN_ON_ASSIGNMENT =

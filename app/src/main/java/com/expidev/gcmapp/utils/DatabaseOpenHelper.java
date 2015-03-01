@@ -91,7 +91,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
                     db.execSQL(Contract.Measurement.SQL_V13_ALTER_SORT);
                     break;
                 case 14:
-                    db.execSQL(Contract.Ministry.SQL_DELETE_TABLE);
+                    db.execSQL(Contract.LegacyTables.SQL_DELETE_ALL_MINISTRIES_TABLE);
                     break;
                 default:
                     // unrecognized version, let's just reset the database and return
@@ -161,7 +161,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL(Contract.Training.Completion.SQL_DELETE_TABLE);
         db.execSQL(Contract.Training.SQL_DELETE_TABLE);
         db.execSQL(Contract.AssociatedMinistry.SQL_DELETE_TABLE);
-        db.execSQL(Contract.Ministry.SQL_DELETE_TABLE);
+        db.execSQL(Contract.LegacyTables.SQL_DELETE_ALL_MINISTRIES_TABLE);
         db.execSQL(Contract.Assignment.SQL_DELETE_TABLE);
         db.execSQL(Contract.Measurement.SQL_DELETE_TABLE);
         db.execSQL(Contract.MeasurementDetails.SQL_DELETE_TABLE);
