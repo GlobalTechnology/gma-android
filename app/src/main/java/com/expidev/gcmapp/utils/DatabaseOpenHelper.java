@@ -26,8 +26,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      * v0.8.0
      * 14: 2015-03-01
      * 15: 2015-03-01
+     * 16: 2015-03-01
      */
-    private static final int DATABASE_VERSION = 15;
+    private static final int DATABASE_VERSION = 16;
     private static final String DATABASE_NAME = "gcm_data.db";
 
     private static final Object LOCK_INSTANCE = new Object();
@@ -97,6 +98,10 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
                     break;
                 case 15:
                     db.execSQL(Contract.Ministry.SQL_V15_RENAME_TABLE);
+                    break;
+                case 16:
+                    db.execSQL(Contract.Ministry.SQL_V16_MCCS);
+                    // XXX: we should have converted legacy data, but because we have no real users yet I'm skipping it -DF
                     break;
                 default:
                     // unrecognized version, let's just reset the database and return
