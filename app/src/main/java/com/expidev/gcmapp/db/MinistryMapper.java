@@ -17,37 +17,37 @@ public class MinistryMapper extends BaseMapper<Ministry> {
         @NonNull final Ministry ministry) {
         switch (field)
         {
-            case Contract.AssociatedMinistry.COLUMN_MINISTRY_ID:
+            case Contract.Ministry.COLUMN_MINISTRY_ID:
                 values.put(field, ministry.getMinistryId());
                 break;
-            case Contract.AssociatedMinistry.COLUMN_NAME:
+            case Contract.Ministry.COLUMN_NAME:
                 values.put(field, ministry.getName());
                 break;
-            case Contract.AssociatedMinistry.COLUMN_MIN_CODE:
+            case Contract.Ministry.COLUMN_MIN_CODE:
                 values.put(field, ministry.getMinistryCode());
                 break;
-            case Contract.AssociatedMinistry.COLUMN_HAS_SLM:
+            case Contract.Ministry.COLUMN_HAS_SLM:
                 values.put(field, ministry.hasSlm() ? 1 : 0);
                 break;
-            case Contract.AssociatedMinistry.COLUMN_HAS_LLM:
+            case Contract.Ministry.COLUMN_HAS_LLM:
                 values.put(field, ministry.hasLlm() ? 1 : 0);
                 break;
-            case Contract.AssociatedMinistry.COLUMN_HAS_DS:
+            case Contract.Ministry.COLUMN_HAS_DS:
                 values.put(field, ministry.hasDs() ? 1 : 0);
                 break;
-            case Contract.AssociatedMinistry.COLUMN_HAS_GCM:
+            case Contract.Ministry.COLUMN_HAS_GCM:
                 values.put(field, ministry.hasGcm() ? 1 : 0);
                 break;
-            case Contract.AssociatedMinistry.COLUMN_LATITUDE:
+            case Contract.Ministry.COLUMN_LATITUDE:
                 values.put(field, ministry.getLatitude());
                 break;
-            case Contract.AssociatedMinistry.COLUMN_LONGITUDE:
+            case Contract.Ministry.COLUMN_LONGITUDE:
                 values.put(field, ministry.getLongitude());
                 break;
-            case Contract.AssociatedMinistry.COLUMN_LOCATION_ZOOM:
+            case Contract.Ministry.COLUMN_LOCATION_ZOOM:
                 values.put(field, ministry.getLocationZoom());
                 break;
-            case Contract.AssociatedMinistry.COLUMN_PARENT_MINISTRY_ID:
+            case Contract.Ministry.COLUMN_PARENT_MINISTRY_ID:
                 values.put(field, ministry.getParentMinistryId());
                 break;
             default:
@@ -64,21 +64,20 @@ public class MinistryMapper extends BaseMapper<Ministry> {
 
     @NonNull
     @Override
-    public Ministry toObject(@NonNull final Cursor cursor) {
-        final Ministry ministry = super.toObject(cursor);
+    public Ministry toObject(@NonNull final Cursor c) {
+        final Ministry ministry = super.toObject(c);
 
-        ministry.setMinistryId(
-                getNonNullString(cursor, Contract.AssociatedMinistry.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
-        ministry.setParentMinistryId(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_PARENT_MINISTRY_ID, null));
-        ministry.setName(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_NAME, null));
-        ministry.setMinistryCode(this.getString(cursor, Contract.AssociatedMinistry.COLUMN_MIN_CODE, null));
-        ministry.setHasGcm(this.getBool(cursor, Contract.AssociatedMinistry.COLUMN_HAS_GCM, false));
-        ministry.setHasSlm(this.getBool(cursor, Contract.AssociatedMinistry.COLUMN_HAS_SLM, false));
-        ministry.setHasDs(this.getBool(cursor, Contract.AssociatedMinistry.COLUMN_HAS_DS, false));
-        ministry.setHasLlm(this.getBool(cursor, Contract.AssociatedMinistry.COLUMN_HAS_LLM, false));
-        ministry.setLatitude(this.getDouble(cursor, Contract.AssociatedMinistry.COLUMN_LATITUDE, 0));
-        ministry.setLongitude(this.getDouble(cursor, Contract.AssociatedMinistry.COLUMN_LONGITUDE, 0));
-        ministry.setLocationZoom(this.getInt(cursor, Contract.AssociatedMinistry.COLUMN_LOCATION_ZOOM, 0));
+        ministry.setMinistryId(getNonNullString(c, Contract.Ministry.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
+        ministry.setParentMinistryId(getString(c, Contract.Ministry.COLUMN_PARENT_MINISTRY_ID, null));
+        ministry.setName(getString(c, Contract.Ministry.COLUMN_NAME, null));
+        ministry.setMinistryCode(getString(c, Contract.Ministry.COLUMN_MIN_CODE, null));
+        ministry.setHasGcm(getBool(c, Contract.Ministry.COLUMN_HAS_GCM, false));
+        ministry.setHasSlm(getBool(c, Contract.Ministry.COLUMN_HAS_SLM, false));
+        ministry.setHasDs(getBool(c, Contract.Ministry.COLUMN_HAS_DS, false));
+        ministry.setHasLlm(getBool(c, Contract.Ministry.COLUMN_HAS_LLM, false));
+        ministry.setLatitude(getDouble(c, Contract.Ministry.COLUMN_LATITUDE, 0));
+        ministry.setLongitude(getDouble(c, Contract.Ministry.COLUMN_LONGITUDE, 0));
+        ministry.setLocationZoom(getInt(c, Contract.Ministry.COLUMN_LOCATION_ZOOM, 0));
 
         return ministry;
     }

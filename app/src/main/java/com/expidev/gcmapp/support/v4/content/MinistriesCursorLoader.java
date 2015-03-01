@@ -34,8 +34,7 @@ public class MinistriesCursorLoader extends CursorBroadcastReceiverLoader {
     }
 
     private static final String[] PROJECTION =
-            {Contract.AssociatedMinistry.COLUMN_ROWID, Contract.AssociatedMinistry.COLUMN_MINISTRY_ID,
-                    Contract.AssociatedMinistry.COLUMN_NAME};
+            {Contract.Ministry.COLUMN_ROWID, Contract.Ministry.COLUMN_MINISTRY_ID, Contract.Ministry.COLUMN_NAME};
 
     @Override
     protected Cursor getCursor() {
@@ -44,8 +43,7 @@ public class MinistriesCursorLoader extends CursorBroadcastReceiverLoader {
             return null;
         }
 
-        return mDao.getCursor(Ministry.class, Contract.AssociatedMinistry.JOIN_ASSIGNMENT, PROJECTION,
-                              Contract.Assignment.SQL_WHERE_GUID, bindValues(mGuid),
-                              Contract.AssociatedMinistry.COLUMN_NAME);
+        return mDao.getCursor(Ministry.class, Contract.Ministry.JOIN_ASSIGNMENT, PROJECTION,
+                              Contract.Assignment.SQL_WHERE_GUID, bindValues(mGuid), Contract.Ministry.COLUMN_NAME);
     }
 }

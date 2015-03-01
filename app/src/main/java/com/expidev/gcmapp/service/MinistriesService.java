@@ -336,7 +336,7 @@ public class MinistriesService extends ThreadedIntentService {
                     for (final Ministry ministry : ministries) {
                         // this is only a very minimal update, so don't log last synced for new ministries
                         ministry.setLastSynced(0);
-                        mDao.updateOrInsert(ministry, new String[] {Contract.AssociatedMinistry.COLUMN_NAME});
+                        mDao.updateOrInsert(ministry, new String[] {Contract.Ministry.COLUMN_NAME});
 
                         // remove from the list of current ministries
                         current.remove(ministry.getMinistryId());
@@ -399,7 +399,7 @@ public class MinistriesService extends ThreadedIntentService {
                 // update the associated ministry
                 final Ministry ministry = assignment.getMinistry();
                 if (ministry != null) {
-                    mDao.updateOrInsert(ministry, Contract.AssociatedMinistry.PROJECTION_ALL);
+                    mDao.updateOrInsert(ministry, Contract.Ministry.PROJECTION_ALL);
                 }
 
                 // now update the actual assignment

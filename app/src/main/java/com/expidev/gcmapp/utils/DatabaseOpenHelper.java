@@ -121,7 +121,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      */
     private void createAssociatedMinistryTable(SQLiteDatabase db)
     {
-        db.execSQL(Contract.AssociatedMinistry.SQL_CREATE_TABLE);
+        db.execSQL(Contract.Ministry.SQL_CREATE_TABLE);
     }
 
     /**
@@ -160,7 +160,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     {
         db.execSQL(Contract.Training.Completion.SQL_DELETE_TABLE);
         db.execSQL(Contract.Training.SQL_DELETE_TABLE);
-        db.execSQL(Contract.AssociatedMinistry.SQL_DELETE_TABLE);
+        db.execSQL(Contract.Ministry.SQL_DELETE_TABLE);
         db.execSQL(Contract.LegacyTables.SQL_DELETE_ALL_MINISTRIES_TABLE);
         db.execSQL(Contract.Assignment.SQL_DELETE_TABLE);
         db.execSQL(Contract.Measurement.SQL_DELETE_TABLE);

@@ -123,8 +123,9 @@ public class SettingsFragment extends PreferenceFragment {
                 mMinistries.moveToPosition(-1);
                 int i = 0;
                 while (mMinistries.moveToNext()) {
-                    names[i] = CursorUtils.getString(mMinistries, Contract.AssociatedMinistry.COLUMN_NAME, null);
-                    ids[i] = CursorUtils.getString(mMinistries, Contract.AssociatedMinistry.COLUMN_MINISTRY_ID, null);
+                    names[i] = CursorUtils.getString(mMinistries, Contract.Ministry.COLUMN_NAME, null);
+                    ids[i] = CursorUtils.getNonNullString(mMinistries, Contract.Ministry.COLUMN_MINISTRY_ID,
+                                                          Ministry.INVALID_ID);
                     i++;
                 }
             }

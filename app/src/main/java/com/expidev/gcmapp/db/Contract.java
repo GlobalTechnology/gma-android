@@ -106,7 +106,7 @@ public class Contract {
                 "DROP TABLE IF EXISTS " + ALL_MINISTRIES_TABLE_NAME;
     }
 
-    public static final class AssociatedMinistry extends Base implements MinistryId {
+    public static final class Ministry extends Base implements MinistryId {
         public static final String TABLE_NAME = "associated_ministries";
 
         static final String COLUMN_MIN_CODE = "min_code";
@@ -175,8 +175,8 @@ public class Contract {
         private static final String SQL_COLUMN_ID = COLUMN_ID + " TEXT";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_GUID + "," + COLUMN_MINISTRY_ID + ")";
         private static final String SQL_FOREIGN_KEY_MINISTRIES =
-                "FOREIGN KEY(" + COLUMN_MINISTRY_ID + ") REFERENCES " + AssociatedMinistry.TABLE_NAME + "(" +
-                        AssociatedMinistry.COLUMN_MINISTRY_ID + ")";
+                "FOREIGN KEY(" + COLUMN_MINISTRY_ID + ") REFERENCES " + Ministry.TABLE_NAME + "(" +
+                        Ministry.COLUMN_MINISTRY_ID + ")";
 
         private static final String SQL_PREFIX = TABLE_NAME + ".";
 

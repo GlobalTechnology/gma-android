@@ -70,7 +70,7 @@ public class JoinMinistryActivity extends ActionBarActivity
         if (mMinistriesTextView != null) {
             // create & attach adapter
             mMinistriesAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_dropdown_item_1line, null,
-                                                         new String[] {Contract.AssociatedMinistry.COLUMN_NAME},
+                                                         new String[] {Contract.Ministry.COLUMN_NAME},
                                                          new int[] {android.R.id.text1}, 0);
             final MinistriesCursorProvider provider = new MinistriesCursorProvider(this);
             mMinistriesAdapter.setFilterQueryProvider(provider);
@@ -131,7 +131,7 @@ public class JoinMinistryActivity extends ActionBarActivity
     private Ministry getMinistryByName(final String name) {
         //TODO: we shouldn't be using the DB on the UI Thread
         final List<Ministry> ministries =
-                mDao.get(Ministry.class, Contract.AssociatedMinistry.COLUMN_NAME + "=?", new String[] {name});
+                mDao.get(Ministry.class, Contract.Ministry.COLUMN_NAME + "=?", new String[] {name});
         if (ministries.size() > 0) {
             return ministries.get(0);
         }
@@ -181,9 +181,9 @@ public class JoinMinistryActivity extends ActionBarActivity
         }
 
         private static final String[] PROJECTION_FIELDS =
-                new String[] {Contract.AssociatedMinistry.COLUMN_ROWID, Contract.AssociatedMinistry.COLUMN_NAME};
-        private static final String ORDER_BY_NAME = Contract.AssociatedMinistry.COLUMN_NAME;
-        private static final String WHERE_NAME_LIKE = Contract.AssociatedMinistry.COLUMN_NAME + " LIKE ?";
+                new String[] {Contract.Ministry.COLUMN_ROWID, Contract.Ministry.COLUMN_NAME};
+        private static final String ORDER_BY_NAME = Contract.Ministry.COLUMN_NAME;
+        private static final String WHERE_NAME_LIKE = Contract.Ministry.COLUMN_NAME + " LIKE ?";
 
         @Override
         public Cursor runQuery(final CharSequence constraint) {
@@ -197,7 +197,7 @@ public class JoinMinistryActivity extends ActionBarActivity
 
         @Override
         public CharSequence convertToString(final Cursor cursor) {
-            return CursorUtils.getString(cursor, Contract.AssociatedMinistry.COLUMN_NAME, "");
+            return CursorUtils.getString(cursor, Contract.Ministry.COLUMN_NAME, "");
         }
     }
 }

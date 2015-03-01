@@ -51,7 +51,7 @@ public class MinistriesDao extends AbstractDao
     protected String getTable(@NonNull final Class<?> clazz)
     {
         if (Ministry.class.equals(clazz)) {
-            return Contract.AssociatedMinistry.TABLE_NAME;
+            return Contract.Ministry.TABLE_NAME;
         } else if (Assignment.class.equals(clazz)) {
             return Contract.Assignment.TABLE_NAME;
         } else if(Church.class.equals(clazz)) {
@@ -66,7 +66,7 @@ public class MinistriesDao extends AbstractDao
     protected String[] getFullProjection(@NonNull final Class<?> clazz)
     {
         if (Ministry.class.equals(clazz)) {
-            return Contract.AssociatedMinistry.PROJECTION_ALL;
+            return Contract.Ministry.PROJECTION_ALL;
         } else if (Assignment.class.equals(clazz)) {
             return Contract.Assignment.PROJECTION_ALL;
         } else if (Church.class.equals(clazz)) {
@@ -101,7 +101,7 @@ public class MinistriesDao extends AbstractDao
 
         if (Ministry.class.equals(clazz)) {
             keyLength = 1;
-            where = Contract.AssociatedMinistry.SQL_WHERE_PRIMARY_KEY;
+            where = Contract.Ministry.SQL_WHERE_PRIMARY_KEY;
         } else if (Assignment.class.equals(clazz)) {
             keyLength = 2;
             where = Contract.Assignment.SQL_WHERE_PRIMARY_KEY;
