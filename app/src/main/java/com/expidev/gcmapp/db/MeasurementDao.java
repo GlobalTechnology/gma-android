@@ -315,7 +315,7 @@ public class MeasurementDao extends AbstractDao
     private void saveMeasurementTypeIds(
         MeasurementTypeIds ids,
         String measurementId,
-        String ministryId,
+        @NonNull final String ministryId,
         @NonNull final Ministry.Mcc mcc,
         String period)
     {
@@ -329,7 +329,7 @@ public class MeasurementDao extends AbstractDao
     private void saveSixMonthAmounts(
         List<SixMonthAmounts> amounts,
         String measurementId,
-        String ministryId,
+        @NonNull final String ministryId,
         @NonNull final Ministry.Mcc mcc,
         String period)
     {
@@ -346,7 +346,7 @@ public class MeasurementDao extends AbstractDao
     private void saveBreakdownData(
         List<BreakdownData> breakdownDataList,
         String measurementId,
-        String ministryId,
+        @NonNull final String ministryId,
         @NonNull final Ministry.Mcc mcc,
         String period)
     {
@@ -363,7 +363,7 @@ public class MeasurementDao extends AbstractDao
     private void saveTeamMemberDetails(
         List<TeamMemberDetails> teamMemberDetailsList,
         String measurementId,
-        String ministryId,
+        @NonNull final String ministryId,
         @NonNull final Ministry.Mcc mcc,
         String period)
     {
@@ -380,7 +380,7 @@ public class MeasurementDao extends AbstractDao
     private void saveSubMinistryDetails(
         List<SubMinistryDetails> subMinistryDetailsList,
         String measurementId,
-        String ministryId,
+        @NonNull final String ministryId,
         @NonNull final Ministry.Mcc mcc,
         String period)
     {

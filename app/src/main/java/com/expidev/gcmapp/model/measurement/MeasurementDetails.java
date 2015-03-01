@@ -17,7 +17,8 @@ public class MeasurementDetails extends Base implements Serializable
     private static final long serialVersionUID = 0L;
 
     private String measurementId;
-    private String ministryId;
+    @NonNull
+    private String ministryId = Ministry.INVALID_ID;
     @NonNull
     private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
     private String period;
@@ -49,13 +50,13 @@ public class MeasurementDetails extends Base implements Serializable
         this.measurementId = measurementId;
     }
 
+    @NonNull
     public String getMinistryId()
     {
         return ministryId;
     }
 
-    public void setMinistryId(String ministryId)
-    {
+    public void setMinistryId(@NonNull final String ministryId) {
         this.ministryId = ministryId;
     }
 

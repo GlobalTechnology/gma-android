@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 
 /**
@@ -57,7 +58,8 @@ public class MeasurementDetailsMapper extends BaseMapper<MeasurementDetails>
         final MeasurementDetails measurementDetails = super.toObject(cursor);
 
         measurementDetails.setMeasurementId(this.getString(cursor, Contract.MeasurementDetails.COLUMN_MEASUREMENT_ID, null));
-        measurementDetails.setMinistryId(this.getString(cursor, Contract.MeasurementDetails.COLUMN_MINISTRY_ID, null));
+        measurementDetails.setMinistryId(
+                getNonNullString(cursor, Contract.MeasurementDetails.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
         measurementDetails.setMcc(this.getString(cursor, Contract.MeasurementDetails.COLUMN_MCC, null));
         measurementDetails.setPeriod(this.getString(cursor, Contract.MeasurementDetails.COLUMN_PERIOD, null));
         measurementDetails.setLocalValue(this.getInt(cursor, Contract.MeasurementDetails.COLUMN_LOCAL_AMOUNT, 0));
