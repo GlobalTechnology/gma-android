@@ -108,13 +108,13 @@ public class Contract {
     public static final class Ministry extends Base implements MinistryId {
         public static final String TABLE_NAME = "ministries";
 
-        static final String COLUMN_MIN_CODE = "min_code";
+        public static final String COLUMN_MIN_CODE = "min_code";
         public static final String COLUMN_NAME = "name";
-        static final String COLUMN_MCCS = "mccs";
-        static final String COLUMN_LATITUDE = "latitude";
-        static final String COLUMN_LONGITUDE = "longitude";
-        static final String COLUMN_LOCATION_ZOOM = "location_zoom";
-        static final String COLUMN_PARENT_MINISTRY_ID = "parent_ministry_id";
+        public static final String COLUMN_MCCS = "mccs";
+        public static final String COLUMN_LATITUDE = "latitude";
+        public static final String COLUMN_LONGITUDE = "longitude";
+        public static final String COLUMN_LOCATION_ZOOM = "location_zoom";
+        public static final String COLUMN_PARENT_MINISTRY_ID = "parent_ministry_id";
 
         public static final String[] PROJECTION_ALL =
                 {COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_MIN_CODE, COLUMN_MCCS, COLUMN_LATITUDE, COLUMN_LONGITUDE,

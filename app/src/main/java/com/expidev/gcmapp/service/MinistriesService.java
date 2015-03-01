@@ -388,6 +388,15 @@ public class MinistriesService extends ThreadedIntentService {
                 existing.put(assignment.getMinistryId(), assignment);
             }
 
+            // column projections for updates
+            final String[] PROJECTION_ASSIGNMENT = {Contract.Assignment.COLUMN_ROLE, Contract.Assignment.COLUMN_ID,
+                    Contract.Assignment.COLUMN_LAST_SYNCED};
+            final String[] PROJECTION_MINISTRY =
+                    {Contract.Ministry.COLUMN_NAME, Contract.Ministry.COLUMN_MIN_CODE, Contract.Ministry.COLUMN_MCCS,
+                            Contract.Ministry.COLUMN_LATITUDE, Contract.Ministry.COLUMN_LONGITUDE,
+                            Contract.Ministry.COLUMN_LOCATION_ZOOM, Contract.Ministry.COLUMN_PARENT_MINISTRY_ID,
+                            Contract.Ministry.COLUMN_LAST_SYNCED};
+
             // update assignments in local database
             final LinkedList<Assignment> toProcess = new LinkedList<>(assignments);
             while (toProcess.size() > 0) {
@@ -396,15 +405,14 @@ public class MinistriesService extends ThreadedIntentService {
                 // set the guid on this assignment
                 assignment.setGuid(guid);
 
-                // update the associated ministry
+                // update the ministry
                 final Ministry ministry = assignment.getMinistry();
                 if (ministry != null) {
-                    mDao.updateOrInsert(ministry, Contract.Ministry.PROJECTION_ALL);
+                    mDao.updateOrInsert(ministry, PROJECTION_MINISTRY);
                 }
 
                 // now update the actual assignment
-                mDao.updateOrInsert(assignment, new String[] {Contract.Assignment.COLUMN_ROLE,
-                        Contract.Assignment.COLUMN_ID, Contract.Assignment.COLUMN_LAST_SYNCED});
+                mDao.updateOrInsert(assignment, PROJECTION_ASSIGNMENT);
 
                 // queue up sub assignments for processing
                 toProcess.addAll(assignment.getSubAssignments());
