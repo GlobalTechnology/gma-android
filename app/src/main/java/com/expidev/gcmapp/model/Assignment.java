@@ -95,7 +95,7 @@ public class Assignment extends Base implements Cloneable, Serializable {
         }
 
         // parse the merged ministry object
-        assignment.setMinistry(AssociatedMinistry.fromJson(json));
+        assignment.setMinistry(Ministry.fromJson(json));
 
         return assignment;
     }
