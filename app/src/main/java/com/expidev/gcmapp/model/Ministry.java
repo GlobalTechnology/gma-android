@@ -194,54 +194,6 @@ public class Ministry extends Base implements Serializable
         this.mccs.remove(mcc);
     }
 
-    public boolean hasSlm() {
-        return hasMcc(Mcc.SLM);
-    }
-
-    public void setHasSlm(boolean hasSlm) {
-        if (hasSlm) {
-            this.mccs.add(Mcc.SLM);
-        } else {
-            this.mccs.remove(Mcc.SLM);
-        }
-    }
-
-    public boolean hasLlm() {
-        return hasMcc(Mcc.LLM);
-    }
-
-    public void setHasLlm(boolean hasLlm) {
-        if (hasLlm) {
-            this.mccs.add(Mcc.LLM);
-        } else {
-            this.mccs.remove(Mcc.LLM);
-        }
-    }
-
-    public boolean hasDs() {
-        return hasMcc(Mcc.DS);
-    }
-
-    public void setHasDs(boolean hasDs) {
-        if (hasDs) {
-            this.mccs.add(Mcc.DS);
-        } else {
-            this.mccs.remove(Mcc.DS);
-        }
-    }
-
-    public boolean hasGcm() {
-        return hasMcc(Mcc.GCM);
-    }
-
-    public void setHasGcm(boolean hasGcm) {
-        if (hasGcm) {
-            this.mccs.add(Mcc.GCM);
-        } else {
-            this.mccs.remove(Mcc.GCM);
-        }
-    }
-
     public double getLatitude() {
         return latitude;
     }
