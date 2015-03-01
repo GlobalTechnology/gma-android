@@ -154,8 +154,8 @@ public class Contract {
 
         private static final String SQL_JOIN_ON_ASSIGNMENT =
                 SQL_PREFIX + COLUMN_MINISTRY_ID + " = " + Assignment.SQL_PREFIX + Assignment.COLUMN_MINISTRY_ID;
-        public static final Join<com.expidev.gcmapp.model.AssociatedMinistry, com.expidev.gcmapp.model.Assignment>
-                JOIN_ASSIGNMENT = Join.create(com.expidev.gcmapp.model.AssociatedMinistry.class,
+        public static final Join<com.expidev.gcmapp.model.Ministry, com.expidev.gcmapp.model.Assignment>
+                JOIN_ASSIGNMENT = Join.create(com.expidev.gcmapp.model.Ministry.class,
                                               com.expidev.gcmapp.model.Assignment.class).on(SQL_JOIN_ON_ASSIGNMENT);
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" + TextUtils

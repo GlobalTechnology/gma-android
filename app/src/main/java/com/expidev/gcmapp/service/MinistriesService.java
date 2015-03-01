@@ -25,7 +25,6 @@ import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.model.Assignment;
-import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.BroadcastUtils;
@@ -318,7 +317,7 @@ public class MinistriesService extends ThreadedIntentService {
         // only sync if being forced or the data is stale
         if (force || stale) {
             // refresh the list of ministries if the load is being forced
-            final List<? extends Ministry> ministries = mApi.getAllMinistries();
+            final List<Ministry> ministries = mApi.getAllMinistries();
 
             // only update the saved ministries if we received any back
             if (ministries != null) {
@@ -329,7 +328,7 @@ public class MinistriesService extends ThreadedIntentService {
 
                     // load current ministries
                     final Map<String, Ministry> current = new HashMap<>();
-                    for (final Ministry ministry : mDao.get(AssociatedMinistry.class)) {
+                    for (final Ministry ministry : mDao.get(Ministry.class)) {
                         current.put(ministry.getMinistryId(), ministry);
                     }
 

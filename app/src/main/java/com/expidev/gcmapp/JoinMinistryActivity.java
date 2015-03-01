@@ -23,7 +23,6 @@ import com.expidev.gcmapp.activity.SettingsActivity;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.model.Assignment;
-import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.tasks.CreateAssignmentTask;
@@ -131,8 +130,8 @@ public class JoinMinistryActivity extends ActionBarActivity
     @Nullable
     private Ministry getMinistryByName(final String name) {
         //TODO: we shouldn't be using the DB on the UI Thread
-        final List<AssociatedMinistry> ministries =
-                mDao.get(AssociatedMinistry.class, Contract.Ministry.COLUMN_NAME + "=?", new String[] {name});
+        final List<Ministry> ministries =
+                mDao.get(Ministry.class, Contract.Ministry.COLUMN_NAME + "=?", new String[] {name});
         if (ministries.size() > 0) {
             return ministries.get(0);
         }
@@ -189,9 +188,9 @@ public class JoinMinistryActivity extends ActionBarActivity
         @Override
         public Cursor runQuery(final CharSequence constraint) {
             if (TextUtils.isEmpty(constraint)) {
-                return mDao.getCursor(AssociatedMinistry.class, PROJECTION_FIELDS, null, null, ORDER_BY_NAME);
+                return mDao.getCursor(Ministry.class, PROJECTION_FIELDS, null, null, ORDER_BY_NAME);
             } else {
-                return mDao.getCursor(AssociatedMinistry.class, PROJECTION_FIELDS, WHERE_NAME_LIKE,
+                return mDao.getCursor(Ministry.class, PROJECTION_FIELDS, WHERE_NAME_LIKE,
                                       new String[] {"%" + constraint + "%"}, ORDER_BY_NAME);
             }
         }

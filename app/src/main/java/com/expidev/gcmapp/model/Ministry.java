@@ -68,8 +68,8 @@ public class Ministry extends Base implements Serializable
     private int locationZoom;
 
     @NonNull
-    public static List<AssociatedMinistry> listFromJson(@NonNull final JSONArray json) throws JSONException {
-        final List<AssociatedMinistry> ministries = new ArrayList<>();
+    public static List<Ministry> listFromJson(@NonNull final JSONArray json) throws JSONException {
+        final List<Ministry> ministries = new ArrayList<>();
         for (int i = 0; i < json.length(); i++) {
             ministries.add(fromJson(json.getJSONObject(i)));
         }
@@ -77,8 +77,8 @@ public class Ministry extends Base implements Serializable
     }
 
     @NonNull
-    public static AssociatedMinistry fromJson(@NonNull final JSONObject json) throws JSONException {
-        final AssociatedMinistry ministry = new AssociatedMinistry();
+    public static Ministry fromJson(@NonNull final JSONObject json) throws JSONException {
+        final Ministry ministry = new Ministry();
         ministry.setMinistryId(json.getString(JSON_MINISTRY_ID));
         ministry.setName(json.getString(JSON_NAME));
         ministry.setMinistryCode(json.optString(JSON_CODE));

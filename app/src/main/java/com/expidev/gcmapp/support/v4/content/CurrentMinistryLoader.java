@@ -7,7 +7,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.expidev.gcmapp.db.MinistriesDao;
-import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
@@ -31,7 +30,7 @@ public class CurrentMinistryLoader extends AsyncTaskBroadcastReceiverSharedPrefe
     public Ministry loadInBackground() {
         // load the set current ministry
         final String ministryId = mPrefs.getString(PREF_CURRENT_MINISTRY, null);
-        final Ministry ministry = ministryId != null ? mDao.find(AssociatedMinistry.class, ministryId) : null;
+        final Ministry ministry = ministryId != null ? mDao.find(Ministry.class, ministryId) : null;
 
         // reset to default ministry if current ministry isn't found
         if (ministry == null) {
@@ -42,7 +41,7 @@ public class CurrentMinistryLoader extends AsyncTaskBroadcastReceiverSharedPrefe
     }
 
     private Ministry initCurrentMinistry() {
-        final List<AssociatedMinistry> ministries = mDao.get(AssociatedMinistry.class);
+        final List<Ministry> ministries = mDao.get(Ministry.class);
 
         // set the default ministry based on how many AssociatedMinistries exist
         Ministry ministry;

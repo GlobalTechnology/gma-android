@@ -11,7 +11,7 @@ import android.support.annotation.Nullable;
 
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
-import com.expidev.gcmapp.model.AssociatedMinistry;
+import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
@@ -44,7 +44,7 @@ public class MinistriesCursorLoader extends CursorBroadcastReceiverLoader {
             return null;
         }
 
-        return mDao.getCursor(AssociatedMinistry.class, Contract.AssociatedMinistry.JOIN_ASSIGNMENT, PROJECTION,
+        return mDao.getCursor(Ministry.class, Contract.AssociatedMinistry.JOIN_ASSIGNMENT, PROJECTION,
                               Contract.Assignment.SQL_WHERE_GUID, bindValues(mGuid),
                               Contract.AssociatedMinistry.COLUMN_NAME);
     }

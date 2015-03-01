@@ -13,7 +13,6 @@ import android.support.annotation.Nullable;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.model.Assignment;
-import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
@@ -120,7 +119,7 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
 
     private void loadMinistry(@NonNull final Assignment assignment) {
         if (assignment.getMinistry() == null) {
-            assignment.setMinistry(mDao.find(AssociatedMinistry.class, assignment.getMinistryId()));
+            assignment.setMinistry(mDao.find(Ministry.class, assignment.getMinistryId()));
         }
     }
 }

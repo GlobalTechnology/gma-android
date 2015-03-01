@@ -4,20 +4,17 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
-import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 
 /**
  * Created by William.Randall on 2/3/2015.
  */
-public class AssociatedMinistriesMapper extends BaseMapper<AssociatedMinistry>
-{
+public class MinistryMapper extends BaseMapper<Ministry> {
     @Override
     protected void mapField(
         @NonNull final ContentValues values,
         @NonNull final String field,
-        @NonNull final AssociatedMinistry ministry)
-    {
+        @NonNull final Ministry ministry) {
         switch (field)
         {
             case Contract.AssociatedMinistry.COLUMN_MINISTRY_ID:
@@ -61,16 +58,14 @@ public class AssociatedMinistriesMapper extends BaseMapper<AssociatedMinistry>
 
     @NonNull
     @Override
-    protected AssociatedMinistry newObject(@NonNull final Cursor cursor)
-    {
-        return new AssociatedMinistry();
+    protected Ministry newObject(@NonNull final Cursor cursor) {
+        return new Ministry();
     }
 
     @NonNull
     @Override
-    public AssociatedMinistry toObject(@NonNull final Cursor cursor)
-    {
-        final AssociatedMinistry ministry = super.toObject(cursor);
+    public Ministry toObject(@NonNull final Cursor cursor) {
+        final Ministry ministry = super.toObject(cursor);
 
         ministry.setMinistryId(
                 getNonNullString(cursor, Contract.AssociatedMinistry.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));

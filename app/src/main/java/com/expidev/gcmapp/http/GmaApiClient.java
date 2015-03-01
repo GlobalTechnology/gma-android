@@ -199,12 +199,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Nullable
-    public List<? extends Ministry> getAllMinistries() throws ApiException {
+    public List<Ministry> getAllMinistries() throws ApiException {
         return this.getAllMinistries(false);
     }
 
     @Nullable
-    public List<? extends Ministry> getAllMinistries(final boolean refresh) throws ApiException {
+    public List<Ministry> getAllMinistries(final boolean refresh) throws ApiException {
         // build request
         final Request<Session> request = new Request<>(MINISTRIES);
         request.params.add(param("refresh", refresh));
