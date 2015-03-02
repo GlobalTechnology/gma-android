@@ -41,7 +41,8 @@ public abstract class MeasurementDetailsDataMapper<T extends MeasurementDetailsD
     {
         final T obj = super.toObject(cursor);
         obj.setMeasurementId(this.getString(cursor, Contract.MeasurementDetailsData.COLUMN_MEASUREMENT_ID, null));
-        obj.setMinistryId(this.getString(cursor, Contract.MeasurementDetailsData.COLUMN_MINISTRY_ID, null));
+        obj.setMinistryId(getNonNullString(cursor, Contract.MeasurementDetailsData.COLUMN_MINISTRY_ID,
+                                           Ministry.INVALID_ID));
         obj.setMcc(Ministry.Mcc.fromRaw(getString(cursor, Contract.MeasurementDetailsData.COLUMN_MCC, null)));
         obj.setPeriod(this.getString(cursor, Contract.MeasurementDetailsData.COLUMN_PERIOD, null));
         return obj;

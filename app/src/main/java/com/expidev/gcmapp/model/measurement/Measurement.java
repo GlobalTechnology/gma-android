@@ -24,7 +24,8 @@ public class Measurement extends Base implements Serializable
     private int total;
     private MeasurementDetails measurementDetails;
     private String period; // The period passed in to the API
-    private String ministryId;
+    @NonNull
+    private String ministryId = Ministry.INVALID_ID;
     @NonNull
     private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
     private int sortOrder;
@@ -119,13 +120,13 @@ public class Measurement extends Base implements Serializable
         this.period = period;
     }
 
+    @NonNull
     public String getMinistryId()
     {
         return ministryId;
     }
 
-    public void setMinistryId(String ministryId)
-    {
+    public void setMinistryId(@NonNull final String ministryId) {
         this.ministryId = ministryId;
     }
 

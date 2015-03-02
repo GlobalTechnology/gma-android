@@ -238,6 +238,11 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
     @Nullable
     public List<Church> getChurches(@NonNull final String ministryId) throws ApiException {
+        // short-circuit if this is an invalid request
+        if (ministryId.equals(Ministry.INVALID_ID)) {
+            return null;
+        }
+
         // build request
         final Request<Session> request = new Request<>(CHURCHES);
         request.accept = MediaType.APPLICATION_JSON;
@@ -475,6 +480,11 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     @Nullable
     public Assignment createAssignment(@NonNull final String userEmail, @NonNull final String ministryId,
                                        @NonNull final Assignment.Role role) throws ApiException {
+        // short-circuit if this is an invalid request
+        if (ministryId.equals(Ministry.INVALID_ID)) {
+            return null;
+        }
+
         // build request
         final Request<Session> request = new Request<>(ASSIGNMENTS);
         request.method = Method.POST;
