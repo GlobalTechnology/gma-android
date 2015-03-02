@@ -25,6 +25,11 @@
 }
 
 
+# Google Guava
+-dontwarn javax.annotation.**
+-dontwarn sun.misc.Unsafe
+
+
 # Google Play Services - Google Maps
 -keep class * extends java.util.ListResourceBundle {
     protected Object[][] getContents();

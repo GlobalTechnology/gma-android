@@ -226,7 +226,7 @@ public class SettingsFragment extends PreferenceFragment {
                         dao.update(assignment, new String[] {Contract.Assignment.COLUMN_MCC});
 
                         // broadcast the update
-                        broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast());
+                        broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast(assignment.getGuid()));
                     }
                 });
             }

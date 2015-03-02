@@ -3,7 +3,6 @@ package com.expidev.gcmapp.support.v4.content;
 import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
 
 import android.content.Context;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,20 +22,16 @@ public class ChurchesLoader extends AsyncTaskBroadcastReceiverLoader<List<Church
     @NonNull
     private final String mMinistryId;
 
-    public ChurchesLoader(@NonNull final Context context, @Nullable final Bundle args,
-                          @NonNull final IntentFilter... filters) {
-        this(context, args != null ? args.getString(ARG_MINISTRY_ID) : null, filters);
-    }
-
-    public ChurchesLoader(@NonNull final Context context, @Nullable final String ministryId,
-                          @NonNull final IntentFilter... filters) {
-        super(context, filters);
-        if(ministryId != null) {
-            setBroadcastReceiver(new ChurchLoaderBroadcastReceiver(this, ministryId));
-            addIntentFilter(BroadcastUtils.updateChurchesFilter());
-        }
+    public ChurchesLoader(@NonNull final Context context, @Nullable final Bundle args) {
+        super(context);
         mDao = MinistriesDao.getInstance(context);
+        final String ministryId = args != null ? args.getString(ARG_MINISTRY_ID) : null;
         mMinistryId = ministryId != null ? ministryId : Ministry.INVALID_ID;
+
+        // configure Loader if we have a valid ministryId
+        if (!mMinistryId.equals(Ministry.INVALID_ID)) {
+            addIntentFilter(BroadcastUtils.updateChurchesFilter(mMinistryId));
+        }
     }
 
     @Override
