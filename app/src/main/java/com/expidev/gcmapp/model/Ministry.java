@@ -21,10 +21,20 @@ public class Ministry extends Base implements Serializable
     public static final String JSON_MINISTRY_ID = "ministry_id";
     public static final String JSON_NAME = "name";
     public static final String JSON_CODE = "min_code";
+    public static final String JSON_MCCS = "mccs";
     public static final String JSON_LOCATION = "location";
     public static final String JSON_LATITUDE = "latitude";
     public static final String JSON_LONGITUDE = "longitude";
     public static final String JSON_LOCATION_ZOOM = "location_zoom";
+
+    @Deprecated
+    private static final String JSON_HAS_DS = "has_ds";
+    @Deprecated
+    private static final String JSON_HAS_GCM = "has_gcm";
+    @Deprecated
+    private static final String JSON_HAS_LLM = "has_llm";
+    @Deprecated
+    private static final String JSON_HAS_SLM = "has_slm";
 
     public enum Mcc {
         UNKNOWN(null), SLM("slm"), LLM("llm"), DS("ds"), GCM("gcm");
@@ -82,10 +92,29 @@ public class Ministry extends Base implements Serializable
         ministry.setMinistryId(json.getString(JSON_MINISTRY_ID));
         ministry.setName(json.getString(JSON_NAME));
         ministry.setMinistryCode(json.optString(JSON_CODE));
-        ministry.setHasSlm(json.optBoolean("has_slm"));
-        ministry.setHasLlm(json.optBoolean("has_llm"));
-        ministry.setHasDs(json.optBoolean("has_ds"));
-        ministry.setHasGcm(json.optBoolean("has_gcm"));
+
+        // parse the mccs array
+        final JSONArray mccs = json.optJSONArray(JSON_MCCS);
+        if (mccs != null) {
+            for (int i = 0; i < mccs.length(); i++) {
+                ministry.mccs.add(Mcc.fromRaw(mccs.getString(i)));
+            }
+        }
+        // parse legacy has_{mcc} flags if we don't have an mccs array
+        else {
+            if (json.optBoolean(JSON_HAS_DS, false)) {
+                ministry.mccs.add(Mcc.DS);
+            }
+            if (json.optBoolean(JSON_HAS_GCM, false)) {
+                ministry.mccs.add(Mcc.GCM);
+            }
+            if (json.optBoolean(JSON_HAS_LLM, false)) {
+                ministry.mccs.add(Mcc.LLM);
+            }
+            if (json.optBoolean(JSON_HAS_SLM, false)) {
+                ministry.mccs.add(Mcc.SLM);
+            }
+        }
 
         // load location data
         double latitude = json.optDouble(JSON_LATITUDE);
@@ -157,52 +186,12 @@ public class Ministry extends Base implements Serializable
         }
     }
 
-    public boolean hasSlm() {
-        return hasMcc(Mcc.SLM);
+    public void addMcc(@NonNull final Mcc mcc) {
+        this.mccs.add(mcc);
     }
 
-    public void setHasSlm(boolean hasSlm) {
-        if (hasSlm) {
-            this.mccs.add(Mcc.SLM);
-        } else {
-            this.mccs.remove(Mcc.SLM);
-        }
-    }
-
-    public boolean hasLlm() {
-        return hasMcc(Mcc.LLM);
-    }
-
-    public void setHasLlm(boolean hasLlm) {
-        if (hasLlm) {
-            this.mccs.add(Mcc.LLM);
-        } else {
-            this.mccs.remove(Mcc.LLM);
-        }
-    }
-
-    public boolean hasDs() {
-        return hasMcc(Mcc.DS);
-    }
-
-    public void setHasDs(boolean hasDs) {
-        if (hasDs) {
-            this.mccs.add(Mcc.DS);
-        } else {
-            this.mccs.remove(Mcc.DS);
-        }
-    }
-
-    public boolean hasGcm() {
-        return hasMcc(Mcc.GCM);
-    }
-
-    public void setHasGcm(boolean hasGcm) {
-        if (hasGcm) {
-            this.mccs.add(Mcc.GCM);
-        } else {
-            this.mccs.remove(Mcc.GCM);
-        }
+    public void removeMcc(@NonNull final Mcc mcc) {
+        this.mccs.remove(mcc);
     }
 
     public double getLatitude() {

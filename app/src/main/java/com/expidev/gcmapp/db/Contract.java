@@ -108,28 +108,21 @@ public class Contract {
     public static final class Ministry extends Base implements MinistryId {
         public static final String TABLE_NAME = "ministries";
 
-        static final String COLUMN_MIN_CODE = "min_code";
+        public static final String COLUMN_MIN_CODE = "min_code";
         public static final String COLUMN_NAME = "name";
-        static final String COLUMN_HAS_SLM = "has_slm";
-        static final String COLUMN_HAS_LLM = "has_llm";
-        static final String COLUMN_HAS_DS = "has_ds";
-        static final String COLUMN_HAS_GCM = "has_gcm";
-        static final String COLUMN_LATITUDE = "latitude";
-        static final String COLUMN_LONGITUDE = "longitude";
-        static final String COLUMN_LOCATION_ZOOM = "location_zoom";
-        static final String COLUMN_PARENT_MINISTRY_ID = "parent_ministry_id";
+        public static final String COLUMN_MCCS = "mccs";
+        public static final String COLUMN_LATITUDE = "latitude";
+        public static final String COLUMN_LONGITUDE = "longitude";
+        public static final String COLUMN_LOCATION_ZOOM = "location_zoom";
+        public static final String COLUMN_PARENT_MINISTRY_ID = "parent_ministry_id";
 
         public static final String[] PROJECTION_ALL =
-                {COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_MIN_CODE, COLUMN_HAS_SLM, COLUMN_HAS_LLM, COLUMN_HAS_DS,
-                        COLUMN_HAS_GCM, COLUMN_LATITUDE, COLUMN_LONGITUDE, COLUMN_LOCATION_ZOOM,
-                        COLUMN_PARENT_MINISTRY_ID, COLUMN_LAST_SYNCED};
+                {COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_MIN_CODE, COLUMN_MCCS, COLUMN_LATITUDE, COLUMN_LONGITUDE,
+                        COLUMN_LOCATION_ZOOM, COLUMN_PARENT_MINISTRY_ID, COLUMN_LAST_SYNCED};
 
         static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_MIN_CODE = COLUMN_MIN_CODE + " TEXT";
-        private static final String SQL_COLUMN_HAS_SLM = COLUMN_HAS_SLM + " INTEGER";
-        private static final String SQL_COLUMN_HAS_LLM = COLUMN_HAS_LLM + " INTEGER";
-        private static final String SQL_COLUMN_HAS_DS = COLUMN_HAS_DS + " INTEGER";
-        private static final String SQL_COLUMN_HAS_GCM = COLUMN_HAS_GCM + " INTEGER";
+        private static final String SQL_COLUMN_MCCS = COLUMN_MCCS + " TEXT NOT NULL DEFAULT ''";
         private static final String SQL_COLUMN_LATITUDE = COLUMN_LATITUDE + " DECIMAL";
         private static final String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
         private static final String SQL_COLUMN_LOCATION_ZOOM = COLUMN_LOCATION_ZOOM + " INTEGER";
@@ -149,13 +142,14 @@ public class Contract {
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME, SQL_COLUMN_MIN_CODE,
-                        SQL_COLUMN_HAS_SLM, SQL_COLUMN_HAS_LLM, SQL_COLUMN_HAS_DS, SQL_COLUMN_HAS_GCM,
-                        SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE, SQL_COLUMN_LOCATION_ZOOM,
+                        SQL_COLUMN_MCCS, SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE, SQL_COLUMN_LOCATION_ZOOM,
                         SQL_COLUMN_PARENT_MINISTRY_ID, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
         @Deprecated
         public static final String SQL_V15_RENAME_TABLE = "ALTER TABLE associated_ministries RENAME TO " + TABLE_NAME;
+        @Deprecated
+        public static final String SQL_V16_MCCS = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_MCCS;
     }
 
     public static final class Assignment extends Base implements MinistryId {

@@ -3,8 +3,11 @@ package com.expidev.gcmapp.db;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.expidev.gcmapp.model.Ministry;
+
+import java.util.EnumSet;
 
 /**
  * Created by William.Randall on 2/3/2015.
@@ -26,17 +29,8 @@ public class MinistryMapper extends BaseMapper<Ministry> {
             case Contract.Ministry.COLUMN_MIN_CODE:
                 values.put(field, ministry.getMinistryCode());
                 break;
-            case Contract.Ministry.COLUMN_HAS_SLM:
-                values.put(field, ministry.hasSlm() ? 1 : 0);
-                break;
-            case Contract.Ministry.COLUMN_HAS_LLM:
-                values.put(field, ministry.hasLlm() ? 1 : 0);
-                break;
-            case Contract.Ministry.COLUMN_HAS_DS:
-                values.put(field, ministry.hasDs() ? 1 : 0);
-                break;
-            case Contract.Ministry.COLUMN_HAS_GCM:
-                values.put(field, ministry.hasGcm() ? 1 : 0);
+            case Contract.Ministry.COLUMN_MCCS:
+                values.put(field, TextUtils.join(",", ministry.getMccs()));
                 break;
             case Contract.Ministry.COLUMN_LATITUDE:
                 values.put(field, ministry.getLatitude());
@@ -71,13 +65,16 @@ public class MinistryMapper extends BaseMapper<Ministry> {
         ministry.setParentMinistryId(getString(c, Contract.Ministry.COLUMN_PARENT_MINISTRY_ID, null));
         ministry.setName(getString(c, Contract.Ministry.COLUMN_NAME, null));
         ministry.setMinistryCode(getString(c, Contract.Ministry.COLUMN_MIN_CODE, null));
-        ministry.setHasGcm(getBool(c, Contract.Ministry.COLUMN_HAS_GCM, false));
-        ministry.setHasSlm(getBool(c, Contract.Ministry.COLUMN_HAS_SLM, false));
-        ministry.setHasDs(getBool(c, Contract.Ministry.COLUMN_HAS_DS, false));
-        ministry.setHasLlm(getBool(c, Contract.Ministry.COLUMN_HAS_LLM, false));
         ministry.setLatitude(getDouble(c, Contract.Ministry.COLUMN_LATITUDE, 0));
         ministry.setLongitude(getDouble(c, Contract.Ministry.COLUMN_LONGITUDE, 0));
         ministry.setLocationZoom(getInt(c, Contract.Ministry.COLUMN_LOCATION_ZOOM, 0));
+
+        // parse COLUMN_MCCS
+        final EnumSet<Ministry.Mcc> mccs = EnumSet.noneOf(Ministry.Mcc.class);
+        for (final String raw : TextUtils.split(getNonNullString(c, Contract.Ministry.COLUMN_MCCS, ""), ",")) {
+            mccs.add(Ministry.Mcc.fromRaw(raw));
+        }
+        ministry.setMccs(mccs);
 
         return ministry;
     }
