@@ -247,6 +247,45 @@ public class Contract {
     //              Measurement Contracts                       //
     //////////////////////////////////////////////////////////////
 
+    private static interface MeasurementTypeId {
+        static final String COLUMN_MEASUREMENT_TYPE_ID = "measurement_id";
+
+        static final String SQL_COLUMN_MEASUREMENT_TYPE_ID = COLUMN_MEASUREMENT_TYPE_ID + " TEXT NO NULL DEFAULT''";
+
+        public static final String SQL_WHERE_MEASUREMENT_TYPE = COLUMN_MEASUREMENT_TYPE_ID + " = ?";
+    }
+
+    public static final class MeasurementType extends Base implements MeasurementTypeId {
+        static final String TABLE_NAME = "measurementTypes";
+
+        static final String COLUMN_NAME = "name";
+        static final String COLUMN_PERM_LINK = "perm_link";
+        static final String COLUMN_DESCRIPTION = "description";
+        static final String COLUMN_SECTION = "section";
+        static final String COLUMN_COLUMN = "column";
+        static final String COLUMN_SORT_ORDER = "sort_order";
+
+        static final String[] PROJECTION_ALL =
+                {COLUMN_MEASUREMENT_TYPE_ID, COLUMN_NAME, COLUMN_PERM_LINK, COLUMN_DESCRIPTION, COLUMN_SECTION,
+                        COLUMN_SECTION, COLUMN_COLUMN, COLUMN_SORT_ORDER};
+
+        private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
+        private static final String SQL_COLUMN_PERM_LINK = COLUMN_PERM_LINK + " TEXT";
+        private static final String SQL_COLUMN_DESCRIPTION = COLUMN_DESCRIPTION + " TEXT";
+        private static final String SQL_COLUMN_SECTION = COLUMN_SECTION + " TEXT";
+        private static final String SQL_COLUMN_COLUMN = COLUMN_COLUMN + " TEXT";
+        private static final String SQL_COLUMN_SORT_ORDER = COLUMN_SORT_ORDER + " INTEGER";
+        private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_MEASUREMENT_TYPE_ID + ")";
+
+        static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_MEASUREMENT_TYPE;
+
+        public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
+                .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_TYPE_ID, SQL_COLUMN_NAME,
+                        SQL_COLUMN_PERM_LINK, SQL_COLUMN_DESCRIPTION, SQL_COLUMN_SECTION, SQL_COLUMN_COLUMN,
+                        SQL_COLUMN_SORT_ORDER, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
+        public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
+
     public static final class Measurement extends Base implements MinistryId {
         public static final String TABLE_NAME = "measurements";
         private static final String INDEX_NAME = "measurements_unique_index";
