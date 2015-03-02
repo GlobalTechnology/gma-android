@@ -34,7 +34,6 @@ import com.expidev.gcmapp.map.Marker;
 import com.expidev.gcmapp.map.MarkerRender;
 import com.expidev.gcmapp.map.TrainingMarker;
 import com.expidev.gcmapp.model.Assignment;
-import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
@@ -107,7 +106,7 @@ public class MainActivity extends ActionBarActivity
     @Nullable
     private Assignment mAssignment;
     @Nullable
-    private AssociatedMinistry mCurrentMinistry;
+    private Ministry mCurrentMinistry;
     @Nullable
     private List<Training> allTraining;
     @Nullable
@@ -227,7 +226,7 @@ public class MainActivity extends ActionBarActivity
         mAssignment = assignment;
 
         // store the current ministry
-        final AssociatedMinistry old = mCurrentMinistry;
+        final Ministry old = mCurrentMinistry;
         mCurrentMinistry = assignment != null ? assignment.getMinistry() : null;
 
         // determine if the current ministry changed

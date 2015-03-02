@@ -23,7 +23,6 @@ import com.expidev.gcmapp.activity.SettingsActivity;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.model.Assignment;
-import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.tasks.CreateAssignmentTask;
@@ -97,7 +96,7 @@ public class JoinMinistryActivity extends ActionBarActivity
         AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView)findViewById(R.id.ministry_team_autocomplete);
 
         String ministryName = autoCompleteTextView.getText().toString();
-        AssociatedMinistry chosenMinistry = getMinistryByName(ministryName);
+        final Ministry chosenMinistry = getMinistryByName(ministryName);
         String ministryId = chosenMinistry != null ? chosenMinistry.getMinistryId() : null;
 
         new CreateAssignmentTask(this, ministryId, Assignment.Role.SELF_ASSIGNED) {
@@ -111,7 +110,7 @@ public class JoinMinistryActivity extends ActionBarActivity
 
                     // display dialog on success
                     // TODO: we should display the dialog when starting and change state to complete when we finish
-                    final AssociatedMinistry ministry = assignment.getMinistry();
+                    final Ministry ministry = assignment.getMinistry();
                     new AlertDialog.Builder(JoinMinistryActivity.this).setTitle("Join Ministry")
                             .setMessage("You have joined " + ministry.getName() + " with a ministry ID of: " +
                                                 assignment.getMinistryId()).setNeutralButton(
@@ -129,17 +128,12 @@ public class JoinMinistryActivity extends ActionBarActivity
     }
 
     @Nullable
-    private AssociatedMinistry getMinistryByName(final String name) {
+    private Ministry getMinistryByName(final String name) {
         //TODO: we shouldn't be using the DB on the UI Thread
         final List<Ministry> ministries =
                 mDao.get(Ministry.class, Contract.Ministry.COLUMN_NAME + "=?", new String[] {name});
         if (ministries.size() > 0) {
-            final Ministry ministry = ministries.get(0);
-            AssociatedMinistry associatedMinistry = new AssociatedMinistry();
-            associatedMinistry.setMinistryId(ministry.getMinistryId());
-            associatedMinistry.setName(ministry.getName());
-            associatedMinistry.setLastSynced(ministry.getLastSynced());
-            return associatedMinistry;
+            return ministries.get(0);
         }
 
         return null;

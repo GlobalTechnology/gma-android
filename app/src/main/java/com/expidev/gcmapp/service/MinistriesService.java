@@ -7,7 +7,6 @@ import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.SYNC_ASSIGNMENTS;
 import static com.expidev.gcmapp.service.Type.SYNC_CHURCHES;
 import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_CHURCHES;
-import static com.expidev.gcmapp.utils.BroadcastUtils.allMinistriesReceivedBroadcast;
 import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
@@ -26,7 +25,6 @@ import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.model.Assignment;
-import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.BroadcastUtils;
@@ -42,7 +40,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -357,7 +354,6 @@ public class MinistriesService extends ThreadedIntentService {
 
                     // send broadcasts that data has been updated in the database
                     broadcastManager.sendBroadcast(BroadcastUtils.updateMinistriesBroadcast());
-                    broadcastManager.sendBroadcast(allMinistriesReceivedBroadcast((ArrayList<Ministry>) ministries));
                 } finally {
                     tx.end();
                 }
@@ -401,9 +397,9 @@ public class MinistriesService extends ThreadedIntentService {
                 assignment.setGuid(guid);
 
                 // update the associated ministry
-                final AssociatedMinistry ministry = assignment.getMinistry();
+                final Ministry ministry = assignment.getMinistry();
                 if (ministry != null) {
-                    mDao.updateOrInsert(ministry, Contract.AssociatedMinistry.PROJECTION_ALL);
+                    mDao.updateOrInsert(ministry, Contract.Ministry.PROJECTION_ALL);
                 }
 
                 // now update the actual assignment

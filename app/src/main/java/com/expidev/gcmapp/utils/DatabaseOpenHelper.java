@@ -23,8 +23,11 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      * 10: 2015-02-24
      * 11: 2015-02-23
      * 13: 2015-02-26
+     * v0.8.0
+     * 14: 2015-03-01
+     * 15: 2015-03-01
      */
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 15;
     private static final String DATABASE_NAME = "gcm_data.db";
 
     private static final Object LOCK_INSTANCE = new Object();
@@ -52,7 +55,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         Log.i(TAG, "Creating database...");
         createAssociatedMinistryTable(db);
         createAssignmentsTable(db);
-        createAllMinistriesTable(db);
         createTrainingTables(db);
         db.execSQL(Contract.Church.SQL_CREATE_TABLE);
         createMeasurementsTables(db);
@@ -90,6 +92,12 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
                 case 13:
                     db.execSQL(Contract.Measurement.SQL_V13_ALTER_SORT);
                     break;
+                case 14:
+                    db.execSQL(Contract.LegacyTables.SQL_DELETE_ALL_MINISTRIES_TABLE);
+                    break;
+                case 15:
+                    db.execSQL(Contract.Ministry.SQL_V15_RENAME_TABLE);
+                    break;
                 default:
                     // unrecognized version, let's just reset the database and return
                     resetDatabase(db);
@@ -114,12 +122,11 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     }
 
     /**
-     * This table holds information for ministries the current user
-     * has already joined or requested to join.
+     * This table holds information for ministries in GMA.
      */
     private void createAssociatedMinistryTable(SQLiteDatabase db)
     {
-        db.execSQL(Contract.AssociatedMinistry.SQL_CREATE_TABLE);
+        db.execSQL(Contract.Ministry.SQL_CREATE_TABLE);
     }
 
     /**
@@ -137,16 +144,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     {
         db.execSQL(Contract.Training.SQL_CREATE_TABLE);
         db.execSQL(Contract.Training.Completion.SQL_CREATE_TABLE);
-    }
-
-    /**
-     * This table holds information for all ministries on the server
-     * that are visible for the autocomplete text field on the
-     * Join Ministry page.
-     */
-    private void createAllMinistriesTable(SQLiteDatabase db)
-    {
-        db.execSQL(Contract.Ministry.SQL_CREATE_TABLE);
     }
 
     /**
@@ -168,7 +165,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     {
         db.execSQL(Contract.Training.Completion.SQL_DELETE_TABLE);
         db.execSQL(Contract.Training.SQL_DELETE_TABLE);
-        db.execSQL(Contract.AssociatedMinistry.SQL_DELETE_TABLE);
         db.execSQL(Contract.Ministry.SQL_DELETE_TABLE);
         db.execSQL(Contract.Assignment.SQL_DELETE_TABLE);
         db.execSQL(Contract.Measurement.SQL_DELETE_TABLE);
@@ -178,5 +174,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         db.execSQL(Contract.BreakdownData.SQL_DELETE_TABLE);
         db.execSQL(Contract.TeamMemberDetails.SQL_DELETE_TABLE);
         db.execSQL(Contract.SubMinistryDetails.SQL_DELETE_TABLE);
+
+        // delete any orphaned legacy tables
+        db.execSQL(Contract.LegacyTables.SQL_DELETE_ALL_MINISTRIES_TABLE);
+        db.execSQL(Contract.LegacyTables.SQL_DELETE_ASSOCIATED_MINISTRIES_TABLE);
     }
 }

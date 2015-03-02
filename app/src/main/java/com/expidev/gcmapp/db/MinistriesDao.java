@@ -7,7 +7,6 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.expidev.gcmapp.model.Assignment;
-import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
@@ -26,8 +25,7 @@ public class MinistriesDao extends AbstractDao
     private static MinistriesDao instance;
 
     private static final Mapper<Assignment> ASSIGNMENT_MAPPER = new AssignmentMapper();
-    private static final Mapper<Ministry> ALL_MINISTRIES_MAPPER = new MinistriesMapper();
-    private static final Mapper<AssociatedMinistry> ASSOCIATED_MINISTRIES_MAPPER = new AssociatedMinistriesMapper();
+    private static final Mapper<Ministry> MINISTRY_MAPPER = new MinistryMapper();
     private static final Mapper<Church> CHURCH_MAPPER = new ChurchMapper();
 
     private MinistriesDao(final Context context)
@@ -52,13 +50,8 @@ public class MinistriesDao extends AbstractDao
     @Override
     protected String getTable(@NonNull final Class<?> clazz)
     {
-        if(Ministry.class.equals(clazz))
-        {
+        if (Ministry.class.equals(clazz)) {
             return Contract.Ministry.TABLE_NAME;
-        }
-        else if(AssociatedMinistry.class.equals(clazz))
-        {
-            return Contract.AssociatedMinistry.TABLE_NAME;
         } else if (Assignment.class.equals(clazz)) {
             return Contract.Assignment.TABLE_NAME;
         } else if(Church.class.equals(clazz)) {
@@ -72,13 +65,8 @@ public class MinistriesDao extends AbstractDao
     @Override
     protected String[] getFullProjection(@NonNull final Class<?> clazz)
     {
-        if(Ministry.class.equals(clazz))
-        {
+        if (Ministry.class.equals(clazz)) {
             return Contract.Ministry.PROJECTION_ALL;
-        }
-        else if(AssociatedMinistry.class.equals(clazz))
-        {
-            return Contract.AssociatedMinistry.PROJECTION_ALL;
         } else if (Assignment.class.equals(clazz)) {
             return Contract.Assignment.PROJECTION_ALL;
         } else if (Church.class.equals(clazz)) {
@@ -93,13 +81,8 @@ public class MinistriesDao extends AbstractDao
     @SuppressWarnings("unchecked")
     protected <T> Mapper<T> getMapper(@NonNull final Class<T> clazz)
     {
-        if(Ministry.class.equals(clazz))
-        {
-            return (Mapper<T>) ALL_MINISTRIES_MAPPER;
-        }
-        else if(AssociatedMinistry.class.equals(clazz))
-        {
-            return (Mapper<T>) ASSOCIATED_MINISTRIES_MAPPER;
+        if (Ministry.class.equals(clazz)) {
+            return (Mapper<T>) MINISTRY_MAPPER;
         } else if (Assignment.class.equals(clazz)) {
             return (Mapper<T>) ASSIGNMENT_MAPPER;
         } else if(Church.class.equals(clazz)) {
@@ -116,15 +99,9 @@ public class MinistriesDao extends AbstractDao
         final int keyLength;
         final String where;
 
-        if(Ministry.class.equals(clazz))
-        {
+        if (Ministry.class.equals(clazz)) {
             keyLength = 1;
             where = Contract.Ministry.SQL_WHERE_PRIMARY_KEY;
-        }
-        else if(AssociatedMinistry.class.equals(clazz))
-        {
-            keyLength = 1;
-            where = Contract.AssociatedMinistry.SQL_WHERE_PRIMARY_KEY;
         } else if (Assignment.class.equals(clazz)) {
             keyLength = 2;
             where = Contract.Assignment.SQL_WHERE_PRIMARY_KEY;
@@ -150,11 +127,7 @@ public class MinistriesDao extends AbstractDao
     @Override
     protected Pair<String, String[]> getPrimaryKeyWhere(@NonNull final Object obj)
     {
-        if(obj instanceof AssociatedMinistry)
-        {
-            return getPrimaryKeyWhere(AssociatedMinistry.class, ((AssociatedMinistry) obj).getMinistryId());
-        }
-        else if(obj instanceof Ministry)
+        if(obj instanceof Ministry)
         {
             return getPrimaryKeyWhere(Ministry.class, ((Ministry) obj).getMinistryId());
         } else if (obj instanceof Assignment) {
@@ -176,7 +149,7 @@ public class MinistriesDao extends AbstractDao
         try
         {
             database.delete(getTable(Assignment.class), null, null);
-            database.delete(getTable(AssociatedMinistry.class), null, null);
+            database.delete(getTable(Ministry.class), null, null);
             database.setTransactionSuccessful();
         }
         catch(Exception e)

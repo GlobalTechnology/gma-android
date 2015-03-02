@@ -10,7 +10,7 @@ import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.model.Assignment;
-import com.expidev.gcmapp.model.AssociatedMinistry;
+import com.expidev.gcmapp.model.Ministry;
 
 import org.ccci.gto.android.common.api.ApiException;
 
@@ -71,7 +71,7 @@ public class CreateAssignmentTask extends AsyncTask<Void, Void, Assignment> {
                     assignment.setGuid(mTheKey.getGuid());
 
                     // update attached ministry
-                    final AssociatedMinistry ministry = assignment.getMinistry();
+                    final Ministry ministry = assignment.getMinistry();
                     if(ministry != null) {
                         mDao.updateOrInsert(ministry);
                     }

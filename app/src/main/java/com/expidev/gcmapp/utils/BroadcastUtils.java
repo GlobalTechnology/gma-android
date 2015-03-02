@@ -11,13 +11,11 @@ import android.os.PatternMatcher;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
 
-import java.util.ArrayList;
 import java.util.Locale;
 
 /**
@@ -119,13 +117,6 @@ public final class BroadcastUtils
     {
         Intent intent = new Intent(ACTION_STOP);
         intent.putExtra(ACTION_TYPE, type);
-        return intent;
-    }
-
-    public static Intent allMinistriesReceivedBroadcast(ArrayList<Ministry> allMinistries)
-    {
-        Intent intent = stopBroadcast(Type.RETRIEVE_ALL_MINISTRIES);
-        intent.putExtra("allMinistries", allMinistries);
         return intent;
     }
 

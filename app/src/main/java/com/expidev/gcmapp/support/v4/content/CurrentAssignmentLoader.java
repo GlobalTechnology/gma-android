@@ -13,7 +13,6 @@ import android.support.annotation.Nullable;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.MinistriesDao;
 import com.expidev.gcmapp.model.Assignment;
-import com.expidev.gcmapp.model.AssociatedMinistry;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
@@ -105,7 +104,7 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
         loadMinistry(assignment);
 
         // set the MCC based off of what is available for the ministry
-        final AssociatedMinistry ministry = assignment.getMinistry();
+        final Ministry ministry = assignment.getMinistry();
         if (ministry != null) {
             // pick a random MCC
             final EnumSet<Ministry.Mcc> mccs = ministry.getMccs();
@@ -120,7 +119,7 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
 
     private void loadMinistry(@NonNull final Assignment assignment) {
         if (assignment.getMinistry() == null) {
-            assignment.setMinistry(mDao.find(AssociatedMinistry.class, assignment.getMinistryId()));
+            assignment.setMinistry(mDao.find(Ministry.class, assignment.getMinistryId()));
         }
     }
 }

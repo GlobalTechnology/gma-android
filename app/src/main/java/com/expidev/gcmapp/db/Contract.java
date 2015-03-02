@@ -98,32 +98,18 @@ public class Contract {
         }
     }
 
-    public static abstract class MinistryBase extends Base implements MinistryId {
-        public static final String COLUMN_NAME = "name";
-
-        static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
-        static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_MINISTRY_ID + ")";
-
-        static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_MINISTRY;
+    @Deprecated
+    public static final class LegacyTables {
+        public static final String SQL_DELETE_ALL_MINISTRIES_TABLE = "DROP TABLE IF EXISTS all_ministries";
+        public static final String SQL_DELETE_ASSOCIATED_MINISTRIES_TABLE =
+                "DROP TABLE IF EXISTS associated_ministries";
     }
 
-    public static final class Ministry extends MinistryBase
-    {
-        public static final String TABLE_NAME = "all_ministries";
-
-        static final String[] PROJECTION_ALL = { COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_LAST_SYNCED };
-
-        public static final String SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" + TextUtils
-                .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME,
-                        SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
-        public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
-    }
-
-    public static final class AssociatedMinistry extends MinistryBase
-    {
-        public static final String TABLE_NAME = "associated_ministries";
+    public static final class Ministry extends Base implements MinistryId {
+        public static final String TABLE_NAME = "ministries";
 
         static final String COLUMN_MIN_CODE = "min_code";
+        public static final String COLUMN_NAME = "name";
         static final String COLUMN_HAS_SLM = "has_slm";
         static final String COLUMN_HAS_LLM = "has_llm";
         static final String COLUMN_HAS_DS = "has_ds";
@@ -138,6 +124,7 @@ public class Contract {
                         COLUMN_HAS_GCM, COLUMN_LATITUDE, COLUMN_LONGITUDE, COLUMN_LOCATION_ZOOM,
                         COLUMN_PARENT_MINISTRY_ID, COLUMN_LAST_SYNCED};
 
+        static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_MIN_CODE = COLUMN_MIN_CODE + " TEXT";
         private static final String SQL_COLUMN_HAS_SLM = COLUMN_HAS_SLM + " INTEGER";
         private static final String SQL_COLUMN_HAS_LLM = COLUMN_HAS_LLM + " INTEGER";
@@ -147,15 +134,17 @@ public class Contract {
         private static final String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
         private static final String SQL_COLUMN_LOCATION_ZOOM = COLUMN_LOCATION_ZOOM + " INTEGER";
         private static final String SQL_COLUMN_PARENT_MINISTRY_ID = COLUMN_PARENT_MINISTRY_ID + " TEXT";
+        static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_MINISTRY_ID + ")";
 
         private static final String SQL_PREFIX = TABLE_NAME + ".";
 
+        static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_MINISTRY;
         static final String SQL_WHERE_PARENT = COLUMN_PARENT_MINISTRY_ID + " = ?";
 
         private static final String SQL_JOIN_ON_ASSIGNMENT =
                 SQL_PREFIX + COLUMN_MINISTRY_ID + " = " + Assignment.SQL_PREFIX + Assignment.COLUMN_MINISTRY_ID;
-        public static final Join<com.expidev.gcmapp.model.AssociatedMinistry, com.expidev.gcmapp.model.Assignment>
-                JOIN_ASSIGNMENT = Join.create(com.expidev.gcmapp.model.AssociatedMinistry.class,
+        public static final Join<com.expidev.gcmapp.model.Ministry, com.expidev.gcmapp.model.Assignment>
+                JOIN_ASSIGNMENT = Join.create(com.expidev.gcmapp.model.Ministry.class,
                                               com.expidev.gcmapp.model.Assignment.class).on(SQL_JOIN_ON_ASSIGNMENT);
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" + TextUtils
@@ -164,6 +153,9 @@ public class Contract {
                         SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE, SQL_COLUMN_LOCATION_ZOOM,
                         SQL_COLUMN_PARENT_MINISTRY_ID, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+
+        @Deprecated
+        public static final String SQL_V15_RENAME_TABLE = "ALTER TABLE associated_ministries RENAME TO " + TABLE_NAME;
     }
 
     public static final class Assignment extends Base implements MinistryId {
@@ -185,8 +177,8 @@ public class Contract {
         private static final String SQL_COLUMN_ID = COLUMN_ID + " TEXT";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_GUID + "," + COLUMN_MINISTRY_ID + ")";
         private static final String SQL_FOREIGN_KEY_MINISTRIES =
-                "FOREIGN KEY(" + COLUMN_MINISTRY_ID + ") REFERENCES " + AssociatedMinistry.TABLE_NAME + "(" +
-                        AssociatedMinistry.COLUMN_MINISTRY_ID + ")";
+                "FOREIGN KEY(" + COLUMN_MINISTRY_ID + ") REFERENCES " + Ministry.TABLE_NAME + "(" +
+                        Ministry.COLUMN_MINISTRY_ID + ")";
 
         private static final String SQL_PREFIX = TABLE_NAME + ".";
 
