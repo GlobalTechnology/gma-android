@@ -27,6 +27,8 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      * 14: 2015-03-01
      * 15: 2015-03-01
      * 16: 2015-03-01
+     * v0.8.1
+     * 17: 2015-03-05
      */
     private static final int DATABASE_VERSION = 16;
     private static final String DATABASE_NAME = "gcm_data.db";
@@ -103,6 +105,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
                     db.execSQL(Contract.Ministry.SQL_V16_MCCS);
                     // XXX: we should have converted legacy data, but because we have no real users yet I'm skipping it -DF
                     break;
+                case 17:
+                    db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
+                    break;
                 default:
                     // unrecognized version, let's just reset the database and return
                     resetDatabase(db);
@@ -122,6 +127,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
 
     private void resetDatabase(final SQLiteDatabase db) {
         db.execSQL(Contract.Church.SQL_DELETE_TABLE);
+        db.execSQL(Contract.MeasurementType.SQL_DELETE_TABLE);
         deleteAllTables(db);
         onCreate(db);
     }
