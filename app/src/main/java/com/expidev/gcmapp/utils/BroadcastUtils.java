@@ -12,7 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.expidev.gcmapp.service.MeasurementsService;
-import com.expidev.gcmapp.service.MinistriesService;
+import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
 
@@ -30,9 +30,9 @@ public final class BroadcastUtils
     private static final Uri URI_MEASUREMENTS = Uri.parse("gma://measurements/");
     private static final Uri URI_MEASUREMENT_DETAILS = Uri.parse("gma://measurementdetails/");
 
-    private static final String ACTION_UPDATE_ASSIGNMENTS = MinistriesService.class.getName() + ".ACTION_UPDATE_ASSIGNMENTS";
-    private static final String ACTION_UPDATE_CHURCHES = MinistriesService.class.getName() + ".ACTION_UPDATE_CHURCHES";
-    private static final String ACTION_UPDATE_MINISTRIES = MinistriesService.class.getName() + ".ACTION_UPDATE_MINISTRIES";
+    private static final String ACTION_UPDATE_ASSIGNMENTS = GmaSyncService.class.getName() + ".ACTION_UPDATE_ASSIGNMENTS";
+    private static final String ACTION_UPDATE_CHURCHES = GmaSyncService.class.getName() + ".ACTION_UPDATE_CHURCHES";
+    private static final String ACTION_UPDATE_MINISTRIES = GmaSyncService.class.getName() + ".ACTION_UPDATE_MINISTRIES";
     private static final String ACTION_UPDATE_TRAINING = TrainingService.class.getName() + ".ACTION_UPDATE_TRAINING";
     private static final String ACTION_UPDATE_MEASUREMENTS = MeasurementsService.class.getName() + ".ACTION_UPDATE_MEASUREMENTS";
     private static final String ACTION_UPDATE_MEASUREMENT_DETAILS = MeasurementsService.class.getName() + ".ACTION_UPDATE_MEASUREMENT_DETAILS";

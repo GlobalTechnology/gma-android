@@ -31,8 +31,8 @@ import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
+import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.service.MeasurementsService;
-import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.support.v4.content.ChurchesLoader;
 import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
@@ -157,8 +157,8 @@ public class MainActivity extends ActionBarActivity
         else
         {
             // trigger background syncing of data
-            MinistriesService.syncAllMinistries(this);
-            MinistriesService.syncAssignments(this, theKey.getGuid());
+            GmaSyncService.syncAllMinistries(this);
+            GmaSyncService.syncAssignments(this, theKey.getGuid());
 
             if (mAssignment != null) {
                 MeasurementsService.syncMeasurements(
@@ -192,10 +192,10 @@ public class MainActivity extends ActionBarActivity
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.action_refresh:
-                MinistriesService.syncAllMinistries(this, true);
-                MinistriesService.syncAssignments(this, theKey.getGuid(), true);
+                GmaSyncService.syncAllMinistries(this, true);
+                GmaSyncService.syncAssignments(this, theKey.getGuid(), true);
                 if (mAssignment != null) {
-                    MinistriesService.syncChurches(this, mAssignment.getMinistryId());
+                    GmaSyncService.syncChurches(this, mAssignment.getMinistryId());
                     MeasurementsService.syncMeasurements(
                         this,
                         mAssignment.getMinistryId(),
@@ -249,7 +249,7 @@ public class MainActivity extends ActionBarActivity
     void onChangeCurrentAssignment() {
         // sync churches & trainings
         if (mAssignment != null) {
-            MinistriesService.syncChurches(this, mAssignment.getMinistryId());
+            GmaSyncService.syncChurches(this, mAssignment.getMinistryId());
             TrainingService.syncTraining(this, mAssignment.getMinistryId(), mAssignment.getMcc());
             MeasurementsService.syncMeasurements(
                 this,

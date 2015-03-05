@@ -24,7 +24,7 @@ import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
-import com.expidev.gcmapp.service.MinistriesService;
+import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.tasks.CreateAssignmentTask;
 
 import org.ccci.gto.android.common.util.CursorUtils;
@@ -106,7 +106,7 @@ public class JoinMinistryActivity extends ActionBarActivity
 
                 if (assignment != null) {
                     // trigger a forced background sync of all assignments
-                    MinistriesService.syncAssignments(JoinMinistryActivity.this, mTheKey.getGuid(), true);
+                    GmaSyncService.syncAssignments(JoinMinistryActivity.this, mTheKey.getGuid(), true);
 
                     // display dialog on success
                     // TODO: we should display the dialog when starting and change state to complete when we finish

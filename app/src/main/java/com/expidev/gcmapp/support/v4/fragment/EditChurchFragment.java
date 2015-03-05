@@ -25,7 +25,7 @@ import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.model.Church;
-import com.expidev.gcmapp.service.MinistriesService;
+import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.support.v4.content.ChurchLoader;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
@@ -176,7 +176,7 @@ public class EditChurchFragment extends AbstractDialogFragment {
                         broadcastManager.sendBroadcast(updateChurchesBroadcast(church.getMinistryId(), church.getId()));
 
                         // trigger a sync of dirty churches
-                        MinistriesService.syncDirtyChurches(context);
+                        GmaSyncService.syncDirtyChurches(context);
                     }
                 });
             }

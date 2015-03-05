@@ -17,7 +17,7 @@ import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
-import com.expidev.gcmapp.service.MinistriesService;
+import com.expidev.gcmapp.service.GmaSyncService;
 
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
 import org.ccci.gto.android.common.api.AbstractApi.Request.Method;
@@ -116,8 +116,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
                         // save the returned associated ministries
                         // XXX: this isn't ideal and crosses logical components, but I can't think of a cleaner way to do it currently -DF
-                        MinistriesService.saveAssociatedMinistriesFromServer(mContext, request.guid,
-                                                                             json.optJSONArray("assignments"));
+                        GmaSyncService.saveAssociatedMinistriesFromServer(mContext, request.guid,
+                                                                          json.optJSONArray("assignments"));
 
                         // create session object
                         return new Session(json.optString("session_ticket", null), cookies,

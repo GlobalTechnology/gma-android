@@ -86,7 +86,7 @@
 
         <service android:name=".service.MeasurementsService"
                  android:exported="false"/>
-        <service android:name=".service.MinistriesService"
+        <service android:name=".service.GmaSyncService"
                  android:exported="false"/>
         <service android:name=".service.TrainingService"
                  android:exported="false" />

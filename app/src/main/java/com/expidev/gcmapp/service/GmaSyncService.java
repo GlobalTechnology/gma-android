@@ -47,19 +47,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by William.Randall on 1/22/2015.
- */
-public class MinistriesService extends ThreadedIntentService {
-    private static final String TAG = MinistriesService.class.getSimpleName();
+public class GmaSyncService extends ThreadedIntentService {
+    private static final String TAG = GmaSyncService.class.getSimpleName();
 
     private static final String PREFS_SYNC = "gma_sync";
     private static final String PREF_SYNC_TIME_ASSIGNMENTS = "last_synced.assignments";
     private static final String PREF_SYNC_TIME_MINISTRIES = "last_synced.ministries";
 
     private static final String EXTRA_SYNCTYPE = "type";
-    private static final String EXTRA_FORCE = MinistriesService.class.getName() + ".EXTRA_FORCE";
-    private static final String EXTRA_ASSIGNMENTS = MinistriesService.class.getName() + ".EXTRA_ASSIGNMENTS";
+    private static final String EXTRA_FORCE = GmaSyncService.class.getName() + ".EXTRA_FORCE";
+    private static final String EXTRA_ASSIGNMENTS = GmaSyncService.class.getName() + ".EXTRA_ASSIGNMENTS";
 
     // various stale data durations
     private static final long HOUR_IN_MS = 60 * 60 * 1000;
@@ -73,9 +70,8 @@ public class MinistriesService extends ThreadedIntentService {
     private GmaDao mDao;
     private LocalBroadcastManager broadcastManager;
 
-    public MinistriesService()
-    {
-        super("MinistriesService", 5);
+    public GmaSyncService() {
+        super("GmaSyncService", 5);
     }
 
     public static void syncAssignments(@NonNull final Context context, @NonNull final String guid) {
@@ -84,7 +80,7 @@ public class MinistriesService extends ThreadedIntentService {
 
     public static void syncAssignments(@NonNull final Context context, @NonNull final String guid,
                                        final boolean force) {
-        final Intent intent = new Intent(context, MinistriesService.class);
+        final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNC_ASSIGNMENTS);
         intent.putExtra(EXTRA_GUID, guid);
         intent.putExtra(EXTRA_FORCE, force);
@@ -92,14 +88,14 @@ public class MinistriesService extends ThreadedIntentService {
     }
 
     public static void syncChurches(@NonNull final Context context, @NonNull final String ministryId) {
-        final Intent intent = new Intent(context, MinistriesService.class);
+        final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNC_CHURCHES);
         intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
         context.startService(intent);
     }
 
     public static void syncDirtyChurches(@NonNull final Context context) {
-        final Intent intent = new Intent(context, MinistriesService.class);
+        final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNC_DIRTY_CHURCHES);
         context.startService(intent);
     }
@@ -152,7 +148,7 @@ public class MinistriesService extends ThreadedIntentService {
     ////////////////////////////////////////////////////
     private static Intent baseIntent(final Context context, Bundle extras)
     {
-        final Intent intent = new Intent(context, MinistriesService.class);
+        final Intent intent = new Intent(context, GmaSyncService.class);
 
         if(extras != null)
         {
