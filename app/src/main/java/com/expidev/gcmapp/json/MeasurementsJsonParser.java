@@ -7,6 +7,7 @@ import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.BreakdownData;
 import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
+import com.expidev.gcmapp.model.measurement.MeasurementType;
 import com.expidev.gcmapp.model.measurement.MeasurementTypeIds;
 import com.expidev.gcmapp.model.measurement.SixMonthAmounts;
 import com.expidev.gcmapp.model.measurement.SubMinistryDetails;
@@ -85,6 +86,7 @@ public class MeasurementsJsonParser
     public static Measurement parseMeasurement(JSONObject measurementJson) throws JSONException
     {
         Measurement measurement = new Measurement();
+        measurement.setType(MeasurementType.fromJson(measurementJson));
 
         measurement.setName(measurementJson.getString("name"));
         measurement.setMeasurementId(measurementJson.getString("measurement_id"));

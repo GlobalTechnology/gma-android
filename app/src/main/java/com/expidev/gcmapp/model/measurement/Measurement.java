@@ -15,6 +15,8 @@ public class Measurement extends Base implements Serializable
 {
     private static final long serialVersionUID = 0L;
 
+    @Nullable
+    private MeasurementType type;
     private String name;
     private String measurementId;
     private String permLink;
@@ -29,6 +31,15 @@ public class Measurement extends Base implements Serializable
     @NonNull
     private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
     private int sortOrder;
+
+    @Nullable
+    public MeasurementType getType() {
+        return type;
+    }
+
+    public void setType(@Nullable final MeasurementType type) {
+        this.type = type;
+    }
 
     public String getName()
     {

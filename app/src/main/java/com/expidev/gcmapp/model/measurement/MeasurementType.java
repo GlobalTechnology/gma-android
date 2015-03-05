@@ -5,11 +5,22 @@ import android.support.annotation.Nullable;
 
 import com.expidev.gcmapp.model.Base;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Locale;
 
 public class MeasurementType extends Base {
     public static final String INVALID_ID = "";
     public static final int DEFAULT_SORT_ORDER = -1;
+
+    private static final String JSON_MEASUREMENT_ID = "measurement_id";
+    private static final String JSON_NAME = "name";
+    private static final String JSON_PERM_LINK = "perm_link";
+    private static final String JSON_DESCRIPTION = "description";
+    private static final String JSON_SECTION = "section";
+    private static final String JSON_COLUMN = "column";
+    private static final String JSON_SORT_ORDER = "sort_order";
 
     public enum Section {
         WIN, BUILD, SEND, UNKNOWN;
@@ -63,6 +74,19 @@ public class MeasurementType extends Base {
     @NonNull
     private Column column = Column.UNKNOWN;
     private int sortOrder = DEFAULT_SORT_ORDER;
+
+    @NonNull
+    public static MeasurementType fromJson(@NonNull final JSONObject json) throws JSONException {
+        final MeasurementType type = new MeasurementType();
+        type.measurementId = json.getString(JSON_MEASUREMENT_ID);
+        type.name = json.getString(JSON_NAME);
+        type.permLink = json.getString(JSON_PERM_LINK);
+        type.description = json.getString(JSON_DESCRIPTION);
+        type.section = Section.fromRaw(json.getString(JSON_SECTION));
+        type.column = Column.fromRaw(json.getString(JSON_COLUMN));
+        type.sortOrder = json.optInt(JSON_SORT_ORDER, DEFAULT_SORT_ORDER);
+        return type;
+    }
 
     @NonNull
     public String getMeasurementId() {
