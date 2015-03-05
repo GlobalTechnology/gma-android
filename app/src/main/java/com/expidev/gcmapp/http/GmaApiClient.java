@@ -26,6 +26,7 @@ import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.api.ApiSocketException;
 import org.ccci.gto.android.common.util.IOUtils;
 import org.ccci.gto.android.common.util.SharedPreferencesUtils;
+import org.joda.time.YearMonth;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -324,7 +325,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
     @Nullable
     public List<Measurement> getMeasurements(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
-                                             @Nullable final String period) throws ApiException {
+                                             @NonNull final YearMonth period) throws ApiException {
         // short-circuit if we don't have a valid ministryId or mcc
         if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
             return null;
@@ -335,9 +336,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         final Request<Session> request = new Request<>(MEASUREMENTS);
         request.params.add(param("ministry_id", ministryId));
         request.params.add(param("mcc", mcc.raw));
-        if (period != null) {
-            request.params.add(param("period", period));
-        }
+        request.params.add(param("period", period.toString()));
 
         // process request
         HttpURLConnection conn = null;
@@ -346,9 +345,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                return MeasurementsJsonParser
-                        .parseMeasurements(new JSONArray(IOUtils.readString(conn.getInputStream())), ministryId, mcc,
-                                           period);
+                return MeasurementsJsonParser.parseMeasurements(
+                        new JSONArray(IOUtils.readString(conn.getInputStream())), ministryId, mcc, period);
             }
         } catch (final JSONException e) {
             Log.e(TAG, "error parsing getMeasurements response", e);

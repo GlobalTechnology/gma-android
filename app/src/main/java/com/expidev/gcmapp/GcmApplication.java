@@ -7,6 +7,8 @@ import android.app.Application;
 
 import com.newrelic.agent.android.NewRelic;
 
+import net.danlew.android.joda.JodaTimeAndroid;
+
 import me.thekey.android.TheKey;
 import me.thekey.android.TheKeyContext;
 import me.thekey.android.lib.TheKeyImpl;
@@ -15,6 +17,11 @@ public class GcmApplication extends Application implements TheKeyContext {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        // initialize Android Joda-Time
+        JodaTimeAndroid.init(this);
+
+        // initialize New Relic
         NewRelic.withApplicationToken(NEW_RELIC_API_KEY).start(this);
     }
 

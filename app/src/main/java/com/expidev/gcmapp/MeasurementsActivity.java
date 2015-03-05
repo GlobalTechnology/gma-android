@@ -23,11 +23,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.expidev.gcmapp.activity.SettingsActivity;
+import com.expidev.gcmapp.db.MeasurementDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.Measurement;
-import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
 import com.expidev.gcmapp.support.v4.content.MeasurementsLoader;
 import com.expidev.gcmapp.utils.ViewUtils;
@@ -35,11 +35,11 @@ import com.expidev.gcmapp.view.TextHeaderView;
 
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.joda.time.YearMonth;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -562,7 +562,7 @@ public class MeasurementsActivity extends ActionBarActivity
         else
         {
             Log.w(TAG, "No measurement data in local database, try searching from API");
-            new NewMeasurementsPageRetrieverTask(mAssignment).execute(currentPeriod);
+            new NewMeasurementsPageRetrieverTask(mAssignment).execute(YearMonth.parse(currentPeriod));
         }
     }
 
@@ -623,7 +623,8 @@ public class MeasurementsActivity extends ActionBarActivity
             drawLayout(measurements);
 
             // Save the measurements to the database for quicker loading next time
-            MeasurementsService.saveMeasurementsToDatabase(MeasurementsActivity.this, measurements);
+            // XXX: disable this for now, this method is going away soon
+//            MeasurementsService.saveMeasurementsToDatabase(MeasurementsActivity.this, measurements);
         }
         else
         {
@@ -631,7 +632,7 @@ public class MeasurementsActivity extends ActionBarActivity
         }
     }
 
-    private class NewMeasurementsPageRetrieverTask extends AsyncTask<String, Void, List<Measurement>> {
+    private class NewMeasurementsPageRetrieverTask extends AsyncTask<YearMonth, Void, List<Measurement>> {
         private final Assignment assignment;
 
         private NewMeasurementsPageRetrieverTask(final Assignment assignment) {
@@ -639,10 +640,9 @@ public class MeasurementsActivity extends ActionBarActivity
         }
 
         @Override
-        protected List<Measurement> doInBackground(String... periods) {
-            String period = periods[0];
-
-            if (assignment != null) {
+        protected List<Measurement> doInBackground(final YearMonth... periods) {
+            if (assignment != null && periods.length > 0) {
+                final YearMonth period = periods[0];
                 try {
                     GmaApiClient apiClient = GmaApiClient.getInstance(MeasurementsActivity.this);
 
@@ -665,13 +665,13 @@ public class MeasurementsActivity extends ActionBarActivity
 
     private class SaveMeasurementsToLocalDatabase extends AsyncTask<Measurement, Void, Void>
     {
+        final private MeasurementDao mDao = MeasurementDao.getInstance(MeasurementsActivity.this);
 
         @Override
-        protected Void doInBackground(Measurement... params)
-        {
-            List<Measurement> measurements = new ArrayList<>();
-            measurements.addAll(Arrays.asList(params));
-            MeasurementsService.saveMeasurementsToDatabase(MeasurementsActivity.this, measurements);
+        protected Void doInBackground(final Measurement... measurements) {
+            for (final Measurement measurement : measurements) {
+                mDao.updateOrInsert(measurement);
+            }
             return null;
         }
     }

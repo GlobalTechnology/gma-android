@@ -6,6 +6,8 @@ import android.support.annotation.Nullable;
 import com.expidev.gcmapp.model.Base;
 import com.expidev.gcmapp.model.Ministry;
 
+import org.joda.time.YearMonth;
+
 import java.io.Serializable;
 
 /**
@@ -25,7 +27,8 @@ public class Measurement extends Base implements Serializable
     private String column;
     private int total;
     private MeasurementDetails measurementDetails;
-    private String period; // The period passed in to the API
+    @NonNull
+    private YearMonth period = YearMonth.now();
     @NonNull
     private String ministryId = Ministry.INVALID_ID;
     @NonNull
@@ -121,13 +124,12 @@ public class Measurement extends Base implements Serializable
         this.measurementDetails = measurementDetails;
     }
 
-    public String getPeriod()
-    {
+    @NonNull
+    public YearMonth getPeriod() {
         return period;
     }
 
-    public void setPeriod(String period)
-    {
+    public void setPeriod(@NonNull final YearMonth period) {
         this.period = period;
     }
 

@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.Measurement;
 
+import org.joda.time.YearMonth;
+
 /**
  * Created by William.Randall on 2/11/2015.
  */
@@ -48,7 +50,7 @@ public class MeasurementMapper extends BaseMapper<Measurement>
                 values.put(field, measurement.getMcc().toString());
                 break;
             case Contract.Measurement.COLUMN_PERIOD:
-                values.put(field, measurement.getPeriod());
+                values.put(field, measurement.getPeriod().toString());
                 break;
             case Contract.Measurement.COLUMN_SORT_ORDER:
                 values.put(field, measurement.getSortOrder());
@@ -82,7 +84,7 @@ public class MeasurementMapper extends BaseMapper<Measurement>
         measurement
                 .setMinistryId(getNonNullString(cursor, Contract.Measurement.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
         measurement.setMcc(this.getString(cursor, Contract.Measurement.COLUMN_MCC, null));
-        measurement.setPeriod(this.getString(cursor, Contract.Measurement.COLUMN_PERIOD, null));
+        measurement.setPeriod(getNonNullYearMonth(cursor, Contract.Measurement.COLUMN_PERIOD, YearMonth.now()));
         measurement.setSortOrder(this.getInt(cursor, Contract.Measurement.COLUMN_SORT_ORDER, 0));
 
         return measurement;

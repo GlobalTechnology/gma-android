@@ -1,6 +1,5 @@
 package com.expidev.gcmapp.service;
 
-import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENTS;
 import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENT_DETAILS;
 import static com.expidev.gcmapp.service.Type.SYNC_MEASUREMENTS;
 import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
@@ -29,6 +28,7 @@ import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.app.ThreadedIntentService;
 import org.ccci.gto.android.common.db.AbstractDao;
+import org.joda.time.YearMonth;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
@@ -55,6 +55,8 @@ public class MeasurementsService extends ThreadedIntentService
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
 
     @NonNull
+    private GmaApiClient mApi;
+    @NonNull
     private MeasurementDao measurementDao;
 
     private LocalBroadcastManager broadcastManager;
@@ -72,6 +74,7 @@ public class MeasurementsService extends ThreadedIntentService
     public void onCreate()
     {
         super.onCreate();
+        mApi = GmaApiClient.getInstance(this);
         broadcastManager = LocalBroadcastManager.getInstance(this);
         broadcastManager.sendBroadcast(startBroadcast());
         Log.i(TAG, "Action Started");
@@ -87,9 +90,6 @@ public class MeasurementsService extends ThreadedIntentService
 
         try {
             switch (type) {
-                case SAVE_MEASUREMENTS:
-                    saveMeasurementsToDatabase(intent);
-                    break;
                 case SYNC_MEASUREMENTS:
                     syncMeasurements(intent);
                     break;
@@ -119,14 +119,6 @@ public class MeasurementsService extends ThreadedIntentService
         }
 
         return intent;
-    }
-
-    public static void saveMeasurementsToDatabase(final Context context, List<Measurement> measurements)
-    {
-        Bundle extras = new Bundle(2);
-        extras.putSerializable(EXTRA_TYPE, SAVE_MEASUREMENTS);
-        extras.putSerializable("measurements", (ArrayList<Measurement>) measurements);
-        context.startService(baseIntent(context, extras));
     }
 
     public static void syncMeasurements(
@@ -170,13 +162,6 @@ public class MeasurementsService extends ThreadedIntentService
     //           Actions                              //
     ////////////////////////////////////////////////////
 
-    private List<Measurement> searchMeasurements(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc, String period)
-            throws ApiException {
-        final GmaApiClient apiClient = GmaApiClient.getInstance(this);
-        period = setPeriodToCurrentIfNecessary(period);
-        return apiClient.getMeasurements(ministryId, mcc, period);
-    }
-
     private MeasurementDetails retrieveDetailsForMeasurement(
         String measurementId,
         String ministryId,
@@ -205,18 +190,6 @@ public class MeasurementsService extends ThreadedIntentService
         }
     }
 
-    private void saveMeasurementsToDatabase(Intent intent)
-    {
-        @SuppressWarnings(value = "unchecked")
-        List<Measurement> measurements = (ArrayList<Measurement>) intent.getSerializableExtra("measurements");
-
-        if(measurements != null)
-        {
-            updateMeasurements(measurements);
-        }
-        Log.i(TAG, "Measurements saved to the database");
-    }
-
     private void updateMeasurements(List<Measurement> measurements)
     {
         // save measurements for the given period, ministry, and mcc to the database
@@ -240,7 +213,6 @@ public class MeasurementsService extends ThreadedIntentService
                 .putLong(PREF_SYNC_TIME_MEASUREMENTS, System.currentTimeMillis()).apply();
 
             // send broadcasts for updated data
-            broadcastManager.sendBroadcast(stopBroadcast(SAVE_MEASUREMENTS));
             broadcastManager.sendBroadcast(updateMeasurementsBroadcast());
         }
         catch(final SQLException e)
@@ -260,7 +232,8 @@ public class MeasurementsService extends ThreadedIntentService
             ministryId = Ministry.INVALID_ID;
         }
         final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(intent.getStringExtra(Constants.ARG_MCC));
-        String period = intent.getStringExtra(Constants.ARG_PERIOD);
+        final String rawPeriod = intent.getStringExtra(Constants.ARG_PERIOD);
+        final YearMonth period = rawPeriod != null ? YearMonth.parse(rawPeriod) : YearMonth.now();
         Assignment.Role role = (Assignment.Role) intent.getSerializableExtra("role");
 
         if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN)
@@ -274,14 +247,9 @@ public class MeasurementsService extends ThreadedIntentService
             return;
         }
 
-        Calendar previousMonth = Calendar.getInstance();
-        previousMonth.add(Calendar.MONTH, -1);
-
-        String previousPeriod = dateFormat.format(previousMonth.getTime());
-
         // retrieve and save the measurements for the current and previous period
-        List<Measurement> measurements = searchMeasurements(ministryId, mcc, period);
-        List<Measurement> previousPeriodMeasurements = searchMeasurements(ministryId, mcc, previousPeriod);
+        List<Measurement> measurements = mApi.getMeasurements(ministryId, mcc, period);
+        List<Measurement> previousPeriodMeasurements = mApi.getMeasurements(ministryId, mcc, period.minusMonths(1));
         if(previousPeriodMeasurements != null)
         {
             measurements.addAll(previousPeriodMeasurements);
@@ -315,7 +283,7 @@ public class MeasurementsService extends ThreadedIntentService
                     measurement.getMeasurementId(),
                     measurement.getMinistryId(),
                     measurement.getMcc(),
-                    measurement.getPeriod());
+                    measurement.getPeriod().toString());
 
                 if(measurementDetails != null)
                 {

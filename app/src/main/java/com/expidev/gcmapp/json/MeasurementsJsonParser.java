@@ -13,6 +13,7 @@ import com.expidev.gcmapp.model.measurement.SixMonthAmounts;
 import com.expidev.gcmapp.model.measurement.SubMinistryDetails;
 import com.expidev.gcmapp.model.measurement.TeamMemberDetails;
 
+import org.joda.time.YearMonth;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,8 +32,7 @@ public class MeasurementsJsonParser
         JSONArray measurementsJson,
         @NonNull final String ministryId,
         @NonNull final Ministry.Mcc mcc,
-        String period)
-    {
+        @NonNull final YearMonth period) {
         List<Measurement> measurementList = new ArrayList<>();
 
         try
@@ -63,7 +63,8 @@ public class MeasurementsJsonParser
 
         try
         {
-            measurementDetails.setMeasurementTypeIds(parseMeasurementTypeIds(json.getJSONObject("measurement_type_ids")));
+            measurementDetails.setMeasurementTypeIds(
+                    parseMeasurementTypeIds(json.getJSONObject("measurement_type_ids")));
             measurementDetails.setSixMonthTotalAmounts(parseSixMonthsAmounts(json.getJSONObject("total"), "total"));
             measurementDetails.setSixMonthLocalAmounts(parseSixMonthsAmounts(json.getJSONObject("local"), "local"));
             measurementDetails.setSixMonthPersonalAmounts(parseSixMonthsAmounts(json.getJSONObject("my_measurements"), "personal"));
