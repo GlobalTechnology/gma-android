@@ -13,18 +13,18 @@ import java.util.List;
 /**
  * Created by William.Randall on 1/26/2015.
  */
-public class MinistriesDaoTest extends InstrumentationTestCase
+public class GmaDaoTest extends InstrumentationTestCase
 {
     private final String TAG = getClass().getSimpleName();
 
-    private MinistriesDao ministriesDao;
+    private GmaDao ministriesDao;
 
     @Override
     public void setUp() throws Exception
     {
         super.setUp();
         Context context = new RenamingDelegatingContext(getInstrumentation().getTargetContext().getApplicationContext(), "test_");
-        ministriesDao = MinistriesDao.getInstance(context);
+        ministriesDao = GmaDao.getInstance(context);
     }
 
     private ArrayList<Assignment> getTestAssignments()

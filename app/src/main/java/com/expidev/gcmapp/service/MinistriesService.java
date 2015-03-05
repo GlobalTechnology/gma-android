@@ -22,7 +22,7 @@ import android.support.v4.util.LongSparseArray;
 import android.util.Log;
 
 import com.expidev.gcmapp.db.Contract;
-import com.expidev.gcmapp.db.MinistriesDao;
+import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
@@ -70,7 +70,7 @@ public class MinistriesService extends ThreadedIntentService {
     @NonNull
     private GmaApiClient mApi;
     @NonNull
-    private MinistriesDao mDao;
+    private GmaDao mDao;
     private LocalBroadcastManager broadcastManager;
 
     public MinistriesService()
@@ -112,7 +112,7 @@ public class MinistriesService extends ThreadedIntentService {
     {
         super.onCreate();
         mApi = GmaApiClient.getInstance(this);
-        mDao = MinistriesDao.getInstance(this);
+        mDao = GmaDao.getInstance(this);
         broadcastManager = LocalBroadcastManager.getInstance(this);
     }
 

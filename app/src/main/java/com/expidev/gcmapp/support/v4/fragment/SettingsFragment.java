@@ -19,7 +19,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.db.Contract;
-import com.expidev.gcmapp.db.MinistriesDao;
+import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
@@ -218,7 +218,7 @@ public class SettingsFragment extends PreferenceFragment {
                 // update assignment on a background thread
                 final Context context = getActivity();
                 final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
-                final MinistriesDao dao = MinistriesDao.getInstance(context);
+                final GmaDao dao = GmaDao.getInstance(context);
                 dao.async(new Runnable() {
                     @Override
                     public void run() {

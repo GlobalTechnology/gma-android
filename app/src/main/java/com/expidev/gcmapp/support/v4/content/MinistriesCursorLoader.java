@@ -10,21 +10,21 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.expidev.gcmapp.db.Contract;
-import com.expidev.gcmapp.db.MinistriesDao;
+import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
 
 public class MinistriesCursorLoader extends CursorBroadcastReceiverLoader {
-    private final MinistriesDao mDao;
+    private final GmaDao mDao;
 
     @Nullable
     private final String mGuid;
 
     public MinistriesCursorLoader(@NonNull final Context context, @Nullable final Bundle args) {
         super(context);
-        mDao = MinistriesDao.getInstance(context);
+        mDao = GmaDao.getInstance(context);
         mGuid = args != null ? args.getString(ARG_GUID) : null;
 
         // configure Broadcast listeners

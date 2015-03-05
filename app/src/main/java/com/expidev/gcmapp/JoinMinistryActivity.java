@@ -21,7 +21,7 @@ import android.widget.FilterQueryProvider;
 
 import com.expidev.gcmapp.activity.SettingsActivity;
 import com.expidev.gcmapp.db.Contract;
-import com.expidev.gcmapp.db.MinistriesDao;
+import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.MinistriesService;
@@ -36,7 +36,7 @@ public class JoinMinistryActivity extends ActionBarActivity
 {
     private final String TAG = this.getClass().getSimpleName();
 
-    private MinistriesDao mDao;
+    private GmaDao mDao;
 
     private AutoCompleteTextView mMinistriesTextView = null;
     SimpleCursorAdapter mMinistriesAdapter = null;
@@ -48,7 +48,7 @@ public class JoinMinistryActivity extends ActionBarActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_ministry);
-        mDao = MinistriesDao.getInstance(this);
+        mDao = GmaDao.getInstance(this);
         findViews();
         setupAdapters();
     }
@@ -174,10 +174,10 @@ public class JoinMinistryActivity extends ActionBarActivity
     private static final class MinistriesCursorProvider implements FilterQueryProvider,
             SimpleCursorAdapter.CursorToStringConverter {
         @NonNull
-        private final MinistriesDao mDao;
+        private final GmaDao mDao;
 
         private MinistriesCursorProvider(final Context context) {
-            mDao = MinistriesDao.getInstance(context);
+            mDao = GmaDao.getInstance(context);
         }
 
         private static final String[] PROJECTION_FIELDS =

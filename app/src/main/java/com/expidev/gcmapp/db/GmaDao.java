@@ -13,33 +13,30 @@ import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.Mapper;
 
-/**
- * Created by William.Randall on 1/21/2015.
- */
-public class MinistriesDao extends AbstractDao
+public class GmaDao extends AbstractDao
 {
     private final String TAG = getClass().getSimpleName();
 
     private static final Object instanceLock = new Object();
-    private static MinistriesDao instance;
+    private static GmaDao instance;
 
     private static final Mapper<Assignment> ASSIGNMENT_MAPPER = new AssignmentMapper();
     private static final Mapper<Ministry> MINISTRY_MAPPER = new MinistryMapper();
     private static final Mapper<MeasurementType> MEASUREMENT_TYPE_MAPPER = new MeasurementTypeMapper();
     private static final Mapper<Church> CHURCH_MAPPER = new ChurchMapper();
 
-    private MinistriesDao(final Context context)
+    private GmaDao(final Context context)
     {
         super(DatabaseOpenHelper.getInstance(context));
     }
 
-    public static MinistriesDao getInstance(Context context)
+    public static GmaDao getInstance(Context context)
     {
         synchronized(instanceLock)
         {
             if(instance == null)
             {
-                instance = new MinistriesDao(context.getApplicationContext());
+                instance = new GmaDao(context.getApplicationContext());
             }
         }
 

@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
 
 import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.db.Contract;
-import com.expidev.gcmapp.db.MinistriesDao;
+import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
@@ -20,7 +20,7 @@ import me.thekey.android.lib.TheKeyImpl;
 
 public class CreateAssignmentTask extends AsyncTask<Void, Void, Assignment> {
     private final GmaApiClient mApi;
-    protected final MinistriesDao mDao;
+    protected final GmaDao mDao;
     protected final TheKey mTheKey;
 
     @Nullable
@@ -37,7 +37,7 @@ public class CreateAssignmentTask extends AsyncTask<Void, Void, Assignment> {
     public CreateAssignmentTask(@NonNull final Context context, @Nullable final String email,
                                 @NonNull final String ministryId, @NonNull final Assignment.Role role) {
         mApi = GmaApiClient.getInstance(context);
-        mDao = MinistriesDao.getInstance(context);
+        mDao = GmaDao.getInstance(context);
         mTheKey = TheKeyImpl.getInstance(context, BuildConfig.THEKEY_CLIENTID);
         mEmail = email;
         mMinistryId = ministryId;

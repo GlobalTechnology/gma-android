@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.db.Contract;
-import com.expidev.gcmapp.db.MinistriesDao;
+import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.support.v4.content.ChurchLoader;
@@ -162,7 +162,7 @@ public class EditChurchFragment extends AbstractDialogFragment {
             if (church.isDirty()) {
                 final Context context = getActivity().getApplicationContext();
                 final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
-                final MinistriesDao dao = MinistriesDao.getInstance(context);
+                final GmaDao dao = GmaDao.getInstance(context);
 
                 dao.async(new Runnable() {
                     @Override

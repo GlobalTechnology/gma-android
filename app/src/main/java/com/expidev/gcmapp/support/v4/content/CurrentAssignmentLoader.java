@@ -11,7 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.expidev.gcmapp.db.Contract;
-import com.expidev.gcmapp.db.MinistriesDao;
+import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.utils.BroadcastUtils;
@@ -24,7 +24,7 @@ import java.util.List;
 public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPreferencesChangeLoader<Assignment> {
     public static final String ARG_LOAD_MINISTRY = CurrentAssignmentLoader.class.getSimpleName() + ".ARG_LOAD_MINISTRY";
 
-    private final MinistriesDao mDao;
+    private final GmaDao mDao;
 
     @Nullable
     private final String mGuid;
@@ -32,7 +32,7 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
 
     public CurrentAssignmentLoader(@NonNull final Context context, @Nullable final Bundle args) {
         super(context, context.getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE));
-        mDao = MinistriesDao.getInstance(context);
+        mDao = GmaDao.getInstance(context);
         mGuid = args != null ? args.getString(ARG_GUID) : null;
         mLoadMinistry = args != null && args.getBoolean(ARG_LOAD_MINISTRY, false);
 
