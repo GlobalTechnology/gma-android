@@ -24,7 +24,6 @@ import android.widget.TextView;
 
 import com.expidev.gcmapp.activity.SettingsActivity;
 import com.expidev.gcmapp.http.GmaApiClient;
-import com.expidev.gcmapp.json.MeasurementsJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.Measurement;
@@ -36,7 +35,6 @@ import com.expidev.gcmapp.view.TextHeaderView;
 
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
-import org.json.JSONArray;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -648,16 +646,7 @@ public class MeasurementsActivity extends ActionBarActivity
                 try {
                     GmaApiClient apiClient = GmaApiClient.getInstance(MeasurementsActivity.this);
 
-                    JSONArray results =
-                            apiClient.searchMeasurements(assignment.getMinistryId(), assignment.getMcc(), period);
-
-                    if (results == null) {
-                        Log.w(TAG, "No measurements found!");
-                        return null;
-                    }
-
-                    return MeasurementsJsonParser
-                            .parseMeasurements(results, assignment.getMinistryId(), assignment.getMcc(), period);
+                    return apiClient.getMeasurements(assignment.getMinistryId(), assignment.getMcc(), period);
                 } catch (ApiException e) {
                     Log.e(TAG, "Failed to retrieve measurements from API", e);
                     return null;

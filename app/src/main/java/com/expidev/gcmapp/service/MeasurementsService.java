@@ -1,5 +1,14 @@
 package com.expidev.gcmapp.service;
 
+import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENTS;
+import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENT_DETAILS;
+import static com.expidev.gcmapp.service.Type.SYNC_MEASUREMENTS;
+import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.updateMeasurementDetailsBroadcast;
+import static com.expidev.gcmapp.utils.BroadcastUtils.updateMeasurementsBroadcast;
+
 import android.content.Context;
 import android.content.Intent;
 import android.database.SQLException;
@@ -20,7 +29,6 @@ import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.app.ThreadedIntentService;
 import org.ccci.gto.android.common.db.AbstractDao;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
@@ -31,15 +39,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENTS;
-import static com.expidev.gcmapp.service.Type.SAVE_MEASUREMENT_DETAILS;
-import static com.expidev.gcmapp.service.Type.SYNC_MEASUREMENTS;
-import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.updateMeasurementDetailsBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.updateMeasurementsBroadcast;
 
 /**
  * Created by William.Randall on 2/4/2015.
@@ -175,17 +174,7 @@ public class MeasurementsService extends ThreadedIntentService
             throws ApiException {
         final GmaApiClient apiClient = GmaApiClient.getInstance(this);
         period = setPeriodToCurrentIfNecessary(period);
-        JSONArray results = apiClient.searchMeasurements(ministryId, mcc, period);
-
-        if(results == null)
-        {
-            Log.e(TAG, "No measurement results!");
-            return null;
-        }
-        else
-        {
-            return MeasurementsJsonParser.parseMeasurements(results, ministryId, mcc, period);
-        }
+        return apiClient.getMeasurements(ministryId, mcc, period);
     }
 
     private MeasurementDetails retrieveDetailsForMeasurement(

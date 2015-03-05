@@ -15,6 +15,7 @@ import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
+import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.service.MinistriesService;
 
@@ -315,9 +316,11 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
     /* END church methods */
 
+    /* BEGIN measurements methods */
+
     @Nullable
-    public JSONArray searchMeasurements(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
-                                        @Nullable final String period) throws ApiException {
+    public List<Measurement> getMeasurements(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
+                                             @Nullable final String period) throws ApiException {
         // short-circuit if we don't have a valid ministryId or mcc
         if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
             return null;
@@ -339,10 +342,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                return new JSONArray(IOUtils.readString(conn.getInputStream()));
+                return MeasurementsJsonParser
+                        .parseMeasurements(new JSONArray(IOUtils.readString(conn.getInputStream())), ministryId, mcc,
+                                           period);
             }
         } catch (final JSONException e) {
-            Log.e(TAG, "error parsing getAllMinistries response", e);
+            Log.e(TAG, "error parsing getMeasurements response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
         } finally {
@@ -437,6 +442,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             IOUtils.closeQuietly(conn);
         }
     }
+
+    /* END measurement methods */
 
     @Nullable
     public List<Assignment> getAssignments() throws ApiException {
