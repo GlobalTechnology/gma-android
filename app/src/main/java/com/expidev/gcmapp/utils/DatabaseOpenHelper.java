@@ -30,7 +30,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      * v0.8.1
      * 17: 2015-03-05
      */
-    private static final int DATABASE_VERSION = 16;
+    private static final int DATABASE_VERSION = 17;
     private static final String DATABASE_NAME = "gcm_data.db";
 
     private static final Object LOCK_INSTANCE = new Object();
@@ -60,6 +60,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         createAssignmentsTable(db);
         createTrainingTables(db);
         db.execSQL(Contract.Church.SQL_CREATE_TABLE);
+        db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
         createMeasurementsTables(db);
     }
 
