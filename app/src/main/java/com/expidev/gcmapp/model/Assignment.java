@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class Assignment extends Base implements Cloneable, Serializable {
     private static final long serialVersionUID = 0L;
@@ -38,7 +39,7 @@ public class Assignment extends Base implements Cloneable, Serializable {
         @NonNull
         public static Role fromRaw(@Nullable final String raw) {
             if (raw != null) {
-                switch (raw) {
+                switch (raw.toLowerCase(Locale.US)) {
                     case ROLE_LEADER:
                         return LEADER;
                     case ROLE_INHERITED_LEADER:
