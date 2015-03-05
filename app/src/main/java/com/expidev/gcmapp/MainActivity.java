@@ -157,7 +157,7 @@ public class MainActivity extends ActionBarActivity
         else
         {
             // trigger background syncing of data
-            GmaSyncService.syncAllMinistries(this);
+            GmaSyncService.syncMinistries(this);
             GmaSyncService.syncAssignments(this, theKey.getGuid());
 
             if (mAssignment != null) {
@@ -192,7 +192,7 @@ public class MainActivity extends ActionBarActivity
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.action_refresh:
-                GmaSyncService.syncAllMinistries(this, true);
+                GmaSyncService.syncMinistries(this, true);
                 GmaSyncService.syncAssignments(this, theKey.getGuid(), true);
                 if (mAssignment != null) {
                     GmaSyncService.syncChurches(this, mAssignment.getMinistryId());

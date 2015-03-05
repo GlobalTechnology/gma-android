@@ -120,7 +120,7 @@ public class GmaSyncService extends ThreadedIntentService {
         try {
             switch (type) {
                 case RETRIEVE_ALL_MINISTRIES:
-                    syncAllMinistries(intent);
+                    syncMinistries(intent);
                     break;
                 case SAVE_ASSOCIATED_MINISTRIES:
                     saveAssociatedMinistriesFromServer(intent);
@@ -161,11 +161,11 @@ public class GmaSyncService extends ThreadedIntentService {
     /**
      * Retrieve all ministries from the GCM API
      */
-    public static void syncAllMinistries(final Context context) {
-        syncAllMinistries(context, false);
+    public static void syncMinistries(final Context context) {
+        syncMinistries(context, false);
     }
 
-    public static void syncAllMinistries(final Context context, final boolean force) {
+    public static void syncMinistries(final Context context, final boolean force) {
         Bundle extras = new Bundle(2);
         extras.putSerializable(EXTRA_SYNCTYPE, RETRIEVE_ALL_MINISTRIES);
         extras.putBoolean(EXTRA_FORCE, force);
@@ -304,7 +304,7 @@ public class GmaSyncService extends ThreadedIntentService {
         }
     }
 
-    private void syncAllMinistries(final Intent intent) throws ApiException {
+    private void syncMinistries(final Intent intent) throws ApiException {
         final SharedPreferences prefs = this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE);
         final boolean force = intent.getBooleanExtra(EXTRA_FORCE, false);
         final boolean stale =
@@ -313,7 +313,7 @@ public class GmaSyncService extends ThreadedIntentService {
         // only sync if being forced or the data is stale
         if (force || stale) {
             // refresh the list of ministries if the load is being forced
-            final List<Ministry> ministries = mApi.getAllMinistries();
+            final List<Ministry> ministries = mApi.getMinistries();
 
             // only update the saved ministries if we received any back
             if (ministries != null) {

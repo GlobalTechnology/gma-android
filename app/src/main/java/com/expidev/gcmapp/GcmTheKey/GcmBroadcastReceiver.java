@@ -30,7 +30,7 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
     {
         Log.i(TAG, "On Login");
 
-        GmaSyncService.syncAllMinistries(context, true);
+        GmaSyncService.syncMinistries(context, true);
         GmaSyncService.syncAssignments(context, guid, true);
     }
 

@@ -193,13 +193,15 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         return this.sendRequest(login, 0);
     }
 
+    /* BEGIN Ministry Endpoints */
+
     @Nullable
-    public List<Ministry> getAllMinistries() throws ApiException {
-        return this.getAllMinistries(false);
+    public List<Ministry> getMinistries() throws ApiException {
+        return this.getMinistries(false);
     }
 
     @Nullable
-    public List<Ministry> getAllMinistries(final boolean refresh) throws ApiException {
+    public List<Ministry> getMinistries(final boolean refresh) throws ApiException {
         // build request
         final Request<Session> request = new Request<>(MINISTRIES);
         request.params.add(param("refresh", refresh));
@@ -217,7 +219,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
                 return Ministry.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
-            Log.e(TAG, "error parsing getAllMinistries response", e);
+            Log.e(TAG, "error parsing getMinistries response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
         } finally {
@@ -226,6 +228,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
         return null;
     }
+
+    /* END Ministries Endpoints */
 
     /* BEGIN church methods */
 
