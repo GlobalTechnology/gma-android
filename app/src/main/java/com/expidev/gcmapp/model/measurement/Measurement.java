@@ -30,6 +30,8 @@ public class Measurement extends Base implements Serializable
 
     @Nullable
     private MeasurementType type;
+    @Nullable
+    private MinistryMeasurement ministryMeasurement;
     private String name;
     private String measurementId;
     private String permLink;
@@ -67,6 +69,9 @@ public class Measurement extends Base implements Serializable
         measurement.period = period;
 
         measurement.type = MeasurementType.fromJson(json);
+        if (json.has(MinistryMeasurement.JSON_VALUE)) {
+            measurement.ministryMeasurement = MinistryMeasurement.fromJson(json, ministryId, mcc, period);
+        }
 
         measurement.measurementId = json.getString(JSON_MEASUREMENT_ID);
         measurement.name = json.getString(JSON_NAME);
@@ -87,6 +92,15 @@ public class Measurement extends Base implements Serializable
 
     public void setType(@Nullable final MeasurementType type) {
         this.type = type;
+    }
+
+    @Nullable
+    public MinistryMeasurement getMinistryMeasurement() {
+        return ministryMeasurement;
+    }
+
+    public void setMinistryMeasurement(@Nullable final MinistryMeasurement ministryMeasurement) {
+        this.ministryMeasurement = ministryMeasurement;
     }
 
     public String getName()
