@@ -17,6 +17,14 @@ public class Contract {
         static final String SQL_COLUMN_LAST_SYNCED = COLUMN_LAST_SYNCED + " INTEGER";
     }
 
+    private static interface Guid {
+        static final String COLUMN_GUID = "guid";
+
+        static final String SQL_COLUMN_GUID = COLUMN_GUID + " TEXT NOT NULL DEFAULT ''";
+
+        static final String SQL_WHERE_GUID = COLUMN_GUID + " = ?";
+    }
+
     private static interface MinistryId {
         public static final String COLUMN_MINISTRY_ID = "ministry_id";
 
@@ -152,10 +160,9 @@ public class Contract {
         public static final String SQL_V16_MCCS = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_MCCS;
     }
 
-    public static final class Assignment extends Base implements MinistryId {
+    public static final class Assignment extends Base implements Guid, MinistryId {
         public static final String TABLE_NAME = "assignments";
 
-        public static final String COLUMN_GUID = "guid";
         public static final String COLUMN_ROLE = "team_role";
         public static final String COLUMN_MCC = "mcc";
         public static final String COLUMN_ID = "assignment_id";
@@ -165,7 +172,6 @@ public class Contract {
         public static final String[] PROJECTION_API_GET_ASSIGNMENT = {COLUMN_ID, COLUMN_ROLE, COLUMN_LAST_SYNCED};
         public static final String[] PROJECTION_API_CREATE_ASSIGNMENT = PROJECTION_API_GET_ASSIGNMENT;
 
-        private static final String SQL_COLUMN_GUID = COLUMN_GUID + " TEXT NOT NULL DEFAULT ''";
         private static final String SQL_COLUMN_ROLE = COLUMN_ROLE + " TEXT";
         private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT NOT NULL DEFAULT ''";
         private static final String SQL_COLUMN_ID = COLUMN_ID + " TEXT";
