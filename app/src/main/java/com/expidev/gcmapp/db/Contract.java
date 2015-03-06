@@ -286,6 +286,34 @@ public class Contract {
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
+    public static final class MinistryMeasurement extends Base implements MinistryId, MeasurementTypeId {
+        static final String TABLE_NAME = "localMeasurements";
+
+        static final String COLUMN_MCC = "mcc";
+        static final String COLUMN_PERIOD = "period";
+        static final String COLUMN_VALUE = "value";
+
+        static final String[] PROJECTION_ALL =
+                {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_MEASUREMENT_TYPE_ID, COLUMN_PERIOD, COLUMN_VALUE};
+
+        private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
+        private static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
+        private static final String SQL_COLUMN_VALUE = COLUMN_VALUE + " INTEGER";
+        private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils
+                .join(",", new Object[] {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_MEASUREMENT_TYPE_ID, COLUMN_PERIOD}) +
+                ")";
+
+        static final String SQL_WHERE_PRIMARY_KEY =
+                SQL_WHERE_MINISTRY + " AND " + COLUMN_MCC + " = ? AND " + SQL_WHERE_MEASUREMENT_TYPE + " AND " +
+                        COLUMN_PERIOD + " = ?";
+
+        public static final String SQL_CREATE_TABLE =
+                "CREATE TABLE " + TABLE_NAME + " (" + TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID,
+                        SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_MEASUREMENT_TYPE_ID, SQL_COLUMN_MCC, SQL_COLUMN_PERIOD,
+                        SQL_COLUMN_VALUE, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
+        public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
+
     public static final class Measurement extends Base implements MinistryId {
         public static final String TABLE_NAME = "measurements";
         private static final String INDEX_NAME = "measurements_unique_index";

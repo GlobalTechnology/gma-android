@@ -14,7 +14,7 @@ public class MeasurementType extends Base {
     public static final String INVALID_ID = "";
     public static final int DEFAULT_SORT_ORDER = -1;
 
-    private static final String JSON_MEASUREMENT_ID = "measurement_id";
+    static final String JSON_MEASUREMENT_ID = "measurement_id";
     private static final String JSON_NAME = "name";
     private static final String JSON_PERM_LINK = "perm_link";
     private static final String JSON_DESCRIPTION = "description";

@@ -29,8 +29,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      * 16: 2015-03-01
      * v0.8.1
      * 17: 2015-03-05
+     * 18: 2015-03-06
      */
-    private static final int DATABASE_VERSION = 17;
+    private static final int DATABASE_VERSION = 18;
     private static final String DATABASE_NAME = "gcm_data.db";
 
     private static final Object LOCK_INSTANCE = new Object();
@@ -61,6 +62,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         createTrainingTables(db);
         db.execSQL(Contract.Church.SQL_CREATE_TABLE);
         db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
+        db.execSQL(Contract.MinistryMeasurement.SQL_CREATE_TABLE);
         createMeasurementsTables(db);
     }
 
@@ -109,6 +111,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
                 case 17:
                     db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
                     break;
+                case 18:
+                    db.execSQL(Contract.MinistryMeasurement.SQL_CREATE_TABLE);
+                    break;
                 default:
                     // unrecognized version, let's just reset the database and return
                     resetDatabase(db);
@@ -129,6 +134,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     private void resetDatabase(final SQLiteDatabase db) {
         db.execSQL(Contract.Church.SQL_DELETE_TABLE);
         db.execSQL(Contract.MeasurementType.SQL_DELETE_TABLE);
+        db.execSQL(Contract.MinistryMeasurement.SQL_DELETE_TABLE);
         deleteAllTables(db);
         onCreate(db);
     }
