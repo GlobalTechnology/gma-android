@@ -15,9 +15,9 @@ public class PersonalMeasurement extends MeasurementValue {
     private final String guid;
 
     public PersonalMeasurement(@NonNull final String guid, @NonNull final String ministryId,
-                                  @NonNull final Ministry.Mcc mcc, @NonNull final String measurementId,
-                                  @NonNull final YearMonth period) {
-        super(ministryId, mcc, measurementId, period);
+                               @NonNull final Ministry.Mcc mcc, @NonNull final String permLink,
+                               @NonNull final YearMonth period) {
+        super(ministryId, mcc, permLink, period);
         this.guid = guid;
     }
 
@@ -26,8 +26,7 @@ public class PersonalMeasurement extends MeasurementValue {
                                                @NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
                                                @NonNull final YearMonth period) throws JSONException {
         final PersonalMeasurement measurement =
-                new PersonalMeasurement(guid, ministryId, mcc, json.getString(MeasurementType.JSON_MEASUREMENT_ID),
-                                        period);
+                new PersonalMeasurement(guid, ministryId, mcc, json.getString(MeasurementType.JSON_PERM_LINK), period);
         measurement.setValue(json.getInt(JSON_VALUE));
         return measurement;
     }

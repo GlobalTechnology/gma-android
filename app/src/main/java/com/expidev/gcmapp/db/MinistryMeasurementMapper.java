@@ -13,13 +13,13 @@ public class MinistryMeasurementMapper extends MeasurementValueMapper<MinistryMe
     @NonNull
     @Override
     protected MinistryMeasurement newObject(@NonNull final Cursor c) {
-        final String measurementId = getNonNullString(c, Contract.MinistryMeasurement.COLUMN_MEASUREMENT_TYPE_ID,
-                                                      MeasurementType.INVALID_ID);
+        final String permLink =
+                getNonNullString(c, Contract.MinistryMeasurement.COLUMN_PERM_LINK, MeasurementType.INVALID_PERM_LINK);
         final String ministryId = getNonNullString(c, Contract.MinistryMeasurement.COLUMN_MINISTRY_ID,
                                                    Ministry.INVALID_ID);
         final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(getString(c, Contract.MinistryMeasurement.COLUMN_MCC));
         final YearMonth period = getNonNullYearMonth(c, Contract.MinistryMeasurement.COLUMN_PERIOD,
                                                      YearMonth.now());
-        return new MinistryMeasurement(ministryId, mcc, measurementId, period);
+        return new MinistryMeasurement(ministryId, mcc, permLink, period);
     }
 }

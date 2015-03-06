@@ -163,11 +163,11 @@ public class GmaDao extends AbstractDao
         } else if (obj instanceof MinistryMeasurement) {
             final MinistryMeasurement measurement = (MinistryMeasurement) obj;
             return getPrimaryKeyWhere(MinistryMeasurement.class, measurement.getMinistryId(), measurement.getMcc(),
-                                      measurement.getMeasurementId(), measurement.getPeriod());
+                                      measurement.getPermLink(), measurement.getPeriod());
         } else if (obj instanceof PersonalMeasurement) {
             final PersonalMeasurement measurement = (PersonalMeasurement) obj;
             return getPrimaryKeyWhere(PersonalMeasurement.class, measurement.getGuid(), measurement.getMinistryId(),
-                                      measurement.getMcc(), measurement.getMeasurementId(), measurement.getPeriod());
+                                      measurement.getMcc(), measurement.getPermLink(), measurement.getPeriod());
         } else if (obj instanceof Church) {
             return getPrimaryKeyWhere(Church.class, ((Church) obj).getId());
         }

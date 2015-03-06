@@ -28,13 +28,13 @@ public class PersonalMeasurementMapper extends MeasurementValueMapper<PersonalMe
     @Override
     protected PersonalMeasurement newObject(@NonNull final Cursor c) {
         final String guid = getNonNullString(c, Contract.PersonalMeasurement.COLUMN_GUID, "");
-        final String measurementId = getNonNullString(c, Contract.PersonalMeasurement.COLUMN_MEASUREMENT_TYPE_ID,
-                                                      MeasurementType.INVALID_ID);
-        final String ministryId = getNonNullString(c, Contract.PersonalMeasurement.COLUMN_MINISTRY_ID,
-                                                   Ministry.INVALID_ID);
+        final String permLink =
+                getNonNullString(c, Contract.PersonalMeasurement.COLUMN_PERM_LINK, MeasurementType.INVALID_PERM_LINK);
+        final String ministryId =
+                getNonNullString(c, Contract.PersonalMeasurement.COLUMN_MINISTRY_ID, Ministry.INVALID_ID);
         final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(getString(c, Contract.PersonalMeasurement.COLUMN_MCC));
         final YearMonth period = getNonNullYearMonth(c, Contract.PersonalMeasurement.COLUMN_PERIOD,
                                                      YearMonth.now());
-        return new PersonalMeasurement(guid, ministryId, mcc, measurementId, period);
+        return new PersonalMeasurement(guid, ministryId, mcc, permLink, period);
     }
 }

@@ -247,20 +247,12 @@ public class Contract {
     //              Measurement Contracts                       //
     //////////////////////////////////////////////////////////////
 
-    private static interface MeasurementTypeId {
-        static final String COLUMN_MEASUREMENT_TYPE_ID = "measurement_id";
-
-        static final String SQL_COLUMN_MEASUREMENT_TYPE_ID = COLUMN_MEASUREMENT_TYPE_ID + " TEXT NO NULL DEFAULT''";
-
-        public static final String SQL_WHERE_MEASUREMENT_TYPE = COLUMN_MEASUREMENT_TYPE_ID + " = ?";
-    }
-
     private static interface MeasurementPermLink {
         static final String COLUMN_PERM_LINK = "perm_link";
 
         static final String SQL_COLUMN_PERM_LINK = COLUMN_PERM_LINK + " TEXT NOT NULL DEFAULT ''";
 
-        public static final String SQL_WHERE_PERM_LINK = COLUMN_PERM_LINK + " = ?";
+        static final String SQL_WHERE_PERM_LINK = COLUMN_PERM_LINK + " = ?";
     }
 
     public static final class MeasurementType extends Base implements MeasurementPermLink {
@@ -299,7 +291,7 @@ public class Contract {
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
-    public static abstract class MeasurementValue extends Base implements MinistryId, MeasurementTypeId {
+    public static abstract class MeasurementValue extends Base implements MinistryId, MeasurementPermLink {
         static final String COLUMN_MCC = "mcc";
         static final String COLUMN_PERIOD = "period";
         public static final String COLUMN_VALUE = "value";
@@ -313,19 +305,18 @@ public class Contract {
         static final String TABLE_NAME = "localMeasurements";
 
         static final String[] PROJECTION_ALL =
-                {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_MEASUREMENT_TYPE_ID, COLUMN_PERIOD, COLUMN_VALUE};
+                {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK, COLUMN_PERIOD, COLUMN_VALUE};
 
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils
-                .join(",", new Object[] {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_MEASUREMENT_TYPE_ID, COLUMN_PERIOD}) +
-                ")";
+                .join(",", new Object[] {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK, COLUMN_PERIOD}) + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY =
-                SQL_WHERE_MINISTRY + " AND " + COLUMN_MCC + " = ? AND " + SQL_WHERE_MEASUREMENT_TYPE + " AND " +
+                SQL_WHERE_MINISTRY + " AND " + COLUMN_MCC + " = ? AND " + SQL_WHERE_PERM_LINK + " AND " +
                         COLUMN_PERIOD + " = ?";
 
         public static final String SQL_CREATE_TABLE =
                 "CREATE TABLE " + TABLE_NAME + " (" + TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID,
-                        SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_MEASUREMENT_TYPE_ID, SQL_COLUMN_MCC, SQL_COLUMN_PERIOD,
+                        SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_PERM_LINK, SQL_COLUMN_MCC, SQL_COLUMN_PERIOD,
                         SQL_COLUMN_VALUE, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
@@ -334,20 +325,19 @@ public class Contract {
         static final String TABLE_NAME = "personalMeasurements";
 
         static final String[] PROJECTION_ALL =
-                {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_MEASUREMENT_TYPE_ID, COLUMN_PERIOD, COLUMN_VALUE};
+                {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK, COLUMN_PERIOD, COLUMN_VALUE};
 
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils
-                .join(",", new Object[] {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_MEASUREMENT_TYPE_ID,
-                        COLUMN_PERIOD}) +
-                ")";
+                .join(",", new Object[] {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK,
+                        COLUMN_PERIOD}) + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY =
                 SQL_WHERE_GUID + " AND " + SQL_WHERE_MINISTRY + " AND " + COLUMN_MCC + " = ? AND " +
-                        SQL_WHERE_MEASUREMENT_TYPE + " AND " + COLUMN_PERIOD + " = ?";
+                        SQL_WHERE_PERM_LINK + " AND " + COLUMN_PERIOD + " = ?";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
-                TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_GUID,
-                        SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_MEASUREMENT_TYPE_ID, SQL_COLUMN_MCC, SQL_COLUMN_PERIOD,
+                TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_GUID, SQL_COLUMN_MINISTRY_ID,
+                        SQL_COLUMN_PERM_LINK, SQL_COLUMN_MCC, SQL_COLUMN_PERIOD,
                         SQL_COLUMN_VALUE, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }

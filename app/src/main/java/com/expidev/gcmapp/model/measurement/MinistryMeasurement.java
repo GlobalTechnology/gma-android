@@ -12,8 +12,8 @@ public class MinistryMeasurement extends MeasurementValue {
     static final String JSON_VALUE = "local";
 
     public MinistryMeasurement(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
-                               @NonNull final String measurementId, @NonNull final YearMonth period) {
-        super(ministryId, mcc, measurementId, period);
+                               @NonNull final String permLink, @NonNull final YearMonth period) {
+        super(ministryId, mcc, permLink, period);
     }
 
     @NonNull
@@ -21,7 +21,7 @@ public class MinistryMeasurement extends MeasurementValue {
                                                @NonNull final Ministry.Mcc mcc, @NonNull final YearMonth period)
             throws JSONException {
         final MinistryMeasurement measurement =
-                new MinistryMeasurement(ministryId, mcc, json.getString(MeasurementType.JSON_MEASUREMENT_ID), period);
+                new MinistryMeasurement(ministryId, mcc, json.getString(MeasurementType.JSON_PERM_LINK), period);
         measurement.setValue(json.getInt(JSON_VALUE));
         return measurement;
     }
