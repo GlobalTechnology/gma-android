@@ -1,19 +1,14 @@
 package com.expidev.gcmapp.json;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.BreakdownData;
-import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
-import com.expidev.gcmapp.model.measurement.MeasurementType;
 import com.expidev.gcmapp.model.measurement.MeasurementTypeIds;
 import com.expidev.gcmapp.model.measurement.SixMonthAmounts;
 import com.expidev.gcmapp.model.measurement.SubMinistryDetails;
 import com.expidev.gcmapp.model.measurement.TeamMemberDetails;
 
-import org.joda.time.YearMonth;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,35 +22,6 @@ import java.util.List;
 public class MeasurementsJsonParser
 {
     private static String TAG = MeasurementsJsonParser.class.getSimpleName();
-
-    public static List<Measurement> parseMeasurements(
-        JSONArray measurementsJson,
-        @NonNull final String ministryId,
-        @NonNull final Ministry.Mcc mcc,
-        @NonNull final YearMonth period) {
-        List<Measurement> measurementList = new ArrayList<>();
-
-        try
-        {
-            for(int i = 0; i < measurementsJson.length(); i++)
-            {
-                JSONObject measurementJson = measurementsJson.getJSONObject(i);
-                Measurement measurement = parseMeasurement(measurementJson);
-                measurement.setMinistryId(ministryId);
-                measurement.setMcc(mcc);
-                measurement.setPeriod(period);
-                measurementList.add(measurement);
-            }
-
-            return measurementList;
-        }
-        catch(JSONException e)
-        {
-            Log.e(TAG, e.getMessage(), e);
-        }
-
-        return null;
-    }
 
     public static MeasurementDetails parseMeasurementDetails(JSONObject json)
     {
@@ -82,23 +48,6 @@ public class MeasurementsJsonParser
         }
 
         return null;
-    }
-
-    public static Measurement parseMeasurement(JSONObject measurementJson) throws JSONException
-    {
-        Measurement measurement = new Measurement();
-        measurement.setType(MeasurementType.fromJson(measurementJson));
-
-        measurement.setName(measurementJson.getString("name"));
-        measurement.setMeasurementId(measurementJson.getString("measurement_id"));
-        measurement.setPermLink(measurementJson.getString("perm_link"));
-        measurement.setCustom(measurementJson.getBoolean("is_custom"));
-        measurement.setSection(measurementJson.getString("section"));
-        measurement.setColumn(measurementJson.getString("column"));
-        measurement.setTotal(measurementJson.optInt("total"));
-        measurement.setSortOrder(measurementJson.optInt("sort_order"));
-
-        return measurement;
     }
 
     private static MeasurementTypeIds parseMeasurementTypeIds(JSONObject json) throws JSONException
