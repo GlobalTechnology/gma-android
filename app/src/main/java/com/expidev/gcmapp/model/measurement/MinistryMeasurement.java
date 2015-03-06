@@ -22,11 +22,11 @@ public class MinistryMeasurement extends Base {
     private final YearMonth period;
     private int value = 0;
 
-    public MinistryMeasurement(@NonNull final String measurementId, @NonNull final String ministryId,
-                               @NonNull final Ministry.Mcc mcc, @NonNull final YearMonth period) {
-        this.measurementId = measurementId;
+    public MinistryMeasurement(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
+                               @NonNull final String measurementId, @NonNull final YearMonth period) {
         this.ministryId = ministryId;
         this.mcc = mcc;
+        this.measurementId = measurementId;
         this.period = period;
     }
 
@@ -35,7 +35,7 @@ public class MinistryMeasurement extends Base {
                                                @NonNull final Ministry.Mcc mcc, @NonNull final YearMonth period)
             throws JSONException {
         final MinistryMeasurement measurement =
-                new MinistryMeasurement(json.getString(MeasurementType.JSON_MEASUREMENT_ID), ministryId, mcc, period);
+                new MinistryMeasurement(ministryId, mcc, json.getString(MeasurementType.JSON_MEASUREMENT_ID), period);
         measurement.setValue(json.getInt(JSON_VALUE));
         return measurement;
     }
