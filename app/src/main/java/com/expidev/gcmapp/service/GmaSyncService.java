@@ -10,6 +10,7 @@ import static com.expidev.gcmapp.service.Type.SYNC_ASSIGNMENTS;
 import static com.expidev.gcmapp.service.Type.SYNC_CHURCHES;
 import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_CHURCHES;
 import static com.expidev.gcmapp.service.Type.SYNC_MEASUREMENTS;
+import static com.expidev.gcmapp.service.Type.SYNC_MEASUREMENT_TYPES;
 import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
@@ -109,6 +110,12 @@ public class GmaSyncService extends ThreadedIntentService {
         context.startService(intent);
     }
 
+    public static void syncMeasurementTypes(@NonNull final Context context) {
+        final Intent intent = new Intent(context, GmaSyncService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNC_MEASUREMENT_TYPES);
+        context.startService(intent);
+    }
+
     public static void syncMeasurements(@NonNull final Context context, @NonNull final String ministryId,
                                         @NonNull final Ministry.Mcc mcc, @Nullable final YearMonth period) {
         final Intent intent = new Intent(context, GmaSyncService.class);
@@ -152,6 +159,9 @@ public class GmaSyncService extends ThreadedIntentService {
                     break;
                 case SYNC_DIRTY_CHURCHES:
                     syncDirtyChurches();
+                    break;
+                case SYNC_MEASUREMENT_TYPES:
+                    syncMeasurementTypes(intent);
                     break;
                 case SYNC_MEASUREMENTS:
                     syncMeasurements(intent);
@@ -379,6 +389,21 @@ public class GmaSyncService extends ThreadedIntentService {
         }
     }
 
+    private static final String[] PROJECTION_SYNC_MEASUREMENT_TYPES_TYPE =
+            {Contract.MeasurementType.COLUMN_DESCRIPTION, Contract.MeasurementType.COLUMN_SECTION,
+                    Contract.MeasurementType.COLUMN_COLUMN, Contract.MeasurementType.COLUMN_SORT_ORDER,
+                    Contract.MeasurementType.COLUMN_PERSONAL_ID, Contract.MeasurementType.COLUMN_LOCAL_ID,
+                    Contract.MeasurementType.COLUMN_TOTAL_ID, Contract.MeasurementType.COLUMN_LAST_SYNCED};
+
+    private void syncMeasurementTypes(final Intent intent) throws ApiException {
+        final List<MeasurementType> types = mApi.getMeasurementTypes();
+        if (types != null) {
+            for (final MeasurementType type : types) {
+                mDao.updateOrInsert(type, PROJECTION_SYNC_MEASUREMENT_TYPES_TYPE);
+            }
+        }
+    }
+
     private static final String[] PROJECTION_SYNC_MEASUREMENTS_TYPE =
             {Contract.MeasurementType.COLUMN_NAME, Contract.MeasurementType.COLUMN_PERM_LINK,
                     Contract.MeasurementType.COLUMN_DESCRIPTION, Contract.MeasurementType.COLUMN_SECTION,
@@ -406,37 +431,27 @@ public class GmaSyncService extends ThreadedIntentService {
         final List<Measurement> measurements = mApi.getMeasurements(ministryId, mcc, period);
         if (measurements != null) {
             // update measurement data in the database
-            final Transaction tx = mDao.newTransaction();
-            try {
-                tx.begin();
-
-                // update db with new measurement data
-                for (final Measurement measurement : measurements) {
-                    // update the measurement type data
-                    final MeasurementType type = measurement.getType();
-                    if (type != null) {
-                        type.setLastSynced();
-                        mDao.updateOrInsert(type, PROJECTION_SYNC_MEASUREMENTS_TYPE);
-                    }
-
-                    // update ministry measurements
-                    final MinistryMeasurement ministryMeasurement = measurement.getMinistryMeasurement();
-                    if (ministryMeasurement != null) {
-                        ministryMeasurement.setLastSynced();
-                        mDao.updateOrInsert(ministryMeasurement, PROJECTION_SYNC_MEASUREMENTS_MINISTRY_MEASUREMENT);
-                    }
-
-                    // update personal measurements
-                    final PersonalMeasurement personalMeasurement = measurement.getPersonalMeasurement();
-                    if (personalMeasurement != null) {
-                        personalMeasurement.setLastSynced();
-                        mDao.updateOrInsert(personalMeasurement, PROJECTION_SYNC_MEASUREMENTS_PERSONAL_MEASUREMENT);
-                    }
+            for (final Measurement measurement : measurements) {
+                // update the measurement type data
+                final MeasurementType type = measurement.getType();
+                if (type != null) {
+                    type.setLastSynced();
+                    mDao.updateOrInsert(type, PROJECTION_SYNC_MEASUREMENTS_TYPE);
                 }
 
-                tx.setSuccessful();
-            } finally {
-                tx.end();
+                // update ministry measurements
+                final MinistryMeasurement ministryMeasurement = measurement.getMinistryMeasurement();
+                if (ministryMeasurement != null) {
+                    ministryMeasurement.setLastSynced();
+                    mDao.updateOrInsert(ministryMeasurement, PROJECTION_SYNC_MEASUREMENTS_MINISTRY_MEASUREMENT);
+                }
+
+                // update personal measurements
+                final PersonalMeasurement personalMeasurement = measurement.getPersonalMeasurement();
+                if (personalMeasurement != null) {
+                    personalMeasurement.setLastSynced();
+                    mDao.updateOrInsert(personalMeasurement, PROJECTION_SYNC_MEASUREMENTS_PERSONAL_MEASUREMENT);
+                }
             }
 
             //TODO: broadcasts

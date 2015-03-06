@@ -160,7 +160,7 @@ public class MainActivity extends ActionBarActivity
             // trigger background syncing of data
             GmaSyncService.syncMinistries(this);
             GmaSyncService.syncAssignments(this, theKey.getGuid());
-
+            GmaSyncService.syncMeasurementTypes(this);
             if (mAssignment != null) {
                 GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
                                                 YearMonth.now());
@@ -197,6 +197,7 @@ public class MainActivity extends ActionBarActivity
             case R.id.action_refresh:
                 GmaSyncService.syncMinistries(this, true);
                 GmaSyncService.syncAssignments(this, theKey.getGuid(), true);
+                GmaSyncService.syncMeasurementTypes(this);
                 if (mAssignment != null) {
                     GmaSyncService.syncChurches(this, mAssignment.getMinistryId());
                     GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
