@@ -23,7 +23,7 @@ public class MeasurementType extends Base {
     private static final String JSON_SORT_ORDER = "sort_order";
 
     public enum Section {
-        WIN, BUILD, SEND, UNKNOWN;
+        WIN, BUILD, SEND, OTHER, UNKNOWN;
 
         @NonNull
         public static Section fromRaw(@Nullable final String raw) {
@@ -35,6 +35,8 @@ public class MeasurementType extends Base {
                         return BUILD;
                     case "send":
                         return SEND;
+                    case "other":
+                        return OTHER;
                 }
             }
             return UNKNOWN;
