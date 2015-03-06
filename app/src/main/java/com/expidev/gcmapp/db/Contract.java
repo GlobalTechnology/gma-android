@@ -286,19 +286,22 @@ public class Contract {
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
-    public static final class MinistryMeasurement extends Base implements MinistryId, MeasurementTypeId {
-        static final String TABLE_NAME = "localMeasurements";
-
+    public static abstract class MeasurementValue extends Base implements MinistryId, MeasurementTypeId {
         static final String COLUMN_MCC = "mcc";
         static final String COLUMN_PERIOD = "period";
         static final String COLUMN_VALUE = "value";
 
+        static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
+        static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
+        static final String SQL_COLUMN_VALUE = COLUMN_VALUE + " INTEGER";
+    }
+
+    public static final class MinistryMeasurement extends MeasurementValue {
+        static final String TABLE_NAME = "localMeasurements";
+
         static final String[] PROJECTION_ALL =
                 {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_MEASUREMENT_TYPE_ID, COLUMN_PERIOD, COLUMN_VALUE};
 
-        private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
-        private static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
-        private static final String SQL_COLUMN_VALUE = COLUMN_VALUE + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils
                 .join(",", new Object[] {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_MEASUREMENT_TYPE_ID, COLUMN_PERIOD}) +
                 ")";
