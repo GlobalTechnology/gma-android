@@ -17,6 +17,7 @@ import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
+import com.expidev.gcmapp.model.measurement.MeasurementType;
 import com.expidev.gcmapp.service.GmaSyncService;
 
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
@@ -55,6 +56,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     private static final String ASSIGNMENTS = "assignments";
     private static final String CHURCHES = "churches";
     private static final String MEASUREMENTS = "measurements";
+    private static final String MEASUREMENT_TYPES = "measurement_types";
     private static final String MINISTRIES = "ministries";
     private static final String TOKEN = "token";
     private static final String TRAINING = "training";
@@ -322,6 +324,28 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     /* END church methods */
 
     /* BEGIN measurements methods */
+
+    @Nullable
+    public List<MeasurementType> getMeasurementTypes() throws ApiException {
+        // build & process request
+        HttpURLConnection conn = null;
+        try {
+            conn = sendRequest(new Request<Session>(MEASUREMENT_TYPES));
+
+            // is this a successful response?
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                return MeasurementType.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())));
+            }
+        } catch (final JSONException e) {
+            Log.e(TAG, "error parsing getMeasurementTypes response", e);
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+
+        return null;
+    }
 
     @Nullable
     public List<Measurement> getMeasurements(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,

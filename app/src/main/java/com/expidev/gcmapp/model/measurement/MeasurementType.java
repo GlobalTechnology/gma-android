@@ -5,9 +5,12 @@ import android.support.annotation.Nullable;
 
 import com.expidev.gcmapp.model.Base;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class MeasurementType extends Base {
@@ -15,6 +18,9 @@ public class MeasurementType extends Base {
     public static final int DEFAULT_SORT_ORDER = -1;
 
     static final String JSON_MEASUREMENT_ID = "measurement_id";
+    private static final String JSON_PERSONAL_ID = "person_id";
+    private static final String JSON_LOCAL_ID = "local_id";
+    private static final String JSON_TOTAL_ID = "total_id";
     private static final String JSON_NAME = "name";
     private static final String JSON_PERM_LINK = "perm_link";
     private static final String JSON_DESCRIPTION = "description";
@@ -65,6 +71,12 @@ public class MeasurementType extends Base {
 
     @NonNull
     private String measurementId = INVALID_ID;
+    @NonNull
+    private String personalId = INVALID_ID;
+    @NonNull
+    private String localId = INVALID_ID;
+    @NonNull
+    private String totalId = INVALID_ID;
     @Nullable
     private String name;
     @Nullable
@@ -78,10 +90,22 @@ public class MeasurementType extends Base {
     private int sortOrder = DEFAULT_SORT_ORDER;
 
     @NonNull
+    public static List<MeasurementType> listFromJson(@NonNull final JSONArray json) throws JSONException {
+        final List<MeasurementType> types = new ArrayList<>();
+        for (int i = 0; i < json.length(); i++) {
+            types.add(MeasurementType.fromJson(json.getJSONObject(i)));
+        }
+        return types;
+    }
+
+    @NonNull
     public static MeasurementType fromJson(@NonNull final JSONObject json) throws JSONException {
         final MeasurementType type = new MeasurementType();
-        type.measurementId = json.getString(JSON_MEASUREMENT_ID);
-        type.name = json.getString(JSON_NAME);
+        type.measurementId = json.optString(JSON_MEASUREMENT_ID, INVALID_ID);
+        type.personalId = json.optString(JSON_PERSONAL_ID, INVALID_ID);
+        type.localId = json.optString(JSON_LOCAL_ID, INVALID_ID);
+        type.totalId = json.optString(JSON_TOTAL_ID, INVALID_ID);
+        type.name = json.optString(JSON_NAME, null);
         type.permLink = json.getString(JSON_PERM_LINK);
         type.description = json.getString(JSON_DESCRIPTION);
         type.section = Section.fromRaw(json.getString(JSON_SECTION));
@@ -97,6 +121,33 @@ public class MeasurementType extends Base {
 
     public void setMeasurementId(@NonNull final String measurementId) {
         this.measurementId = measurementId;
+    }
+
+    @NonNull
+    public String getPersonalId() {
+        return personalId;
+    }
+
+    public void setPersonalId(@NonNull final String personalId) {
+        this.personalId = personalId;
+    }
+
+    @NonNull
+    public String getLocalId() {
+        return localId;
+    }
+
+    public void setLocalId(@NonNull final String localId) {
+        this.localId = localId;
+    }
+
+    @NonNull
+    public String getTotalId() {
+        return totalId;
+    }
+
+    public void setTotalId(@NonNull final String totalId) {
+        this.totalId = totalId;
     }
 
     @Nullable
