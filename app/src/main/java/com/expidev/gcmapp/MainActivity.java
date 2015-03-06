@@ -51,6 +51,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterManager;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.joda.time.YearMonth;
 
 import java.util.List;
 
@@ -161,6 +162,8 @@ public class MainActivity extends ActionBarActivity
             GmaSyncService.syncAssignments(this, theKey.getGuid());
 
             if (mAssignment != null) {
+                GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
+                                                YearMonth.now());
                 MeasurementsService.syncMeasurements(
                     this,
                     mAssignment.getMinistryId(),
@@ -196,6 +199,8 @@ public class MainActivity extends ActionBarActivity
                 GmaSyncService.syncAssignments(this, theKey.getGuid(), true);
                 if (mAssignment != null) {
                     GmaSyncService.syncChurches(this, mAssignment.getMinistryId());
+                    GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
+                                                    YearMonth.now());
                     MeasurementsService.syncMeasurements(
                         this,
                         mAssignment.getMinistryId(),
@@ -251,6 +256,8 @@ public class MainActivity extends ActionBarActivity
         if (mAssignment != null) {
             GmaSyncService.syncChurches(this, mAssignment.getMinistryId());
             TrainingService.syncTraining(this, mAssignment.getMinistryId(), mAssignment.getMcc());
+            GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
+                                            YearMonth.now());
             MeasurementsService.syncMeasurements(
                 this,
                 mAssignment.getMinistryId(),

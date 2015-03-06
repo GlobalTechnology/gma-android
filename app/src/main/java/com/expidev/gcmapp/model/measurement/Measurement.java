@@ -32,6 +32,8 @@ public class Measurement extends Base implements Serializable
     private MeasurementType type;
     @Nullable
     private MinistryMeasurement ministryMeasurement;
+    @Nullable
+    private PersonalMeasurement personalMeasurement;
     private String name;
     private String measurementId;
     private String permLink;
@@ -49,20 +51,20 @@ public class Measurement extends Base implements Serializable
     private int sortOrder;
 
     @NonNull
-    public static List<Measurement> listFromJson(@NonNull final JSONArray json, @NonNull final String ministryId,
-                                                 @NonNull final Ministry.Mcc mcc, @NonNull final YearMonth period)
-            throws JSONException {
+    public static List<Measurement> listFromJson(@NonNull final JSONArray json, @NonNull final String guid,
+                                                 @NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
+                                                 @NonNull final YearMonth period) throws JSONException {
         final List<Measurement> measurements = new ArrayList<>();
         for (int i = 0; i < json.length(); i++) {
-            measurements.add(Measurement.fromJson(json.getJSONObject(i), ministryId, mcc, period));
+            measurements.add(Measurement.fromJson(json.getJSONObject(i), guid, ministryId, mcc, period));
         }
         return measurements;
     }
 
     @NonNull
-    public static Measurement fromJson(@NonNull final JSONObject json, @NonNull final String ministryId,
-                                       @NonNull final Ministry.Mcc mcc, @NonNull final YearMonth period)
-            throws JSONException {
+    public static Measurement fromJson(@NonNull final JSONObject json, @NonNull final String guid,
+                                       @NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
+                                       @NonNull final YearMonth period) throws JSONException {
         final Measurement measurement = new Measurement();
         measurement.ministryId = ministryId;
         measurement.mcc = mcc;
@@ -71,6 +73,9 @@ public class Measurement extends Base implements Serializable
         measurement.type = MeasurementType.fromJson(json);
         if (json.has(MinistryMeasurement.JSON_VALUE)) {
             measurement.ministryMeasurement = MinistryMeasurement.fromJson(json, ministryId, mcc, period);
+        }
+        if (json.has(PersonalMeasurement.JSON_VALUE)) {
+            measurement.personalMeasurement = PersonalMeasurement.fromJson(json, guid, ministryId, mcc, period);
         }
 
         measurement.measurementId = json.getString(JSON_MEASUREMENT_ID);
@@ -101,6 +106,15 @@ public class Measurement extends Base implements Serializable
 
     public void setMinistryMeasurement(@Nullable final MinistryMeasurement ministryMeasurement) {
         this.ministryMeasurement = ministryMeasurement;
+    }
+
+    @Nullable
+    public PersonalMeasurement getPersonalMeasurement() {
+        return personalMeasurement;
+    }
+
+    public void setPersonalMeasurement(@Nullable final PersonalMeasurement personalMeasurement) {
+        this.personalMeasurement = personalMeasurement;
     }
 
     public String getName()

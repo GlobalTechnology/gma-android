@@ -258,12 +258,12 @@ public class Contract {
     public static final class MeasurementType extends Base implements MeasurementTypeId {
         static final String TABLE_NAME = "measurementTypes";
 
-        static final String COLUMN_NAME = "name";
-        static final String COLUMN_PERM_LINK = "perm_link";
-        static final String COLUMN_DESCRIPTION = "description";
-        static final String COLUMN_SECTION = "section";
-        static final String COLUMN_COLUMN = "column";
-        static final String COLUMN_SORT_ORDER = "sort_order";
+        public static final String COLUMN_NAME = "name";
+        public static final String COLUMN_PERM_LINK = "perm_link";
+        public static final String COLUMN_DESCRIPTION = "description";
+        public static final String COLUMN_SECTION = "section";
+        public static final String COLUMN_COLUMN = "column";
+        public static final String COLUMN_SORT_ORDER = "sort_order";
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_MEASUREMENT_TYPE_ID, COLUMN_NAME, COLUMN_PERM_LINK, COLUMN_DESCRIPTION, COLUMN_SECTION,
@@ -289,7 +289,7 @@ public class Contract {
     public static abstract class MeasurementValue extends Base implements MinistryId, MeasurementTypeId {
         static final String COLUMN_MCC = "mcc";
         static final String COLUMN_PERIOD = "period";
-        static final String COLUMN_VALUE = "value";
+        public static final String COLUMN_VALUE = "value";
 
         static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
         static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
