@@ -31,8 +31,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      * 17: 2015-03-05
      * 18: 2015-03-06
      * 19: 2015-03-06
+     * 20: 2015-03-06
      */
-    private static final int DATABASE_VERSION = 19;
+    private static final int DATABASE_VERSION = 20;
     private static final String DATABASE_NAME = "gcm_data.db";
 
     private static final Object LOCK_INSTANCE = new Object();
@@ -118,6 +119,11 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
                     break;
                 case 19:
                     db.execSQL(Contract.PersonalMeasurement.SQL_CREATE_TABLE);
+                    break;
+                case 20:
+                    // XXX: let's just recreate the table instead of altering the existing table
+                    db.execSQL(Contract.MeasurementType.SQL_DELETE_TABLE);
+                    db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
                     break;
                 default:
                     // unrecognized version, let's just reset the database and return

@@ -15,14 +15,16 @@ import java.util.Locale;
 
 public class MeasurementType extends Base {
     public static final String INVALID_ID = "";
+    public static final String INVALID_PERM_LINK = "";
     public static final int DEFAULT_SORT_ORDER = -1;
 
+    @Deprecated
     static final String JSON_MEASUREMENT_ID = "measurement_id";
+    static final String JSON_PERM_LINK = "perm_link";
     private static final String JSON_PERSONAL_ID = "person_id";
     private static final String JSON_LOCAL_ID = "local_id";
     private static final String JSON_TOTAL_ID = "total_id";
     private static final String JSON_NAME = "name";
-    private static final String JSON_PERM_LINK = "perm_link";
     private static final String JSON_DESCRIPTION = "description";
     private static final String JSON_SECTION = "section";
     private static final String JSON_COLUMN = "column";
@@ -70,8 +72,6 @@ public class MeasurementType extends Base {
     }
 
     @NonNull
-    private String measurementId = INVALID_ID;
-    @NonNull
     private String personalId = INVALID_ID;
     @NonNull
     private String localId = INVALID_ID;
@@ -79,7 +79,7 @@ public class MeasurementType extends Base {
     private String totalId = INVALID_ID;
     @Nullable
     private String name;
-    @Nullable
+    @NonNull
     private String permLink;
     @Nullable
     private String description;
@@ -101,7 +101,6 @@ public class MeasurementType extends Base {
     @NonNull
     public static MeasurementType fromJson(@NonNull final JSONObject json) throws JSONException {
         final MeasurementType type = new MeasurementType();
-        type.measurementId = json.optString(JSON_MEASUREMENT_ID, INVALID_ID);
         type.personalId = json.optString(JSON_PERSONAL_ID, INVALID_ID);
         type.localId = json.optString(JSON_LOCAL_ID, INVALID_ID);
         type.totalId = json.optString(JSON_TOTAL_ID, INVALID_ID);
@@ -112,15 +111,6 @@ public class MeasurementType extends Base {
         type.column = Column.fromRaw(json.getString(JSON_COLUMN));
         type.sortOrder = json.optInt(JSON_SORT_ORDER, DEFAULT_SORT_ORDER);
         return type;
-    }
-
-    @NonNull
-    public String getMeasurementId() {
-        return measurementId;
-    }
-
-    public void setMeasurementId(@NonNull final String measurementId) {
-        this.measurementId = measurementId;
     }
 
     @NonNull
@@ -159,12 +149,12 @@ public class MeasurementType extends Base {
         this.name = name;
     }
 
-    @Nullable
+    @NonNull
     public String getPermLink() {
         return permLink;
     }
 
-    public void setPermLink(@Nullable final String permLink) {
+    public void setPermLink(@NonNull final String permLink) {
         this.permLink = permLink;
     }
 

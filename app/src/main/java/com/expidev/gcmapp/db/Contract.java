@@ -255,34 +255,47 @@ public class Contract {
         public static final String SQL_WHERE_MEASUREMENT_TYPE = COLUMN_MEASUREMENT_TYPE_ID + " = ?";
     }
 
-    public static final class MeasurementType extends Base implements MeasurementTypeId {
+    private static interface MeasurementPermLink {
+        static final String COLUMN_PERM_LINK = "perm_link";
+
+        static final String SQL_COLUMN_PERM_LINK = COLUMN_PERM_LINK + " TEXT NOT NULL DEFAULT ''";
+
+        public static final String SQL_WHERE_PERM_LINK = COLUMN_PERM_LINK + " = ?";
+    }
+
+    public static final class MeasurementType extends Base implements MeasurementPermLink {
         static final String TABLE_NAME = "measurementTypes";
 
+        public static final String COLUMN_PERSONAL_ID = "personalId";
+        public static final String COLUMN_LOCAL_ID = "localId";
+        public static final String COLUMN_TOTAL_ID = "totalId";
         public static final String COLUMN_NAME = "name";
-        public static final String COLUMN_PERM_LINK = "perm_link";
         public static final String COLUMN_DESCRIPTION = "description";
         public static final String COLUMN_SECTION = "section";
         public static final String COLUMN_COLUMN = "column";
         public static final String COLUMN_SORT_ORDER = "sort_order";
 
         static final String[] PROJECTION_ALL =
-                {COLUMN_MEASUREMENT_TYPE_ID, COLUMN_NAME, COLUMN_PERM_LINK, COLUMN_DESCRIPTION, COLUMN_SECTION,
-                        COLUMN_SECTION, COLUMN_COLUMN, COLUMN_SORT_ORDER};
+                {COLUMN_PERM_LINK, COLUMN_PERSONAL_ID, COLUMN_LOCAL_ID, COLUMN_TOTAL_ID, COLUMN_NAME,
+                        COLUMN_DESCRIPTION, COLUMN_SECTION, COLUMN_SECTION, COLUMN_COLUMN, COLUMN_SORT_ORDER};
 
+        private static final String SQL_COLUMN_PERSONAL_ID = COLUMN_PERSONAL_ID + " TEXT";
+        private static final String SQL_COLUMN_LOCAL_ID = COLUMN_LOCAL_ID + " TEXT";
+        private static final String SQL_COLUMN_TOTAL_ID = COLUMN_TOTAL_ID + " TEXT";
         private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
-        private static final String SQL_COLUMN_PERM_LINK = COLUMN_PERM_LINK + " TEXT";
         private static final String SQL_COLUMN_DESCRIPTION = COLUMN_DESCRIPTION + " TEXT";
         private static final String SQL_COLUMN_SECTION = COLUMN_SECTION + " TEXT";
         private static final String SQL_COLUMN_COLUMN = COLUMN_COLUMN + " TEXT";
         private static final String SQL_COLUMN_SORT_ORDER = COLUMN_SORT_ORDER + " INTEGER";
-        private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_MEASUREMENT_TYPE_ID + ")";
+        private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_PERM_LINK + ")";
 
-        static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_MEASUREMENT_TYPE;
+        static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_PERM_LINK;
 
-        public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
-                .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_MEASUREMENT_TYPE_ID, SQL_COLUMN_NAME,
-                        SQL_COLUMN_PERM_LINK, SQL_COLUMN_DESCRIPTION, SQL_COLUMN_SECTION, SQL_COLUMN_COLUMN,
-                        SQL_COLUMN_SORT_ORDER, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
+        public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+                TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_PERSONAL_ID, SQL_COLUMN_LOCAL_ID,
+                        SQL_COLUMN_TOTAL_ID, SQL_COLUMN_NAME, SQL_COLUMN_PERM_LINK, SQL_COLUMN_DESCRIPTION,
+                        SQL_COLUMN_SECTION, SQL_COLUMN_COLUMN, SQL_COLUMN_SORT_ORDER, SQL_COLUMN_LAST_SYNCED,
+                        SQL_PRIMARY_KEY}) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
