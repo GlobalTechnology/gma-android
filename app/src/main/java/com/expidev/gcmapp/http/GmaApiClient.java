@@ -46,9 +46,6 @@ import me.thekey.android.TheKey;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.TheKeyImpl;
 
-/**
- * Created by matthewfrederick on 1/23/15.
- */
 public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Session>, Session> {
     private final String TAG = getClass().getSimpleName();
 
@@ -61,21 +58,26 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     private static final String TOKEN = "token";
     private static final String TRAINING = "training";
 
-    private static final Object LOCK_INSTANCE = new Object();
-    private static GmaApiClient INSTANCE;
+    private static final Map<String, GmaApiClient> INSTANCES = new HashMap<>();
 
-    private GmaApiClient(final Context context) {
-        super(context, TheKeyImpl.getInstance(context), BuildConfig.GCM_BASE_URI, "gcm_api_sessions");
+    private GmaApiClient(final Context context, final String guid) {
+        super(context, TheKeyImpl.getInstance(context), BuildConfig.GCM_BASE_URI, "gcm_api_sessions", guid);
     }
 
-    public static GmaApiClient getInstance(final Context context) {
-        synchronized (LOCK_INSTANCE) {
-            if(INSTANCE == null) {
-                INSTANCE = new GmaApiClient(context.getApplicationContext());
-            }
-        }
+    @Deprecated
+    public static GmaApiClient getInstance(@NonNull final Context context) {
+        return getInstance(context, null);
+    }
 
-        return INSTANCE;
+    @NonNull
+    public static GmaApiClient getInstance(@NonNull final Context context, @Nullable final String guid) {
+        synchronized (INSTANCES) {
+            if (!INSTANCES.containsKey(guid)) {
+                INSTANCES.put(guid, new GmaApiClient(context.getApplicationContext(), guid));
+            }
+
+            return INSTANCES.get(guid);
+        }
     }
 
     @Nullable
