@@ -63,8 +63,7 @@ public class MinistriesDao extends AbstractDao
 
     @NonNull
     @Override
-    protected String[] getFullProjection(@NonNull final Class<?> clazz)
-    {
+    public String[] getFullProjection(@NonNull final Class<?> clazz) {
         if (Ministry.class.equals(clazz)) {
             return Contract.Ministry.PROJECTION_ALL;
         } else if (Assignment.class.equals(clazz)) {
