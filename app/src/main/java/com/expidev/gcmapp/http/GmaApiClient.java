@@ -61,6 +61,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     private static final String TOKEN = "token";
     private static final String TRAINING = "training";
 
+    private static final String MEASUREMENTS_SOURCE = "gma-app";
+
     private static final Map<String, GmaApiClient> INSTANCES = new HashMap<>();
 
     private GmaApiClient(final Context context, final String guid) {
@@ -358,6 +360,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
         // build request
         final Request<Session> request = new Request<>(MEASUREMENTS);
+        request.params.add(param("source", MEASUREMENTS_SOURCE));
         request.params.add(param("ministry_id", ministryId));
         request.params.add(param("mcc", mcc.raw));
         request.params.add(param("period", period.toString()));
