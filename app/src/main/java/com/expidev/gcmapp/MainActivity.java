@@ -419,25 +419,22 @@ public class MainActivity extends ActionBarActivity
 
     public void goToMeasurements(MenuItem menuItem)
     {
-        if(mAssignment != null && mAssignment.isBlocked())
-        {
-            AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.title_dialog_blocked))
-                .setMessage(getString(R.string.disallowed_measurements))
-                .setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        dialog.dismiss();
-                    }
-                })
-                .create();
+        if (mAssignment != null) {
+            if (!mAssignment.isBlocked()) {
+                com.expidev.gcmapp.activity.MeasurementsActivity.start(this, mAssignment.getGuid());
+            } else {
+                AlertDialog alertDialog = new AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.title_dialog_blocked))
+                        .setMessage(getString(R.string.disallowed_measurements))
+                        .setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .create();
 
-            alertDialog.show();
-        }
-        else
-        {
-            startActivity(new Intent(getApplicationContext(), MeasurementsActivity.class));
+                alertDialog.show();
+            }
         }
     }
 

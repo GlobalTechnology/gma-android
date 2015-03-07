@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Widget.GMA.Measurements" parent="Base" />
+
+    <style name="Widget.GMA.Measurements.Header">
+        <item name="android:background">#eaebed</item>
+    </style>
+</resources>

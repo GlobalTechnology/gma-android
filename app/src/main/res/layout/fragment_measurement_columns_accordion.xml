@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="4dp"
+        android:background="#c6c8c6"/>
+
+    <RelativeLayout
+        android:id="@+id/faithHeader"
+        style="@style/Widget.GMA.Measurements.Header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/faithLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:src="@drawable/ic_header_measurements_faith"
+            android:scaleType="fitStart"
+            android:cropToPadding="false"
+            android:adjustViewBounds="true"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/faithLogo"
+            android:layout_toEndOf="@id/faithLogo"
+            android:text="Faith Actions"/>
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/faithContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <RelativeLayout
+        android:id="@+id/fruitHeader"
+        style="@style/Widget.GMA.Measurements.Header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/fruitLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:src="@drawable/ic_header_measurements_fruit"
+            android:scaleType="fitStart"
+            android:cropToPadding="false"
+            android:adjustViewBounds="true"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/fruitLogo"
+            android:layout_toEndOf="@id/fruitLogo"
+            android:text="Fruit"/>
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/fruitContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone"/>
+
+    <RelativeLayout
+        android:id="@+id/outcomesHeader"
+        style="@style/Widget.GMA.Measurements.Header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/outcomesLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:src="@drawable/ic_header_measurements_outcomes"
+            android:scaleType="fitStart"
+            android:cropToPadding="false"
+            android:adjustViewBounds="true"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/outcomesLogo"
+            android:layout_toEndOf="@id/outcomesLogo"
+            android:text="Outcomes"/>
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/outcomesContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone"/>
+</LinearLayout>
