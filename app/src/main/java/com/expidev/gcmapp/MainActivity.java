@@ -1,11 +1,5 @@
 package com.expidev.gcmapp;
 
-import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
-import static com.expidev.gcmapp.Constants.ARG_GUID;
-import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
-import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
-import static com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -64,6 +58,12 @@ import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.content.AttributesLoader;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
+
+import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
+import static com.expidev.gcmapp.Constants.ARG_GUID;
+import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
+import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
+import static com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
 
 public class MainActivity extends ActionBarActivity
     implements OnMapReadyCallback
@@ -431,24 +431,6 @@ public class MainActivity extends ActionBarActivity
         {
             startActivity(new Intent(getApplicationContext(), MeasurementsActivity.class));
         }
-    }
-
-    public void reset(MenuItem menuItem)
-    {
-        //TODO: implement reset: clear local data-model, download from server
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle("Reset")
-                .setMessage("Re-downloading information...")
-                .setNeutralButton("OK", new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        dialog.dismiss();
-                    }
-                })
-                .create();
-
-        alertDialog.show();
     }
 
     public void logout(MenuItem menuItem)
