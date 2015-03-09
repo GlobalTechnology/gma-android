@@ -35,9 +35,7 @@
                 android:value=".MainActivity" />
         </activity>
         <activity
-            android:name=".SplashActivity"
-            android:label="@string/title_activity_join_ministry"
-            android:parentActivityName=".MainActivity">
+            android:name=".SplashActivity">
             <meta-data
                 android:screenOrientation="sensorPortrait"
                 android:value=".SplashActivity" />
