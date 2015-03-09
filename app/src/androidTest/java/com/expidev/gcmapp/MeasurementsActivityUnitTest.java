@@ -12,38 +12,6 @@ import java.util.List;
  */
 public class MeasurementsActivityUnitTest extends TestCase
 {
-    /**
-     * Should sort the list into this structure:
-     *   - _AnotherColumn
-     *     Win 3
-     *     Build 3
-     *     Build 4
-     *     Send 3
-     *   - _Training
-     *     Win 1
-     *     Win 2
-     *     Build 1
-     *     Build 2
-     *     Send 1
-     *     Send 2
-     */
-    public void testSortMeasurements()
-    {
-        MeasurementsActivity measurementsActivity = new MeasurementsActivity();
-        List<Measurement> sortedList = measurementsActivity.sortMeasurements(testMeasurements());
-
-        assertEquals("w3", sortedList.get(0).getMeasurementId());
-        assertEquals("b3", sortedList.get(1).getMeasurementId());
-        assertEquals("b4", sortedList.get(2).getMeasurementId());
-        assertEquals("s3", sortedList.get(3).getMeasurementId());
-        assertEquals("w1", sortedList.get(4).getMeasurementId());
-        assertEquals("w2", sortedList.get(5).getMeasurementId());
-        assertEquals("b1", sortedList.get(6).getMeasurementId());
-        assertEquals("b2", sortedList.get(7).getMeasurementId());
-        assertEquals("s1", sortedList.get(8).getMeasurementId());
-        assertEquals("s2", sortedList.get(9).getMeasurementId());
-    }
-
     private Measurement buildTestMeasurement(String section, String iteration, String column)
     {
         Measurement testMeasurement = new Measurement();

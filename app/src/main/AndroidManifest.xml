@@ -56,21 +56,12 @@
         </activity>
 
         <activity
-            android:name=".MeasurementsActivity"
-            android:label="@string/title_activity_measurements"
-            android:parentActivityName=".MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.expidev.gcmapp.MainActivity" />
-        </activity>
-
-        <activity
             android:name=".MeasurementDetailsActivity"
             android:label="@string/title_activity_measurement_details"
-            android:parentActivityName=".MeasurementsActivity">
+            android:parentActivityName=".activity.MeasurementsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.expidev.gcmapp.MeasurementsActivity" />
+                android:value="com.expidev.gcmapp.activity.MeasurementsActivity"/>
         </activity>
 
         <activity-alias
