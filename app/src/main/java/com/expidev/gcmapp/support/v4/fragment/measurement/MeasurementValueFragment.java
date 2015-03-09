@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.expidev.gcmapp.MeasurementDetailsActivity;
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.MeasurementType;
@@ -32,6 +33,7 @@ import org.joda.time.YearMonth;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import butterknife.Optional;
 
 public class MeasurementValueFragment extends Fragment {
@@ -124,6 +126,15 @@ public class MeasurementValueFragment extends Fragment {
         mValue = value;
         mType = mValue != null ? mValue.getType() : null;
         updateViews();
+    }
+
+    @Optional
+    @OnClick(R.id.value)
+    void onClickValue() {
+        if (mType != null) {
+            MeasurementDetailsActivity
+                    .start(getActivity(), mMinistryId, mMcc, mPermLink, mPeriod, mType.getTotalId(), mType.getName());
+        }
     }
 
     @Override
