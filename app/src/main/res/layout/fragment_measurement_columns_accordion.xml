@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
@@ -36,11 +37,24 @@
             android:text="Faith Actions"/>
     </RelativeLayout>
 
-    <FrameLayout
+    <RelativeLayout
         android:id="@+id/faithContent"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_header_measurements_faith_under"
+            tools:ignore="ContentDescription"/>
+
+        <FrameLayout
+            android:id="@+id/faithPagerFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/fruitHeader"
@@ -69,12 +83,25 @@
             android:text="Fruit"/>
     </RelativeLayout>
 
-    <FrameLayout
+    <RelativeLayout
         android:id="@+id/fruitContent"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_header_measurements_fruit_under"
+            tools:ignore="ContentDescription"/>
+
+        <FrameLayout
+            android:id="@+id/fruitPagerFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/outcomesHeader"
@@ -103,10 +130,23 @@
             android:text="Outcomes"/>
     </RelativeLayout>
 
-    <FrameLayout
+    <RelativeLayout
         android:id="@+id/outcomesContent"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_header_measurements_outcomes_under"
+            tools:ignore="ContentDescription"/>
+
+        <FrameLayout
+            android:id="@+id/outcomesPagerFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </RelativeLayout>
 </LinearLayout>

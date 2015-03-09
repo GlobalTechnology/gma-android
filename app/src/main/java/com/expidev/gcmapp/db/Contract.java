@@ -281,7 +281,10 @@ public class Contract {
         private static final String SQL_COLUMN_SORT_ORDER = COLUMN_SORT_ORDER + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_PERM_LINK + ")";
 
+        private static final String SQL_PREFIX = TABLE_NAME + ".";
+
         static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_PERM_LINK;
+        public static final String SQL_WHERE_COLUMN = SQL_PREFIX + COLUMN_COLUMN + " = ?";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_PERSONAL_ID, SQL_COLUMN_LOCAL_ID,

@@ -8,12 +8,11 @@ public class Constants {
     /* common args */
     public static final String ARG_GUID = "guid";
     public static final String ARG_MINISTRY_ID = "ministry_id";
-    
-    
     public static final String ARG_TRAINING_ID = "training_id";
     public static final String ARG_CHURCH_ID = "church_id";
     public static final String ARG_MEASUREMENT_ID = "measurementId";
     public static final String ARG_MCC = "mcc";
+    public static final String ARG_PERMLINK = "perm_link";
     public static final String ARG_PERIOD = "period";
 
     /* common extra's */

@@ -18,6 +18,8 @@ public class MeasurementType extends Base {
     public static final String INVALID_PERM_LINK = "";
     public static final int DEFAULT_SORT_ORDER = -1;
 
+    public static final String ARG_COLUMN = MeasurementType.class.getName() + ".ARG_COLUMN";
+
     static final String JSON_PERM_LINK = "perm_link";
     private static final String JSON_PERSONAL_ID = "person_id";
     private static final String JSON_LOCAL_ID = "local_id";

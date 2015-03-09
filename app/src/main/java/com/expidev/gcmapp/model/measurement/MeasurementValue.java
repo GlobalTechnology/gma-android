@@ -1,5 +1,6 @@
 package com.expidev.gcmapp.model.measurement;
 
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 
 import com.expidev.gcmapp.model.Base;
@@ -7,7 +8,17 @@ import com.expidev.gcmapp.model.Ministry;
 
 import org.joda.time.YearMonth;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 public abstract class MeasurementValue extends Base {
+    public static final int TYPE_PERSONAL = 1;
+    public static final int TYPE_LOCAL = 2;
+
+    @IntDef({TYPE_PERSONAL, TYPE_LOCAL})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ValueType {}
+
     @NonNull
     private final String ministryId;
     @NonNull

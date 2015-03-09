@@ -1,5 +1,11 @@
 package com.expidev.gcmapp;
 
+import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
+import static com.expidev.gcmapp.Constants.ARG_GUID;
+import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
+import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
+import static com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -59,12 +65,6 @@ import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.support.v4.content.AttributesLoader;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
-
-import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
-import static com.expidev.gcmapp.Constants.ARG_GUID;
-import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
-import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
-import static com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
 
 public class MainActivity extends ActionBarActivity
     implements OnMapReadyCallback
@@ -421,7 +421,8 @@ public class MainActivity extends ActionBarActivity
     {
         if (mAssignment != null) {
             if (!mAssignment.isBlocked()) {
-                com.expidev.gcmapp.activity.MeasurementsActivity.start(this, mAssignment.getGuid());
+                com.expidev.gcmapp.activity.MeasurementsActivity
+                        .start(this, mAssignment.getGuid(), mAssignment.getMinistryId(), mAssignment.getMcc());
             } else {
                 AlertDialog alertDialog = new AlertDialog.Builder(this)
                         .setTitle(getString(R.string.title_dialog_blocked))
