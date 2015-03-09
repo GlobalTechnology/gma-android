@@ -9,7 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class PersonalMeasurement extends MeasurementValue {
-    static final String JSON_VALUE = "personal";
+    static final String JSON_VALUE = "person";
 
     @NonNull
     private final String guid;
