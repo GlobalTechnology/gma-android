@@ -3,7 +3,6 @@ package com.expidev.gcmapp.db;
 import android.content.Context;
 import android.test.InstrumentationTestCase;
 import android.test.RenamingDelegatingContext;
-import android.util.Log;
 
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
@@ -26,12 +25,6 @@ public class MinistriesDaoTest extends InstrumentationTestCase
         super.setUp();
         Context context = new RenamingDelegatingContext(getInstrumentation().getTargetContext().getApplicationContext(), "test_");
         ministriesDao = MinistriesDao.getInstance(context);
-    }
-
-    private void cleanupDatabase()
-    {
-        Log.i(TAG, "Cleaning up database");
-        ministriesDao.deleteAllData();
     }
 
     private ArrayList<Assignment> getTestAssignments()

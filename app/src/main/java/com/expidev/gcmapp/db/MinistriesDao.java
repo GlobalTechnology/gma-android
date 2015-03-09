@@ -1,9 +1,7 @@
 package com.expidev.gcmapp.db;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.util.Pair;
 
 import com.expidev.gcmapp.model.Assignment;
@@ -63,8 +61,7 @@ public class MinistriesDao extends AbstractDao
 
     @NonNull
     @Override
-    protected String[] getFullProjection(@NonNull final Class<?> clazz)
-    {
+    public String[] getFullProjection(@NonNull final Class<?> clazz) {
         if (Ministry.class.equals(clazz)) {
             return Contract.Ministry.PROJECTION_ALL;
         } else if (Assignment.class.equals(clazz)) {
@@ -138,28 +135,5 @@ public class MinistriesDao extends AbstractDao
         }
 
         return super.getPrimaryKeyWhere(obj);
-    }
-
-    void deleteAllData()
-    {
-        final SQLiteDatabase database = dbHelper.getWritableDatabase();
-
-        database.beginTransaction();
-
-        try
-        {
-            database.delete(getTable(Assignment.class), null, null);
-            database.delete(getTable(Ministry.class), null, null);
-            database.setTransactionSuccessful();
-        }
-        catch(Exception e)
-        {
-            Log.e(TAG, e.getMessage());
-        }
-        finally
-        {
-            database.endTransaction();
-            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (deleteAllData)");
-        }
     }
 }

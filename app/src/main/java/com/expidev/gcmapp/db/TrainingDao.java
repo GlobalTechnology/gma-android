@@ -58,7 +58,7 @@ public class TrainingDao extends AbstractDao
 
     @NonNull
     @Override
-    protected String[] getFullProjection(@NonNull final Class<?> clazz) {
+    public String[] getFullProjection(@NonNull final Class<?> clazz) {
         if (Training.class.equals(clazz)) {
             return Contract.Training.PROJECTION_ALL;
         } else if (Training.GCMTrainingCompletions.class.equals(clazz)) {
