@@ -2,7 +2,6 @@ package com.expidev.gcmapp.http;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -159,17 +158,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Override
-    protected void onPrepareUri(@NonNull final Uri.Builder uri, @NonNull final Request<Session> request)
-            throws ApiException {
-        super.onPrepareUri(uri, request);
-
-        // append the session_token when using the session
-        if (request.useSession && request.session != null) {
-            uri.appendQueryParameter("token", request.session.id);
-        }
-    }
-
-    @Override
     protected void onPrepareRequest(@NonNull final HttpURLConnection conn, @NonNull final Request<Session> request)
     throws ApiException, IOException {
         super.onPrepareRequest(conn, request);
@@ -180,6 +168,10 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         // XXX: this should go away once we remove the cookie requirement on the API
         if (request.useSession && request.session != null) {
             conn.addRequestProperty("Cookie", TextUtils.join("; ", request.session.cookies));
+        }
+        //Add bearer token code to replace URI token id [MMAND-12]
+        if(request.useSession && request.session != null) {
+            conn.addRequestProperty("Authorization", "Bearer " + request.session.id);
         }
     }
 
