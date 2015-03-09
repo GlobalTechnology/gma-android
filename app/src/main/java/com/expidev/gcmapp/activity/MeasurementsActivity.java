@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
+import android.widget.TextView;
 
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.model.Ministry;
@@ -18,7 +19,16 @@ import com.expidev.gcmapp.support.v4.fragment.measurement.ColumnsListFragment;
 
 import org.joda.time.YearMonth;
 
+import java.util.Locale;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
+import butterknife.Optional;
+
 public class MeasurementsActivity extends ActionBarActivity {
+    private static final YearMonth NOW = YearMonth.now();
+
     @NonNull
     private String mGuid;
     @NonNull
@@ -26,7 +36,12 @@ public class MeasurementsActivity extends ActionBarActivity {
     @NonNull
     private Ministry.Mcc mMcc = Ministry.Mcc.UNKNOWN;
     @NonNull
-    private YearMonth mPeriod = YearMonth.now();
+    private YearMonth mPeriod = NOW;
+
+    @Optional
+    @Nullable
+    @InjectView(R.id.currentPeriod)
+    TextView mPeriodView;
 
     public static void start(@NonNull final Context context, @NonNull final String guid,
                              @NonNull final String ministryId, @NonNull final Ministry.Mcc mcc) {
@@ -44,13 +59,13 @@ public class MeasurementsActivity extends ActionBarActivity {
         context.startActivity(intent);
     }
 
-
     /* BEGIN lifecycle */
 
     @Override
     protected void onCreate(@Nullable final Bundle savedState) {
         super.onCreate(savedState);
         setContentView(R.layout.activity_measurements_frags);
+        ButterKnife.inject(this);
 
         final Intent intent = this.getIntent();
         mGuid = intent.getStringExtra(EXTRA_GUID);
@@ -58,10 +73,56 @@ public class MeasurementsActivity extends ActionBarActivity {
         mMcc = Ministry.Mcc.fromRaw(intent.getStringExtra(EXTRA_MCC));
         mPeriod = YearMonth.parse(intent.getStringExtra(EXTRA_PERIOD));
 
+        // load savedState
+        if (savedState != null) {
+            if (savedState.containsKey(EXTRA_PERIOD)) {
+                mPeriod = YearMonth.parse(savedState.getString(EXTRA_PERIOD));
+            }
+        }
+
+        updatePeriodView();
         loadMeasurementColumnsFragment();
     }
 
+    @Optional
+    @OnClick(R.id.nextPeriod)
+    void onNextPeriod() {
+        if (mPeriod.isBefore(NOW)) {
+            mPeriod = mPeriod.plusMonths(1);
+
+            updatePeriodView();
+            loadMeasurementColumnsFragment();
+        }
+    }
+
+    @Optional
+    @OnClick(R.id.previousPeriod)
+    void onPrevPeriod() {
+        mPeriod = mPeriod.minusMonths(1);
+
+        updatePeriodView();
+        loadMeasurementColumnsFragment();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(EXTRA_PERIOD, mPeriod.toString());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ButterKnife.reset(this);
+    }
+
     /* END lifecycle */
+
+    private void updatePeriodView() {
+        if (mPeriodView != null) {
+            mPeriodView.setText(mPeriod.toString("MMM yyyy", Locale.getDefault()));
+        }
+    }
 
     private void loadMeasurementColumnsFragment() {
         final ColumnsListFragment fragment = ColumnsListFragment.newInstance(mGuid, mMinistryId, mMcc, mPeriod);

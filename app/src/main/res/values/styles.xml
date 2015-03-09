@@ -5,6 +5,12 @@
     <style name="Base"/>
 
     <style name="Theme.GMA" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textAppearance">@style/TextAppearance.GMA</item>
+        <item name="android:textAppearanceLarge">@style/TextAppearance.AppCompat.Large</item>
     </style>
+
+    <style name="TextAppearance.GMA" parent="TextAppearance.AppCompat"/>
+
+    <style name="TextAppearance.GMA.Large" parent="TextAppearance.AppCompat.Large"/>
 
 </resources>
