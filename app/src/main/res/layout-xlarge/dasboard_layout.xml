@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent" android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="#edebea"
+    android:id="@+id/">
+
+  <include layout="@layout/head_layout"
+        android:id="@+id/include4" />
+
+       <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:src="@drawable/menubg"
+            android:layout_gravity="center"
+            android:id="@+id/menubg"
+            android:layout_below="@+id/imageView3"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="10dp"
+            android:id="@+id/imageView3"
+            android:background="#0e2240"
+            android:layout_alignBottom="@+id/include4"
+            android:layout_alignRight="@+id/imageView4"
+            android:layout_alignEnd="@+id/imageView4" />
+    <!--     -->
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView4"
+                android:src="@drawable/gmalogo"
+                android:layout_alignTop="@+id/btgroup"
+                android:layout_alignLeft="@+id/btppl_group"
+                android:layout_alignStart="@+id/btppl_group"
+                android:layout_marginTop="50dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btperson"
+                android:src="@drawable/person_point"
+                android:layout_marginRight="116dp"
+                android:layout_marginEnd="116dp"
+                android:layout_marginBottom="85dp"
+                android:layout_marginLeft="161dp"
+                android:layout_marginStart="161dp"
+                android:layout_below="@+id/include4"
+                android:layout_alignLeft="@+id/btchurch"
+                android:layout_alignStart="@+id/btchurch"
+                android:layout_alignBottom="@+id/btgroup"
+                android:layout_alignRight="@+id/btgrad_hat"
+                android:layout_alignEnd="@+id/btgrad_hat"/>
+                   android:layout_alignBottom="@+id/imageView4"/>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btgroup"
+                android:src="@drawable/group"
+                android:layout_marginTop="227dp"
+                android:layout_above="@+id/btppl_group"
+                android:layout_marginBottom="121dp"
+                android:layout_below="@+id/include4"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="73dp"
+                android:layout_marginStart="73dp"
+                android:layout_alignRight="@+id/btppl_group"
+                android:layout_alignEnd="@+id/btppl_group"
+                android:layout_marginRight="189dp"
+                android:layout_marginEnd="189dp"/>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btchurch"
+                android:src="@drawable/church"
+                android:layout_marginLeft="123dp"
+                android:layout_marginStart="123dp"
+                android:layout_below="@+id/include4"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="502dp"
+                android:layout_marginRight="211dp"
+                android:layout_marginEnd="211dp"
+                android:layout_marginBottom="127dp"
+                android:layout_alignBottom="@+id/btgrad_hat"
+                android:layout_alignRight="@+id/btppl_group"
+                android:layout_alignEnd="@+id/btppl_group"/>
+      -->
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btppl_group"
+                android:src="@drawable/globe_ppl"
+                android:layout_alignBottom="@+id/btgrad_hat"
+                android:layout_marginRight="230dp"
+                android:layout_marginEnd="230dp"
+                android:layout_marginLeft="324dp"
+                android:layout_marginStart="324dp"
+                android:layout_marginTop="33dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignRight="@+id/btgrad_hat"
+                android:layout_alignEnd="@+id/btgrad_hat"
+                android:layout_alignTop="@+id/btgrad_hat"/>
+
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btgrad_hat"
+            android:src="@drawable/grad_hat"
+            android:layout_marginLeft="500dp"
+            android:layout_marginStart="500dp"
+            android:layout_marginTop="563dp"
+            android:layout_marginRight="52dp"
+            android:layout_marginEnd="52dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/include4"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_above="@+id/include2"
+            android:layout_marginBottom="36dp"/>
+
+    <include layout="@layout/footer_layout"
+        android:id="@+id/include2" />
+
+</RelativeLayout>

@@ -71,4 +71,8 @@
     <string name="you_label">You</string>
     <string name="sub_team_ministries_header">Sub-Team/Ministries</string>
 
+    <!-- login page -->
+    <string name="Sing_in">Sign In</string>
+    <string name="Sing_in_text">Hello wellcome to GMA APP</string>
+
 </resources>

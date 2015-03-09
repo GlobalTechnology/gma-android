@@ -1,8 +1,36 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-    </style>
+<!-- Base application theme. -->
+<style name="AppTheme" >
+    <!-- Customize your theme here. -->
+</style>
+<style name="Mainstyle">
+    <item name="android:background">#e6e2e7</item>
+
+</style>
+
+
+<style name="Headstyle">
+    <item name="android:layout_width">fill_parent</item>
+    <item name="android:layout_height">150dp</item>
+</style>
+
+<style name="FooterBar">
+    <item name="android:layout_width">fill_parent</item>
+    <item name="android:layout_height">46dp</item>
+    <item name="android:orientation">horizontal</item>
+    <item name="android:background">#0e2240</item>
+    <item name="android:layout_alignParentBottom">true</item>
+</style>
+<style name="line">
+    <item name="android:layout_width">fill_parent</item>
+    <item name="android:layout_height">10dp</item>
+    <item name="android:orientation">horizontal</item>
+    <item name="android:background">#0e2240</item>
+</style>
+<style name="Dashboard">
+    <item name="android:layout_height">400dp</item>
+    <item name="android:layout_above">@id/include4</item>
+</style>
 
 </resources>
