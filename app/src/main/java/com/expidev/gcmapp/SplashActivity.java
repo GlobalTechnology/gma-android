@@ -13,7 +13,7 @@ public class SplashActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layou.dasboard_layout);
         Thread timer=new Thread(){
             public  void run(){
                 try{
