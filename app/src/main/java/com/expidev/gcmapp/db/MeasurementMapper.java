@@ -25,9 +25,6 @@ public class MeasurementMapper extends BaseMapper<Measurement>
             case Contract.Measurement.COLUMN_MEASUREMENT_ID:
                 values.put(field, measurement.getMeasurementId());
                 break;
-            case Contract.Measurement.COLUMN_NAME:
-                values.put(field, measurement.getName());
-                break;
             case Contract.Measurement.COLUMN_PERM_LINK:
                 values.put(field, measurement.getPermLink());
                 break;
@@ -75,7 +72,6 @@ public class MeasurementMapper extends BaseMapper<Measurement>
         final Measurement measurement = super.toObject(cursor);
 
         measurement.setMeasurementId(this.getString(cursor, Contract.Measurement.COLUMN_MEASUREMENT_ID, "NO ID"));
-        measurement.setName(this.getString(cursor, Contract.Measurement.COLUMN_NAME, null));
         measurement.setPermLink(this.getString(cursor, Contract.Measurement.COLUMN_PERM_LINK, null));
         measurement.setCustom(this.getBool(cursor, Contract.Measurement.COLUMN_CUSTOM, false));
         measurement.setSection(this.getString(cursor, Contract.Measurement.COLUMN_SECTION, null));

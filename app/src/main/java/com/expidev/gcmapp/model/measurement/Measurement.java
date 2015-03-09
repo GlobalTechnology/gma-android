@@ -79,7 +79,6 @@ public class Measurement extends Base implements Serializable
         }
 
         measurement.measurementId = json.getString(JSON_MEASUREMENT_ID);
-        measurement.name = json.getString(JSON_NAME);
         measurement.permLink = json.getString(JSON_PERM_LINK);
         measurement.custom = json.getBoolean(JSON_CUSTOM);
         measurement.section = json.getString(JSON_SECTION);
@@ -115,16 +114,6 @@ public class Measurement extends Base implements Serializable
 
     public void setPersonalMeasurement(@Nullable final PersonalMeasurement personalMeasurement) {
         this.personalMeasurement = personalMeasurement;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
     }
 
     public String getMeasurementId()
