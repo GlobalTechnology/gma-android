@@ -371,9 +371,10 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             conn = this.sendRequest(request);
 
             // is this a successful response?
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                return Measurement.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())), request.guid,
-                                                ministryId, mcc, period);
+            final String guid = getActiveGuid();
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK && guid != null) {
+                return Measurement.listFromJson(
+                        new JSONArray(IOUtils.readString(conn.getInputStream())), guid, ministryId, mcc, period);
             }
         } catch (final JSONException e) {
             Log.e(TAG, "error parsing getMeasurements response", e);
