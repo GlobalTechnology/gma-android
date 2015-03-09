@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.view.ViewGroup;
 
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.model.Ministry;
@@ -50,6 +51,16 @@ public class MeasurementPagerAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         return mCursor != null ? mCursor.getCount() : 0;
+    }
+
+    @Override
+    public Object instantiateItem(@NonNull final ViewGroup container, final int position) {
+        final Object item = super.instantiateItem(container, position);
+        // XXX: setUserVisibleHint(true) to work around https://code.google.com/p/android/issues/detail?id=69586
+        if (item instanceof Fragment) {
+            ((Fragment) item).setUserVisibleHint(true);
+        }
+        return item;
     }
 
     @Override
