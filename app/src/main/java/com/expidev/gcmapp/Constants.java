@@ -14,6 +14,7 @@ public class Constants {
     public static final String ARG_MCC = "mcc";
     public static final String ARG_PERMLINK = "perm_link";
     public static final String ARG_PERIOD = "period";
+    public static final String ARG_TYPE = "type";
 
     /* common extra's */
     public static final String EXTRA_GUID = "guid";

@@ -2,6 +2,7 @@ package com.expidev.gcmapp.model.measurement;
 
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.expidev.gcmapp.model.Base;
 import com.expidev.gcmapp.model.Ministry;
@@ -18,6 +19,9 @@ public abstract class MeasurementValue extends Base {
     @IntDef({TYPE_PERSONAL, TYPE_LOCAL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ValueType {}
+
+    @Nullable
+    private MeasurementType type;
 
     @NonNull
     private final String ministryId;
@@ -63,5 +67,14 @@ public abstract class MeasurementValue extends Base {
 
     public void setValue(final int value) {
         this.value = value;
+    }
+
+    @Nullable
+    public MeasurementType getType() {
+        return type;
+    }
+
+    public void setType(@Nullable final MeasurementType type) {
+        this.type = type;
     }
 }

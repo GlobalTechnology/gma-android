@@ -1,5 +1,7 @@
 <resources>
 
+    <color name="measurementValueBackground">#faf8f7</color>
+
     <style name="Base"/>
 
     <style name="Theme.GMA" parent="Theme.AppCompat.Light.DarkActionBar">
