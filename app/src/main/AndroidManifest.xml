@@ -47,6 +47,7 @@
         <activity
             android:name=".activity.MeasurementsActivity"
             android:label="@string/title_activity_measurements"
+            android:theme="@style/Theme.GMA.Measurements"
             android:screenOrientation="sensorPortrait"
             android:parentActivityName=".MainActivity">
             <meta-data
