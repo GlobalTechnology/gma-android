@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.support.v4.fragment.measurement.ColumnsListFragment;
 
 import org.joda.time.YearMonth;
@@ -80,28 +81,41 @@ public class MeasurementsActivity extends ActionBarActivity {
             }
         }
 
-        updatePeriodView();
-        loadMeasurementColumnsFragment();
+        syncAdjacentPeriods();
+        updateViews();
     }
 
     @Optional
     @OnClick(R.id.nextPeriod)
     void onNextPeriod() {
-        if (mPeriod.isBefore(NOW)) {
-            mPeriod = mPeriod.plusMonths(1);
-
-            updatePeriodView();
-            loadMeasurementColumnsFragment();
-        }
+        onChangePeriod(mPeriod.plusMonths(1));
     }
 
     @Optional
     @OnClick(R.id.previousPeriod)
     void onPrevPeriod() {
-        mPeriod = mPeriod.minusMonths(1);
+        onChangePeriod(mPeriod.minusMonths(1));
+    }
 
-        updatePeriodView();
-        loadMeasurementColumnsFragment();
+    private void onChangePeriod(@NonNull YearMonth period) {
+        // don't allow navigating into the future
+        if (period.isAfter(NOW)) {
+            period = NOW;
+        }
+
+        // check if the period is changing
+        final boolean changing = !mPeriod.isEqual(period);
+
+        // update period
+        mPeriod = period;
+
+        if (changing) {
+            // start a data sync
+            syncAdjacentPeriods();
+
+            // update Period views
+            updateViews();
+        }
     }
 
     @Override
@@ -118,10 +132,21 @@ public class MeasurementsActivity extends ActionBarActivity {
 
     /* END lifecycle */
 
-    private void updatePeriodView() {
+    private void syncAdjacentPeriods() {
+        GmaSyncService.syncMeasurements(this, mMinistryId, mMcc, mPeriod);
+        GmaSyncService.syncMeasurements(this, mMinistryId, mMcc, mPeriod.minusMonths(1));
+        if (mPeriod.isBefore(NOW)) {
+            GmaSyncService.syncMeasurements(this, mMinistryId, mMcc, mPeriod.plusMonths(1));
+        }
+    }
+
+    private void updateViews() {
         if (mPeriodView != null) {
             mPeriodView.setText(mPeriod.toString("MMM yyyy", Locale.getDefault()));
         }
+
+        // reload the measurement columns fragment for the current period
+        loadMeasurementColumnsFragment();
     }
 
     private void loadMeasurementColumnsFragment() {
