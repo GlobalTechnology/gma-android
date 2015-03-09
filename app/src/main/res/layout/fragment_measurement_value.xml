@@ -9,7 +9,7 @@
     <RelativeLayout
         android:id="@+id/valueLayout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
@@ -35,6 +35,24 @@
             android:layout_alignBottom="@id/valueBg"
             android:gravity="center_vertical|center_horizontal"
             tools:text="100"/>
+
+        <ImageView
+            android:id="@+id/increment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/btn_measurements_value_increment"
+            android:layout_above="@+id/valueBg"
+            android:layout_centerHorizontal="true"
+            android:padding="8dp"/>
+
+        <ImageView
+            android:id="@+id/decrement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/btn_measurements_value_decrement"
+            android:layout_below="@+id/valueBg"
+            android:layout_centerHorizontal="true"
+            android:padding="8dp"/>
 
     </RelativeLayout>
 

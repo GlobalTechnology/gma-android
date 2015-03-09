@@ -29,6 +29,7 @@ import com.expidev.gcmapp.model.measurement.PersonalMeasurement;
 import com.expidev.gcmapp.support.v4.content.MeasurementValueLoader;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.ccci.gto.android.common.widget.RepeatingClickTouchListener;
 import org.joda.time.YearMonth;
 
 import butterknife.ButterKnife;
@@ -41,6 +42,8 @@ public class MeasurementValueFragment extends Fragment {
 
     @NonNull
     private MeasurementValueCallbacks mLoaderCallbacksMeasurement;
+    @NonNull
+    private final RepeatingClickTouchListener mRepeatingClickListener = new RepeatingClickTouchListener();
 
     @ValueType
     private int mValueType;
@@ -63,6 +66,14 @@ public class MeasurementValueFragment extends Fragment {
     @Nullable
     @InjectView(R.id.value)
     TextView mValueView;
+    @Optional
+    @Nullable
+    @InjectView(R.id.increment)
+    View incrementView;
+    @Optional
+    @Nullable
+    @InjectView(R.id.decrement)
+    View decrementView;
 
     @Nullable
     private MeasurementType mType = null;
@@ -119,6 +130,7 @@ public class MeasurementValueFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable final Bundle savedState) {
         super.onActivityCreated(savedState);
+        setupIncrementDecrement();
         startLoaders();
     }
 
@@ -126,6 +138,24 @@ public class MeasurementValueFragment extends Fragment {
         mValue = value;
         mType = mValue != null ? mValue.getType() : null;
         updateViews();
+    }
+
+    @Optional
+    @OnClick(R.id.increment)
+    void onIncrementValue() {
+        if (mValue != null) {
+            mValue.setValue(mValue.getValue() + 1);
+            updateViews();
+        }
+    }
+
+    @Optional
+    @OnClick(R.id.decrement)
+    void onDecrementValue() {
+        if (mValue != null) {
+            mValue.setValue(mValue.getValue() - 1);
+            updateViews();
+        }
     }
 
     @Optional
@@ -144,6 +174,15 @@ public class MeasurementValueFragment extends Fragment {
     }
 
     /* END lifecycle */
+
+    private void setupIncrementDecrement() {
+        if (incrementView != null) {
+            incrementView.setOnTouchListener(mRepeatingClickListener);
+        }
+        if (decrementView != null) {
+            decrementView.setOnTouchListener(mRepeatingClickListener);
+        }
+    }
 
     private void startLoaders() {
         // build loader args
