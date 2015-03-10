@@ -79,7 +79,7 @@
         </activity>
 
         <activity-alias
-            android:name="com.expidevapps.android.measurements.activity.SplashActivity"
+            android:name="com.expidev.gcmapp.SplashActivity"
             android:targetActivity=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

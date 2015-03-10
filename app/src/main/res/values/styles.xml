@@ -1,19 +1,13 @@
 <resources>
 
-<!-- Base application theme. -->
-<style name="AppTheme" >
-    <!-- Customize your theme here. -->
-</style>
-<style name="Mainstyle">
-    <item name="android:background">#e6e2e7</item>
+    <color name="measurementValueBackground">#faf8f7</color>
 
-</style>
+    <style name="Base"/>
 
-
-<style name="Headstyle">
-    <item name="android:layout_width">fill_parent</item>
-    <item name="android:layout_height">150dp</item>
-</style>
+    <style name="Theme.GMA" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textAppearance">@style/TextAppearance.GMA</item>
+        <item name="android:textAppearanceLarge">@style/TextAppearance.AppCompat.Large</item>
+    </style>
 
 <style name="FooterBar">
     <item name="android:layout_width">fill_parent</item>
