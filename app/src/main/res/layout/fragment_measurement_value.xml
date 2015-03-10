@@ -44,7 +44,8 @@
             android:src="@drawable/btn_measurements_value_increment"
             android:layout_above="@id/valueBg"
             android:layout_centerHorizontal="true"
-            android:padding="8dp"/>
+            android:padding="8dp"
+            android:visibility="gone"/>
 
         <ImageView
             android:id="@+id/decrement"
@@ -53,7 +54,8 @@
             android:src="@drawable/btn_measurements_value_decrement"
             android:layout_below="@id/valueBg"
             android:layout_centerHorizontal="true"
-            android:padding="8dp"/>
+            android:padding="8dp"
+            android:visibility="gone"/>
 
     </RelativeLayout>
 

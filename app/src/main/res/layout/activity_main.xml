@@ -36,7 +36,8 @@
             android:queryHint="@string/search"
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
-            android:paddingTop="65dp"/>
+            android:paddingTop="65dp"
+            android:visibility="gone"/>
         
         </fragment>
 
