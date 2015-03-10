@@ -27,6 +27,7 @@
     <string name="join_button">Join</string>
 
     <!-- Church Details Fragment -->
+    <string name="label_church_name">Name</string>
     <string name="label_church_contact_name">Contact Name</string>
     <string name="label_church_contact_email">Contact Email</string>
     <string name="label_church_size">Size</string>
