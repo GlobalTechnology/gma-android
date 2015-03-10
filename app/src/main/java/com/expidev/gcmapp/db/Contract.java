@@ -225,7 +225,7 @@ public class Contract {
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
-        public static final String SQL_WHERE_DIRTY = COLUMN_DIRTY + " != ''";
+        public static final String SQL_WHERE_DIRTY = COLUMN_DIRTY + " != '' OR " + COLUMN_NEW + " = 1";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME,

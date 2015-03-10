@@ -238,6 +238,13 @@ public class GmaSyncService extends ThreadedIntentService {
         }
     }
 
+    private static String[] PROJECTION_GET_CHURCHES_DATA = {Contract.Church.COLUMN_MINISTRY_ID,
+            Contract.Church.COLUMN_NAME, Contract.Church.COLUMN_CONTACT_NAME,
+            Contract.Church.COLUMN_CONTACT_EMAIL, Contract.Church.COLUMN_LATITUDE,
+            Contract.Church.COLUMN_LONGITUDE, Contract.Church.COLUMN_SIZE,
+            Contract.Church.COLUMN_DEVELOPMENT, Contract.Church.COLUMN_SECURITY,
+            Contract.Church.COLUMN_LAST_SYNCED};
+
     private void syncChurches(final Intent intent) throws ApiException {
         final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
         if (ministryId == null) {
@@ -269,12 +276,7 @@ public class GmaSyncService extends ThreadedIntentService {
                     // persist church in database (if it doesn't exist or (isn't new and isn't dirty))
                     if (existing == null || (!existing.isNew() && !existing.isDirty())) {
                         church.setLastSynced(new Date());
-                        mDao.updateOrInsert(church, new String[] {Contract.Church.COLUMN_MINISTRY_ID,
-                                Contract.Church.COLUMN_NAME, Contract.Church.COLUMN_CONTACT_NAME,
-                                Contract.Church.COLUMN_CONTACT_EMAIL, Contract.Church.COLUMN_LATITUDE,
-                                Contract.Church.COLUMN_LONGITUDE, Contract.Church.COLUMN_SIZE,
-                                Contract.Church.COLUMN_DEVELOPMENT, Contract.Church.COLUMN_SECURITY,
-                                Contract.Church.COLUMN_LAST_SYNCED});
+                        mDao.updateOrInsert(church, PROJECTION_GET_CHURCHES_DATA);
 
                         // mark this id as having been changed
                         ids[j++] = id;
@@ -309,28 +311,38 @@ public class GmaSyncService extends ThreadedIntentService {
     }
 
     private synchronized void syncDirtyChurches() throws ApiException {
-        final List<Church> dirty = mDao.get(Church.class, Contract.Church.SQL_WHERE_DIRTY, null);
+        final List<Church> churches = mDao.get(Church.class, Contract.Church.SQL_WHERE_DIRTY, null);
 
         // ministry_id => church_id
         final Multimap<String, Long> broadcasts = HashMultimap.create();
 
         // process all churches that are dirty
-        for (final Church church : dirty) {
+        for (final Church church : churches) {
             try {
-                // generate dirty JSON
-                final JSONObject json = church.dirtyToJson();
+                if (church.isNew()) {
+                    // try creating the church
+                    if(mApi.createChurch(church)) {
+                        mDao.delete(church);
 
-                // update the church
-                final boolean success = mApi.updateChurch(church.getId(), json);
+                        // add church to list of broadcasts
+                        broadcasts.put(church.getMinistryId(), church.getId());
+                    }
+                } else if (church.isDirty()) {
+                    // generate dirty JSON
+                    final JSONObject json = church.dirtyToJson();
 
-                // was successful update?
-                if (success) {
-                    // clear dirty attributes
-                    church.setDirty(null);
-                    mDao.update(church, new String[] {Contract.Church.COLUMN_DIRTY});
+                    // update the church
+                    final boolean success = mApi.updateChurch(church.getId(), json);
 
-                    // add church to list of broadcasts
-                    broadcasts.put(church.getMinistryId(), church.getId());
+                    // was successful update?
+                    if (success) {
+                        // clear dirty attributes
+                        church.setDirty(null);
+                        mDao.update(church, new String[] {Contract.Church.COLUMN_DIRTY});
+
+                        // add church to list of broadcasts
+                        broadcasts.put(church.getMinistryId(), church.getId());
+                    }
                 }
             } catch (final JSONException ignored) {
                 // this shouldn't happen when generating json
