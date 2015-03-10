@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:elegantTextHeight="false"
-        android:textSize="@dimen/abc_text_size_menu_material" />
+        android:textSize="16sp" />
     <AutoCompleteTextView
         android:id="@+id/ministry_team_autocomplete"
         android:layout_width="fill_parent"
