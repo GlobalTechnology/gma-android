@@ -43,6 +43,7 @@ import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.support.v4.content.ChurchesLoader;
 import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
 import com.expidev.gcmapp.support.v4.content.TrainingLoader;
+import com.expidev.gcmapp.support.v4.fragment.CreateChurchFragment;
 import com.expidev.gcmapp.support.v4.fragment.EditChurchFragment;
 import com.expidev.gcmapp.support.v4.fragment.EditTrainingFragment;
 import com.expidev.gcmapp.utils.Device;
@@ -394,6 +395,16 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
+    void showCreateChurch(@NonNull final LatLng pos) {
+        if (mAssignment != null) {
+            final FragmentManager fm = getSupportFragmentManager();
+            if (fm.findFragmentByTag("createChurch") == null && canEditChurchOrTraining()) {
+                CreateChurchFragment fragment = CreateChurchFragment.newInstance(mAssignment.getMinistryId(), pos);
+                fragment.show(fm.beginTransaction().addToBackStack("createChurch"), "createChurch");
+            }
+        }
+    }
+
     void showEditChurch(final long churchId) {
         final FragmentManager fm = this.getSupportFragmentManager();
         if (fm.findFragmentByTag("editChurch") == null && canEditChurchOrTraining()) {
@@ -532,6 +543,7 @@ public class MainActivity extends ActionBarActivity
         map.setOnCameraChangeListener(clusterManager);
         map.setOnMarkerClickListener(clusterManager);
         map.setOnInfoWindowClickListener(clusterManager);
+        map.setOnMapLongClickListener(new MapLongClickListener());
 
         // update the map
         updateMap(true);
@@ -616,6 +628,13 @@ public class MainActivity extends ActionBarActivity
         manager = LocalBroadcastManager.getInstance(this);
         manager.unregisterReceiver(gcmBroadcastReceiver);
         gcmBroadcastReceiver = null;
+    }
+
+    private class MapLongClickListener implements GoogleMap.OnMapLongClickListener {
+        @Override
+        public void onMapLongClick(final LatLng pos) {
+            showCreateChurch(pos);
+        }
     }
 
     private class AssignmentLoaderCallbacks extends SimpleLoaderCallbacks<Assignment> {
