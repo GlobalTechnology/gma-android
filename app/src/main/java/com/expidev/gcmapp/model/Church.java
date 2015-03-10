@@ -102,8 +102,8 @@ public class Church extends Location implements Cloneable {
     @NonNull
     private Development development = Development.UNKNOWN;
     @NonNull
-    private Security security;
-    private int size;
+    private Security security = Security.PUBLIC;
+    private int size = 0;
 
     private boolean mNew = false;
     @NonNull
