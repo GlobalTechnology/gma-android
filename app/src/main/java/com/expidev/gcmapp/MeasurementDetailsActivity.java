@@ -222,11 +222,16 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     {
         renderer.setApplyBackgroundColor(true);
         renderer.setBackgroundColor(Color.WHITE);
+        renderer.setMarginsColor(Color.argb(255,191,188,187));
+        renderer.setGridColor(Color.argb(255,189,187,186));
 
         renderer.setAxisTitleTextSize(36f);
-        renderer.setChartTitleTextSize(40f);
+        renderer.setChartTitleTextSize(45f);
         renderer.setLabelsTextSize(35f);
         renderer.setLegendTextSize(35f);
+        renderer.setXLabelsColor(Color.WHITE);
+        renderer.setYLabelsColor(0, Color.WHITE);
+        renderer.setLabelsColor(Color.WHITE);
 
         renderer.setLegendHeight(50);
         renderer.setPointSize(0f);
@@ -240,7 +245,6 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         renderer.setChartTitle(measurementName);
         renderer.setShowLegend(true);
         renderer.setShowLabels(true);
-
 
         renderer.setXLabels(0);
         renderer.setYLabels(3);
@@ -312,7 +316,8 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         }
 
         dataset.addSeries(currentSeries);
-        initializeSeriesRenderer(Color.BLUE);
+
+        initializeSeriesRenderer(Color.argb(255,111,115,137));
     }
 
     private void initializeLocalSeries(List<SixMonthAmounts> localAmounts)
@@ -328,7 +333,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         dataset.addSeries(currentSeries);
 
-        initializeSeriesRenderer(Color.RED);
+        initializeSeriesRenderer(Color.argb(255,211,44,96));
     }
 
     private void initializeMySeries(List<SixMonthAmounts> personalAmounts)
@@ -344,7 +349,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         dataset.addSeries(currentSeries);
 
-        initializeSeriesRenderer(Color.GREEN);
+        initializeSeriesRenderer(Color.argb(255,107,192,72));
     }
 
     /**
@@ -415,6 +420,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         }
 
         TextHeaderView totalNumberTitle = new TextHeaderView(this);
+        totalNumberTitle.setPadding(8, 8, 8, 8);
         totalNumberTitle.setText(ministryName);
 
         LinearLayout dataSection = (LinearLayout) findViewById(R.id.md_chart_data);
@@ -481,8 +487,10 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
             HorizontalLineView horizontalLine = new HorizontalLineView(this);
             dataSection.addView(horizontalLine);
+            dataSection.setPadding(10, 8, 8, 8);
 
             addTeamMemberTotalSection(dataSection, measurementDetails);
+
         }
         else if(currentAssignment.isMember())
         {
