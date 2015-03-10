@@ -51,7 +51,6 @@
                 android:value=".MainActivity" />
         </activity>
 
-        
         <activity
             android:name=".MapSettings"
             android:label="@string/title_activity_map_settings"
@@ -80,8 +79,12 @@
         </activity>
 
         <activity-alias
-            android:name="com.expidevapps.gcmapp.SplashActivity"
+            android:name="com.expidevapps.android.measurements.activity.SplashActivity"
             android:targetActivity=".SplashActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
 
         </activity-alias>
 
