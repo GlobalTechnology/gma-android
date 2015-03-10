@@ -84,7 +84,7 @@ android {
                 signingConfig signingConfigs.demo
             }
 
-            buildConfigField "String", "GCM_BASE_URI", "\"https://stage-measurements.global-registry.org/v1/\""
+            buildConfigField "String", "GCM_BASE_URI", "\"https://stage-measurements.global-registry.org/v2/\""
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA8cb9761bdbec4e9ada73f4f4953f5c347f315d37\""
         }
         release {
