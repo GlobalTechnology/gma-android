@@ -53,11 +53,17 @@ public class MeasurementsActivity extends ActionBarActivity {
                              @NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
                              @Nullable final YearMonth period) {
         final Intent intent = new Intent(context, MeasurementsActivity.class);
+        populateIntent(intent, guid, ministryId, mcc, period);
+        context.startActivity(intent);
+    }
+
+    public static void populateIntent(@NonNull final Intent intent, @NonNull final String guid,
+                                      @NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
+                                      @Nullable final YearMonth period) {
         intent.putExtra(EXTRA_GUID, guid);
         intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
         intent.putExtra(EXTRA_MCC, mcc.toString());
         intent.putExtra(EXTRA_PERIOD, (period != null ? period : YearMonth.now()).toString());
-        context.startActivity(intent);
     }
 
     /* BEGIN lifecycle */
