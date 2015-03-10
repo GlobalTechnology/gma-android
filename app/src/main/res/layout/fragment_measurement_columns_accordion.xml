@@ -34,6 +34,8 @@
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/faithLogo"
             android:layout_toEndOf="@id/faithLogo"
+            style="@style/Widget.GMA.Measurements.Header.Label"
+            android:textAppearance="@style/TextAppearance.GMA.Measurements.Header.Label"
             android:text="Faith Actions"/>
     </RelativeLayout>
 
@@ -80,6 +82,8 @@
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/fruitLogo"
             android:layout_toEndOf="@id/fruitLogo"
+            style="@style/Widget.GMA.Measurements.Header.Label"
+            android:textAppearance="@style/TextAppearance.GMA.Measurements.Header.Label"
             android:text="Fruit"/>
     </RelativeLayout>
 
@@ -127,6 +131,8 @@
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/outcomesLogo"
             android:layout_toEndOf="@id/outcomesLogo"
+            style="@style/Widget.GMA.Measurements.Header.Label"
+            android:textAppearance="@style/TextAppearance.GMA.Measurements.Header.Label"
             android:text="Outcomes"/>
     </RelativeLayout>
 
