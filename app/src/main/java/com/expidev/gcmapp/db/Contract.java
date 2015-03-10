@@ -35,8 +35,8 @@ public class Contract {
     }
 
     public static abstract class Location extends Base {
-        static final String COLUMN_LATITUDE = "latitude";
-        static final String COLUMN_LONGITUDE = "longitude";
+        public static final String COLUMN_LATITUDE = "latitude";
+        public static final String COLUMN_LONGITUDE = "longitude";
 
         static final String SQL_COLUMN_LATITUDE = COLUMN_LATITUDE + " DECIMAL";
         static final String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
@@ -199,12 +199,12 @@ public class Contract {
         public static final String TABLE_NAME = "churches";
 
         static final String COLUMN_ID = _ID;
-        static final String COLUMN_NAME = "name";
+        public static final String COLUMN_NAME = "name";
         public static final String COLUMN_CONTACT_NAME = "contact_name";
         public static final String COLUMN_CONTACT_EMAIL = "contact_email";
-        static final String COLUMN_DEVELOPMENT = "development";
+        public static final String COLUMN_DEVELOPMENT = "development";
         public static final String COLUMN_SIZE = "size";
-        static final String COLUMN_SECURITY = "security";
+        public static final String COLUMN_SECURITY = "security";
         static final String COLUMN_NEW = "new";
         public static final String COLUMN_DIRTY = "dirtyData";
 

@@ -266,10 +266,15 @@ public class GmaSyncService extends ThreadedIntentService {
                     final long id = church.getId();
                     final Church existing = current.get(id);
 
-                    // persist church in database (if it doesn't exist or isn't dirty)
-                    if (existing == null || !existing.isDirty()) {
+                    // persist church in database (if it doesn't exist or (isn't new and isn't dirty))
+                    if (existing == null || (!existing.isNew() && !existing.isDirty())) {
                         church.setLastSynced(new Date());
-                        mDao.updateOrInsert(church);
+                        mDao.updateOrInsert(church, new String[] {Contract.Church.COLUMN_MINISTRY_ID,
+                                Contract.Church.COLUMN_NAME, Contract.Church.COLUMN_CONTACT_NAME,
+                                Contract.Church.COLUMN_CONTACT_EMAIL, Contract.Church.COLUMN_LATITUDE,
+                                Contract.Church.COLUMN_LONGITUDE, Contract.Church.COLUMN_SIZE,
+                                Contract.Church.COLUMN_DEVELOPMENT, Contract.Church.COLUMN_SECURITY,
+                                Contract.Church.COLUMN_LAST_SYNCED});
 
                         // mark this id as having been changed
                         ids[j++] = id;
@@ -282,10 +287,13 @@ public class GmaSyncService extends ThreadedIntentService {
                 // delete any remaining churches that weren't returned from the API
                 for(int i = 0; i< current.size(); i++) {
                     final Church church = current.valueAt(i);
-                    mDao.delete(church);
+                    // only delete the church if it isn't new
+                    if (!church.isNew()) {
+                        mDao.delete(church);
 
-                    // mark these ids as being updated as well
-                    ids[j++] = church.getId();
+                        // mark these ids as being updated as well
+                        ids[j++] = church.getId();
+                    }
                 }
 
                 // mark transaction successful
