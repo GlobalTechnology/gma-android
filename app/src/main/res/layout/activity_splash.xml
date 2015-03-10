@@ -3,5 +3,26 @@
     tools:context="com.example.sami.androidgmasami.SplashActivity"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
+    <include layout="@layout/head_layout"
+             android:id="@+id/include" />
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="10dp"
+        android:id="@+id/imageView3"
+        android:background="#0e2240"
+        android:layout_alignBottom="@+id/include"
+        />
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:src="@drawable/splashimage"
+        android:layout_alignTop="@+id/imageView3"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"/>
+
+    <include layout="@layout/footer_layout"
+             android:id="@+id/include2" />
+
 
 </RelativeLayout>
