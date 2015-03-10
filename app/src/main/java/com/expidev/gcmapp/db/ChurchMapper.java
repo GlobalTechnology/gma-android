@@ -65,7 +65,8 @@ public class ChurchMapper extends LocationMapper<Church> {
         church.setName(getString(c, Contract.Church.COLUMN_NAME, null));
         church.setContactName(getString(c, Contract.Church.COLUMN_CONTACT_NAME, null));
         church.setContactEmail(getString(c, Contract.Church.COLUMN_CONTACT_EMAIL, null));
-        church.setDevelopment(getInt(c, Contract.Church.COLUMN_DEVELOPMENT, Church.Development.UNKNOWN.id));
+        church.setDevelopment(Church.Development.fromRaw(
+                getInt(c, Contract.Church.COLUMN_DEVELOPMENT, Church.Development.UNKNOWN.id)));
         church.setSize(getInt(c, Contract.Church.COLUMN_SIZE, 0));
         church.setSecurity(Church.Security.fromRaw(getInt(c, Contract.Church.COLUMN_SECURITY, SECURITY_DEFAULT)));
         church.setNew(getBool(c, Contract.Church.COLUMN_NEW, false));

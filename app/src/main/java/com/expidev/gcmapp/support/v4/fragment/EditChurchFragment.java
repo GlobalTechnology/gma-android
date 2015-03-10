@@ -17,6 +17,7 @@ import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.model.Church;
+import com.expidev.gcmapp.model.Church.Development;
 import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.support.v4.content.ChurchLoader;
 
@@ -35,7 +36,8 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
 
     private static final int CHANGED_CONTACT_NAME = 0;
     private static final int CHANGED_CONTACT_EMAIL = 1;
-    private static final int CHANGED_SIZE = 2;
+    private static final int CHANGED_DEVELOPMENT = 2;
+    private static final int CHANGED_SIZE = 3;
 
     private static final ButterKnife.Action<View> HIDDEN = new ButterKnife.Action<View>() {
         @Override
@@ -46,12 +48,12 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
 
     private long mChurchId = Church.INVALID_ID;
     @NonNull
-    private boolean[] mChanged = new boolean[3];
+    private boolean[] mChanged = new boolean[4];
     @Nullable
     private Church mChurch;
 
     @Optional
-    @InjectViews({R.id.nameRow})
+    @InjectViews({R.id.nameRow, R.id.developmentRow})
     List<View> mHiddenViews;
 
     public static EditChurchFragment newInstance(final long churchId) {
@@ -119,6 +121,11 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
             if (mContactEmailView != null && mChanged[CHANGED_CONTACT_EMAIL]) {
                 church.setContactEmail(mContactEmailView.getText().toString());
             }
+            if (mDevelopmentSpinner != null && mChanged[CHANGED_DEVELOPMENT]) {
+                final Object development = mDevelopmentSpinner.getSelectedItem();
+                church.setDevelopment(
+                        development instanceof Development ? (Development) development : Development.UNKNOWN);
+            }
             if (mSizeView != null && mChanged[CHANGED_SIZE]) {
                 try {
                     church.setSize(Integer.parseInt(mSizeView.getText().toString()));
@@ -164,7 +171,7 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
 
     private void updateViews() {
         updateTitle(mChurch != null ? mChurch.getName() : null);
-        updateIcon(mChurch != null ? mChurch.getDevelopment() : Church.Development.UNKNOWN);
+        updateIcon(mChurch != null ? mChurch.getDevelopment() : Development.UNKNOWN);
 
         if (mContactNameView != null && !mChanged[CHANGED_CONTACT_NAME]) {
             mContactNameView.setText(mChurch != null ? mChurch.getContactName() : null);

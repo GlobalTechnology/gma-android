@@ -211,12 +211,11 @@ public class Church extends Location implements Cloneable {
         return development;
     }
 
-    public void setDevelopment(final int development) {
-        this.development = Development.fromRaw(development);
-    }
-
     public void setDevelopment(@NonNull final Development development) {
         this.development = development;
+        if (mTrackingChanges) {
+            mDirty.add(JSON_DEVELOPMENT);
+        }
     }
 
     public int getSize() {
