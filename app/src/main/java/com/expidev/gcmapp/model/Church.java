@@ -294,7 +294,7 @@ public class Church extends Location implements Cloneable {
             json.put(JSON_DEVELOPMENT, this.development.id);
         }
         json.put(JSON_SIZE, this.size);
-        json.put(JSON_SECURITY, this.security);
+        json.put(JSON_SECURITY, this.security.id);
         return json;
     }
 }
