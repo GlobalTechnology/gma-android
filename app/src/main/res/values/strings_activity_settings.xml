@@ -4,13 +4,13 @@
     <string name="pref_header_general">General</string>
 
     <!-- Ministry preference strings -->
-    <string name="pref_title_ministry_team_text">Ministry/Team:</string>
+    <string name="pref_title_ministry_team_text">Ministry/Team</string>
     <string name="pref_summary_ministry">%s</string>
     <string name="pref_summary_ministry_none_set">No Ministry selected</string>
     <string name="pref_summary_ministry_none_available">No Ministries available</string>
 
     <!-- MCC preference strings -->
-    <string name="pref_title_mcc">MCC:</string>
+    <string name="pref_title_mcc">MCC</string>
     <string name="pref_summary_mcc">%s</string>
     <string name="pref_summary_mcc_none_set">No MCC Selected</string>
     <string name="pref_summary_mcc_none_available">No MCCs available</string>
