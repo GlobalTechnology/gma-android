@@ -8,6 +8,13 @@
     <!-- Include Action Bar -->
     <include layout="@layout/head_layout"
         android:id="@+id/include" />
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="10dp"
+        android:id="@+id/imageView3"
+        android:background="#0e2240"
+        android:layout_alignBottom="@+id/include"
+       />
 
     <ImageView
         android:layout_width="fill_parent"

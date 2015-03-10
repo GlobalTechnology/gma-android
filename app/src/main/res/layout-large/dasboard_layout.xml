@@ -79,7 +79,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/btgrad_hat"
             android:src="@drawable/grad_hat"
-            android:layout_alignParentLe2t="true"
+            android:layout_alignParentLeft="true"
             android:layout_alignBottom="@+id/btppl_group"
             android:layout_toRightOf="@+id/btppl_group"
             android:layout_toEndOf="@+id/btppl_group"/>

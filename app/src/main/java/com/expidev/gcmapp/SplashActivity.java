@@ -13,15 +13,15 @@ public class SplashActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layou.dasboard_layout);
-        Thread timer=new Thread(){
-            public  void run(){
-                try{
+        setContentView(R.layout.dasboard_layout);
+        Thread timer = new Thread() {
+            public void run() {
+                try {
                     sleep(3000);
-                }catch (InterruptedException e){
+                } catch (InterruptedException e) {
                     e.printStackTrace();
-                }finally {
-                    startActivity(new Intent(SplashActivity.this,LoginActivity.class));
+                } finally {
+                    startActivity(new Intent(SplashActivity.this, LoginActivity.class));
                 }
             }
         };
@@ -33,9 +33,6 @@ public class SplashActivity extends ActionBarActivity {
         super.onPause();
         finish();
     }
-
-
-
 
 
 }

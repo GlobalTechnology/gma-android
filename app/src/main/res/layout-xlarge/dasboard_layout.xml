@@ -3,7 +3,7 @@
     android:layout_width="fill_parent" android:layout_height="fill_parent"
     android:orientation="vertical"
     android:background="#edebea"
-    android:id="@+id/">
+    >
 
   <include layout="@layout/head_layout"
         android:id="@+id/include4" />

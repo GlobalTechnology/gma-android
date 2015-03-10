@@ -19,15 +19,21 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".SplashActivity">
-            <meta-data
-                android:screenOrientation="sensorPortrait"
-                android:value=".SplashActivity" />
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
+            android:name=".SplashActivity"
+            android:label="@string/title_activity_splashactivity"
+            android:screenOrientation="sensorPortrait"
+            ></activity>
+        <activity
+            android:name=".LoginActivity"
+            android:label="@string/title_activity_splashactivity"
+            android:screenOrientation="sensorPortrait"
+            ></activity>
+        <activity
+            android:name=".MenuActivity"
+            android:label="@string/title_activity_splashactivity"
+            android:screenOrientation="sensorPortrait"
+            ></activity>
+
         <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/title_activity_settings"/>
@@ -74,8 +80,8 @@
         </activity>
 
         <activity-alias
-            android:name="com.expidevapps.android.measurements.activity.MainActivity"
-            android:targetActivity=".MainActivity">
+            android:name="com.expidevapps.gcmapp.SplashActivity"
+            android:targetActivity=".SplashActivity">
 
         </activity-alias>
 

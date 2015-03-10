@@ -5,6 +5,7 @@
     <string name="app_name">GMA</string>
     <string name="title_activity_main">GMA</string>
     <string name="title_activity_join_ministry">Join Ministry</string>
+    <string name="title_activity_splashactivity">Splash Screen</string>
     <string name="title_activity_map_settings">MapSettings</string>
     <string name="title_activity_measurements">Measurements</string>
     <string name="title_activity_measurement_details">Measurement Details</string>
