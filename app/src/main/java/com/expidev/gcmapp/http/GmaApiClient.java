@@ -169,8 +169,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     protected void onPrepareRequest(@NonNull final HttpURLConnection conn, @NonNull final Request<Session> request)
     throws ApiException, IOException {
         super.onPrepareRequest(conn, request);
-        conn.setConnectTimeout(10000);
-        conn.setReadTimeout(10000);
 
         // attach cookies when using the session
         // XXX: this should go away once we remove the cookie requirement on the API
