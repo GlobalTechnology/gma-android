@@ -1,5 +1,7 @@
 package com.expidev.gcmapp.db;
 
+import static com.expidev.gcmapp.model.Church.SECURITY_DEFAULT;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
@@ -34,7 +36,10 @@ public class ChurchMapper extends LocationMapper<Church> {
                 values.put(field, church.getSize());
                 break;
             case Contract.Church.COLUMN_SECURITY:
-                values.put(field, church.getSecurity());
+                values.put(field, church.getSecurity().id);
+                break;
+            case Contract.Church.COLUMN_NEW:
+                values.put(field, church.isNew() ? 1 : 0);
                 break;
             case Contract.Church.COLUMN_DIRTY:
                 values.put(field, church.getDirty());
@@ -60,9 +65,11 @@ public class ChurchMapper extends LocationMapper<Church> {
         church.setName(getString(c, Contract.Church.COLUMN_NAME, null));
         church.setContactName(getString(c, Contract.Church.COLUMN_CONTACT_NAME, null));
         church.setContactEmail(getString(c, Contract.Church.COLUMN_CONTACT_EMAIL, null));
-        church.setDevelopment(getInt(c, Contract.Church.COLUMN_DEVELOPMENT, Church.Development.UNKNOWN.id));
+        church.setDevelopment(Church.Development.fromRaw(
+                getInt(c, Contract.Church.COLUMN_DEVELOPMENT, Church.Development.UNKNOWN.id)));
         church.setSize(getInt(c, Contract.Church.COLUMN_SIZE, 0));
-        church.setSecurity(getInt(c, Contract.Church.COLUMN_SECURITY, 2));
+        church.setSecurity(Church.Security.fromRaw(getInt(c, Contract.Church.COLUMN_SECURITY, SECURITY_DEFAULT)));
+        church.setNew(getBool(c, Contract.Church.COLUMN_NEW, false));
         church.setDirty(getString(c, Contract.Church.COLUMN_DIRTY, null));
         return church;
     }

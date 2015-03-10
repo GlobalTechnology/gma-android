@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.GMA.Measurements">
+        <!--<item name="actionBarTheme">@style/Theme.GMA.Measurements.ActionBar</item>-->
+    </style>
+
+    <style name="Theme.GMA.Measurements.ActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <!--<item name="android:background">@drawable/bg_toolbar_measurements</item>-->
+    </style>
+
+    <style name="Widget.GMA.Measurements" parent="Base" />
+
+    <style name="Widget.GMA.Measurements.Header">
+        <item name="android:background">#eaebed</item>
+    </style>
+</resources>

@@ -37,12 +37,13 @@ import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
+import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.service.MeasurementsService;
-import com.expidev.gcmapp.service.MinistriesService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.support.v4.content.ChurchesLoader;
 import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
 import com.expidev.gcmapp.support.v4.content.TrainingLoader;
+import com.expidev.gcmapp.support.v4.fragment.CreateChurchFragment;
 import com.expidev.gcmapp.support.v4.fragment.EditChurchFragment;
 import com.expidev.gcmapp.support.v4.fragment.EditTrainingFragment;
 import com.expidev.gcmapp.utils.Device;
@@ -57,6 +58,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterManager;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.joda.time.YearMonth;
 
 import java.util.List;
 
@@ -157,10 +159,12 @@ public class MainActivity extends ActionBarActivity
         else
         {
             // trigger background syncing of data
-            MinistriesService.syncAllMinistries(this);
-            MinistriesService.syncAssignments(this, theKey.getGuid());
-
+            GmaSyncService.syncMinistries(this);
+            GmaSyncService.syncAssignments(this, theKey.getGuid());
+            GmaSyncService.syncMeasurementTypes(this);
             if (mAssignment != null) {
+                GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
+                                                YearMonth.now());
                 MeasurementsService.syncMeasurements(
                     this,
                     mAssignment.getMinistryId(),
@@ -192,10 +196,13 @@ public class MainActivity extends ActionBarActivity
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.action_refresh:
-                MinistriesService.syncAllMinistries(this, true);
-                MinistriesService.syncAssignments(this, theKey.getGuid(), true);
+                GmaSyncService.syncMinistries(this, true);
+                GmaSyncService.syncAssignments(this, theKey.getGuid(), true);
+                GmaSyncService.syncMeasurementTypes(this);
                 if (mAssignment != null) {
-                    MinistriesService.syncChurches(this, mAssignment.getMinistryId());
+                    GmaSyncService.syncChurches(this, mAssignment.getMinistryId());
+                    GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
+                                                    YearMonth.now());
                     MeasurementsService.syncMeasurements(
                         this,
                         mAssignment.getMinistryId(),
@@ -249,8 +256,10 @@ public class MainActivity extends ActionBarActivity
     void onChangeCurrentAssignment() {
         // sync churches & trainings
         if (mAssignment != null) {
-            MinistriesService.syncChurches(this, mAssignment.getMinistryId());
+            GmaSyncService.syncChurches(this, mAssignment.getMinistryId());
             TrainingService.syncTraining(this, mAssignment.getMinistryId(), mAssignment.getMcc());
+            GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
+                                            YearMonth.now());
             MeasurementsService.syncMeasurements(
                 this,
                 mAssignment.getMinistryId(),
@@ -386,6 +395,16 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
+    void showCreateChurch(@NonNull final LatLng pos) {
+        if (mAssignment != null) {
+            final FragmentManager fm = getSupportFragmentManager();
+            if (fm.findFragmentByTag("createChurch") == null && canEditChurchOrTraining()) {
+                CreateChurchFragment fragment = CreateChurchFragment.newInstance(mAssignment.getMinistryId(), pos);
+                fragment.show(fm.beginTransaction().addToBackStack("createChurch"), "createChurch");
+            }
+        }
+    }
+
     void showEditChurch(final long churchId) {
         final FragmentManager fm = this.getSupportFragmentManager();
         if (fm.findFragmentByTag("editChurch") == null && canEditChurchOrTraining()) {
@@ -411,44 +430,24 @@ public class MainActivity extends ActionBarActivity
 
     public void goToMeasurements(MenuItem menuItem)
     {
-        if(mAssignment != null && mAssignment.isBlocked())
-        {
-            AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.title_dialog_blocked))
-                .setMessage(getString(R.string.disallowed_measurements))
-                .setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        dialog.dismiss();
-                    }
-                })
-                .create();
+        if (mAssignment != null) {
+            if (!mAssignment.isBlocked()) {
+                com.expidev.gcmapp.activity.MeasurementsActivity
+                        .start(this, mAssignment.getGuid(), mAssignment.getMinistryId(), mAssignment.getMcc());
+            } else {
+                AlertDialog alertDialog = new AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.title_dialog_blocked))
+                        .setMessage(getString(R.string.disallowed_measurements))
+                        .setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .create();
 
-            alertDialog.show();
+                alertDialog.show();
+            }
         }
-        else
-        {
-            startActivity(new Intent(getApplicationContext(), MeasurementsActivity.class));
-        }
-    }
-
-    public void reset(MenuItem menuItem)
-    {
-        //TODO: implement reset: clear local data-model, download from server
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle("Reset")
-                .setMessage("Re-downloading information...")
-                .setNeutralButton("OK", new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        dialog.dismiss();
-                    }
-                })
-                .create();
-
-        alertDialog.show();
     }
 
     public void logout(MenuItem menuItem)
@@ -544,6 +543,7 @@ public class MainActivity extends ActionBarActivity
         map.setOnCameraChangeListener(clusterManager);
         map.setOnMarkerClickListener(clusterManager);
         map.setOnInfoWindowClickListener(clusterManager);
+        map.setOnMapLongClickListener(new MapLongClickListener());
 
         // update the map
         updateMap(true);
@@ -571,7 +571,9 @@ public class MainActivity extends ActionBarActivity
 
             for (Training training : allTraining)
             {
-                clusterManager.addItem(new TrainingMarker(training));
+                if (training.hasLocation()) {
+                    clusterManager.addItem(new TrainingMarker(training));
+                }
             }
         }
     }
@@ -600,32 +602,25 @@ public class MainActivity extends ActionBarActivity
                         break;
                 }
 
-                if (render && canViewChurch(church.getSecurity())) {
+                if (render && canViewChurch(church.getSecurity()) && church.hasLocation()) {
                     clusterManager.addItem(new ChurchMarker(church));
                 }
             }
         }
     }
 
-    private boolean canViewChurch(int churchSecurity)
-    {
-        if(mAssignment == null)
-        {
-            return false;
+    private boolean canViewChurch(@NonNull final Church.Security security) {
+        if (mAssignment != null) {
+            switch (security) {
+                case LOCAL_PRIVATE:
+                    return mAssignment.isLeader() || mAssignment.isMember();
+                case PRIVATE:
+                    return mAssignment.isLeadership();
+                case PUBLIC:
+                    return true;
+            }
         }
-
-        switch(churchSecurity)
-        {
-            case 0:
-                return mAssignment.isLeader() || mAssignment.isMember();
-            case 1:
-                return mAssignment.isLeadership();
-            case 2:
-            case 3:
-                return true;
-            default:
-                return false;
-        }
+        return false;
     }
 
     private void removeBroadcastReceivers()
@@ -633,6 +628,13 @@ public class MainActivity extends ActionBarActivity
         manager = LocalBroadcastManager.getInstance(this);
         manager.unregisterReceiver(gcmBroadcastReceiver);
         gcmBroadcastReceiver = null;
+    }
+
+    private class MapLongClickListener implements GoogleMap.OnMapLongClickListener {
+        @Override
+        public void onMapLongClick(final LatLng pos) {
+            showCreateChurch(pos);
+        }
     }
 
     private class AssignmentLoaderCallbacks extends SimpleLoaderCallbacks<Assignment> {

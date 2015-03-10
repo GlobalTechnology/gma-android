@@ -40,6 +40,25 @@
         android:layout_marginTop="10dp"
         android:stretchColumns="1">
 
+        <TableRow android:id="@+id/nameRow">
+
+            <TextView
+                android:id="@+id/nameLabel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical|start"
+                android:text="@string/label_church_name"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_gravity="center_vertical"/>
+
+            <EditText
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:text="Name"/>
+        </TableRow>
+
         <TableRow>
 
             <TextView
@@ -80,6 +99,22 @@
                 tools:text="contact@email.com"/>
         </TableRow>
 
+        <TableRow android:id="@+id/developmentRow">
+
+            <TextView
+                android:id="@+id/developmentLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:gravity="center_vertical|start"
+                android:text="@string/label_church_development"/>
+
+            <Spinner
+                android:id="@+id/development"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </TableRow>
         <TableRow>
 
             <TextView

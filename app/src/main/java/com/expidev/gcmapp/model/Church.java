@@ -51,6 +51,34 @@ public class Church extends Location implements Cloneable {
         }
     }
 
+    private static final int SECURITY_LOCAL_PRIVATE = 0;
+    private static final int SECURITY_PRIVATE = 1;
+    private static final int SECURITY_PUBLIC = 2;
+    public static final int SECURITY_DEFAULT = SECURITY_PUBLIC;
+
+    public enum Security {
+        LOCAL_PRIVATE(SECURITY_LOCAL_PRIVATE), PRIVATE(SECURITY_PRIVATE), PUBLIC(SECURITY_PUBLIC);
+
+        public final int id;
+
+        private Security(final int id) {
+            this.id = id;
+        }
+
+        @NonNull
+        public static Security fromRaw(final int id) {
+            switch (id) {
+                case SECURITY_LOCAL_PRIVATE:
+                    return LOCAL_PRIVATE;
+                case SECURITY_PRIVATE:
+                    return PRIVATE;
+                case SECURITY_PUBLIC:
+                default:
+                    return PUBLIC;
+            }
+        }
+    }
+
     public static final String JSON_ID = "id";
     public static final String JSON_MINISTRY_ID = "ministry_id";
     public static final String JSON_NAME = "name";
@@ -73,9 +101,11 @@ public class Church extends Location implements Cloneable {
     private String contactName;
     @NonNull
     private Development development = Development.UNKNOWN;
-    private int size;
-    private int security;
+    @NonNull
+    private Security security = Security.PUBLIC;
+    private int size = 0;
 
+    private boolean mNew = false;
     @NonNull
     private final Set<String> mDirty = new HashSet<>();
     private boolean mTrackingChanges = false;
@@ -97,11 +127,11 @@ public class Church extends Location implements Cloneable {
         church.name = json.optString(JSON_NAME, null);
         church.contactEmail = json.optString(JSON_CONTACT_EMAIL, null);
         church.contactName = json.optString(JSON_CONTACT_NAME, null);
-        church.setLatitude(json.getDouble(JSON_LATITUDE));
-        church.setLongitude(json.getDouble(JSON_LONGITUDE));
-        church.setDevelopment(json.optInt(JSON_DEVELOPMENT, DEVELOPMENT_UNKNOWN));
+        church.setLatitude(json.optDouble(JSON_LATITUDE, Double.NaN));
+        church.setLongitude(json.optDouble(JSON_LONGITUDE, Double.NaN));
+        church.development = Development.fromRaw(json.optInt(JSON_DEVELOPMENT, DEVELOPMENT_UNKNOWN));
+        church.security = Security.fromRaw(json.optInt(JSON_SECURITY, SECURITY_DEFAULT));
         church.size = json.optInt(JSON_SIZE, 0);
-        church.security = json.optInt(JSON_SECURITY, 2);
         return church;
     }
 
@@ -181,12 +211,11 @@ public class Church extends Location implements Cloneable {
         return development;
     }
 
-    public void setDevelopment(final int development) {
-        this.development = Development.fromRaw(development);
-    }
-
     public void setDevelopment(@NonNull final Development development) {
         this.development = development;
+        if (mTrackingChanges) {
+            mDirty.add(JSON_DEVELOPMENT);
+        }
     }
 
     public int getSize() {
@@ -200,12 +229,21 @@ public class Church extends Location implements Cloneable {
         }
     }
 
-    public int getSecurity() {
+    @NonNull
+    public Security getSecurity() {
         return security;
     }
 
-    public void setSecurity(final int security) {
+    public void setSecurity(@NonNull final Security security) {
         this.security = security;
+    }
+
+    public void setNew(final boolean state) {
+        mNew = state;
+    }
+
+    public boolean isNew() {
+        return mNew;
     }
 
     public void setDirty(@Nullable final String dirty) {
@@ -256,7 +294,7 @@ public class Church extends Location implements Cloneable {
             json.put(JSON_DEVELOPMENT, this.development.id);
         }
         json.put(JSON_SIZE, this.size);
-        json.put(JSON_SECURITY, this.security);
+        json.put(JSON_SECURITY, this.security.id);
         return json;
     }
 }

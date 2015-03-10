@@ -14,11 +14,6 @@
           android:onClick="goToMeasurements" />
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/action_reset"
-        android:title="@string/reset"
-        android:orderInCategory="101"
-        app:showAsAction="never"
-        android:onClick="reset" />
     <item
         android:id="@+id/action_refresh"
         android:orderInCategory="100"

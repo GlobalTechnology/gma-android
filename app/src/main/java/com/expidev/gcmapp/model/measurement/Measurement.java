@@ -6,15 +6,34 @@ import android.support.annotation.Nullable;
 import com.expidev.gcmapp.model.Base;
 import com.expidev.gcmapp.model.Ministry;
 
-import java.io.Serializable;
+import org.joda.time.YearMonth;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-/**
- * Created by William.Randall on 2/4/2015.
- */
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Measurement extends Base implements Serializable
 {
     private static final long serialVersionUID = 0L;
 
+    private static final String JSON_NAME = "name";
+    private static final String JSON_MEASUREMENT_ID = "measurement_id";
+    private static final String JSON_PERM_LINK = "perm_link";
+    private static final String JSON_CUSTOM = "is_custom";
+    private static final String JSON_SECTION = "section";
+    private static final String JSON_COLUMN = "column";
+    private static final String JSON_TOTAL = "total";
+    private static final String JSON_SORT_ORDER = "sort_order";
+
+    @Nullable
+    private MeasurementType type;
+    @Nullable
+    private MinistryMeasurement ministryMeasurement;
+    @Nullable
+    private PersonalMeasurement personalMeasurement;
     private String name;
     private String measurementId;
     private String permLink;
@@ -23,21 +42,78 @@ public class Measurement extends Base implements Serializable
     private String column;
     private int total;
     private MeasurementDetails measurementDetails;
-    private String period; // The period passed in to the API
+    @NonNull
+    private YearMonth period = YearMonth.now();
     @NonNull
     private String ministryId = Ministry.INVALID_ID;
     @NonNull
     private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
     private int sortOrder;
 
-    public String getName()
-    {
-        return name;
+    @NonNull
+    public static List<Measurement> listFromJson(@NonNull final JSONArray json, @NonNull final String guid,
+                                                 @NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
+                                                 @NonNull final YearMonth period) throws JSONException {
+        final List<Measurement> measurements = new ArrayList<>();
+        for (int i = 0; i < json.length(); i++) {
+            measurements.add(Measurement.fromJson(json.getJSONObject(i), guid, ministryId, mcc, period));
+        }
+        return measurements;
     }
 
-    public void setName(String name)
-    {
-        this.name = name;
+    @NonNull
+    public static Measurement fromJson(@NonNull final JSONObject json, @NonNull final String guid,
+                                       @NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
+                                       @NonNull final YearMonth period) throws JSONException {
+        final Measurement measurement = new Measurement();
+        measurement.ministryId = ministryId;
+        measurement.mcc = mcc;
+        measurement.period = period;
+
+        measurement.type = MeasurementType.fromJson(json);
+        if (json.has(MinistryMeasurement.JSON_VALUE)) {
+            measurement.ministryMeasurement = MinistryMeasurement.fromJson(json, ministryId, mcc, period);
+        }
+        if (json.has(PersonalMeasurement.JSON_VALUE)) {
+            measurement.personalMeasurement = PersonalMeasurement.fromJson(json, guid, ministryId, mcc, period);
+        }
+
+        measurement.measurementId = json.getString(JSON_MEASUREMENT_ID);
+        measurement.permLink = json.getString(JSON_PERM_LINK);
+        measurement.custom = json.getBoolean(JSON_CUSTOM);
+        measurement.section = json.getString(JSON_SECTION);
+        measurement.column = json.getString(JSON_COLUMN);
+        measurement.total = json.optInt(JSON_TOTAL);
+        measurement.sortOrder = json.optInt(JSON_SORT_ORDER);
+
+        return measurement;
+    }
+
+    @Nullable
+    public MeasurementType getType() {
+        return type;
+    }
+
+    public void setType(@Nullable final MeasurementType type) {
+        this.type = type;
+    }
+
+    @Nullable
+    public MinistryMeasurement getMinistryMeasurement() {
+        return ministryMeasurement;
+    }
+
+    public void setMinistryMeasurement(@Nullable final MinistryMeasurement ministryMeasurement) {
+        this.ministryMeasurement = ministryMeasurement;
+    }
+
+    @Nullable
+    public PersonalMeasurement getPersonalMeasurement() {
+        return personalMeasurement;
+    }
+
+    public void setPersonalMeasurement(@Nullable final PersonalMeasurement personalMeasurement) {
+        this.personalMeasurement = personalMeasurement;
     }
 
     public String getMeasurementId()
@@ -110,13 +186,12 @@ public class Measurement extends Base implements Serializable
         this.measurementDetails = measurementDetails;
     }
 
-    public String getPeriod()
-    {
+    @NonNull
+    public YearMonth getPeriod() {
         return period;
     }
 
-    public void setPeriod(String period)
-    {
+    public void setPeriod(@NonNull final YearMonth period) {
         this.period = period;
     }
 

@@ -1,45 +1,44 @@
 package com.expidev.gcmapp.db;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.util.Pair;
 
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.model.measurement.MeasurementType;
+import com.expidev.gcmapp.model.measurement.MinistryMeasurement;
+import com.expidev.gcmapp.model.measurement.PersonalMeasurement;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.Mapper;
 
-/**
- * Created by William.Randall on 1/21/2015.
- */
-public class MinistriesDao extends AbstractDao
+public class GmaDao extends AbstractDao
 {
-    private final String TAG = getClass().getSimpleName();
-
     private static final Object instanceLock = new Object();
-    private static MinistriesDao instance;
+    private static GmaDao instance;
 
     private static final Mapper<Assignment> ASSIGNMENT_MAPPER = new AssignmentMapper();
     private static final Mapper<Ministry> MINISTRY_MAPPER = new MinistryMapper();
+    private static final Mapper<MeasurementType> MEASUREMENT_TYPE_MAPPER = new MeasurementTypeMapper();
+    private static final Mapper<MinistryMeasurement> MINISTRY_MEASUREMENT_MAPPER = new MinistryMeasurementMapper();
+    private static final Mapper<PersonalMeasurement> PERSONAL_MEASUREMENT_MAPPER = new PersonalMeasurementMapper();
     private static final Mapper<Church> CHURCH_MAPPER = new ChurchMapper();
 
-    private MinistriesDao(final Context context)
+    private GmaDao(final Context context)
     {
         super(DatabaseOpenHelper.getInstance(context));
     }
 
-    public static MinistriesDao getInstance(Context context)
+    public static GmaDao getInstance(Context context)
     {
         synchronized(instanceLock)
         {
             if(instance == null)
             {
-                instance = new MinistriesDao(context.getApplicationContext());
+                instance = new GmaDao(context.getApplicationContext());
             }
         }
 
@@ -54,6 +53,12 @@ public class MinistriesDao extends AbstractDao
             return Contract.Ministry.TABLE_NAME;
         } else if (Assignment.class.equals(clazz)) {
             return Contract.Assignment.TABLE_NAME;
+        } else if (MeasurementType.class.equals(clazz)) {
+            return Contract.MeasurementType.TABLE_NAME;
+        } else if (MinistryMeasurement.class.equals(clazz)) {
+            return Contract.MinistryMeasurement.TABLE_NAME;
+        } else if (PersonalMeasurement.class.equals(clazz)) {
+            return Contract.PersonalMeasurement.TABLE_NAME;
         } else if(Church.class.equals(clazz)) {
             return Contract.Church.TABLE_NAME;
         }
@@ -63,12 +68,17 @@ public class MinistriesDao extends AbstractDao
 
     @NonNull
     @Override
-    protected String[] getFullProjection(@NonNull final Class<?> clazz)
-    {
+    public String[] getFullProjection(@NonNull final Class<?> clazz) {
         if (Ministry.class.equals(clazz)) {
             return Contract.Ministry.PROJECTION_ALL;
         } else if (Assignment.class.equals(clazz)) {
             return Contract.Assignment.PROJECTION_ALL;
+        } else if (MeasurementType.class.equals(clazz)) {
+            return Contract.MeasurementType.PROJECTION_ALL;
+        } else if (MinistryMeasurement.class.equals(clazz)) {
+            return Contract.MinistryMeasurement.PROJECTION_ALL;
+        } else if (PersonalMeasurement.class.equals(clazz)) {
+            return Contract.PersonalMeasurement.PROJECTION_ALL;
         } else if (Church.class.equals(clazz)) {
             return Contract.Church.PROJECTION_ALL;
         }
@@ -85,6 +95,12 @@ public class MinistriesDao extends AbstractDao
             return (Mapper<T>) MINISTRY_MAPPER;
         } else if (Assignment.class.equals(clazz)) {
             return (Mapper<T>) ASSIGNMENT_MAPPER;
+        } else if (MeasurementType.class.equals(clazz)) {
+            return (Mapper<T>) MEASUREMENT_TYPE_MAPPER;
+        } else if (MinistryMeasurement.class.equals(clazz)) {
+            return (Mapper<T>) MINISTRY_MEASUREMENT_MAPPER;
+        } else if (PersonalMeasurement.class.equals(clazz)) {
+            return (Mapper<T>) PERSONAL_MEASUREMENT_MAPPER;
         } else if(Church.class.equals(clazz)) {
             return (Mapper<T>) CHURCH_MAPPER;
         }
@@ -108,6 +124,15 @@ public class MinistriesDao extends AbstractDao
         } else if(Church.class.equals(clazz)) {
             keyLength = 1;
             where = Contract.Church.SQL_WHERE_PRIMARY_KEY;
+        } else if (MeasurementType.class.equals(clazz)) {
+            keyLength = 1;
+            where = Contract.MeasurementType.SQL_WHERE_PRIMARY_KEY;
+        } else if (MinistryMeasurement.class.equals(clazz)) {
+            keyLength = 4;
+            where = Contract.MinistryMeasurement.SQL_WHERE_PRIMARY_KEY;
+        } else if (PersonalMeasurement.class.equals(clazz)) {
+            keyLength = 5;
+            where = Contract.PersonalMeasurement.SQL_WHERE_PRIMARY_KEY;
         }
         else
         {
@@ -133,33 +158,20 @@ public class MinistriesDao extends AbstractDao
         } else if (obj instanceof Assignment) {
             return getPrimaryKeyWhere(Assignment.class, ((Assignment) obj).getGuid(),
                                       ((Assignment) obj).getMinistryId());
+        } else if (obj instanceof MeasurementType) {
+            return getPrimaryKeyWhere(MeasurementType.class, ((MeasurementType) obj).getPermLink());
+        } else if (obj instanceof MinistryMeasurement) {
+            final MinistryMeasurement measurement = (MinistryMeasurement) obj;
+            return getPrimaryKeyWhere(MinistryMeasurement.class, measurement.getMinistryId(), measurement.getMcc(),
+                                      measurement.getPermLink(), measurement.getPeriod());
+        } else if (obj instanceof PersonalMeasurement) {
+            final PersonalMeasurement measurement = (PersonalMeasurement) obj;
+            return getPrimaryKeyWhere(PersonalMeasurement.class, measurement.getGuid(), measurement.getMinistryId(),
+                                      measurement.getMcc(), measurement.getPermLink(), measurement.getPeriod());
         } else if (obj instanceof Church) {
             return getPrimaryKeyWhere(Church.class, ((Church) obj).getId());
         }
 
         return super.getPrimaryKeyWhere(obj);
-    }
-
-    void deleteAllData()
-    {
-        final SQLiteDatabase database = dbHelper.getWritableDatabase();
-
-        database.beginTransaction();
-
-        try
-        {
-            database.delete(getTable(Assignment.class), null, null);
-            database.delete(getTable(Ministry.class), null, null);
-            database.setTransactionSuccessful();
-        }
-        catch(Exception e)
-        {
-            Log.e(TAG, e.getMessage());
-        }
-        finally
-        {
-            database.endTransaction();
-            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (deleteAllData)");
-        }
     }
 }

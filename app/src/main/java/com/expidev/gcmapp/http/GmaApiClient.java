@@ -2,7 +2,6 @@ package com.expidev.gcmapp.http;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -16,8 +15,10 @@ import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
+import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
-import com.expidev.gcmapp.service.MinistriesService;
+import com.expidev.gcmapp.model.measurement.MeasurementType;
+import com.expidev.gcmapp.service.GmaSyncService;
 
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
 import org.ccci.gto.android.common.api.AbstractApi.Request.Method;
@@ -26,6 +27,7 @@ import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.api.ApiSocketException;
 import org.ccci.gto.android.common.util.IOUtils;
 import org.ccci.gto.android.common.util.SharedPreferencesUtils;
+import org.joda.time.YearMonth;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,9 +48,6 @@ import me.thekey.android.TheKey;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.TheKeyImpl;
 
-/**
- * Created by matthewfrederick on 1/23/15.
- */
 public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Session>, Session> {
     private final String TAG = getClass().getSimpleName();
 
@@ -57,25 +56,33 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     private static final String ASSIGNMENTS = "assignments";
     private static final String CHURCHES = "churches";
     private static final String MEASUREMENTS = "measurements";
+    private static final String MEASUREMENT_TYPES = "measurement_types";
     private static final String MINISTRIES = "ministries";
     private static final String TOKEN = "token";
     private static final String TRAINING = "training";
 
-    private static final Object LOCK_INSTANCE = new Object();
-    private static GmaApiClient INSTANCE;
+    private static final String MEASUREMENTS_SOURCE = "gma-app";
 
-    private GmaApiClient(final Context context) {
-        super(context, TheKeyImpl.getInstance(context), BuildConfig.GCM_BASE_URI, "gcm_api_sessions");
+    private static final Map<String, GmaApiClient> INSTANCES = new HashMap<>();
+
+    private GmaApiClient(final Context context, final String guid) {
+        super(context, TheKeyImpl.getInstance(context), BuildConfig.GCM_BASE_URI, "gcm_api_sessions", guid);
     }
 
-    public static GmaApiClient getInstance(final Context context) {
-        synchronized (LOCK_INSTANCE) {
-            if(INSTANCE == null) {
-                INSTANCE = new GmaApiClient(context.getApplicationContext());
-            }
-        }
+    @Deprecated
+    public static GmaApiClient getInstance(@NonNull final Context context) {
+        return getInstance(context, null);
+    }
 
-        return INSTANCE;
+    @NonNull
+    public static GmaApiClient getInstance(@NonNull final Context context, @Nullable final String guid) {
+        synchronized (INSTANCES) {
+            if (!INSTANCES.containsKey(guid)) {
+                INSTANCES.put(guid, new GmaApiClient(context.getApplicationContext(), guid));
+            }
+
+            return INSTANCES.get(guid);
+        }
     }
 
     @Nullable
@@ -114,8 +121,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
                         // save the returned associated ministries
                         // XXX: this isn't ideal and crosses logical components, but I can't think of a cleaner way to do it currently -DF
-                        MinistriesService.saveAssociatedMinistriesFromServer(mContext, request.guid,
-                                                                             json.optJSONArray("assignments"));
+                        GmaSyncService.saveAssociatedMinistriesFromServer(mContext, request.guid,
+                                                                          json.optJSONArray("assignments"));
 
                         // create session object
                         return new Session(json.optString("session_ticket", null), cookies,
@@ -159,27 +166,18 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Override
-    protected void onPrepareUri(@NonNull final Uri.Builder uri, @NonNull final Request<Session> request)
-            throws ApiException {
-        super.onPrepareUri(uri, request);
-
-        // append the session_token when using the session
-        if (request.useSession && request.session != null) {
-            uri.appendQueryParameter("token", request.session.id);
-        }
-    }
-
-    @Override
     protected void onPrepareRequest(@NonNull final HttpURLConnection conn, @NonNull final Request<Session> request)
     throws ApiException, IOException {
         super.onPrepareRequest(conn, request);
-        conn.setConnectTimeout(10000);
-        conn.setReadTimeout(10000);
 
         // attach cookies when using the session
         // XXX: this should go away once we remove the cookie requirement on the API
         if (request.useSession && request.session != null) {
             conn.addRequestProperty("Cookie", TextUtils.join("; ", request.session.cookies));
+        }
+        //Add bearer token code to replace URI token id [MMAND-12]
+        if(request.useSession && request.session != null) {
+            conn.addRequestProperty("Authorization", "Bearer " + request.session.id);
         }
     }
 
@@ -198,13 +196,15 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         return this.sendRequest(login, 0);
     }
 
+    /* BEGIN Ministry Endpoints */
+
     @Nullable
-    public List<Ministry> getAllMinistries() throws ApiException {
-        return this.getAllMinistries(false);
+    public List<Ministry> getMinistries() throws ApiException {
+        return this.getMinistries(false);
     }
 
     @Nullable
-    public List<Ministry> getAllMinistries(final boolean refresh) throws ApiException {
+    public List<Ministry> getMinistries(final boolean refresh) throws ApiException {
         // build request
         final Request<Session> request = new Request<>(MINISTRIES);
         request.params.add(param("refresh", refresh));
@@ -222,7 +222,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
                 return Ministry.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
-            Log.e(TAG, "error parsing getAllMinistries response", e);
+            Log.e(TAG, "error parsing getMinistries response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
         } finally {
@@ -231,6 +231,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
         return null;
     }
+
+    /* END Ministries Endpoints */
 
     /* BEGIN church methods */
 
@@ -321,9 +323,33 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
     /* END church methods */
 
+    /* BEGIN measurements methods */
+
     @Nullable
-    public JSONArray searchMeasurements(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
-                                        @Nullable final String period) throws ApiException {
+    public List<MeasurementType> getMeasurementTypes() throws ApiException {
+        // build & process request
+        HttpURLConnection conn = null;
+        try {
+            conn = sendRequest(new Request<Session>(MEASUREMENT_TYPES));
+
+            // is this a successful response?
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                return MeasurementType.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())));
+            }
+        } catch (final JSONException e) {
+            Log.e(TAG, "error parsing getMeasurementTypes response", e);
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public List<Measurement> getMeasurements(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
+                                             @NonNull final YearMonth period) throws ApiException {
         // short-circuit if we don't have a valid ministryId or mcc
         if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
             return null;
@@ -332,11 +358,10 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
         // build request
         final Request<Session> request = new Request<>(MEASUREMENTS);
+        request.params.add(param("source", MEASUREMENTS_SOURCE));
         request.params.add(param("ministry_id", ministryId));
         request.params.add(param("mcc", mcc.raw));
-        if (period != null) {
-            request.params.add(param("period", period));
-        }
+        request.params.add(param("period", period.toString()));
 
         // process request
         HttpURLConnection conn = null;
@@ -344,11 +369,13 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             conn = this.sendRequest(request);
 
             // is this a successful response?
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                return new JSONArray(IOUtils.readString(conn.getInputStream()));
+            final String guid = getActiveGuid();
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK && guid != null) {
+                return Measurement.listFromJson(
+                        new JSONArray(IOUtils.readString(conn.getInputStream())), guid, ministryId, mcc, period);
             }
         } catch (final JSONException e) {
-            Log.e(TAG, "error parsing getAllMinistries response", e);
+            Log.e(TAG, "error parsing getMeasurements response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
         } finally {
@@ -443,6 +470,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             IOUtils.closeQuietly(conn);
         }
     }
+
+    /* END measurement methods */
 
     @Nullable
     public List<Assignment> getAssignments() throws ApiException {

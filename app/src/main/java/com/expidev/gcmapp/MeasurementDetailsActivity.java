@@ -1,6 +1,13 @@
 package com.expidev.gcmapp;
 
+import static com.expidev.gcmapp.Constants.ARG_MCC;
+import static com.expidev.gcmapp.Constants.ARG_MEASUREMENT_ID;
+import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
+import static com.expidev.gcmapp.Constants.ARG_PERIOD;
+import static com.expidev.gcmapp.Constants.ARG_PERMLINK;
+
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -48,6 +55,7 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.joda.time.YearMonth;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -103,6 +111,20 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     private static final String LOCAL_MEASUREMENTS_TAG = "local";
     private static final String PERSONAL_MEASUREMENTS_TAG = "personal";
 
+    public static void start(@NonNull final Context context, @NonNull final String ministryId,
+                             @NonNull final Ministry.Mcc mcc, @NonNull final String permLink,
+                             @NonNull final YearMonth period, @NonNull final String measurementId,
+                             @Nullable final String measurementName) {
+        final Intent intent = new Intent(context, MeasurementDetailsActivity.class);
+        intent.putExtra(ARG_MINISTRY_ID, ministryId);
+        intent.putExtra(ARG_MCC, mcc.toString());
+        intent.putExtra(ARG_PERMLINK, permLink);
+        intent.putExtra(ARG_PERIOD, period.toString());
+//        intent.putExtra("ministryName", chosenMinistry.getName());
+        intent.putExtra(ARG_MEASUREMENT_ID, measurementId);
+        intent.putExtra("measurementName", measurementName);
+        context.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -111,10 +133,10 @@ public class MeasurementDetailsActivity extends ActionBarActivity
         setContentView(R.layout.base_graph);
         mTheKey = TheKeyImpl.getInstance(this);
 
-        measurementId = getIntent().getStringExtra(Constants.ARG_MEASUREMENT_ID);
-        ministryId = getIntent().getStringExtra(Constants.ARG_MINISTRY_ID);
-        mcc = getIntent().getStringExtra(Constants.ARG_MCC);
-        period = getIntent().getStringExtra(Constants.ARG_PERIOD);
+        measurementId = getIntent().getStringExtra(ARG_MEASUREMENT_ID);
+        ministryId = getIntent().getStringExtra(ARG_MINISTRY_ID);
+        mcc = getIntent().getStringExtra(ARG_MCC);
+        period = getIntent().getStringExtra(ARG_PERIOD);
         measurementName = getIntent().getStringExtra("measurementName");
         ministryName = getIntent().getStringExtra("ministryName");
     }
@@ -132,10 +154,10 @@ public class MeasurementDetailsActivity extends ActionBarActivity
 
         Bundle args = new Bundle(5);
         args.putString(Constants.ARG_GUID, mTheKey.getGuid());
-        args.putString(Constants.ARG_MEASUREMENT_ID, measurementId);
-        args.putString(Constants.ARG_MINISTRY_ID, ministryId);
-        args.putString(Constants.ARG_MCC, mcc);
-        args.putString(Constants.ARG_PERIOD, period);
+        args.putString(ARG_MEASUREMENT_ID, measurementId);
+        args.putString(ARG_MINISTRY_ID, ministryId);
+        args.putString(ARG_MCC, mcc);
+        args.putString(ARG_PERIOD, period);
 
         manager.initLoader(LOADER_MEASUREMENT_DETAILS, args, measurementDetailsLoaderCallback);
         manager.initLoader(LOADER_CURRENT_ASSIGNMENT, args, new AssignmentLoaderCallbacks());

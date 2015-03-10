@@ -1,12 +1,16 @@
 package com.expidev.gcmapp.service;
 
 import static com.expidev.gcmapp.Constants.EXTRA_GUID;
+import static com.expidev.gcmapp.Constants.EXTRA_MCC;
 import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
+import static com.expidev.gcmapp.Constants.EXTRA_PERIOD;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
 import static com.expidev.gcmapp.service.Type.SYNC_ASSIGNMENTS;
 import static com.expidev.gcmapp.service.Type.SYNC_CHURCHES;
 import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_CHURCHES;
+import static com.expidev.gcmapp.service.Type.SYNC_MEASUREMENTS;
+import static com.expidev.gcmapp.service.Type.SYNC_MEASUREMENT_TYPES;
 import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
@@ -21,12 +25,17 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
 import android.util.Log;
 
+import com.expidev.gcmapp.Constants;
 import com.expidev.gcmapp.db.Contract;
-import com.expidev.gcmapp.db.MinistriesDao;
+import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.model.measurement.Measurement;
+import com.expidev.gcmapp.model.measurement.MeasurementType;
+import com.expidev.gcmapp.model.measurement.MinistryMeasurement;
+import com.expidev.gcmapp.model.measurement.PersonalMeasurement;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -36,6 +45,7 @@ import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.app.ThreadedIntentService;
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.AbstractDao.Transaction;
+import org.joda.time.YearMonth;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,19 +57,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by William.Randall on 1/22/2015.
- */
-public class MinistriesService extends ThreadedIntentService {
-    private static final String TAG = MinistriesService.class.getSimpleName();
+public class GmaSyncService extends ThreadedIntentService {
+    private static final String TAG = GmaSyncService.class.getSimpleName();
 
     private static final String PREFS_SYNC = "gma_sync";
     private static final String PREF_SYNC_TIME_ASSIGNMENTS = "last_synced.assignments";
     private static final String PREF_SYNC_TIME_MINISTRIES = "last_synced.ministries";
 
-    private static final String EXTRA_SYNCTYPE = "type";
-    private static final String EXTRA_FORCE = MinistriesService.class.getName() + ".EXTRA_FORCE";
-    private static final String EXTRA_ASSIGNMENTS = MinistriesService.class.getName() + ".EXTRA_ASSIGNMENTS";
+    private static final String EXTRA_SYNCTYPE = GmaSyncService.class.getName() + ".EXTRA_SYNCTYPE";
+    private static final String EXTRA_FORCE = GmaSyncService.class.getName() + ".EXTRA_FORCE";
+    private static final String EXTRA_ASSIGNMENTS = GmaSyncService.class.getName() + ".EXTRA_ASSIGNMENTS";
 
     // various stale data durations
     private static final long HOUR_IN_MS = 60 * 60 * 1000;
@@ -70,12 +77,11 @@ public class MinistriesService extends ThreadedIntentService {
     @NonNull
     private GmaApiClient mApi;
     @NonNull
-    private MinistriesDao mDao;
+    private GmaDao mDao;
     private LocalBroadcastManager broadcastManager;
 
-    public MinistriesService()
-    {
-        super("MinistriesService", 5);
+    public GmaSyncService() {
+        super("GmaSyncService", 5);
     }
 
     public static void syncAssignments(@NonNull final Context context, @NonNull final String guid) {
@@ -84,7 +90,7 @@ public class MinistriesService extends ThreadedIntentService {
 
     public static void syncAssignments(@NonNull final Context context, @NonNull final String guid,
                                        final boolean force) {
-        final Intent intent = new Intent(context, MinistriesService.class);
+        final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNC_ASSIGNMENTS);
         intent.putExtra(EXTRA_GUID, guid);
         intent.putExtra(EXTRA_FORCE, force);
@@ -92,15 +98,31 @@ public class MinistriesService extends ThreadedIntentService {
     }
 
     public static void syncChurches(@NonNull final Context context, @NonNull final String ministryId) {
-        final Intent intent = new Intent(context, MinistriesService.class);
+        final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNC_CHURCHES);
         intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
         context.startService(intent);
     }
 
     public static void syncDirtyChurches(@NonNull final Context context) {
-        final Intent intent = new Intent(context, MinistriesService.class);
+        final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNC_DIRTY_CHURCHES);
+        context.startService(intent);
+    }
+
+    public static void syncMeasurementTypes(@NonNull final Context context) {
+        final Intent intent = new Intent(context, GmaSyncService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNC_MEASUREMENT_TYPES);
+        context.startService(intent);
+    }
+
+    public static void syncMeasurements(@NonNull final Context context, @NonNull final String ministryId,
+                                        @NonNull final Ministry.Mcc mcc, @Nullable final YearMonth period) {
+        final Intent intent = new Intent(context, GmaSyncService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNC_MEASUREMENTS);
+        intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
+        intent.putExtra(EXTRA_MCC, mcc.toString());
+        intent.putExtra(EXTRA_PERIOD, (period != null ? period : YearMonth.now()).toString());
         context.startService(intent);
     }
 
@@ -112,7 +134,7 @@ public class MinistriesService extends ThreadedIntentService {
     {
         super.onCreate();
         mApi = GmaApiClient.getInstance(this);
-        mDao = MinistriesDao.getInstance(this);
+        mDao = GmaDao.getInstance(this);
         broadcastManager = LocalBroadcastManager.getInstance(this);
     }
 
@@ -124,7 +146,7 @@ public class MinistriesService extends ThreadedIntentService {
         try {
             switch (type) {
                 case RETRIEVE_ALL_MINISTRIES:
-                    syncAllMinistries(intent);
+                    syncMinistries(intent);
                     break;
                 case SAVE_ASSOCIATED_MINISTRIES:
                     saveAssociatedMinistriesFromServer(intent);
@@ -137,6 +159,12 @@ public class MinistriesService extends ThreadedIntentService {
                     break;
                 case SYNC_DIRTY_CHURCHES:
                     syncDirtyChurches();
+                    break;
+                case SYNC_MEASUREMENT_TYPES:
+                    syncMeasurementTypes(intent);
+                    break;
+                case SYNC_MEASUREMENTS:
+                    syncMeasurements(intent);
                     break;
                 default:
                     break;
@@ -152,7 +180,7 @@ public class MinistriesService extends ThreadedIntentService {
     ////////////////////////////////////////////////////
     private static Intent baseIntent(final Context context, Bundle extras)
     {
-        final Intent intent = new Intent(context, MinistriesService.class);
+        final Intent intent = new Intent(context, GmaSyncService.class);
 
         if(extras != null)
         {
@@ -165,11 +193,11 @@ public class MinistriesService extends ThreadedIntentService {
     /**
      * Retrieve all ministries from the GCM API
      */
-    public static void syncAllMinistries(final Context context) {
-        syncAllMinistries(context, false);
+    public static void syncMinistries(final Context context) {
+        syncMinistries(context, false);
     }
 
-    public static void syncAllMinistries(final Context context, final boolean force) {
+    public static void syncMinistries(final Context context, final boolean force) {
         Bundle extras = new Bundle(2);
         extras.putSerializable(EXTRA_SYNCTYPE, RETRIEVE_ALL_MINISTRIES);
         extras.putBoolean(EXTRA_FORCE, force);
@@ -210,6 +238,13 @@ public class MinistriesService extends ThreadedIntentService {
         }
     }
 
+    private static String[] PROJECTION_GET_CHURCHES_DATA = {Contract.Church.COLUMN_MINISTRY_ID,
+            Contract.Church.COLUMN_NAME, Contract.Church.COLUMN_CONTACT_NAME,
+            Contract.Church.COLUMN_CONTACT_EMAIL, Contract.Church.COLUMN_LATITUDE,
+            Contract.Church.COLUMN_LONGITUDE, Contract.Church.COLUMN_SIZE,
+            Contract.Church.COLUMN_DEVELOPMENT, Contract.Church.COLUMN_SECURITY,
+            Contract.Church.COLUMN_LAST_SYNCED};
+
     private void syncChurches(final Intent intent) throws ApiException {
         final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
         if (ministryId == null) {
@@ -238,10 +273,10 @@ public class MinistriesService extends ThreadedIntentService {
                     final long id = church.getId();
                     final Church existing = current.get(id);
 
-                    // persist church in database (if it doesn't exist or isn't dirty)
-                    if (existing == null || !existing.isDirty()) {
+                    // persist church in database (if it doesn't exist or (isn't new and isn't dirty))
+                    if (existing == null || (!existing.isNew() && !existing.isDirty())) {
                         church.setLastSynced(new Date());
-                        mDao.updateOrInsert(church);
+                        mDao.updateOrInsert(church, PROJECTION_GET_CHURCHES_DATA);
 
                         // mark this id as having been changed
                         ids[j++] = id;
@@ -254,10 +289,13 @@ public class MinistriesService extends ThreadedIntentService {
                 // delete any remaining churches that weren't returned from the API
                 for(int i = 0; i< current.size(); i++) {
                     final Church church = current.valueAt(i);
-                    mDao.delete(church);
+                    // only delete the church if it isn't new
+                    if (!church.isNew()) {
+                        mDao.delete(church);
 
-                    // mark these ids as being updated as well
-                    ids[j++] = church.getId();
+                        // mark these ids as being updated as well
+                        ids[j++] = church.getId();
+                    }
                 }
 
                 // mark transaction successful
@@ -273,28 +311,38 @@ public class MinistriesService extends ThreadedIntentService {
     }
 
     private synchronized void syncDirtyChurches() throws ApiException {
-        final List<Church> dirty = mDao.get(Church.class, Contract.Church.SQL_WHERE_DIRTY, null);
+        final List<Church> churches = mDao.get(Church.class, Contract.Church.SQL_WHERE_DIRTY, null);
 
         // ministry_id => church_id
         final Multimap<String, Long> broadcasts = HashMultimap.create();
 
         // process all churches that are dirty
-        for (final Church church : dirty) {
+        for (final Church church : churches) {
             try {
-                // generate dirty JSON
-                final JSONObject json = church.dirtyToJson();
+                if (church.isNew()) {
+                    // try creating the church
+                    if(mApi.createChurch(church)) {
+                        mDao.delete(church);
 
-                // update the church
-                final boolean success = mApi.updateChurch(church.getId(), json);
+                        // add church to list of broadcasts
+                        broadcasts.put(church.getMinistryId(), church.getId());
+                    }
+                } else if (church.isDirty()) {
+                    // generate dirty JSON
+                    final JSONObject json = church.dirtyToJson();
 
-                // was successful update?
-                if (success) {
-                    // clear dirty attributes
-                    church.setDirty(null);
-                    mDao.update(church, new String[] {Contract.Church.COLUMN_DIRTY});
+                    // update the church
+                    final boolean success = mApi.updateChurch(church.getId(), json);
 
-                    // add church to list of broadcasts
-                    broadcasts.put(church.getMinistryId(), church.getId());
+                    // was successful update?
+                    if (success) {
+                        // clear dirty attributes
+                        church.setDirty(null);
+                        mDao.update(church, new String[] {Contract.Church.COLUMN_DIRTY});
+
+                        // add church to list of broadcasts
+                        broadcasts.put(church.getMinistryId(), church.getId());
+                    }
                 }
             } catch (final JSONException ignored) {
                 // this shouldn't happen when generating json
@@ -308,7 +356,7 @@ public class MinistriesService extends ThreadedIntentService {
         }
     }
 
-    private void syncAllMinistries(final Intent intent) throws ApiException {
+    private void syncMinistries(final Intent intent) throws ApiException {
         final SharedPreferences prefs = this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE);
         final boolean force = intent.getBooleanExtra(EXTRA_FORCE, false);
         final boolean stale =
@@ -317,7 +365,7 @@ public class MinistriesService extends ThreadedIntentService {
         // only sync if being forced or the data is stale
         if (force || stale) {
             // refresh the list of ministries if the load is being forced
-            final List<Ministry> ministries = mApi.getAllMinistries();
+            final List<Ministry> ministries = mApi.getMinistries();
 
             // only update the saved ministries if we received any back
             if (ministries != null) {
@@ -358,6 +406,75 @@ public class MinistriesService extends ThreadedIntentService {
                     tx.end();
                 }
             }
+        }
+    }
+
+    private static final String[] PROJECTION_SYNC_MEASUREMENT_TYPES_TYPE =
+            {Contract.MeasurementType.COLUMN_DESCRIPTION, Contract.MeasurementType.COLUMN_SECTION,
+                    Contract.MeasurementType.COLUMN_COLUMN, Contract.MeasurementType.COLUMN_SORT_ORDER,
+                    Contract.MeasurementType.COLUMN_PERSONAL_ID, Contract.MeasurementType.COLUMN_LOCAL_ID,
+                    Contract.MeasurementType.COLUMN_TOTAL_ID, Contract.MeasurementType.COLUMN_LAST_SYNCED};
+
+    private void syncMeasurementTypes(final Intent intent) throws ApiException {
+        final List<MeasurementType> types = mApi.getMeasurementTypes();
+        if (types != null) {
+            for (final MeasurementType type : types) {
+                mDao.updateOrInsert(type, PROJECTION_SYNC_MEASUREMENT_TYPES_TYPE);
+            }
+        }
+    }
+
+    private static final String[] PROJECTION_SYNC_MEASUREMENTS_TYPE =
+            {Contract.MeasurementType.COLUMN_NAME, Contract.MeasurementType.COLUMN_PERM_LINK,
+                    Contract.MeasurementType.COLUMN_DESCRIPTION, Contract.MeasurementType.COLUMN_SECTION,
+                    Contract.MeasurementType.COLUMN_COLUMN, Contract.MeasurementType.COLUMN_SORT_ORDER,
+                    Contract.MeasurementType.COLUMN_LAST_SYNCED};
+    private static final String[] PROJECTION_SYNC_MEASUREMENTS_MINISTRY_MEASUREMENT =
+            {Contract.MinistryMeasurement.COLUMN_VALUE, Contract.MinistryMeasurement.COLUMN_LAST_SYNCED};
+    private static final String[] PROJECTION_SYNC_MEASUREMENTS_PERSONAL_MEASUREMENT =
+            {Contract.PersonalMeasurement.COLUMN_VALUE, Contract.PersonalMeasurement.COLUMN_LAST_SYNCED};
+
+    private void syncMeasurements(final Intent intent) throws ApiException {
+        // get parameters for sync from the intent & sanitize
+        final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
+        final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(intent.getStringExtra(Constants.ARG_MCC));
+        final String rawPeriod = intent.getStringExtra(Constants.ARG_PERIOD);
+        final YearMonth period = rawPeriod != null ? YearMonth.parse(rawPeriod) : YearMonth.now();
+        if (ministryId == null || ministryId.equals(Ministry.INVALID_ID)) {
+            return;
+        }
+        if (mcc == Ministry.Mcc.UNKNOWN) {
+            return;
+        }
+
+        // fetch the requested measurements from the api
+        final List<Measurement> measurements = mApi.getMeasurements(ministryId, mcc, period);
+        if (measurements != null) {
+            // update measurement data in the database
+            for (final Measurement measurement : measurements) {
+                // update the measurement type data
+                final MeasurementType type = measurement.getType();
+                if (type != null) {
+                    type.setLastSynced();
+                    mDao.updateOrInsert(type, PROJECTION_SYNC_MEASUREMENTS_TYPE);
+                }
+
+                // update ministry measurements
+                final MinistryMeasurement ministryMeasurement = measurement.getMinistryMeasurement();
+                if (ministryMeasurement != null) {
+                    ministryMeasurement.setLastSynced();
+                    mDao.updateOrInsert(ministryMeasurement, PROJECTION_SYNC_MEASUREMENTS_MINISTRY_MEASUREMENT);
+                }
+
+                // update personal measurements
+                final PersonalMeasurement personalMeasurement = measurement.getPersonalMeasurement();
+                if (personalMeasurement != null) {
+                    personalMeasurement.setLastSynced();
+                    mDao.updateOrInsert(personalMeasurement, PROJECTION_SYNC_MEASUREMENTS_PERSONAL_MEASUREMENT);
+                }
+            }
+
+            //TODO: broadcasts
         }
     }
 

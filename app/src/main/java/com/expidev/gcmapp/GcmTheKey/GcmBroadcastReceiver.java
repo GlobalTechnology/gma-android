@@ -3,7 +3,7 @@ package com.expidev.gcmapp.GcmTheKey;
 import android.content.Context;
 import android.util.Log;
 
-import com.expidev.gcmapp.service.MinistriesService;
+import com.expidev.gcmapp.service.GmaSyncService;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
@@ -30,8 +30,8 @@ public class GcmBroadcastReceiver extends TheKeyBroadcastReceiver
     {
         Log.i(TAG, "On Login");
 
-        MinistriesService.syncAllMinistries(context, true);
-        MinistriesService.syncAssignments(context, guid, true);
+        GmaSyncService.syncMinistries(context, true);
+        GmaSyncService.syncAssignments(context, guid, true);
     }
 
     @Override

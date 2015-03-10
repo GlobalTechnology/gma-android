@@ -6,8 +6,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.expidev.gcmapp.model.Base;
+import com.expidev.gcmapp.utils.CursorUtils;
 
 import org.ccci.gto.android.common.db.AbstractMapper;
+import org.joda.time.YearMonth;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -36,6 +38,16 @@ public abstract class BaseMapper<T extends Base> extends AbstractMapper<T> {
     }
 
     private final static SimpleDateFormat FORMAT_DATE = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+
+    protected final YearMonth getYearMonth(@NonNull final Cursor c, @NonNull final String field,
+                                           @Nullable final YearMonth defValue) {
+        return CursorUtils.getYearMonth(c, field, defValue);
+    }
+
+    protected final YearMonth getNonNullYearMonth(@NonNull final Cursor c, @NonNull final String field,
+                                                  @NonNull final YearMonth defValue) {
+        return CursorUtils.getNonNullYearMonth(c, field, defValue);
+    }
 
     @Nullable
     protected Date stringToDate(@Nullable final String string) {
