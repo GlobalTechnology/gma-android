@@ -46,6 +46,12 @@
 }
 
 
+# Joda Time
+-dontwarn org.joda.time.tz.ZoneInfoCompiler
+-dontwarn org.joda.convert.FromString
+-dontwarn org.joda.convert.ToString
+
+
 # newrelic settings
 -keep class com.newrelic.** { *; }
 -dontwarn com.newrelic.**
