@@ -15,6 +15,9 @@ public abstract class Marker<T extends Location> implements ClusterItem {
 
     protected Marker(@NonNull final T obj) {
         mObj = obj;
+        if (!obj.hasLocation()) {
+            throw new IllegalArgumentException("Location object needs to have a location to be rendered");
+        }
         mPosition = new LatLng(obj.getLatitude(), obj.getLongitude());
     }
 

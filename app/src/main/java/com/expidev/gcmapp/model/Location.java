@@ -15,7 +15,11 @@ public abstract class Location extends Base {
         this.longitude = location.longitude;
     }
 
-    public double getLatitude() {
+    public final boolean hasLocation() {
+        return latitude != Double.NaN && longitude != Double.NaN;
+    }
+
+    public final double getLatitude() {
         return latitude;
     }
 
@@ -23,7 +27,7 @@ public abstract class Location extends Base {
         this.latitude = latitude;
     }
 
-    public double getLongitude() {
+    public final double getLongitude() {
         return longitude;
     }
 

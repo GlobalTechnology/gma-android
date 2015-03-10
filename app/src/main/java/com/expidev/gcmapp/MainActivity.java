@@ -559,7 +559,9 @@ public class MainActivity extends ActionBarActivity
 
             for (Training training : allTraining)
             {
-                clusterManager.addItem(new TrainingMarker(training));
+                if (training.hasLocation()) {
+                    clusterManager.addItem(new TrainingMarker(training));
+                }
             }
         }
     }
@@ -588,7 +590,7 @@ public class MainActivity extends ActionBarActivity
                         break;
                 }
 
-                if (render && canViewChurch(church.getSecurity())) {
+                if (render && canViewChurch(church.getSecurity()) && church.hasLocation()) {
                     clusterManager.addItem(new ChurchMarker(church));
                 }
             }

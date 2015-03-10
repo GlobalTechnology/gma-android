@@ -127,8 +127,8 @@ public class Church extends Location implements Cloneable {
         church.name = json.optString(JSON_NAME, null);
         church.contactEmail = json.optString(JSON_CONTACT_EMAIL, null);
         church.contactName = json.optString(JSON_CONTACT_NAME, null);
-        church.setLatitude(json.getDouble(JSON_LATITUDE));
-        church.setLongitude(json.getDouble(JSON_LONGITUDE));
+        church.setLatitude(json.optDouble(JSON_LATITUDE, Double.NaN));
+        church.setLongitude(json.optDouble(JSON_LONGITUDE, Double.NaN));
         church.development = Development.fromRaw(json.optInt(JSON_DEVELOPMENT, DEVELOPMENT_UNKNOWN));
         church.security = Security.fromRaw(json.optInt(JSON_SECURITY, SECURITY_DEFAULT));
         church.size = json.optInt(JSON_SIZE, 0);
