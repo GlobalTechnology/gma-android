@@ -92,8 +92,7 @@ public class MeasurementDao extends AbstractDao
 
     @NonNull
     @Override
-    protected String[] getFullProjection(@NonNull final Class<?> clazz)
-    {
+    public String[] getFullProjection(@NonNull final Class<?> clazz) {
         if(Measurement.class.equals(clazz))
         {
             return Contract.Measurement.PROJECTION_ALL;

@@ -26,8 +26,8 @@ public abstract class LocationMapper<T extends Location> extends BaseMapper<T> {
     @Override
     public T toObject(@NonNull final Cursor c) {
         final T obj = super.toObject(c);
-        obj.setLatitude(getDouble(c, Contract.Location.COLUMN_LATITUDE));
-        obj.setLongitude(getDouble(c, Contract.Location.COLUMN_LONGITUDE));
+        obj.setLatitude(getDouble(c, Contract.Location.COLUMN_LATITUDE, Double.NaN));
+        obj.setLongitude(getDouble(c, Contract.Location.COLUMN_LONGITUDE, Double.NaN));
         return obj;
     }
 }

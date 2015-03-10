@@ -5,7 +5,7 @@ import static com.expidev.gcmapp.Constants.EXTRA_CHURCH_IDS;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.expidev.gcmapp.db.MinistriesDao;
+import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
@@ -14,13 +14,13 @@ import org.ccci.gto.android.common.support.v4.content.AsyncTaskBroadcastReceiver
 import org.ccci.gto.android.common.support.v4.content.LoaderBroadcastReceiver;
 
 public class ChurchLoader extends AsyncTaskBroadcastReceiverLoader<Church> {
-    private final MinistriesDao mDao;
+    private final GmaDao mDao;
 
     private final long mId;
 
     public ChurchLoader(@NonNull final Context context, final long churchId) {
         super(context);
-        mDao = MinistriesDao.getInstance(context);
+        mDao = GmaDao.getInstance(context);
         mId = churchId;
 
         // create BroadcastReceiver for this loader

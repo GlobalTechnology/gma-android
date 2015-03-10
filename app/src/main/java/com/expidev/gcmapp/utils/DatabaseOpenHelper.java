@@ -8,9 +8,6 @@ import android.util.Log;
 
 import com.expidev.gcmapp.db.Contract;
 
-/**
- * Created by William.Randall on 1/15/2015.
- */
 public class DatabaseOpenHelper extends SQLiteOpenHelper
 {
     private final String TAG = getClass().getSimpleName();
@@ -27,8 +24,15 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      * 14: 2015-03-01
      * 15: 2015-03-01
      * 16: 2015-03-01
+     * v0.8.1
+     * 17: 2015-03-05
+     * 18: 2015-03-06
+     * 19: 2015-03-06
+     * 20: 2015-03-06
+     * 21: 2015-03-06
+     * 22: 2015-03-10
      */
-    private static final int DATABASE_VERSION = 16;
+    private static final int DATABASE_VERSION = 22;
     private static final String DATABASE_NAME = "gcm_data.db";
 
     private static final Object LOCK_INSTANCE = new Object();
@@ -58,6 +62,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         createAssignmentsTable(db);
         createTrainingTables(db);
         db.execSQL(Contract.Church.SQL_CREATE_TABLE);
+        db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
+        db.execSQL(Contract.MinistryMeasurement.SQL_CREATE_TABLE);
+        db.execSQL(Contract.PersonalMeasurement.SQL_CREATE_TABLE);
         createMeasurementsTables(db);
     }
 
@@ -103,6 +110,30 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
                     db.execSQL(Contract.Ministry.SQL_V16_MCCS);
                     // XXX: we should have converted legacy data, but because we have no real users yet I'm skipping it -DF
                     break;
+                case 17:
+                    db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
+                    break;
+                case 18:
+                    db.execSQL(Contract.MinistryMeasurement.SQL_CREATE_TABLE);
+                    break;
+                case 19:
+                    db.execSQL(Contract.PersonalMeasurement.SQL_CREATE_TABLE);
+                    break;
+                case 20:
+                    // XXX: let's just recreate the table instead of altering the existing table
+                    db.execSQL(Contract.MeasurementType.SQL_DELETE_TABLE);
+                    db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
+                    break;
+                case 21:
+                    // XXX: let's just recreate the tables instead of altering the existing tables
+                    db.execSQL(Contract.MinistryMeasurement.SQL_DELETE_TABLE);
+                    db.execSQL(Contract.PersonalMeasurement.SQL_DELETE_TABLE);
+                    db.execSQL(Contract.PersonalMeasurement.SQL_CREATE_TABLE);
+                    db.execSQL(Contract.MinistryMeasurement.SQL_CREATE_TABLE);
+                    break;
+                case 22:
+                    db.execSQL(Contract.Church.SQL_v22_ALTER_NEW);
+                    break;
                 default:
                     // unrecognized version, let's just reset the database and return
                     resetDatabase(db);
@@ -122,6 +153,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
 
     private void resetDatabase(final SQLiteDatabase db) {
         db.execSQL(Contract.Church.SQL_DELETE_TABLE);
+        db.execSQL(Contract.MeasurementType.SQL_DELETE_TABLE);
+        db.execSQL(Contract.MinistryMeasurement.SQL_DELETE_TABLE);
+        db.execSQL(Contract.PersonalMeasurement.SQL_DELETE_TABLE);
         deleteAllTables(db);
         onCreate(db);
     }

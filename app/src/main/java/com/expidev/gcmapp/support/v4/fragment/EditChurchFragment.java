@@ -3,12 +3,7 @@ package com.expidev.gcmapp.support.v4.fragment;
 import static com.expidev.gcmapp.Constants.ARG_CHURCH_ID;
 import static com.expidev.gcmapp.utils.BroadcastUtils.updateChurchesBroadcast;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,60 +11,50 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.db.Contract;
-import com.expidev.gcmapp.db.MinistriesDao;
+import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.model.Church;
-import com.expidev.gcmapp.service.MinistriesService;
+import com.expidev.gcmapp.model.Church.Development;
+import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.support.v4.content.ChurchLoader;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
-import org.ccci.gto.android.common.support.v4.fragment.AbstractDialogFragment;
+
+import java.util.List;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.InjectViews;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import butterknife.Optional;
 
-public class EditChurchFragment extends AbstractDialogFragment {
+public class EditChurchFragment extends BaseEditChurchDialogFragment {
     private static final int LOADER_CHURCH = 1;
 
     private static final int CHANGED_CONTACT_NAME = 0;
     private static final int CHANGED_CONTACT_EMAIL = 1;
-    private static final int CHANGED_SIZE = 2;
+    private static final int CHANGED_DEVELOPMENT = 2;
+    private static final int CHANGED_SIZE = 3;
+
+    private static final ButterKnife.Action<View> HIDDEN = new ButterKnife.Action<View>() {
+        @Override
+        public void apply(@NonNull final View view, final int index) {
+            view.setVisibility(View.GONE);
+        }
+    };
 
     private long mChurchId = Church.INVALID_ID;
     @NonNull
-    private boolean[] mChanged = new boolean[3];
+    private boolean[] mChanged = new boolean[4];
     @Nullable
     private Church mChurch;
 
     @Optional
-    @Nullable
-    @InjectView(R.id.title)
-    TextView mTitleView;
-    @Optional
-    @Nullable
-    @InjectView(R.id.contactName)
-    TextView mContactNameView;
-    @Optional
-    @Nullable
-    @InjectView(R.id.contactEmail)
-    TextView mContactEmailView;
-    @Optional
-    @Nullable
-    @InjectView(R.id.size)
-    TextView mSizeView;
-    @Optional
-    @Nullable
-    @InjectView(R.id.icon)
-    ImageView mIconView;
+    @InjectViews({R.id.nameRow, R.id.developmentRow})
+    List<View> mHiddenViews;
 
     public static EditChurchFragment newInstance(final long churchId) {
         final EditChurchFragment fragment = new EditChurchFragment();
@@ -92,25 +77,11 @@ public class EditChurchFragment extends AbstractDialogFragment {
         mChurchId = args.getLong(ARG_CHURCH_ID, Church.INVALID_ID);
     }
 
-    @NonNull
-    @Override
-    @SuppressLint("InflateParams")
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public Dialog onCreateDialog(final Bundle savedState) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder.setView(R.layout.fragment_edit_church);
-        } else {
-            builder.setView(LayoutInflater.from(getActivity()).inflate(R.layout.fragment_edit_church, null));
-        }
-        return builder.create();
-    }
-
     @Override
     public void onStart() {
         super.onStart();
         this.startLoaders();
-        ButterKnife.inject(this, getDialog());
+        ButterKnife.apply(mHiddenViews, HIDDEN);
         updateViews();
     }
 
@@ -150,6 +121,11 @@ public class EditChurchFragment extends AbstractDialogFragment {
             if (mContactEmailView != null && mChanged[CHANGED_CONTACT_EMAIL]) {
                 church.setContactEmail(mContactEmailView.getText().toString());
             }
+            if (mDevelopmentSpinner != null && mChanged[CHANGED_DEVELOPMENT]) {
+                final Object development = mDevelopmentSpinner.getSelectedItem();
+                church.setDevelopment(
+                        development instanceof Development ? (Development) development : Development.UNKNOWN);
+            }
             if (mSizeView != null && mChanged[CHANGED_SIZE]) {
                 try {
                     church.setSize(Integer.parseInt(mSizeView.getText().toString()));
@@ -162,7 +138,7 @@ public class EditChurchFragment extends AbstractDialogFragment {
             if (church.isDirty()) {
                 final Context context = getActivity().getApplicationContext();
                 final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
-                final MinistriesDao dao = MinistriesDao.getInstance(context);
+                final GmaDao dao = GmaDao.getInstance(context);
 
                 dao.async(new Runnable() {
                     @Override
@@ -176,7 +152,7 @@ public class EditChurchFragment extends AbstractDialogFragment {
                         broadcastManager.sendBroadcast(updateChurchesBroadcast(church.getMinistryId(), church.getId()));
 
                         // trigger a sync of dirty churches
-                        MinistriesService.syncDirtyChurches(context);
+                        GmaSyncService.syncDirtyChurches(context);
                     }
                 });
             }
@@ -184,18 +160,6 @@ public class EditChurchFragment extends AbstractDialogFragment {
 
         // dismiss the dialog
         this.dismiss();
-    }
-
-    @Optional
-    @OnClick(R.id.cancel)
-    void onCancelEdit() {
-        this.dismiss();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        ButterKnife.reset(this);
     }
 
     /* END lifecycle */
@@ -206,28 +170,9 @@ public class EditChurchFragment extends AbstractDialogFragment {
     }
 
     private void updateViews() {
-        if (mIconView != null) {
-            final int image;
-            switch (mChurch != null ? mChurch.getDevelopment() : Church.Development.UNKNOWN) {
-                case GROUP:
-                    image = R.drawable.groupicon;
-                    break;
-                case CHURCH:
-                    image = R.drawable.churchicon;
-                    break;
-                case MULTIPLYING_CHURCH:
-                    image = R.drawable.multiplyingchurchicon;
-                    break;
-                case TARGET:
-                default:
-                    image = R.drawable.targeticon;
-                    break;
-            }
-            mIconView.setImageResource(image);
-        }
-        if(mTitleView != null) {
-            mTitleView.setText(mChurch != null ? mChurch.getName() : null);
-        }
+        updateTitle(mChurch != null ? mChurch.getName() : null);
+        updateIcon(mChurch != null ? mChurch.getDevelopment() : Development.UNKNOWN);
+
         if (mContactNameView != null && !mChanged[CHANGED_CONTACT_NAME]) {
             mContactNameView.setText(mChurch != null ? mChurch.getContactName() : null);
         }

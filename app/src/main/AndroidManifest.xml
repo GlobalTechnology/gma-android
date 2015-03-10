@@ -17,7 +17,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/Theme.GMA">
         <activity
             android:name=".SplashActivity"
             android:label="@string/title_activity_splashactivity"
@@ -61,8 +61,10 @@
         </activity>
 
         <activity
-            android:name=".MeasurementsActivity"
+            android:name=".activity.MeasurementsActivity"
             android:label="@string/title_activity_measurements"
+            android:theme="@style/Theme.GMA.Measurements"
+            android:screenOrientation="sensorPortrait"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -72,10 +74,10 @@
         <activity
             android:name=".MeasurementDetailsActivity"
             android:label="@string/title_activity_measurement_details"
-            android:parentActivityName=".MeasurementsActivity">
+            android:parentActivityName=".activity.MeasurementsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.expidev.gcmapp.MeasurementsActivity" />
+                android:value="com.expidev.gcmapp.activity.MeasurementsActivity"/>
         </activity>
 
         <activity-alias
@@ -103,7 +105,7 @@
 
         <service android:name=".service.MeasurementsService"
                  android:exported="false"/>
-        <service android:name=".service.MinistriesService"
+        <service android:name=".service.GmaSyncService"
                  android:exported="false"/>
         <service android:name=".service.TrainingService"
                  android:exported="false" />

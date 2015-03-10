@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:background="#ffffff">
+
+    <RelativeLayout
+        android:id="@+id/valueLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp">
+
+        <ImageView
+            android:id="@+id/valueBg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/bg_measurements_value"
+            android:layout_centerInParent="true"/>
+
+        <TextView
+            android:id="@+id/value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@id/valueBg"
+            android:layout_alignLeft="@id/valueBg"
+            android:layout_alignTop="@id/valueBg"
+            android:layout_alignEnd="@id/valueBg"
+            android:layout_alignRight="@id/valueBg"
+            android:layout_alignBottom="@id/valueBg"
+            android:gravity="center_vertical|center_horizontal"
+            tools:text="100"/>
+
+        <ImageView
+            android:id="@+id/increment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/btn_measurements_value_increment"
+            android:layout_above="@+id/valueBg"
+            android:layout_centerHorizontal="true"
+            android:padding="8dp"/>
+
+        <ImageView
+            android:id="@+id/decrement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/btn_measurements_value_decrement"
+            android:layout_below="@+id/valueBg"
+            android:layout_centerHorizontal="true"
+            android:padding="8dp"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@+id/valueLayout"
+        android:layout_toLeftOf="@+id/valueLayout"
+        android:layout_centerVertical="true"
+        android:gravity="center_vertical|center_horizontal"
+        tools:text="Measurement Name"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"/>
+
+</RelativeLayout>
