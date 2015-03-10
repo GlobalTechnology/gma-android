@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.db.GmaDao;
@@ -22,6 +23,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.security.SecureRandom;
 
+import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.Optional;
 
@@ -34,6 +36,11 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     private String mMinistryId = Ministry.INVALID_ID;
     @Nullable
     private LatLng mLocation;
+
+    @Optional
+    @Nullable
+    @InjectView(R.id.save)
+    TextView mSaveView;
 
     public static CreateChurchFragment newInstance(@NonNull final String ministryId, @NonNull final LatLng location) {
         final CreateChurchFragment fragment = new CreateChurchFragment();
@@ -61,6 +68,7 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     public void onStart() {
         super.onStart();
         updateTitle("Create New Church");
+        setupViews();
     }
 
     @Optional
@@ -136,4 +144,9 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
 
     /* END lifecycle */
 
+    private void setupViews() {
+        if(mSaveView != null) {
+            mSaveView.setText(R.string.button_church_create);
+        }
+    }
 }
