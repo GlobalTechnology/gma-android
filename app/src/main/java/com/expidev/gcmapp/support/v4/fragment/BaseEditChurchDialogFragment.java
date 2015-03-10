@@ -132,23 +132,7 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
 
     protected void updateIcon(@NonNull final Development state) {
         if (mIconView != null) {
-            final int image;
-            switch (state) {
-                case GROUP:
-                    image = R.drawable.groupicon;
-                    break;
-                case CHURCH:
-                    image = R.drawable.churchicon;
-                    break;
-                case MULTIPLYING_CHURCH:
-                    image = R.drawable.multiplyingchurchicon;
-                    break;
-                case TARGET:
-                default:
-                    image = R.drawable.targeticon;
-                    break;
-            }
-            mIconView.setImageResource(image);
+            mIconView.setImageResource(state.image);
         }
     }
 }

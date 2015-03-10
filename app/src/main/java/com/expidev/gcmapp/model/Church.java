@@ -1,8 +1,11 @@
 package com.expidev.gcmapp.model;
 
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+
+import com.expidev.gcmapp.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,13 +28,18 @@ public class Church extends Location implements Cloneable {
     private static final int DEVELOPMENT_MULTIPLYING_CHURCH = 5;
 
     public enum Development {
-        UNKNOWN(DEVELOPMENT_UNKNOWN), TARGET(DEVELOPMENT_TARGET), GROUP(DEVELOPMENT_GROUP), CHURCH(DEVELOPMENT_CHURCH),
-        MULTIPLYING_CHURCH(DEVELOPMENT_MULTIPLYING_CHURCH);
+        UNKNOWN(DEVELOPMENT_UNKNOWN, R.drawable.ic_church_church),
+        TARGET(DEVELOPMENT_TARGET, R.drawable.ic_church_target), GROUP(DEVELOPMENT_GROUP, R.drawable.ic_church_group),
+        CHURCH(DEVELOPMENT_CHURCH, R.drawable.ic_church_church),
+        MULTIPLYING_CHURCH(DEVELOPMENT_MULTIPLYING_CHURCH, R.drawable.ic_church_multiplying);
 
         public final int id;
+        @DrawableRes
+        public final int image;
 
-        private Development(final int id) {
+        private Development(final int id, int image) {
             this.id = id;
+            this.image = image;
         }
 
         @NonNull

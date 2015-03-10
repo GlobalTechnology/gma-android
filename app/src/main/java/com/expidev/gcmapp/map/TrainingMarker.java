@@ -29,6 +29,6 @@ public class TrainingMarker extends Marker<Training> {
     @DrawableRes
     @Override
     public int getItemImage() {
-        return R.drawable.training;
+        return R.drawable.ic_training;
     }
 }
