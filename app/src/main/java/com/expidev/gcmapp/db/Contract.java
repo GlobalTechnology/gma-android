@@ -205,11 +205,12 @@ public class Contract {
         static final String COLUMN_DEVELOPMENT = "development";
         public static final String COLUMN_SIZE = "size";
         static final String COLUMN_SECURITY = "security";
+        static final String COLUMN_NEW = "new";
         public static final String COLUMN_DIRTY = "dirtyData";
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_ID, COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_CONTACT_NAME, COLUMN_CONTACT_EMAIL, COLUMN_LATITUDE,
-                        COLUMN_LONGITUDE, COLUMN_DEVELOPMENT, COLUMN_SIZE, COLUMN_SECURITY, COLUMN_DIRTY,
+                        COLUMN_LONGITUDE, COLUMN_DEVELOPMENT, COLUMN_SIZE, COLUMN_SECURITY, COLUMN_NEW, COLUMN_DIRTY,
                         COLUMN_LAST_SYNCED};
 
         private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
@@ -219,6 +220,7 @@ public class Contract {
         private static final String SQL_COLUMN_DEVELOPMENT = COLUMN_DEVELOPMENT + " INTEGER";
         private static final String SQL_COLUMN_SIZE = COLUMN_SIZE + " INTEGER";
         private static final String SQL_COLUMN_SECURITY = COLUMN_SECURITY + " INTEGER";
+        private static final String SQL_COLUMN_NEW = COLUMN_NEW + " INTEGER";
         private static final String SQL_COLUMN_DIRTY = COLUMN_DIRTY + " TEXT";
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
@@ -228,7 +230,7 @@ public class Contract {
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME,
                         SQL_COLUMN_CONTACT_NAME, SQL_COLUMN_CONTACT_EMAIL, SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE,
-                        SQL_COLUMN_DEVELOPMENT, SQL_COLUMN_SIZE, SQL_COLUMN_SECURITY, SQL_COLUMN_DIRTY,
+                        SQL_COLUMN_DEVELOPMENT, SQL_COLUMN_SIZE, SQL_COLUMN_SECURITY, SQL_COLUMN_NEW, SQL_COLUMN_DIRTY,
                         SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
@@ -241,6 +243,8 @@ public class Contract {
                         SQL_PRIMARY_KEY}) + ")";
         @Deprecated
         public static final String SQL_V9_ALTER_DIRTY = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_DIRTY;
+        @Deprecated
+        public static final String SQL_v22_ALTER_NEW = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_NEW;
     }
 
     ///////////////////////////////////////////////////////////////

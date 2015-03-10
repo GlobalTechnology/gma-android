@@ -76,6 +76,7 @@ public class Church extends Location implements Cloneable {
     private int size;
     private int security;
 
+    private boolean mNew = false;
     @NonNull
     private final Set<String> mDirty = new HashSet<>();
     private boolean mTrackingChanges = false;
@@ -206,6 +207,14 @@ public class Church extends Location implements Cloneable {
 
     public void setSecurity(final int security) {
         this.security = security;
+    }
+
+    public void setNew(final boolean state) {
+        mNew = state;
+    }
+
+    public boolean isNew() {
+        return mNew;
     }
 
     public void setDirty(@Nullable final String dirty) {

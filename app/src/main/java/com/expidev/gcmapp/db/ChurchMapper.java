@@ -36,6 +36,9 @@ public class ChurchMapper extends LocationMapper<Church> {
             case Contract.Church.COLUMN_SECURITY:
                 values.put(field, church.getSecurity());
                 break;
+            case Contract.Church.COLUMN_NEW:
+                values.put(field, church.isNew() ? 1 : 0);
+                break;
             case Contract.Church.COLUMN_DIRTY:
                 values.put(field, church.getDirty());
                 break;
@@ -63,6 +66,7 @@ public class ChurchMapper extends LocationMapper<Church> {
         church.setDevelopment(getInt(c, Contract.Church.COLUMN_DEVELOPMENT, Church.Development.UNKNOWN.id));
         church.setSize(getInt(c, Contract.Church.COLUMN_SIZE, 0));
         church.setSecurity(getInt(c, Contract.Church.COLUMN_SECURITY, 2));
+        church.setNew(getBool(c, Contract.Church.COLUMN_NEW, false));
         church.setDirty(getString(c, Contract.Church.COLUMN_DIRTY, null));
         return church;
     }

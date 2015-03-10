@@ -8,9 +8,6 @@ import android.util.Log;
 
 import com.expidev.gcmapp.db.Contract;
 
-/**
- * Created by William.Randall on 1/15/2015.
- */
 public class DatabaseOpenHelper extends SQLiteOpenHelper
 {
     private final String TAG = getClass().getSimpleName();
@@ -33,8 +30,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      * 19: 2015-03-06
      * 20: 2015-03-06
      * 21: 2015-03-06
+     * 22: 2015-03-10
      */
-    private static final int DATABASE_VERSION = 21;
+    private static final int DATABASE_VERSION = 22;
     private static final String DATABASE_NAME = "gcm_data.db";
 
     private static final Object LOCK_INSTANCE = new Object();
@@ -132,6 +130,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
                     db.execSQL(Contract.PersonalMeasurement.SQL_DELETE_TABLE);
                     db.execSQL(Contract.PersonalMeasurement.SQL_CREATE_TABLE);
                     db.execSQL(Contract.MinistryMeasurement.SQL_CREATE_TABLE);
+                    break;
+                case 22:
+                    db.execSQL(Contract.Church.SQL_v22_ALTER_NEW);
                     break;
                 default:
                     // unrecognized version, let's just reset the database and return
