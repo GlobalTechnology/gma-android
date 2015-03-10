@@ -51,6 +51,34 @@ public class Church extends Location implements Cloneable {
         }
     }
 
+    private static final int SECURITY_LOCAL_PRIVATE = 0;
+    private static final int SECURITY_PRIVATE = 1;
+    private static final int SECURITY_PUBLIC = 2;
+    public static final int SECURITY_DEFAULT = SECURITY_PUBLIC;
+
+    public enum Security {
+        LOCAL_PRIVATE(SECURITY_LOCAL_PRIVATE), PRIVATE(SECURITY_PRIVATE), PUBLIC(SECURITY_PUBLIC);
+
+        public final int id;
+
+        private Security(final int id) {
+            this.id = id;
+        }
+
+        @NonNull
+        public static Security fromRaw(final int id) {
+            switch (id) {
+                case SECURITY_LOCAL_PRIVATE:
+                    return LOCAL_PRIVATE;
+                case SECURITY_PRIVATE:
+                    return PRIVATE;
+                case SECURITY_PUBLIC:
+                default:
+                    return PUBLIC;
+            }
+        }
+    }
+
     public static final String JSON_ID = "id";
     public static final String JSON_MINISTRY_ID = "ministry_id";
     public static final String JSON_NAME = "name";
@@ -73,8 +101,9 @@ public class Church extends Location implements Cloneable {
     private String contactName;
     @NonNull
     private Development development = Development.UNKNOWN;
+    @NonNull
+    private Security security;
     private int size;
-    private int security;
 
     private boolean mNew = false;
     @NonNull
@@ -100,9 +129,9 @@ public class Church extends Location implements Cloneable {
         church.contactName = json.optString(JSON_CONTACT_NAME, null);
         church.setLatitude(json.getDouble(JSON_LATITUDE));
         church.setLongitude(json.getDouble(JSON_LONGITUDE));
-        church.setDevelopment(json.optInt(JSON_DEVELOPMENT, DEVELOPMENT_UNKNOWN));
+        church.development = Development.fromRaw(json.optInt(JSON_DEVELOPMENT, DEVELOPMENT_UNKNOWN));
+        church.security = Security.fromRaw(json.optInt(JSON_SECURITY, SECURITY_DEFAULT));
         church.size = json.optInt(JSON_SIZE, 0);
-        church.security = json.optInt(JSON_SECURITY, 2);
         return church;
     }
 
@@ -201,11 +230,12 @@ public class Church extends Location implements Cloneable {
         }
     }
 
-    public int getSecurity() {
+    @NonNull
+    public Security getSecurity() {
         return security;
     }
 
-    public void setSecurity(final int security) {
+    public void setSecurity(@NonNull final Security security) {
         this.security = security;
     }
 

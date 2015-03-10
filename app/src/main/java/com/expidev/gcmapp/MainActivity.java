@@ -595,25 +595,18 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
-    private boolean canViewChurch(int churchSecurity)
-    {
-        if(mAssignment == null)
-        {
-            return false;
+    private boolean canViewChurch(@NonNull final Church.Security security) {
+        if (mAssignment != null) {
+            switch (security) {
+                case LOCAL_PRIVATE:
+                    return mAssignment.isLeader() || mAssignment.isMember();
+                case PRIVATE:
+                    return mAssignment.isLeadership();
+                case PUBLIC:
+                    return true;
+            }
         }
-
-        switch(churchSecurity)
-        {
-            case 0:
-                return mAssignment.isLeader() || mAssignment.isMember();
-            case 1:
-                return mAssignment.isLeadership();
-            case 2:
-            case 3:
-                return true;
-            default:
-                return false;
-        }
+        return false;
     }
 
     private void removeBroadcastReceivers()
