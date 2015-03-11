@@ -1,6 +1,7 @@
 buildscript {
     repositories {
-        mavenCentral()
+        mavenLocal()
+        jcenter()
     }
 
     dependencies {
@@ -102,7 +103,7 @@ android {
 
 repositories {
     mavenLocal()
-    mavenCentral()
+    jcenter()
     maven {
         name "maven.gcx.org"
         url "https://maven.gcx.org/"
