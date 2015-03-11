@@ -19,12 +19,17 @@
         android:label="@string/app_name"
         android:theme="@style/Theme.GMA">
         <activity
-            android:name=".activity.SettingsActivity"
-            android:label="@string/title_activity_settings"/>
-        <activity
             android:name=".MainActivity"
             android:screenOrientation="sensorPortrait"
             android:label="@string/title_activity_main">
+        </activity>
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
         </activity>
         <activity
             android:name=".JoinMinistryActivity"

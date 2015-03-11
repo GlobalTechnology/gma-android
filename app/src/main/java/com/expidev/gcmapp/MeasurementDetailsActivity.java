@@ -22,7 +22,6 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
 import android.text.InputType;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -32,7 +31,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.expidev.gcmapp.activity.MeasurementsActivity;
-import com.expidev.gcmapp.activity.SettingsActivity;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
 import com.expidev.gcmapp.model.Assignment;
@@ -194,14 +192,6 @@ public class MeasurementDetailsActivity extends ActionBarActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_measurement_details, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -222,9 +212,6 @@ public class MeasurementDetailsActivity extends ActionBarActivity
                     // navigate up to the logical parent activity.
                     NavUtils.navigateUpTo(this, upIntent);
                 }
-                return true;
-            case R.id.action_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
                 return true;
         }
 
