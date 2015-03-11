@@ -20,14 +20,13 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.expidev.gcmapp.GcmTheKey.GcmBroadcastReceiver;
 import com.expidev.gcmapp.activity.SettingsActivity;
 import com.expidev.gcmapp.map.ChurchMarker;
 import com.expidev.gcmapp.map.Marker;
@@ -64,6 +63,7 @@ import java.util.List;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
+import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
 import me.thekey.android.lib.support.v4.content.AttributesLoader;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 
@@ -87,10 +87,10 @@ public class MainActivity extends ActionBarActivity
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     TheKey mTheKey;
-    private LocalBroadcastManager manager;
-    private GcmBroadcastReceiver gcmBroadcastReceiver;
-    private ActionBar actionBar;
     private SharedPreferences preferences;
+
+    /* BroadcastReceivers */
+    private final LoginBroadcastReceiver mBroadcastReceiverLogin = new LoginBroadcastReceiver();
 
     /* Loader callback objects */
     private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
@@ -105,6 +105,8 @@ public class MainActivity extends ActionBarActivity
     private ClusterManager<Marker> clusterManager;
     private final boolean[] mMapLayers = new boolean[6];
 
+    @Nullable
+    private String mGuid = null;
     @Nullable
     private Assignment mAssignment;
     @Nullable
@@ -121,57 +123,18 @@ public class MainActivity extends ActionBarActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setupBroadcastReceivers();
 
-        actionBar = getSupportActionBar();
-        
         mapOverlayText = (TextView) findViewById(R.id.map_text);
 
         preferences = getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE);
 
         mTheKey = TheKeyImpl.getInstance(this);
 
-        manager = LocalBroadcastManager.getInstance(getApplicationContext());
-        gcmBroadcastReceiver = new GcmBroadcastReceiver(mTheKey, this);
-        gcmBroadcastReceiver.registerReceiver(manager);
-        
-        if (Device.isConnected(getApplicationContext()))
-        {
-            handleLogin();
-        }
-        else
-        {
-            Toast.makeText(this, R.string.no_internet, Toast.LENGTH_LONG).show();
-        }
         if (checkPlayServices())
         {
             SupportMapFragment map = (SupportMapFragment)  getSupportFragmentManager().findFragmentById(R.id.map);
             map.getMapAsync(this);
-        }
-    }
-
-    private void handleLogin()
-    {
-        // check for previous login sessions
-        if (mTheKey.getGuid() == null)
-        {
-            showLogin();
-        }
-        else
-        {
-            // trigger background syncing of data
-            GmaSyncService.syncMinistries(this);
-            GmaSyncService.syncAssignments(this, mTheKey.getGuid());
-            GmaSyncService.syncMeasurementTypes(this);
-            if (mAssignment != null) {
-                GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
-                                                YearMonth.now());
-                MeasurementsService.syncMeasurements(
-                    this,
-                    mAssignment.getMinistryId(),
-                    mAssignment.getMcc(),
-                    null,
-                    mAssignment.getRole());
-            }
         }
     }
 
@@ -186,7 +149,38 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onStart() {
         super.onStart();
-        startLoaders();
+        onUpdateGuid(mTheKey.getGuid());
+    }
+
+    void onUpdateGuid(@Nullable final String guid) {
+        final boolean changed = !TextUtils.equals(guid, mGuid);
+
+        // cleanup after previous user if active user is changing
+        if (changed) {
+            // destroy current loaders
+            final LoaderManager manager = getSupportLoaderManager();
+            manager.destroyLoader(LOADER_CURRENT_ASSIGNMENT);
+            manager.destroyLoader(LOADER_CHURCHES);
+            manager.destroyLoader(LOADER_TRAINING);
+
+            // trigger null data loads to cleanup any cached data
+            onLoadCurrentAssignment(null);
+            onLoadChurches(null);
+            onLoadTraining(null);
+        }
+
+        // update active user
+        mGuid = guid;
+
+        // show login dialog if there isn't a valid active user
+        if (mGuid == null) {
+            showLogin();
+        }
+        // otherwise start processes for current active user
+        else if (changed) {
+            syncData(false);
+            startLoaders();
+        }
     }
 
     @Override
@@ -196,22 +190,10 @@ public class MainActivity extends ActionBarActivity
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.action_refresh:
-                GmaSyncService.syncMinistries(this, true);
-                GmaSyncService.syncAssignments(this, mTheKey.getGuid(), true);
-                GmaSyncService.syncMeasurementTypes(this);
-                if (mAssignment != null) {
-                    GmaSyncService.syncChurches(this, mAssignment.getMinistryId());
-                    GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
-                                                    YearMonth.now());
-                    MeasurementsService.syncMeasurements(
-                        this,
-                        mAssignment.getMinistryId(),
-                        mAssignment.getMcc(),
-                        null,
-                        mAssignment.getRole());
-                    TrainingService.syncTraining(this, mAssignment.getMinistryId(), mAssignment.getMcc());
-                }
-
+                syncData(true);
+                return true;
+            case R.id.action_logout:
+                logout(item);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -297,20 +279,27 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         super.onDestroy();
-        removeBroadcastReceivers();
+        cleanupBroadcastReceivers();
     }
 
     /* END lifecycle */
+
+    private void setupBroadcastReceivers() {
+        mBroadcastReceiverLogin.registerReceiver(LocalBroadcastManager.getInstance(this));
+    }
+
+    private void cleanupBroadcastReceivers() {
+        mBroadcastReceiverLogin.unregisterReceiver(LocalBroadcastManager.getInstance(this));
+    }
 
     private void startLoaders() {
         final LoaderManager manager = this.getSupportLoaderManager();
 
         // build the args used for various loaders
-        final Bundle args = new Bundle(1);
-        args.putString(ARG_GUID, mTheKey.getGuid());
+        final Bundle args = new Bundle(2);
+        args.putString(ARG_GUID, mGuid);
         args.putBoolean(ARG_LOAD_MINISTRY, true);
 
         manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, mLoaderCallbacksAttributes);
@@ -328,6 +317,21 @@ public class MainActivity extends ActionBarActivity
         // restart these loaders in case the ministry id has changed since the last start
         manager.restartLoader(LOADER_CHURCHES, args, mLoaderCallbacksChurches);
         manager.restartLoader(LOADER_TRAINING, args, mLoaderCallbacksTraining);
+    }
+
+    private void syncData(final boolean force) {
+        if (mGuid != null) {
+            // trigger background syncing of data
+            GmaSyncService.syncAssignments(this, mGuid, force);
+            GmaSyncService.syncMinistries(this, force);
+            GmaSyncService.syncMeasurementTypes(this);
+            if (mAssignment != null) {
+                GmaSyncService.syncChurches(this, mAssignment.getMinistryId());
+                TrainingService.syncTraining(this, mAssignment.getMinistryId(), mAssignment.getMcc());
+                GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
+                                                YearMonth.now());
+            }
+        }
     }
 
     private void updateMap(final boolean zoom) {
@@ -460,7 +464,6 @@ public class MainActivity extends ActionBarActivity
                     {
                         mTheKey.logout();
                         dialog.dismiss();
-                        showLogin();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
@@ -620,11 +623,18 @@ public class MainActivity extends ActionBarActivity
         return false;
     }
 
-    private void removeBroadcastReceivers()
-    {
-        manager = LocalBroadcastManager.getInstance(this);
-        manager.unregisterReceiver(gcmBroadcastReceiver);
-        gcmBroadcastReceiver = null;
+    private class LoginBroadcastReceiver extends TheKeyBroadcastReceiver {
+        @Override
+        protected void onLogin(@NonNull final String guid) {
+            onUpdateGuid(guid);
+        }
+
+        @Override
+        protected void onLogout(final String guid, final boolean changingUser) {
+            if (!changingUser) {
+                onUpdateGuid(null);
+            }
+        }
     }
 
     private class MapLongClickListener implements GoogleMap.OnMapLongClickListener {
