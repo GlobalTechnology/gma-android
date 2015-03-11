@@ -86,7 +86,7 @@ public class MainActivity extends ActionBarActivity
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
-    TheKey theKey;
+    TheKey mTheKey;
     private LocalBroadcastManager manager;
     private GcmBroadcastReceiver gcmBroadcastReceiver;
     private ActionBar actionBar;
@@ -128,10 +128,10 @@ public class MainActivity extends ActionBarActivity
 
         preferences = getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE);
 
-        theKey = TheKeyImpl.getInstance(this);
+        mTheKey = TheKeyImpl.getInstance(this);
 
         manager = LocalBroadcastManager.getInstance(getApplicationContext());
-        gcmBroadcastReceiver = new GcmBroadcastReceiver(theKey, this);
+        gcmBroadcastReceiver = new GcmBroadcastReceiver(mTheKey, this);
         gcmBroadcastReceiver.registerReceiver(manager);
         
         if (Device.isConnected(getApplicationContext()))
@@ -152,15 +152,15 @@ public class MainActivity extends ActionBarActivity
     private void handleLogin()
     {
         // check for previous login sessions
-        if (theKey.getGuid() == null)
+        if (mTheKey.getGuid() == null)
         {
-            login();
+            showLogin();
         }
         else
         {
             // trigger background syncing of data
             GmaSyncService.syncMinistries(this);
-            GmaSyncService.syncAssignments(this, theKey.getGuid());
+            GmaSyncService.syncAssignments(this, mTheKey.getGuid());
             GmaSyncService.syncMeasurementTypes(this);
             if (mAssignment != null) {
                 GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
@@ -197,7 +197,7 @@ public class MainActivity extends ActionBarActivity
                 return true;
             case R.id.action_refresh:
                 GmaSyncService.syncMinistries(this, true);
-                GmaSyncService.syncAssignments(this, theKey.getGuid(), true);
+                GmaSyncService.syncAssignments(this, mTheKey.getGuid(), true);
                 GmaSyncService.syncMeasurementTypes(this);
                 if (mAssignment != null) {
                     GmaSyncService.syncChurches(this, mAssignment.getMinistryId());
@@ -310,7 +310,7 @@ public class MainActivity extends ActionBarActivity
 
         // build the args used for various loaders
         final Bundle args = new Bundle(1);
-        args.putString(ARG_GUID, theKey.getGuid());
+        args.putString(ARG_GUID, mTheKey.getGuid());
         args.putBoolean(ARG_LOAD_MINISTRY, true);
 
         manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, mLoaderCallbacksAttributes);
@@ -367,9 +367,9 @@ public class MainActivity extends ActionBarActivity
         final Context context = this;
         if (Device.isConnected(getApplicationContext()))
         {
-            if (theKey.getGuid() == null)
+            if (mTheKey.getGuid() == null)
             {
-                login();
+                showLogin();
             }
             else
             {
@@ -459,9 +459,9 @@ public class MainActivity extends ActionBarActivity
                 {
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        theKey.logout();
+                        mTheKey.logout();
                         dialog.dismiss();
-                        login();
+                        showLogin();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
@@ -485,12 +485,10 @@ public class MainActivity extends ActionBarActivity
         mMapLayers[MAP_LAYER_MULTIPLYING_CHURCH] = preferences.getBoolean("multiplyingChurches", true);
         mMapLayers[MAP_LAYER_CAMPUSES] = preferences.getBoolean("campuses", true);
     }
-    
-    private void login()
-    {   
+
+    private void showLogin() {
         final FragmentManager fm = this.getSupportFragmentManager();
-        if (fm.findFragmentByTag("loginDialog") == null)
-        {
+        if (fm.findFragmentByTag("loginDialog") == null) {
             LoginDialogFragment loginDialogFragment = LoginDialogFragment.builder().clientId(THEKEY_CLIENTID).build();
             loginDialogFragment.show(fm.beginTransaction().addToBackStack("loginDialog"), "loginDialog");
         }
@@ -689,7 +687,7 @@ public class MainActivity extends ActionBarActivity
         public Loader<TheKey.Attributes> onCreateLoader(final int id, final Bundle args) {
             switch (id) {
                 case LOADER_THEKEY_ATTRIBUTES:
-                    return new AttributesLoader(MainActivity.this, theKey);
+                    return new AttributesLoader(MainActivity.this, mTheKey);
                 default:
                     return null;
             }
