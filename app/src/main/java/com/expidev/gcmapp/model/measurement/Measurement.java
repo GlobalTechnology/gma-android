@@ -19,14 +19,7 @@ public class Measurement extends Base implements Serializable
 {
     private static final long serialVersionUID = 0L;
 
-    private static final String JSON_NAME = "name";
     private static final String JSON_MEASUREMENT_ID = "measurement_id";
-    private static final String JSON_PERM_LINK = "perm_link";
-    private static final String JSON_CUSTOM = "is_custom";
-    private static final String JSON_SECTION = "section";
-    private static final String JSON_COLUMN = "column";
-    private static final String JSON_TOTAL = "total";
-    private static final String JSON_SORT_ORDER = "sort_order";
 
     @Nullable
     private MeasurementType type;
@@ -34,21 +27,13 @@ public class Measurement extends Base implements Serializable
     private MinistryMeasurement ministryMeasurement;
     @Nullable
     private PersonalMeasurement personalMeasurement;
-    private String name;
     private String measurementId;
-    private String permLink;
-    private boolean custom;
-    private String section;
-    private String column;
-    private int total;
-    private MeasurementDetails measurementDetails;
     @NonNull
     private YearMonth period = YearMonth.now();
     @NonNull
     private String ministryId = Ministry.INVALID_ID;
     @NonNull
     private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
-    private int sortOrder;
 
     @NonNull
     public static List<Measurement> listFromJson(@NonNull final JSONArray json, @NonNull final String guid,
@@ -79,12 +64,6 @@ public class Measurement extends Base implements Serializable
         }
 
         measurement.measurementId = json.getString(JSON_MEASUREMENT_ID);
-        measurement.permLink = json.getString(JSON_PERM_LINK);
-        measurement.custom = json.getBoolean(JSON_CUSTOM);
-        measurement.section = json.getString(JSON_SECTION);
-        measurement.column = json.getString(JSON_COLUMN);
-        measurement.total = json.optInt(JSON_TOTAL);
-        measurement.sortOrder = json.optInt(JSON_SORT_ORDER);
 
         return measurement;
     }
@@ -126,66 +105,6 @@ public class Measurement extends Base implements Serializable
         this.measurementId = measurementId;
     }
 
-    public String getPermLink()
-    {
-        return permLink;
-    }
-
-    public void setPermLink(String permLink)
-    {
-        this.permLink = permLink;
-    }
-
-    public boolean isCustom()
-    {
-        return custom;
-    }
-
-    public void setCustom(boolean custom)
-    {
-        this.custom = custom;
-    }
-
-    public String getSection()
-    {
-        return section;
-    }
-
-    public void setSection(String section)
-    {
-        this.section = section;
-    }
-
-    public String getColumn()
-    {
-        return column;
-    }
-
-    public void setColumn(String column)
-    {
-        this.column = column;
-    }
-
-    public int getTotal()
-    {
-        return total;
-    }
-
-    public void setTotal(int total)
-    {
-        this.total = total;
-    }
-
-    public MeasurementDetails getMeasurementDetails()
-    {
-        return measurementDetails;
-    }
-
-    public void setMeasurementDetails(MeasurementDetails measurementDetails)
-    {
-        this.measurementDetails = measurementDetails;
-    }
-
     @NonNull
     public YearMonth getPeriod() {
         return period;
@@ -216,15 +135,5 @@ public class Measurement extends Base implements Serializable
 
     public void setMcc(@NonNull final Ministry.Mcc mcc) {
         this.mcc = mcc;
-    }
-
-    public int getSortOrder()
-    {
-        return sortOrder;
-    }
-
-    public void setSortOrder(int sortOrder)
-    {
-        this.sortOrder = sortOrder;
     }
 }

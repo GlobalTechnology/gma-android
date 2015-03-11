@@ -98,7 +98,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
                     db.execSQL(Contract.Assignment.SQL_CREATE_TABLE);
                     break;
                 case 13:
-                    db.execSQL(Contract.Measurement.SQL_V13_ALTER_SORT);
                     break;
                 case 14:
                     db.execSQL(Contract.LegacyTables.SQL_DELETE_ALL_MINISTRIES_TABLE);
