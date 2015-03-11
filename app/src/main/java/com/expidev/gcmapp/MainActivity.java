@@ -314,7 +314,6 @@ public class MainActivity extends ActionBarActivity
         args.putBoolean(ARG_LOAD_MINISTRY, true);
 
         manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, mLoaderCallbacksAttributes);
-        manager.initLoader(LOADER_TRAINING, null, mLoaderCallbacksTraining);
         manager.initLoader(LOADER_CURRENT_ASSIGNMENT, args, mLoaderCallbacksAssignment);
         restartCurrentMinistryBasedLoaders();
     }
