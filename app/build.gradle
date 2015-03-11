@@ -112,6 +112,10 @@ repositories {
         name "achartengine"
         url "https://repository-achartengine.forge.cloudbees.com/snapshot/"
     }
+    // This is a temporary workaround until ViewPagerIndicator is distributed as an aar
+    maven {
+        url 'https://github.com/Dahlgren/vpi-aar/raw/master/'
+    }
 }
 
 dependencies {
@@ -131,6 +135,7 @@ dependencies {
     compile 'org.ccci.gto.android:gto-support:0.4.4'
 
     compile 'com.github.machinarius:preferencefragment:0.1.1'
+    compile 'com.viewpagerindicator:library:2.4.2-SNAPSHOT'
     compile 'net.danlew:android.joda:2.7.1'
     compile 'org.achartengine:achartengine:1.2.0'
 

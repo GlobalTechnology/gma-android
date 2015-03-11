@@ -26,6 +26,7 @@ import com.expidev.gcmapp.model.measurement.MeasurementType;
 import com.expidev.gcmapp.model.measurement.MeasurementValue;
 import com.expidev.gcmapp.support.v4.adapter.MeasurementPagerAdapter;
 import com.expidev.gcmapp.support.v4.content.MeasurementTypesCursorLoader;
+import com.viewpagerindicator.CirclePageIndicator;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.joda.time.YearMonth;
@@ -56,6 +57,10 @@ public class MeasurementsPagerFragment extends Fragment {
     @InjectView(R.id.pager)
     ViewPager mPager = null;
     private MeasurementPagerAdapter mAdapter;
+    @Nullable
+    @Optional
+    @InjectView(R.id.indicator)
+    CirclePageIndicator mPagerIndicator = null;
 
     public static MeasurementsPagerFragment newInstance(@NonNull final String guid, @NonNull final String ministryId,
                                                         @NonNull final Ministry.Mcc mcc,
@@ -128,6 +133,11 @@ public class MeasurementsPagerFragment extends Fragment {
             mAdapter = new MeasurementPagerAdapter(getChildFragmentManager(), MeasurementValue.TYPE_PERSONAL, mGuid,
                                                    mMinistryId, mMcc, mPeriod);
             mPager.setAdapter(mAdapter);
+
+            // configure view pager indicator
+            if (mPagerIndicator != null) {
+                mPagerIndicator.setViewPager(mPager);
+            }
         }
     }
 
