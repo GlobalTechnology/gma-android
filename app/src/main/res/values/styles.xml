@@ -1,5 +1,4 @@
 <resources>
-
     <color name="gma_green">#58b231</color>
     <color name="measurementValueBackground">#faf8f7</color>
 
@@ -16,6 +15,6 @@
 
     <style name="Widget.GMA.Button" parent="android:Widget.Button">
         <item name="android:background">@color/gma_green</item>
+        <item name="android:minHeight">48dp</item>
     </style>
-
 </resources>
