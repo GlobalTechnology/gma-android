@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:background="@drawable/bg_main"
     android:layout_width="match_parent"
@@ -46,16 +45,14 @@
             android:layout_marginTop="16dp"
             android:gravity="center_horizontal"/>
 
-        <TextView
+        <Button
             android:id="@+id/login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Sign In"
             android:gravity="center_vertical|center_horizontal"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:background="#ff58b231"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="16dp"
+            style="@style/Widget.GMA.Button"/>
     </LinearLayout>
 
 </RelativeLayout>

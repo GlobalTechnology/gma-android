@@ -1,5 +1,6 @@
 <resources>
 
+    <color name="gma_green">#58b231</color>
     <color name="measurementValueBackground">#faf8f7</color>
 
     <style name="Base"/>
@@ -12,5 +13,9 @@
     <style name="TextAppearance.GMA" parent="TextAppearance.AppCompat"/>
 
     <style name="TextAppearance.GMA.Large" parent="TextAppearance.AppCompat.Large"/>
+
+    <style name="Widget.GMA.Button" parent="android:Widget.Button">
+        <item name="android:background">@color/gma_green</item>
+    </style>
 
 </resources>
