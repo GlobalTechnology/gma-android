@@ -17,6 +17,7 @@
     <style name="Widget.GMA.Measurements.Header.Label" parent="Widget.GMA.Measurements">
         <item name="android:paddingStart" tools:ignore="NewApi">16dp</item>
         <item name="android:paddingLeft">16dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.GMA.Measurements.Header.Label</item>
     </style>
 
     <style name="TextAppearance.GMA.Measurements.Header.Label" parent="TextAppearance.GMA.Large">
