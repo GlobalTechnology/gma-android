@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.newrelic.agent.android:agent-gradle-plugin:4.244.0"
+        classpath "com.newrelic.agent.android:agent-gradle-plugin:4.265.0"
     }
 }
 
@@ -24,8 +24,8 @@ def generateVersionCode(version) {
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion '19.1.0'
+    compileSdkVersion 22
+    buildToolsVersion '22.0.1'
 
     defaultConfig {
         applicationId "com.expidevapps.android.measurements"
@@ -34,7 +34,7 @@ android {
         versionCode generateVersionCode(project.version)
 
         minSdkVersion 10
-        targetSdkVersion 21
+        targetSdkVersion 22
 
         buildConfigField "long", "THEKEY_CLIENTID", "7439283632057308L"
 
@@ -121,13 +121,13 @@ repositories {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:21.0.3'
-    compile 'com.android.support:support-v4:21.0.3'
-    compile 'com.google.android.gms:play-services-maps:6.5.87'
+    compile 'com.android.support:appcompat-v7:22.0.0'
+    compile 'com.android.support:support-v4:22.0.0'
+    compile 'com.google.android.gms:play-services-maps:7.0.0'
     compile 'com.google.guava:guava:18.0'
     compile 'com.google.maps.android:android-maps-utils:0.3.4'
 
-    compile 'com.newrelic.agent.android:android-agent:4.244.0'
+    compile 'com.newrelic.agent.android:android-agent:4.265.0'
 
     compile 'com.jakewharton:butterknife:6.1.0'
 
