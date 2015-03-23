@@ -80,6 +80,7 @@ android {
             versionNameSuffix "-demo"
 
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             if(signingConfigs.demo.storeFile.exists()) {
                 signingConfig signingConfigs.demo
@@ -90,6 +91,7 @@ android {
         }
         release {
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             if(signingConfigs.release.storeFile.exists()) {
                 signingConfig signingConfigs.release
