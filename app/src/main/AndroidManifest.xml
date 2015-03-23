@@ -24,6 +24,14 @@
             android:label="@string/title_activity_main">
         </activity>
         <activity
+            android:name="com.expidevapps.android.measurements.activity.LoginActivity"
+            android:screenOrientation="sensorPortrait"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
+        <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity">

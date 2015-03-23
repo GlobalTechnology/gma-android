@@ -1,6 +1,5 @@
 package com.expidev.gcmapp;
 
-import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
 import static com.expidev.gcmapp.Constants.ARG_GUID;
 import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
 import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
@@ -46,6 +45,7 @@ import com.expidev.gcmapp.support.v4.fragment.CreateChurchFragment;
 import com.expidev.gcmapp.support.v4.fragment.EditChurchFragment;
 import com.expidev.gcmapp.support.v4.fragment.EditTrainingFragment;
 import com.expidev.gcmapp.utils.Device;
+import com.expidevapps.android.measurements.activity.LoginActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
@@ -65,7 +65,6 @@ import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
 import me.thekey.android.lib.support.v4.content.AttributesLoader;
-import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 
 public class MainActivity extends ActionBarActivity
     implements OnMapReadyCallback
@@ -83,6 +82,8 @@ public class MainActivity extends ActionBarActivity
     private static final int MAP_LAYER_CHURCH = 3;
     private static final int MAP_LAYER_MULTIPLYING_CHURCH = 4;
     private static final int MAP_LAYER_CAMPUSES = 5;
+
+    private static final int REQUEST_LOGIN_ACTIVITY = 0;
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
@@ -265,6 +266,20 @@ public class MainActivity extends ActionBarActivity
 
         // update the map
         updateMap(false);
+    }
+
+    @Override
+    protected void onActivityResult(final int requestCode, final int resultCode, @Nullable final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case REQUEST_LOGIN_ACTIVITY:
+                switch (resultCode) {
+                    case RESULT_CANCELED:
+                        finish();
+                        break;
+                }
+        }
     }
 
     @Override
@@ -489,11 +504,7 @@ public class MainActivity extends ActionBarActivity
     }
 
     private void showLogin() {
-        final FragmentManager fm = this.getSupportFragmentManager();
-        if (fm.findFragmentByTag("loginDialog") == null) {
-            LoginDialogFragment loginDialogFragment = LoginDialogFragment.builder().clientId(THEKEY_CLIENTID).build();
-            loginDialogFragment.show(fm.beginTransaction().addToBackStack("loginDialog"), "loginDialog");
-        }
+        startActivityForResult(new Intent(this, LoginActivity.class), REQUEST_LOGIN_ACTIVITY);
     }
 
     private boolean checkPlayServices()
