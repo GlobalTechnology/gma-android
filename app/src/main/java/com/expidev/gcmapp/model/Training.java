@@ -18,11 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Created by matthewfrederick on 1/26/15.
- */
-public class Training extends Location implements Cloneable 
-{
+public class Training extends Location implements Cloneable {
     public static final long INVALID_ID = -1;
     
     private long id;
@@ -63,17 +59,6 @@ public class Training extends Location implements Cloneable
         mDirty.clear();
         mDirty.addAll(training.mDirty);
         mTrackingChanges = training.mTrackingChanges;
-    }
-
-    public static boolean equals(Training first, Training second)
-    {
-        // does everything in the object need to be compared?
-        
-        if (first.getId() != second.getId()) return false;
-        if (!first.getName().equals(second.getName())) return false;
-        if (!first.getMinistryId().equals(second.getMinistryId())) return false;
-        
-        return true;
     }
 
     public long getId()
@@ -230,14 +215,6 @@ public class Training extends Location implements Cloneable
         private int numberCompleted;
         private Date date;
         private int trainingId;
-
-        public static boolean equals(Completion first, Completion second) {
-            if (first.getId() != second.getId()) return false;
-            if (first.getPhase() != second.getPhase()) return false;
-            if (first.getTrainingId() != second.getTrainingId()) return false;
-
-            return true;
-        }
 
         public long getId()
         {
