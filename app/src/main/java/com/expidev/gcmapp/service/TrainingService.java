@@ -38,7 +38,6 @@ public class TrainingService extends IntentService
 {
     private final String TAG = getClass().getSimpleName();
 
-    private static final String EXTRA_TYPE = TrainingService.class.getName() + ".EXTRA_TYPE";
     private static final String MINISTRY_ID = TrainingService.class.getName() + ".MINISTRY_ID";
     private static final String MINISTRY_MCC = TrainingService.class.getName() + ".MCC";
 
@@ -72,7 +71,7 @@ public class TrainingService extends IntentService
         Log.i(TAG, "Handle Intent");
         broadcastManager.sendBroadcast(runningBroadcast());
         
-        final Type type = (Type) intent.getSerializableExtra(EXTRA_TYPE);
+        final Type type = (Type) intent.getSerializableExtra(EXTRA_SYNCTYPE);
         Log.i(TAG, "Type: " + type);
         try
         {
@@ -107,7 +106,7 @@ public class TrainingService extends IntentService
     public static void syncTraining(@NonNull final Context context, @NonNull final String ministryId,
                                     @NonNull final Ministry.Mcc mcc) {
         final Bundle extras = new Bundle(3);
-        extras.putSerializable(EXTRA_TYPE, SYNC_TRAINING);
+        extras.putSerializable(EXTRA_SYNCTYPE, SYNC_TRAINING);
         extras.putString(MINISTRY_ID, ministryId);
         extras.putString(MINISTRY_MCC, mcc.toString());
         final Intent intent = baseIntent(context, extras);
