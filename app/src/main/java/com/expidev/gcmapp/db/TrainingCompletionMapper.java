@@ -6,10 +6,10 @@ import android.support.annotation.NonNull;
 
 import com.expidev.gcmapp.model.Training;
 
-public class TrainingCompletionMapper extends BaseMapper<Training.GCMTrainingCompletions> {
+public class TrainingCompletionMapper extends BaseMapper<Training.Completion> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
-                            @NonNull final Training.GCMTrainingCompletions completion) {
+                            @NonNull final Training.Completion completion) {
         switch (field) {
             case Contract.Training.Completion.COLUMN_ID:
                 values.put(field, completion.getId());
@@ -34,14 +34,14 @@ public class TrainingCompletionMapper extends BaseMapper<Training.GCMTrainingCom
 
     @NonNull
     @Override
-    protected Training.GCMTrainingCompletions newObject(@NonNull final Cursor c) {
-        return new Training.GCMTrainingCompletions();
+    protected Training.Completion newObject(@NonNull final Cursor c) {
+        return new Training.Completion();
     }
 
     @NonNull
     @Override
-    public Training.GCMTrainingCompletions toObject(@NonNull final Cursor c) {
-        final Training.GCMTrainingCompletions completion = super.toObject(c);
+    public Training.Completion toObject(@NonNull final Cursor c) {
+        final Training.Completion completion = super.toObject(c);
 
         completion.setId(this.getInt(c, Contract.Training.Completion.COLUMN_ID, 0));
         completion.setTrainingId(this.getInt(c, Contract.Training.Completion.COLUMN_TRAINING_ID, 0));

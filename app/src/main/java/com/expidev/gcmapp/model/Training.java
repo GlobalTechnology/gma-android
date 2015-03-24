@@ -34,7 +34,7 @@ public class Training extends Location implements Cloneable
     @NonNull
     private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
     @NonNull
-    private final List<GCMTrainingCompletions> completions = new ArrayList<>();
+    private final List<Completion> completions = new ArrayList<>();
     private boolean mTrackingChanges = false;
     @NonNull
     private final Set<String> mDirty = new HashSet<>();
@@ -169,19 +169,18 @@ public class Training extends Location implements Cloneable
     }
 
     @NonNull
-    public List<GCMTrainingCompletions> getCompletions()
-    {
+    public List<Completion> getCompletions() {
         return Collections.unmodifiableList(completions);
     }
 
-    public void setCompletions(@Nullable final List<GCMTrainingCompletions> completions) {
+    public void setCompletions(@Nullable final List<Completion> completions) {
         this.completions.clear();
         if (completions != null) {
             this.completions.addAll(completions);
         }
     }
 
-    public void addCompletion(@NonNull final GCMTrainingCompletions completion) {
+    public void addCompletion(@NonNull final Completion completion) {
         this.completions.add(completion);
     }
 
@@ -225,16 +224,14 @@ public class Training extends Location implements Cloneable
         return json;
     }
 
-    public static class GCMTrainingCompletions extends Base
-    {
+    public static class Completion extends Base {
         private long id;
         private int phase;
         private int numberCompleted;
         private Date date;
         private int trainingId;
 
-        public static boolean equals(GCMTrainingCompletions first, GCMTrainingCompletions second)
-        {
+        public static boolean equals(Completion first, Completion second) {
             if (first.getId() != second.getId()) return false;
             if (first.getPhase() != second.getPhase()) return false;
             if (first.getTrainingId() != second.getTrainingId()) return false;

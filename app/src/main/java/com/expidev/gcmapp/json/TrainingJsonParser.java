@@ -60,9 +60,9 @@ public class TrainingJsonParser {
     }
 
     @NonNull
-    public static List<Training.GCMTrainingCompletions> parseCompletions(@NonNull final JSONArray json)
+    public static List<Training.Completion> parseCompletions(@NonNull final JSONArray json)
             throws JSONException {
-        final List<Training.GCMTrainingCompletions> completions = new ArrayList<>();
+        final List<Training.Completion> completions = new ArrayList<>();
 
         // parse all completions in the provided array
         for (int j = 0; j < json.length(); j++) {
@@ -73,8 +73,8 @@ public class TrainingJsonParser {
     }
 
     @NonNull
-    public static Training.GCMTrainingCompletions parseCompletion(@NonNull final JSONObject json) throws JSONException {
-        final Training.GCMTrainingCompletions completion = new Training.GCMTrainingCompletions();
+    public static Training.Completion parseCompletion(@NonNull final JSONObject json) throws JSONException {
+        final Training.Completion completion = new Training.Completion();
         completion.setId(json.optLong("Id"));
         completion.setTrainingId(json.getInt("training_id"));
         completion.setPhase(json.getInt("phase"));

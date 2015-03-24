@@ -20,7 +20,7 @@ public class TrainingDao extends AbstractDao
     private final String TAG = getClass().getSimpleName();
     
     private static final Mapper<Training> TRAINING_MAPPER = new TrainingMapper();
-    private static final Mapper<Training.GCMTrainingCompletions> COMPLETION_MAPPER = new TrainingCompletionMapper();
+    private static final Mapper<Training.Completion> COMPLETION_MAPPER = new TrainingCompletionMapper();
 
     private static final Object instanceLock = new Object();
     private static TrainingDao instance;
@@ -46,7 +46,7 @@ public class TrainingDao extends AbstractDao
     protected String getTable(@NonNull final Class<?> clazz) {
         if (Training.class.equals(clazz)) {
             return Contract.Training.TABLE_NAME;
-        } else if (Training.GCMTrainingCompletions.class.equals(clazz)) {
+        } else if (Training.Completion.class.equals(clazz)) {
             return Contract.Training.Completion.TABLE_NAME;
         }
 
@@ -58,7 +58,7 @@ public class TrainingDao extends AbstractDao
     public String[] getFullProjection(@NonNull final Class<?> clazz) {
         if (Training.class.equals(clazz)) {
             return Contract.Training.PROJECTION_ALL;
-        } else if (Training.GCMTrainingCompletions.class.equals(clazz)) {
+        } else if (Training.Completion.class.equals(clazz)) {
             return Contract.Training.Completion.PROJECTION_ALL;
         }
 
@@ -71,7 +71,7 @@ public class TrainingDao extends AbstractDao
     protected <T> Mapper<T> getMapper(@NonNull final Class<T> clazz) {
         if (Training.class.equals(clazz)) {
             return (Mapper<T>) TRAINING_MAPPER;
-        } else if (Training.GCMTrainingCompletions.class.equals(clazz)) {
+        } else if (Training.Completion.class.equals(clazz)) {
             return (Mapper<T>) COMPLETION_MAPPER;
         }
 
@@ -86,7 +86,7 @@ public class TrainingDao extends AbstractDao
         if (Training.class.equals(clazz)) {
             where = Contract.Training.SQL_WHERE_PRIMARY_KEY;
             keyLength = 1;
-        } else if (Training.GCMTrainingCompletions.class.equals(clazz)) {
+        } else if (Training.Completion.class.equals(clazz)) {
             where = Contract.Training.Completion.SQL_WHERE_PRIMARY_KEY;
             keyLength = 1;
         } else {
@@ -107,9 +107,9 @@ public class TrainingDao extends AbstractDao
     protected Pair<String, String[]> getPrimaryKeyWhere(@NonNull final Object obj) {
         if (obj instanceof Training) {
             return this.getPrimaryKeyWhere(Training.class, ((Training) obj).getId());
-        } else if (obj instanceof Training.GCMTrainingCompletions) {
-            return this.getPrimaryKeyWhere(Training.GCMTrainingCompletions.class,
-                                           ((Training.GCMTrainingCompletions) obj).getId());
+        } else if (obj instanceof Training.Completion) {
+            return this.getPrimaryKeyWhere(Training.Completion.class,
+                                           ((Training.Completion) obj).getId());
         }
 
         return super.getPrimaryKeyWhere(obj);
@@ -122,7 +122,7 @@ public class TrainingDao extends AbstractDao
             database.beginTransaction();
 
             this.updateOrInsert(training, Contract.Training.PROJECTION_ALL);
-            for (final Training.GCMTrainingCompletions completion : training.getCompletions()) {
+            for (final Training.Completion completion : training.getCompletions()) {
                 this.updateOrInsert(completion, Contract.Training.Completion.PROJECTION_ALL);
             }
 
