@@ -5,7 +5,7 @@ import static com.expidev.gcmapp.Constants.EXTRA_MCC;
 import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
 import static com.expidev.gcmapp.Constants.EXTRA_PERIOD;
 import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
-import static com.expidev.gcmapp.service.Type.SAVE_ASSOCIATED_MINISTRIES;
+import static com.expidev.gcmapp.service.Type.SAVE_ASSIGNMENTS;
 import static com.expidev.gcmapp.service.Type.SYNC_ASSIGNMENTS;
 import static com.expidev.gcmapp.service.Type.SYNC_CHURCHES;
 import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_CHURCHES;
@@ -148,8 +148,8 @@ public class GmaSyncService extends ThreadedIntentService {
                 case RETRIEVE_ALL_MINISTRIES:
                     syncMinistries(intent);
                     break;
-                case SAVE_ASSOCIATED_MINISTRIES:
-                    saveAssociatedMinistriesFromServer(intent);
+                case SAVE_ASSIGNMENTS:
+                    saveAssignments(intent);
                     break;
                 case SYNC_ASSIGNMENTS:
                     syncAssignments(intent);
@@ -205,12 +205,12 @@ public class GmaSyncService extends ThreadedIntentService {
         context.startService(baseIntent(context, extras));
     }
 
-    public static void saveAssociatedMinistriesFromServer(@NonNull final Context context, @NonNull final String guid,
-                                                          @Nullable final JSONArray assignments) {
+    public static void saveAssignments(@NonNull final Context context, @NonNull final String guid,
+                                       @Nullable final JSONArray assignments) {
         Log.i(TAG, assignments != null ? assignments.toString() : "null");
 
         Bundle extras = new Bundle(3);
-        extras.putSerializable(EXTRA_SYNCTYPE, SAVE_ASSOCIATED_MINISTRIES);
+        extras.putSerializable(EXTRA_SYNCTYPE, SAVE_ASSIGNMENTS);
         extras.putString(EXTRA_GUID, guid);
         extras.putString(EXTRA_ASSIGNMENTS, assignments != null ? assignments.toString() : null);
 
@@ -478,8 +478,7 @@ public class GmaSyncService extends ThreadedIntentService {
         }
     }
 
-    private void saveAssociatedMinistriesFromServer(Intent intent)
-    {
+    private void saveAssignments(@NonNull final Intent intent) {
         final String guid = intent.getStringExtra(EXTRA_GUID);
         final String raw = intent.getStringExtra(EXTRA_ASSIGNMENTS);
         if(raw != null) {
@@ -551,7 +550,7 @@ public class GmaSyncService extends ThreadedIntentService {
 
             // send broadcasts for updated data
             broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast(guid));
-            broadcastManager.sendBroadcast(stopBroadcast(SAVE_ASSOCIATED_MINISTRIES));
+            broadcastManager.sendBroadcast(stopBroadcast(SAVE_ASSIGNMENTS));
         } catch (final SQLException e) {
             Log.d(TAG, "error updating assignments", e);
         } finally {

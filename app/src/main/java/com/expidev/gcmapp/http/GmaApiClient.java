@@ -121,8 +121,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
                         // save the returned associated ministries
                         // XXX: this isn't ideal and crosses logical components, but I can't think of a cleaner way to do it currently -DF
-                        GmaSyncService.saveAssociatedMinistriesFromServer(mContext, request.guid,
-                                                                          json.optJSONArray("assignments"));
+                        GmaSyncService.saveAssignments(mContext, request.guid, json.optJSONArray("assignments"));
 
                         // create session object
                         return new Session(json.optString("session_ticket", null), cookies,

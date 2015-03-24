@@ -6,7 +6,7 @@ package com.expidev.gcmapp.service;
 public enum Type
 {
     RETRIEVE_ALL_MINISTRIES,
-    SAVE_ASSOCIATED_MINISTRIES,
+    SAVE_ASSIGNMENTS,
     SYNC_TRAINING,
     SYNC_DIRTY_TRAINING,
     SYNC_ASSIGNMENTS,
