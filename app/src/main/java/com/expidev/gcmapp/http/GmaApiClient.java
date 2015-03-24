@@ -542,8 +542,10 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         return null;
     }
 
+    /* BEGIN Training endpoints */
+
     @Nullable
-    public List<Training> searchTraining(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc)
+    public List<Training> getTrainings(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc)
             throws ApiException {
         // short-circuit on invalid requests
         if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
@@ -558,8 +560,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
         // process request
         HttpURLConnection conn = null;
-        try
-        {
+        try {
             conn = this.sendRequest(request);
 
             // is this a successful response?
@@ -567,7 +568,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
                 return TrainingJsonParser.parseTrainings(new JSONArray(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
-            Log.e(TAG, "error parsing searchTraining response", e);
+            Log.e(TAG, "error parsing getTrainings response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
         } finally {
@@ -599,6 +600,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             IOUtils.closeQuietly(connn);
         }
     }
+
+    /* END Training endpoints */
 
     protected static class Session extends AbstractTheKeyApi.Session {
         @NonNull

@@ -135,7 +135,7 @@ public class TrainingService extends IntentService
         try
         {
             // get list of training from api
-            final List<Training> trainings = mApi.searchTraining(ministryId, mcc);
+            final List<Training> trainings = mApi.getTrainings(ministryId, mcc);
 
             if (trainings != null) {
                 final LongSparseArray<Training> current = new LongSparseArray<>();
