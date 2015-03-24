@@ -157,11 +157,11 @@ public class GmaSyncService extends ThreadedIntentService {
     }
 
     @Override
-    public void onHandleIntent(Intent intent)
-    {
+    public void onHandleIntent(@NonNull final Intent intent) {
         final Type type = (Type) intent.getSerializableExtra(EXTRA_SYNCTYPE);
 
         try {
+            final GmaApiClient api = GmaApiClient.getInstance(this, intent.getStringExtra(EXTRA_GUID));
             switch (type) {
                 case RETRIEVE_ALL_MINISTRIES:
                     syncMinistries(intent);
@@ -170,7 +170,7 @@ public class GmaSyncService extends ThreadedIntentService {
                     saveAssignments(intent);
                     break;
                 case SYNC_ASSIGNMENTS:
-                    syncAssignments(intent);
+                    syncAssignments(api, intent);
                     break;
                 case SYNC_CHURCHES:
                     syncChurches(intent);
@@ -194,7 +194,7 @@ public class GmaSyncService extends ThreadedIntentService {
 
     /* END lifecycle */
 
-    private void syncAssignments(final Intent intent) throws ApiException {
+    private void syncAssignments(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
         final SharedPreferences prefs = this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE);
         final String guid = intent.getStringExtra(EXTRA_GUID);
         final boolean force = intent.getBooleanExtra(EXTRA_FORCE, false);
@@ -203,7 +203,7 @@ public class GmaSyncService extends ThreadedIntentService {
 
         if (force || stale) {
             // fetch raw data from API & parse it
-            final List<Assignment> assignments = mApi.getAssignments(true);
+            final List<Assignment> assignments = api.getAssignments(true);
             if (assignments != null) {
                 this.updateAllAssignments(guid, assignments);
             }
