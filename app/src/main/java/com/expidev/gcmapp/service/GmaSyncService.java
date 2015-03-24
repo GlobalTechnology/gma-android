@@ -4,14 +4,6 @@ import static com.expidev.gcmapp.Constants.EXTRA_GUID;
 import static com.expidev.gcmapp.Constants.EXTRA_MCC;
 import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
 import static com.expidev.gcmapp.Constants.EXTRA_PERIOD;
-import static com.expidev.gcmapp.service.Type.RETRIEVE_ALL_MINISTRIES;
-import static com.expidev.gcmapp.service.Type.SAVE_ASSIGNMENTS;
-import static com.expidev.gcmapp.service.Type.SYNC_ASSIGNMENTS;
-import static com.expidev.gcmapp.service.Type.SYNC_CHURCHES;
-import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_CHURCHES;
-import static com.expidev.gcmapp.service.Type.SYNC_MEASUREMENTS;
-import static com.expidev.gcmapp.service.Type.SYNC_MEASUREMENT_TYPES;
-import static com.expidev.gcmapp.utils.BroadcastUtils.stopBroadcast;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
@@ -67,6 +59,15 @@ public class GmaSyncService extends ThreadedIntentService {
     private static final String EXTRA_FORCE = GmaSyncService.class.getName() + ".EXTRA_FORCE";
     private static final String EXTRA_ASSIGNMENTS = GmaSyncService.class.getName() + ".EXTRA_ASSIGNMENTS";
 
+    // supported sync types
+    private static final int SYNCTYPE_MINISTRIES = 1;
+    private static final int SYNCTYPE_ASSIGNMENTS = 2;
+    private static final int SYNCTYPE_SAVE_ASSIGNMENTS = 3;
+    private static final int SYNCTYPE_CHURCHES = 4;
+    private static final int SYNCTYPE_DIRTY_CHURCHES = 5;
+    private static final int SYNCTYPE_MEASUREMENT_TYPES = 6;
+    private static final int SYNCTYPE_MEASUREMENTS = 7;
+
     // various stale data durations
     private static final long HOUR_IN_MS = 60 * 60 * 1000;
     private static final long DAY_IN_MS = 24 * HOUR_IN_MS;
@@ -89,7 +90,7 @@ public class GmaSyncService extends ThreadedIntentService {
 
     public static void syncMinistries(final Context context, final boolean force) {
         final Intent intent = new Intent(context, GmaSyncService.class);
-        intent.putExtra(EXTRA_SYNCTYPE, RETRIEVE_ALL_MINISTRIES);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_MINISTRIES);
         intent.putExtra(EXTRA_FORCE, force);
         context.startService(intent);
     }
@@ -101,7 +102,7 @@ public class GmaSyncService extends ThreadedIntentService {
     public static void syncAssignments(@NonNull final Context context, @NonNull final String guid,
                                        final boolean force) {
         final Intent intent = new Intent(context, GmaSyncService.class);
-        intent.putExtra(EXTRA_SYNCTYPE, SYNC_ASSIGNMENTS);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_ASSIGNMENTS);
         intent.putExtra(EXTRA_GUID, guid);
         intent.putExtra(EXTRA_FORCE, force);
         context.startService(intent);
@@ -110,7 +111,7 @@ public class GmaSyncService extends ThreadedIntentService {
     public static void saveAssignments(@NonNull final Context context, @NonNull final String guid,
                                        @Nullable final JSONArray assignments) {
         final Intent intent = new Intent(context, GmaSyncService.class);
-        intent.putExtra(EXTRA_SYNCTYPE, SAVE_ASSIGNMENTS);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_SAVE_ASSIGNMENTS);
         intent.putExtra(EXTRA_GUID, guid);
         intent.putExtra(EXTRA_ASSIGNMENTS, assignments != null ? assignments.toString() : null);
         context.startService(intent);
@@ -118,27 +119,27 @@ public class GmaSyncService extends ThreadedIntentService {
 
     public static void syncChurches(@NonNull final Context context, @NonNull final String ministryId) {
         final Intent intent = new Intent(context, GmaSyncService.class);
-        intent.putExtra(EXTRA_SYNCTYPE, SYNC_CHURCHES);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_CHURCHES);
         intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
         context.startService(intent);
     }
 
     public static void syncDirtyChurches(@NonNull final Context context) {
         final Intent intent = new Intent(context, GmaSyncService.class);
-        intent.putExtra(EXTRA_SYNCTYPE, SYNC_DIRTY_CHURCHES);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_DIRTY_CHURCHES);
         context.startService(intent);
     }
 
     public static void syncMeasurementTypes(@NonNull final Context context) {
         final Intent intent = new Intent(context, GmaSyncService.class);
-        intent.putExtra(EXTRA_SYNCTYPE, SYNC_MEASUREMENT_TYPES);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_MEASUREMENT_TYPES);
         context.startService(intent);
     }
 
     public static void syncMeasurements(@NonNull final Context context, @NonNull final String ministryId,
                                         @NonNull final Ministry.Mcc mcc, @Nullable final YearMonth period) {
         final Intent intent = new Intent(context, GmaSyncService.class);
-        intent.putExtra(EXTRA_SYNCTYPE, SYNC_MEASUREMENTS);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_MEASUREMENTS);
         intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
         intent.putExtra(EXTRA_MCC, mcc.toString());
         intent.putExtra(EXTRA_PERIOD, (period != null ? period : YearMonth.now()).toString());
@@ -158,30 +159,29 @@ public class GmaSyncService extends ThreadedIntentService {
 
     @Override
     public void onHandleIntent(@NonNull final Intent intent) {
-        final Type type = (Type) intent.getSerializableExtra(EXTRA_SYNCTYPE);
+        final GmaApiClient api = GmaApiClient.getInstance(this, intent.getStringExtra(EXTRA_GUID));
 
         try {
-            final GmaApiClient api = GmaApiClient.getInstance(this, intent.getStringExtra(EXTRA_GUID));
-            switch (type) {
-                case RETRIEVE_ALL_MINISTRIES:
+            switch (intent.getIntExtra(EXTRA_SYNCTYPE, 0)) {
+                case SYNCTYPE_MINISTRIES:
                     syncMinistries(intent);
                     break;
-                case SAVE_ASSIGNMENTS:
+                case SYNCTYPE_SAVE_ASSIGNMENTS:
                     saveAssignments(intent);
                     break;
-                case SYNC_ASSIGNMENTS:
+                case SYNCTYPE_ASSIGNMENTS:
                     syncAssignments(api, intent);
                     break;
-                case SYNC_CHURCHES:
+                case SYNCTYPE_CHURCHES:
                     syncChurches(intent);
                     break;
-                case SYNC_DIRTY_CHURCHES:
+                case SYNCTYPE_DIRTY_CHURCHES:
                     syncDirtyChurches();
                     break;
-                case SYNC_MEASUREMENT_TYPES:
+                case SYNCTYPE_MEASUREMENT_TYPES:
                     syncMeasurementTypes(intent);
                     break;
-                case SYNC_MEASUREMENTS:
+                case SYNCTYPE_MEASUREMENTS:
                     syncMeasurements(intent);
                     break;
                 default:
@@ -522,7 +522,6 @@ public class GmaSyncService extends ThreadedIntentService {
 
             // send broadcasts for updated data
             broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast(guid));
-            broadcastManager.sendBroadcast(stopBroadcast(SAVE_ASSIGNMENTS));
         } catch (final SQLException e) {
             Log.d(TAG, "error updating assignments", e);
         } finally {
