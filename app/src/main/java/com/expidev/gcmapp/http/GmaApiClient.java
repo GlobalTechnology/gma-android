@@ -547,6 +547,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     @Nullable
     public List<Training> getTrainings(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc)
             throws ApiException {
+        return getTrainings(ministryId, mcc, true, false);
+    }
+
+    @Nullable
+    public List<Training> getTrainings(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
+                                       final boolean all, final boolean includeDescendents) throws ApiException {
         // short-circuit on invalid requests
         if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
             return null;
@@ -557,6 +563,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         final Request<Session> request = new Request<>(TRAINING);
         request.params.add(param("ministry_id", ministryId));
         request.params.add(param("mcc", mcc.raw));
+        request.params.add(param("show_all", all));
+        request.params.add(param("show_tree", includeDescendents));
 
         // process request
         HttpURLConnection conn = null;
