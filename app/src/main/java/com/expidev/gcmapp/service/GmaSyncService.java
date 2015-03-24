@@ -18,7 +18,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.SQLException;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -84,6 +83,17 @@ public class GmaSyncService extends ThreadedIntentService {
         super("GmaSyncService", 5);
     }
 
+    public static void syncMinistries(final Context context) {
+        syncMinistries(context, false);
+    }
+
+    public static void syncMinistries(final Context context, final boolean force) {
+        final Intent intent = new Intent(context, GmaSyncService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, RETRIEVE_ALL_MINISTRIES);
+        intent.putExtra(EXTRA_FORCE, force);
+        context.startService(intent);
+    }
+
     public static void syncAssignments(@NonNull final Context context, @NonNull final String guid) {
         syncAssignments(context, guid, false);
     }
@@ -94,6 +104,15 @@ public class GmaSyncService extends ThreadedIntentService {
         intent.putExtra(EXTRA_SYNCTYPE, SYNC_ASSIGNMENTS);
         intent.putExtra(EXTRA_GUID, guid);
         intent.putExtra(EXTRA_FORCE, force);
+        context.startService(intent);
+    }
+
+    public static void saveAssignments(@NonNull final Context context, @NonNull final String guid,
+                                       @Nullable final JSONArray assignments) {
+        final Intent intent = new Intent(context, GmaSyncService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SAVE_ASSIGNMENTS);
+        intent.putExtra(EXTRA_GUID, guid);
+        intent.putExtra(EXTRA_ASSIGNMENTS, assignments != null ? assignments.toString() : null);
         context.startService(intent);
     }
 
@@ -126,9 +145,8 @@ public class GmaSyncService extends ThreadedIntentService {
         context.startService(intent);
     }
 
-    /////////////////////////////////////////////////////
-    //           Lifecycle Handlers                   //
-    ////////////////////////////////////////////////////
+    /* BEGIN lifecycle */
+
     @Override
     public void onCreate()
     {
@@ -174,53 +192,7 @@ public class GmaSyncService extends ThreadedIntentService {
         }
     }
 
-
-    /////////////////////////////////////////////////////
-    //           Service API                          //
-    ////////////////////////////////////////////////////
-    private static Intent baseIntent(final Context context, Bundle extras)
-    {
-        final Intent intent = new Intent(context, GmaSyncService.class);
-
-        if(extras != null)
-        {
-            intent.putExtras(extras);
-        }
-
-        return intent;
-    }
-
-    /**
-     * Retrieve all ministries from the GCM API
-     */
-    public static void syncMinistries(final Context context) {
-        syncMinistries(context, false);
-    }
-
-    public static void syncMinistries(final Context context, final boolean force) {
-        Bundle extras = new Bundle(2);
-        extras.putSerializable(EXTRA_SYNCTYPE, RETRIEVE_ALL_MINISTRIES);
-        extras.putBoolean(EXTRA_FORCE, force);
-
-        context.startService(baseIntent(context, extras));
-    }
-
-    public static void saveAssignments(@NonNull final Context context, @NonNull final String guid,
-                                       @Nullable final JSONArray assignments) {
-        Log.i(TAG, assignments != null ? assignments.toString() : "null");
-
-        Bundle extras = new Bundle(3);
-        extras.putSerializable(EXTRA_SYNCTYPE, SAVE_ASSIGNMENTS);
-        extras.putString(EXTRA_GUID, guid);
-        extras.putString(EXTRA_ASSIGNMENTS, assignments != null ? assignments.toString() : null);
-
-        context.startService(baseIntent(context, extras));
-    }
-
-
-    /////////////////////////////////////////////////////
-    //           Actions                              //
-    ////////////////////////////////////////////////////
+    /* END lifecycle */
 
     private void syncAssignments(final Intent intent) throws ApiException {
         final SharedPreferences prefs = this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE);
