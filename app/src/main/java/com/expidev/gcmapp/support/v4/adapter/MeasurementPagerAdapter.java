@@ -70,7 +70,7 @@ public class MeasurementPagerAdapter extends FragmentPagerAdapter {
         mCursor.moveToPosition(position);
 
         return MeasurementValueFragment.newInstance(mType, mGuid, mMinistryId, mMcc, CursorUtils.getNonNullString(
-                mCursor, Contract.MeasurementValue.COLUMN_PERM_LINK, ""), mPeriod);
+                mCursor, Contract.MeasurementValue.COLUMN_PERM_LINK_STUB, ""), mPeriod);
     }
 
     @Override

@@ -64,7 +64,7 @@ public class MeasurementValueLoader<T extends MeasurementValue> extends AsyncTas
         if (mKey != null) {
             final T value = mDao.find(mClass, mKey);
             if(value != null) {
-                value.setType(mDao.find(MeasurementType.class, value.getPermLink()));
+                value.setType(mDao.find(MeasurementType.class, value.getPermLinkStub()));
             }
             return value;
         } else {

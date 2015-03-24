@@ -26,7 +26,7 @@ public abstract class MeasurementValue extends Base {
     @NonNull
     private final String ministryId;
     @NonNull
-    private final String permLink;
+    private final String permLinkStub;
     @NonNull
     private final Ministry.Mcc mcc;
     @NonNull
@@ -34,10 +34,10 @@ public abstract class MeasurementValue extends Base {
     private int value = 0;
 
     protected MeasurementValue(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
-                               @NonNull final String permLink, @NonNull final YearMonth period) {
+                               @NonNull final String permLinkStub, @NonNull final YearMonth period) {
         this.ministryId = ministryId;
         this.mcc = mcc;
-        this.permLink = permLink;
+        this.permLinkStub = permLinkStub;
         this.period = period;
     }
 
@@ -52,8 +52,8 @@ public abstract class MeasurementValue extends Base {
     }
 
     @NonNull
-    public String getPermLink() {
-        return permLink;
+    public String getPermLinkStub() {
+        return permLinkStub;
     }
 
     @NonNull

@@ -17,8 +17,8 @@ public abstract class MeasurementValueMapper<T extends MeasurementValue> extends
             case Contract.MeasurementValue.COLUMN_MCC:
                 values.put(field, measurement.getMcc().toString());
                 break;
-            case Contract.MeasurementValue.COLUMN_PERM_LINK:
-                values.put(field, measurement.getPermLink());
+            case Contract.MeasurementValue.COLUMN_PERM_LINK_STUB:
+                values.put(field, measurement.getPermLinkStub());
                 break;
             case Contract.MeasurementValue.COLUMN_PERIOD:
                 values.put(field, measurement.getPeriod().toString());

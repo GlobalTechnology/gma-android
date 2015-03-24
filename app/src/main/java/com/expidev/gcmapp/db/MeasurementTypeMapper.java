@@ -13,8 +13,8 @@ public class MeasurementTypeMapper extends BaseMapper<MeasurementType> {
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
                             @NonNull final MeasurementType type) {
         switch (field) {
-            case Contract.MeasurementType.COLUMN_PERM_LINK:
-                values.put(field, type.getPermLink());
+            case Contract.MeasurementType.COLUMN_PERM_LINK_STUB:
+                values.put(field, type.getPermLinkStub());
                 break;
             case Contract.MeasurementType.COLUMN_PERSONAL_ID:
                 values.put(field, type.getPersonalId());
@@ -61,8 +61,8 @@ public class MeasurementTypeMapper extends BaseMapper<MeasurementType> {
         type.setLocalId(getNonNullString(c, Contract.MeasurementType.COLUMN_LOCAL_ID, MeasurementType.INVALID_ID));
         type.setTotalId(getNonNullString(c, Contract.MeasurementType.COLUMN_TOTAL_ID, MeasurementType.INVALID_ID));
         type.setName(getString(c, Contract.MeasurementType.COLUMN_NAME, null));
-        type.setPermLink(
-                getNonNullString(c, Contract.MeasurementType.COLUMN_PERM_LINK, MeasurementType.INVALID_PERM_LINK));
+        type.setPermLinkStub(getNonNullString(c, Contract.MeasurementType.COLUMN_PERM_LINK_STUB,
+                                              MeasurementType.INVALID_PERM_LINK_STUB));
         type.setDescription(getString(c, Contract.MeasurementType.COLUMN_DESCRIPTION, null));
         type.setSection(MeasurementType.Section.valueOf(getString(c, Contract.MeasurementType.COLUMN_SECTION, null)));
         type.setColumn(MeasurementType.Column.fromRaw(getString(c, Contract.MeasurementType.COLUMN_COLUMN, null)));

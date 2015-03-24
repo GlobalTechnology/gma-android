@@ -15,12 +15,12 @@ import java.util.Locale;
 
 public class MeasurementType extends Base {
     public static final String INVALID_ID = "";
-    public static final String INVALID_PERM_LINK = "";
+    public static final String INVALID_PERM_LINK_STUB = "";
     public static final int DEFAULT_SORT_ORDER = -1;
 
     public static final String ARG_COLUMN = MeasurementType.class.getName() + ".ARG_COLUMN";
 
-    static final String JSON_PERM_LINK = "perm_link";
+    static final String JSON_PERM_LINK_STUB = "perm_link_stub";
     private static final String JSON_PERSONAL_ID = "person_id";
     private static final String JSON_LOCAL_ID = "local_id";
     private static final String JSON_TOTAL_ID = "total_id";
@@ -80,7 +80,7 @@ public class MeasurementType extends Base {
     @Nullable
     private String name;
     @NonNull
-    private String permLink;
+    private String permLinkStub;
     @Nullable
     private String description;
     @NonNull
@@ -105,7 +105,7 @@ public class MeasurementType extends Base {
         type.localId = json.optString(JSON_LOCAL_ID, INVALID_ID);
         type.totalId = json.optString(JSON_TOTAL_ID, INVALID_ID);
         type.name = json.optString(JSON_NAME, null);
-        type.permLink = json.getString(JSON_PERM_LINK);
+        type.permLinkStub = json.getString(JSON_PERM_LINK_STUB);
         type.description = json.getString(JSON_DESCRIPTION);
         type.section = Section.fromRaw(json.getString(JSON_SECTION));
         type.column = Column.fromRaw(json.getString(JSON_COLUMN));
@@ -150,12 +150,12 @@ public class MeasurementType extends Base {
     }
 
     @NonNull
-    public String getPermLink() {
-        return permLink;
+    public String getPermLinkStub() {
+        return permLinkStub;
     }
 
-    public void setPermLink(@NonNull final String permLink) {
-        this.permLink = permLink;
+    public void setPermLinkStub(@NonNull final String permLinkStub) {
+        this.permLinkStub = permLinkStub;
     }
 
     @Nullable

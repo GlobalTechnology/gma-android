@@ -148,7 +148,7 @@ public class MeasurementsPagerFragment extends Fragment {
         final Bundle measurementTypesArgs = new Bundle(2);
         measurementTypesArgs.putString(ARG_COLUMN, mColumn != null ? mColumn.toString() : null);
         measurementTypesArgs.putStringArray(ARG_PROJECTION, new String[] {Contract.MeasurementType.COLUMN_ROWID,
-                Contract.MeasurementType.COLUMN_PERM_LINK});
+                Contract.MeasurementType.COLUMN_PERM_LINK_STUB});
         manager.initLoader(LOADER_MEASUREMENT_TYPES, measurementTypesArgs, mLoaderCallbacksCursor);
     }
 

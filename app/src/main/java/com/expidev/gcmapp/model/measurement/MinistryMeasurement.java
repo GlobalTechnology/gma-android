@@ -21,7 +21,7 @@ public class MinistryMeasurement extends MeasurementValue {
                                                @NonNull final Ministry.Mcc mcc, @NonNull final YearMonth period)
             throws JSONException {
         final MinistryMeasurement measurement =
-                new MinistryMeasurement(ministryId, mcc, json.getString(MeasurementType.JSON_PERM_LINK), period);
+                new MinistryMeasurement(ministryId, mcc, json.getString(MeasurementType.JSON_PERM_LINK_STUB), period);
         measurement.setValue(json.getInt(JSON_VALUE));
         return measurement;
     }

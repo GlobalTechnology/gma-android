@@ -29,7 +29,7 @@ public class PersonalMeasurementMapper extends MeasurementValueMapper<PersonalMe
     protected PersonalMeasurement newObject(@NonNull final Cursor c) {
         final String guid = getNonNullString(c, Contract.PersonalMeasurement.COLUMN_GUID, "");
         final String permLink =
-                getNonNullString(c, Contract.PersonalMeasurement.COLUMN_PERM_LINK, MeasurementType.INVALID_PERM_LINK);
+                getNonNullString(c, Contract.PersonalMeasurement.COLUMN_PERM_LINK_STUB, MeasurementType.INVALID_PERM_LINK_STUB);
         final String ministryId =
                 getNonNullString(c, Contract.PersonalMeasurement.COLUMN_MINISTRY_ID, Ministry.INVALID_ID);
         final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(getString(c, Contract.PersonalMeasurement.COLUMN_MCC));

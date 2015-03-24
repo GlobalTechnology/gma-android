@@ -397,7 +397,7 @@ public class GmaSyncService extends ThreadedIntentService {
     }
 
     private static final String[] PROJECTION_SYNC_MEASUREMENTS_TYPE =
-            {Contract.MeasurementType.COLUMN_NAME, Contract.MeasurementType.COLUMN_PERM_LINK,
+            {Contract.MeasurementType.COLUMN_NAME, Contract.MeasurementType.COLUMN_PERM_LINK_STUB,
                     Contract.MeasurementType.COLUMN_DESCRIPTION, Contract.MeasurementType.COLUMN_SECTION,
                     Contract.MeasurementType.COLUMN_COLUMN, Contract.MeasurementType.COLUMN_SORT_ORDER,
                     Contract.MeasurementType.COLUMN_LAST_SYNCED};
