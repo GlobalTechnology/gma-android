@@ -72,6 +72,8 @@ public class MeasurementType extends Base {
     }
 
     @NonNull
+    private final String permLinkStub;
+    @NonNull
     private String personalId = INVALID_ID;
     @NonNull
     private String localId = INVALID_ID;
@@ -79,8 +81,6 @@ public class MeasurementType extends Base {
     private String totalId = INVALID_ID;
     @Nullable
     private String name;
-    @NonNull
-    private String permLinkStub;
     @Nullable
     private String description;
     @NonNull
@@ -88,6 +88,10 @@ public class MeasurementType extends Base {
     @NonNull
     private Column column = Column.UNKNOWN;
     private int sortOrder = DEFAULT_SORT_ORDER;
+
+    public MeasurementType(@NonNull final String permLinkStub) {
+        this.permLinkStub = permLinkStub;
+    }
 
     @NonNull
     public static List<MeasurementType> listFromJson(@NonNull final JSONArray json) throws JSONException {
@@ -100,12 +104,11 @@ public class MeasurementType extends Base {
 
     @NonNull
     public static MeasurementType fromJson(@NonNull final JSONObject json) throws JSONException {
-        final MeasurementType type = new MeasurementType();
+        final MeasurementType type = new MeasurementType(json.getString(JSON_PERM_LINK_STUB));
         type.personalId = json.optString(JSON_PERSONAL_ID, INVALID_ID);
         type.localId = json.optString(JSON_LOCAL_ID, INVALID_ID);
         type.totalId = json.optString(JSON_TOTAL_ID, INVALID_ID);
         type.name = json.optString(JSON_NAME, null);
-        type.permLinkStub = json.getString(JSON_PERM_LINK_STUB);
         type.description = json.getString(JSON_DESCRIPTION);
         type.section = Section.fromRaw(json.getString(JSON_SECTION));
         type.column = Column.fromRaw(json.getString(JSON_COLUMN));
@@ -152,10 +155,6 @@ public class MeasurementType extends Base {
     @NonNull
     public String getPermLinkStub() {
         return permLinkStub;
-    }
-
-    public void setPermLinkStub(@NonNull final String permLinkStub) {
-        this.permLinkStub = permLinkStub;
     }
 
     @Nullable
