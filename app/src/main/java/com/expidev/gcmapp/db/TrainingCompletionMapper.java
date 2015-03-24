@@ -5,11 +5,14 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.expidev.gcmapp.model.Training;
+import com.expidev.gcmapp.model.Training.Completion;
 
-public class TrainingCompletionMapper extends BaseMapper<Training.Completion> {
+import org.joda.time.LocalDate;
+
+public class TrainingCompletionMapper extends BaseMapper<Completion> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
-                            @NonNull final Training.Completion completion) {
+                            @NonNull final Completion completion) {
         switch (field) {
             case Contract.Training.Completion.COLUMN_ID:
                 values.put(field, completion.getId());
@@ -24,7 +27,8 @@ public class TrainingCompletionMapper extends BaseMapper<Training.Completion> {
                 values.put(field, completion.getNumberCompleted());
                 break;
             case Contract.Training.Completion.COLUMN_DATE:
-                values.put(field, dateToString(completion.getDate()));
+                final LocalDate date = completion.getDate();
+                values.put(field, date != null ? date.toString() : null);
                 break;
             default:
                 super.mapField(values, field, completion);
@@ -34,20 +38,20 @@ public class TrainingCompletionMapper extends BaseMapper<Training.Completion> {
 
     @NonNull
     @Override
-    protected Training.Completion newObject(@NonNull final Cursor c) {
-        return new Training.Completion();
+    protected Completion newObject(@NonNull final Cursor c) {
+        return new Completion();
     }
 
     @NonNull
     @Override
-    public Training.Completion toObject(@NonNull final Cursor c) {
-        final Training.Completion completion = super.toObject(c);
+    public Completion toObject(@NonNull final Cursor c) {
+        final Completion completion = super.toObject(c);
 
-        completion.setId(this.getInt(c, Contract.Training.Completion.COLUMN_ID, 0));
-        completion.setTrainingId(this.getInt(c, Contract.Training.Completion.COLUMN_TRAINING_ID, 0));
+        completion.setId(getLong(c, Contract.Training.Completion.COLUMN_ID, Completion.INVALID_ID));
+        completion.setTrainingId(getLong(c, Contract.Training.Completion.COLUMN_TRAINING_ID, Training.INVALID_ID));
         completion.setPhase(this.getInt(c, Contract.Training.Completion.COLUMN_PHASE, 0));
         completion.setNumberCompleted(this.getInt(c, Contract.Training.Completion.COLUMN_NUMBER_COMPLETED, 0));
-        completion.setDate(stringToDate(this.getString(c, Contract.Training.Completion.COLUMN_DATE, null)));
+        completion.setDate(getLocalDate(c, Contract.Training.Completion.COLUMN_DATE, null));
 
         return completion;
     }

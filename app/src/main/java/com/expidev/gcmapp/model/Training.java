@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import org.joda.time.LocalDate;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -210,11 +212,40 @@ public class Training extends Location implements Cloneable {
     }
 
     public static class Completion extends Base {
+        public static final long INVALID_ID = -1;
+
+        private static final String JSON_ID = "Id";
+        private static final String JSON_TRAINING_ID = "training_id";
+        private static final String JSON_PHASE = "phase";
+        private static final String JSON_NUMBER_COMPLETED = "number_completed";
+        private static final String JSON_DATE = "date";
+
         private long id;
+        private long trainingId;
         private int phase;
         private int numberCompleted;
-        private Date date;
-        private int trainingId;
+        @Nullable
+        private LocalDate date = LocalDate.now();
+
+        @NonNull
+        public static List<Completion> listFromJson(@NonNull final JSONArray json) throws JSONException {
+            final List<Completion> completions = new ArrayList<>();
+            for (int i = 0; i < json.length(); i++) {
+                completions.add(fromJson(json.getJSONObject(i)));
+            }
+            return completions;
+        }
+
+        @NonNull
+        public static Completion fromJson(@NonNull final JSONObject json) throws JSONException {
+            final Completion completion = new Completion();
+            completion.id = json.getLong(JSON_ID);
+            completion.trainingId = json.getLong(JSON_TRAINING_ID);
+            completion.phase = json.getInt(JSON_PHASE);
+            completion.numberCompleted = json.getInt(JSON_NUMBER_COMPLETED);
+            completion.date = LocalDate.parse(json.getString(JSON_DATE));
+            return completion;
+        }
 
         public long getId()
         {
@@ -246,23 +277,20 @@ public class Training extends Location implements Cloneable {
             this.numberCompleted = numberCompleted;
         }
 
-        public Date getDate()
-        {
+        @Nullable
+        public LocalDate getDate() {
             return date;
         }
 
-        public void setDate(Date date)
-        {
+        public void setDate(@Nullable final LocalDate date) {
             this.date = date;
         }
 
-        public int getTrainingId()
-        {
+        public long getTrainingId() {
             return trainingId;
         }
 
-        public void setTrainingId(int trainingId)
-        {
+        public void setTrainingId(final long trainingId) {
             this.trainingId = trainingId;
         }
     }

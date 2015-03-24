@@ -53,34 +53,10 @@ public class TrainingJsonParser {
 
         // parse completions
         if (json.has("gcm_training_completions")) {
-            training.setCompletions(parseCompletions(json.getJSONArray("gcm_training_completions")));
+            training.setCompletions(Training.Completion.listFromJson(json.getJSONArray("gcm_training_completions")));
         }
 
         return training;
-    }
-
-    @NonNull
-    public static List<Training.Completion> parseCompletions(@NonNull final JSONArray json)
-            throws JSONException {
-        final List<Training.Completion> completions = new ArrayList<>();
-
-        // parse all completions in the provided array
-        for (int j = 0; j < json.length(); j++) {
-            completions.add(parseCompletion(json.getJSONObject(j)));
-        }
-
-        return completions;
-    }
-
-    @NonNull
-    public static Training.Completion parseCompletion(@NonNull final JSONObject json) throws JSONException {
-        final Training.Completion completion = new Training.Completion();
-        completion.setId(json.optLong("Id"));
-        completion.setTrainingId(json.getInt("training_id"));
-        completion.setPhase(json.getInt("phase"));
-        completion.setNumberCompleted(json.getInt("number_completed"));
-        completion.setDate(stringToDate(json.getString("date")));
-        return completion;
     }
 
     private static final SimpleDateFormat PARSER_DATE = new SimpleDateFormat("yyyy-MM-dd", Locale.US);

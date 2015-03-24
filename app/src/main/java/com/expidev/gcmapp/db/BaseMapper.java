@@ -9,6 +9,7 @@ import com.expidev.gcmapp.model.Base;
 import com.expidev.gcmapp.utils.CursorUtils;
 
 import org.ccci.gto.android.common.db.AbstractMapper;
+import org.joda.time.LocalDate;
 import org.joda.time.YearMonth;
 
 import java.text.ParseException;
@@ -39,14 +40,28 @@ public abstract class BaseMapper<T extends Base> extends AbstractMapper<T> {
 
     private final static SimpleDateFormat FORMAT_DATE = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
+    @Nullable
     protected final YearMonth getYearMonth(@NonNull final Cursor c, @NonNull final String field,
                                            @Nullable final YearMonth defValue) {
         return CursorUtils.getYearMonth(c, field, defValue);
     }
 
+    @NonNull
     protected final YearMonth getNonNullYearMonth(@NonNull final Cursor c, @NonNull final String field,
                                                   @NonNull final YearMonth defValue) {
         return CursorUtils.getNonNullYearMonth(c, field, defValue);
+    }
+
+    @Nullable
+    protected final LocalDate getLocalDate(@NonNull final Cursor c, @NonNull final String field,
+                                           @Nullable final LocalDate defValue) {
+        return CursorUtils.getLocalDate(c, field, defValue);
+    }
+
+    @NonNull
+    protected final LocalDate getNonNullLocalDate(@NonNull final Cursor c, @NonNull final String field,
+                                                  @NonNull final LocalDate defValue) {
+        return CursorUtils.getNonNullLocalDate(c, field, defValue);
     }
 
     @Nullable
