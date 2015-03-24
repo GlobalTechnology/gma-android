@@ -53,23 +53,7 @@ public class TrainingJsonParserTest extends InstrumentationTestCase
         } finally {
             tx.end();
         }
-        
-        trainings = null;
-        
-        try
-        {
-            tx.begin();
-            
-            trainings = trainingDao.getAllMinistryTraining("770ffd2c-d6ac-11e3-9e38-12725f8f377c");
-            tx.setSuccessful();
-        } finally
-        {
-            tx.end();
-        }
-        
-        Assert.assertNotNull(trainings);
-        Assert.assertEquals(2, trainings.size());
-    }
+     }
     
     private JSONArray testTrainingDetails() throws JSONException
     {

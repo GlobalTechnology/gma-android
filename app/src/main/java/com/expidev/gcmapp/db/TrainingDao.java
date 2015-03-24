@@ -3,7 +3,6 @@ package com.expidev.gcmapp.db;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 
@@ -12,8 +11,6 @@ import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.Mapper;
-
-import java.util.List;
 
 /**
  * Created by matthewfrederick on 1/26/15.
@@ -116,61 +113,6 @@ public class TrainingDao extends AbstractDao
         }
 
         return super.getPrimaryKeyWhere(obj);
-    }
-
-    public Training retrieveTrainingById(int id)
-    {
-        try
-        {
-            final Training training = this.find(Training.class, id);
-            if (training != null) {
-                training.setCompletions(getCompletedTrainingByTrainingId(training.getId()));
-            }
-            return training;
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
-        }
-        return null;
-    }
-    
-    @Nullable
-    public List<Training> getAllMinistryTraining(String ministry_id)
-    {
-        Log.i(TAG, "Getting all training for ministry: " + ministry_id);
-        
-        try
-        {
-            final List<Training> trainings =
-                    this.get(Training.class, Contract.Training.SQL_WHERE_MINISTRY, this.getBindValues(ministry_id));
-            for (final Training training : trainings) {
-                training.setCompletions(getCompletedTrainingByTrainingId(training.getId()));
-            }
-            Log.i(TAG, "Trainings returned: " + trainings.size());
-
-            return trainings;
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
-        }
-        return null;
-    }
-
-    @Nullable
-    public List<Training.GCMTrainingCompletions> getCompletedTrainingByTrainingId(long id)
-    {
-        try
-        {
-            return this.get(Training.GCMTrainingCompletions.class, Contract.Training.Completion.SQL_WHERE_TRAINING_ID,
-                            this.getBindValues(id));
-        }
-        catch (Exception e)
-        {
-            Log.e(TAG, e.getMessage(), e);
-        }
-        return null;
     }
 
     public void saveTraining(@NonNull final Training training) {

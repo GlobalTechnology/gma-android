@@ -49,17 +49,5 @@ public class TrainingDaoTest extends InstrumentationTestCase
         training.setLastSynced(456789L);
 
         trainingDao.saveTraining(training);
-        
-        Training returnedTraining = trainingDao.retrieveTrainingById(1);
-        assertNotNull(returnedTraining);
-        
-        assertEquals(returnedTraining.getId(), training.getId());
-        assertEquals(returnedTraining.getMinistryId(), training.getMinistryId());
-        assertEquals(returnedTraining.getLongitude(), training.getLongitude());
-        assertEquals(returnedTraining.getLatitude(), training.getLatitude());
-        assertEquals(returnedTraining.getMcc(), training.getMcc());
-        assertEquals(returnedTraining.getDate(), training.getDate());
-        assertEquals(returnedTraining.getName(), training.getName());
-        assertEquals(returnedTraining.getLastSynced(), training.getLastSynced());
     }
 }
