@@ -21,14 +21,19 @@ public class MeasurementType extends Base {
     public static final String ARG_COLUMN = MeasurementType.class.getName() + ".ARG_COLUMN";
 
     static final String JSON_PERM_LINK_STUB = "perm_link_stub";
-    private static final String JSON_PERSONAL_ID = "person_id";
-    private static final String JSON_LOCAL_ID = "local_id";
-    private static final String JSON_TOTAL_ID = "total_id";
     private static final String JSON_NAME = "name";
     private static final String JSON_DESCRIPTION = "description";
     private static final String JSON_SECTION = "section";
     private static final String JSON_COLUMN = "column";
     private static final String JSON_SORT_ORDER = "sort_order";
+
+    private static final String JSON_TYPE_IDS = "measurement_type_ids";
+    private static final String JSON_TYPE_IDS_PERSONAL = "person";
+    private static final String JSON_TYPE_IDS_LOCAL = "local";
+    private static final String JSON_TYPE_IDS_TOTAL = "total";
+    private static final String JSON_PERSONAL_ID = "person_id";
+    private static final String JSON_LOCAL_ID = "local_id";
+    private static final String JSON_TOTAL_ID = "total_id";
 
     public enum Section {
         WIN, BUILD, SEND, OTHER, UNKNOWN;
@@ -105,14 +110,24 @@ public class MeasurementType extends Base {
     @NonNull
     public static MeasurementType fromJson(@NonNull final JSONObject json) throws JSONException {
         final MeasurementType type = new MeasurementType(json.getString(JSON_PERM_LINK_STUB));
-        type.personalId = json.optString(JSON_PERSONAL_ID, INVALID_ID);
-        type.localId = json.optString(JSON_LOCAL_ID, INVALID_ID);
-        type.totalId = json.optString(JSON_TOTAL_ID, INVALID_ID);
+
         type.name = json.optString(JSON_NAME, null);
         type.description = json.getString(JSON_DESCRIPTION);
         type.section = Section.fromRaw(json.getString(JSON_SECTION));
         type.column = Column.fromRaw(json.getString(JSON_COLUMN));
         type.sortOrder = json.optInt(JSON_SORT_ORDER, DEFAULT_SORT_ORDER);
+
+        final JSONObject typeIds = json.optJSONObject(JSON_TYPE_IDS);
+        if (typeIds != null) {
+            type.personalId = typeIds.optString(JSON_TYPE_IDS_PERSONAL, INVALID_ID);
+            type.localId = typeIds.optString(JSON_TYPE_IDS_LOCAL, INVALID_ID);
+            type.totalId = typeIds.optString(JSON_TYPE_IDS_TOTAL, INVALID_ID);
+        } else {
+            type.personalId = json.optString(JSON_PERSONAL_ID, INVALID_ID);
+            type.localId = json.optString(JSON_LOCAL_ID, INVALID_ID);
+            type.totalId = json.optString(JSON_TOTAL_ID, INVALID_ID);
+        }
+
         return type;
     }
 
