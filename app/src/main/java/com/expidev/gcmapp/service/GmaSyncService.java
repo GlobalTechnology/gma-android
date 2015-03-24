@@ -75,8 +75,6 @@ public class GmaSyncService extends ThreadedIntentService {
     private static final long STALE_DURATION_MINISTRIES = 7 * DAY_IN_MS;
 
     @NonNull
-    private GmaApiClient mApi;
-    @NonNull
     private GmaDao mDao;
     private LocalBroadcastManager broadcastManager;
 
@@ -152,7 +150,6 @@ public class GmaSyncService extends ThreadedIntentService {
     public void onCreate()
     {
         super.onCreate();
-        mApi = GmaApiClient.getInstance(this);
         mDao = GmaDao.getInstance(this);
         broadcastManager = LocalBroadcastManager.getInstance(this);
     }
@@ -164,7 +161,7 @@ public class GmaSyncService extends ThreadedIntentService {
         try {
             switch (intent.getIntExtra(EXTRA_SYNCTYPE, 0)) {
                 case SYNCTYPE_MINISTRIES:
-                    syncMinistries(intent);
+                    syncMinistries(api, intent);
                     break;
                 case SYNCTYPE_SAVE_ASSIGNMENTS:
                     saveAssignments(intent);
@@ -173,16 +170,16 @@ public class GmaSyncService extends ThreadedIntentService {
                     syncAssignments(api, intent);
                     break;
                 case SYNCTYPE_CHURCHES:
-                    syncChurches(intent);
+                    syncChurches(api, intent);
                     break;
                 case SYNCTYPE_DIRTY_CHURCHES:
-                    syncDirtyChurches();
+                    syncDirtyChurches(api);
                     break;
                 case SYNCTYPE_MEASUREMENT_TYPES:
-                    syncMeasurementTypes(intent);
+                    syncMeasurementTypes(api, intent);
                     break;
                 case SYNCTYPE_MEASUREMENTS:
-                    syncMeasurements(intent);
+                    syncMeasurements(api, intent);
                     break;
                 default:
                     break;
@@ -217,13 +214,13 @@ public class GmaSyncService extends ThreadedIntentService {
             Contract.Church.COLUMN_DEVELOPMENT, Contract.Church.COLUMN_SECURITY,
             Contract.Church.COLUMN_LAST_SYNCED};
 
-    private void syncChurches(final Intent intent) throws ApiException {
+    private void syncChurches(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
         final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
         if (ministryId == null) {
             return;
         }
 
-        final List<Church> churches = mApi.getChurches(ministryId);
+        final List<Church> churches = api.getChurches(ministryId);
 
         // only update churches if we get data back
         if(churches != null) {
@@ -282,7 +279,7 @@ public class GmaSyncService extends ThreadedIntentService {
         }
     }
 
-    private synchronized void syncDirtyChurches() throws ApiException {
+    private synchronized void syncDirtyChurches(@NonNull final GmaApiClient api) throws ApiException {
         final List<Church> churches = mDao.get(Church.class, Contract.Church.SQL_WHERE_DIRTY, null);
 
         // ministry_id => church_id
@@ -293,7 +290,7 @@ public class GmaSyncService extends ThreadedIntentService {
             try {
                 if (church.isNew()) {
                     // try creating the church
-                    if(mApi.createChurch(church)) {
+                    if (api.createChurch(church)) {
                         mDao.delete(church);
 
                         // add church to list of broadcasts
@@ -304,7 +301,7 @@ public class GmaSyncService extends ThreadedIntentService {
                     final JSONObject json = church.dirtyToJson();
 
                     // update the church
-                    final boolean success = mApi.updateChurch(church.getId(), json);
+                    final boolean success = api.updateChurch(church.getId(), json);
 
                     // was successful update?
                     if (success) {
@@ -328,7 +325,7 @@ public class GmaSyncService extends ThreadedIntentService {
         }
     }
 
-    private void syncMinistries(final Intent intent) throws ApiException {
+    private void syncMinistries(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
         final SharedPreferences prefs = this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE);
         final boolean force = intent.getBooleanExtra(EXTRA_FORCE, false);
         final boolean stale =
@@ -337,7 +334,7 @@ public class GmaSyncService extends ThreadedIntentService {
         // only sync if being forced or the data is stale
         if (force || stale) {
             // refresh the list of ministries if the load is being forced
-            final List<Ministry> ministries = mApi.getMinistries();
+            final List<Ministry> ministries = api.getMinistries();
 
             // only update the saved ministries if we received any back
             if (ministries != null) {
@@ -387,8 +384,8 @@ public class GmaSyncService extends ThreadedIntentService {
                     Contract.MeasurementType.COLUMN_PERSONAL_ID, Contract.MeasurementType.COLUMN_LOCAL_ID,
                     Contract.MeasurementType.COLUMN_TOTAL_ID, Contract.MeasurementType.COLUMN_LAST_SYNCED};
 
-    private void syncMeasurementTypes(final Intent intent) throws ApiException {
-        final List<MeasurementType> types = mApi.getMeasurementTypes();
+    private void syncMeasurementTypes(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
+        final List<MeasurementType> types = api.getMeasurementTypes();
         if (types != null) {
             for (final MeasurementType type : types) {
                 mDao.updateOrInsert(type, PROJECTION_SYNC_MEASUREMENT_TYPES_TYPE);
@@ -407,7 +404,7 @@ public class GmaSyncService extends ThreadedIntentService {
     private static final String[] PROJECTION_SYNC_MEASUREMENTS_PERSONAL_MEASUREMENT =
             {Contract.PersonalMeasurement.COLUMN_VALUE, Contract.PersonalMeasurement.COLUMN_LAST_SYNCED};
 
-    private void syncMeasurements(final Intent intent) throws ApiException {
+    private void syncMeasurements(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
         // get parameters for sync from the intent & sanitize
         final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
         final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(intent.getStringExtra(Constants.ARG_MCC));
@@ -421,7 +418,7 @@ public class GmaSyncService extends ThreadedIntentService {
         }
 
         // fetch the requested measurements from the api
-        final List<Measurement> measurements = mApi.getMeasurements(ministryId, mcc, period);
+        final List<Measurement> measurements = api.getMeasurements(ministryId, mcc, period);
         if (measurements != null) {
             // update measurement data in the database
             for (final Measurement measurement : measurements) {
