@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
 
+import org.joda.time.LocalDate;
+
 public class TrainingMapper extends LocationMapper<Training> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
@@ -22,7 +24,8 @@ public class TrainingMapper extends LocationMapper<Training> {
                 values.put(field, training.getName());
                 break;
             case Contract.Training.COLUMN_DATE:
-                values.put(field, dateToString(training.getDate()));
+                final LocalDate date = training.getDate();
+                values.put(field, date != null ? date.toString() : null);
                 break;
             case Contract.Training.COLUMN_TYPE:
                 values.put(field, training.getType());
@@ -46,10 +49,10 @@ public class TrainingMapper extends LocationMapper<Training> {
     @Override
     public Training toObject(@NonNull final Cursor c) {
         final Training training = super.toObject(c);
-        training.setId(this.getInt(c, Contract.Training.COLUMN_ID, 0));
+        training.setId(getLong(c, Contract.Training.COLUMN_ID, Training.INVALID_ID));
         training.setMinistryId(getNonNullString(c, Contract.Training.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
         training.setName(this.getString(c, Contract.Training.COLUMN_NAME, null));
-        training.setDate(stringToDate(this.getString(c, Contract.Training.COLUMN_DATE)));
+        training.setDate(getLocalDate(c, Contract.Training.COLUMN_DATE, null));
         training.setType(this.getString(c, Contract.Training.COLUMN_TYPE, null));
         training.setMcc(this.getString(c, Contract.Training.COLUMN_MCC, null));
         return training;

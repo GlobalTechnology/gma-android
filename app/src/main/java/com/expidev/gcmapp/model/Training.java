@@ -14,7 +14,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -22,12 +21,23 @@ import java.util.Set;
 
 public class Training extends Location implements Cloneable {
     public static final long INVALID_ID = -1;
-    
+
+    public static final String JSON_ID = "Id";
+    public static final String JSON_NAME = "name";
+    public static final String JSON_MINISTRY_ID = "ministry_id";
+    public static final String JSON_TYPE = "type";
+    public static final String JSON_DATE = "date";
+    public static final String JSON_MCC = "mcc";
+    public static final String JSON_LATITUDE = "latitude";
+    public static final String JSON_LONGITUDE = "longitude";
+    public static final String JSON_COMPLETIONS = "gcm_training_completions";
+
     private long id;
     @NonNull
     private String ministryId = Ministry.INVALID_ID;
     private String name;
-    private Date date;
+    @Nullable
+    private LocalDate date;
     private String type;
     @NonNull
     private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
@@ -37,13 +47,6 @@ public class Training extends Location implements Cloneable {
     @NonNull
     private final Set<String> mDirty = new HashSet<>();
 
-    public static final String JSON_ID = "id";
-    public static final String JSON_NAME = "name";
-    public static final String JSON_MINISTRY_ID = "ministry_id";
-    public static final String JSON_TYPE = "type";
-    public static final String JSON_DATE = "date";
-    public static final String JSON_MCC = "mcc";
-    
     public Training()
     {       
     }
@@ -51,16 +54,46 @@ public class Training extends Location implements Cloneable {
     private Training(@NonNull final Training training)
     {
         super(training);
-        this.id = training.getId();
-        this.ministryId = training.getMinistryId();
-        this.name = training.getName();
-        this.date = training.getDate();
-        this.type = training.getType();
+        this.id = training.id;
+        this.ministryId = training.ministryId;
+        this.name = training.name;
+        this.date = training.date;
+        this.type = training.type;
         this.mcc = training.mcc;
-        this.setCompletions(training.getCompletions());
+        this.setCompletions(training.completions);
         mDirty.clear();
         mDirty.addAll(training.mDirty);
         mTrackingChanges = training.mTrackingChanges;
+    }
+
+    @NonNull
+    public static List<Training> listFromJson(@NonNull final JSONArray json) throws JSONException {
+        final List<Training> trainings = new ArrayList<>();
+        for (int i = 0; i < json.length(); i++) {
+            trainings.add(fromJson(json.getJSONObject(i)));
+        }
+        return trainings;
+    }
+
+    @NonNull
+    public static Training fromJson(@NonNull final JSONObject json) throws JSONException {
+        final Training training = new Training();
+
+        training.id = json.getLong(JSON_ID);
+        training.ministryId = json.getString(JSON_MINISTRY_ID);
+        training.name = json.getString(JSON_NAME);
+        training.type = json.getString(JSON_TYPE);
+        training.mcc = Ministry.Mcc.fromRaw(json.getString(JSON_MCC));
+        training.date = LocalDate.parse(json.getString(JSON_DATE));
+        training.setLatitude(json.optDouble(JSON_LATITUDE, Double.NaN));
+        training.setLongitude(json.optDouble(JSON_LONGITUDE, Double.NaN));
+
+        final JSONArray completions = json.optJSONArray(JSON_COMPLETIONS);
+        if (completions != null) {
+            training.setCompletions(Completion.listFromJson(completions));
+        }
+
+        return training;
     }
 
     public long getId()
@@ -99,28 +132,23 @@ public class Training extends Location implements Cloneable {
     }
 
     @Nullable
-    public Date getDate()
-    {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date)
-    {
+    public void setDate(@Nullable final LocalDate date) {
         this.date = date;
         if (mTrackingChanges)
         {
             mDirty.add(JSON_DATE);
         }
     }
-    
+
+    @Deprecated
     public void setDate(String date) throws ParseException
     {
         DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
-        this.date = format.parse(date);
-        if (mTrackingChanges)
-        {
-            mDirty.add(JSON_DATE);
-        }
+        setDate(new LocalDate(format.parse(date)));
     }
 
     @Nullable
@@ -202,7 +230,6 @@ public class Training extends Location implements Cloneable {
     public JSONObject toJson() throws JSONException
     {
         final JSONObject json = new JSONObject();
-        json.put(JSON_ID, this.getId());
         json.put(JSON_NAME, this.getName());
         json.put(JSON_MINISTRY_ID, this.getMinistryId());
         json.put(JSON_DATE, this.getDate());

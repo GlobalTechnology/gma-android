@@ -10,7 +10,6 @@ import android.util.Log;
 import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.http.GmaApiClient.Session;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
-import com.expidev.gcmapp.json.TrainingJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
@@ -573,7 +572,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                return TrainingJsonParser.parseTrainings(new JSONArray(IOUtils.readString(conn.getInputStream())));
+                return Training.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
             Log.e(TAG, "error parsing getTrainings response", e);

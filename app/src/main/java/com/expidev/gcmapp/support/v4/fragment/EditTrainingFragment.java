@@ -1,15 +1,18 @@
 package com.expidev.gcmapp.support.v4.fragment;
 
+import static com.expidev.gcmapp.Constants.ARG_TRAINING_ID;
+import static com.expidev.gcmapp.utils.BroadcastUtils.updateTrainingBroadcast;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.support.v4.app.LoaderManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
@@ -28,18 +31,13 @@ import com.expidev.gcmapp.support.v4.content.SingleTrainingLoader;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.support.v4.fragment.AbstractDialogFragment;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import butterknife.Optional;
-
-import static com.expidev.gcmapp.Constants.ARG_TRAINING_ID;
-import static com.expidev.gcmapp.utils.BroadcastUtils.updateTrainingBroadcast;
 
 /**
  * Created by matthewfrederick on 2/24/15.
@@ -139,8 +137,8 @@ public class EditTrainingFragment extends AbstractDialogFragment
                 mChanged[CHANGED_TYPE] = !(mTraining != null ? text.equals(mTraining.getType()) : text.isEmpty());
                 break;
             case R.id.et_training_date:
-                DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-                mChanged[CHANGED_DATE] = !(mTraining != null ? text.equals(df.format(mTraining.getDate())) : text.isEmpty());
+                mChanged[CHANGED_DATE] = !(mTraining != null && mTraining.getDate() != null ?
+                        text.equals(mTraining.getDate().toString("MM/dd/yyyy")) : text.isEmpty());
                 break;
         }
     }
@@ -165,8 +163,7 @@ public class EditTrainingFragment extends AbstractDialogFragment
             {
                 try
                 {
-                    DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-                    training.setDate(df.format(mTraining.getDate()));
+                    training.setDate(mTrainingDate.getText().toString());
                 } catch (ParseException ignored)
                 {}
             }
@@ -229,8 +226,8 @@ public class EditTrainingFragment extends AbstractDialogFragment
         }
         if (mTrainingDate != null)
         {
-            DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-            mTrainingDate.setText(mTraining != null ? df.format(mTraining.getDate()) : null);
+            mTrainingDate.setText(mTraining != null && mTraining.getDate() != null ? mTraining.getDate().toString(
+                    "MM/dd/yyyy") : null);
         }
     }
     
