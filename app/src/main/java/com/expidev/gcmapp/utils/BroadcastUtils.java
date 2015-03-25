@@ -11,8 +11,8 @@ import android.os.PatternMatcher;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.GmaSyncService;
+import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.service.Type;
 
@@ -30,6 +30,7 @@ public final class BroadcastUtils
     private static final Uri URI_MEASUREMENTS = Uri.parse("gma://measurements/");
     private static final Uri URI_MEASUREMENT_DETAILS = Uri.parse("gma://measurementdetails/");
 
+    private static final String ACTION_NO_ASSIGNMENTS = GmaSyncService.class.getName() + ".ACTION_NO_ASSIGNMENTS";
     private static final String ACTION_UPDATE_ASSIGNMENTS = GmaSyncService.class.getName() + ".ACTION_UPDATE_ASSIGNMENTS";
     private static final String ACTION_UPDATE_CHURCHES = GmaSyncService.class.getName() + ".ACTION_UPDATE_CHURCHES";
     private static final String ACTION_UPDATE_MINISTRIES = GmaSyncService.class.getName() + ".ACTION_UPDATE_MINISTRIES";
@@ -120,6 +121,12 @@ public final class BroadcastUtils
         return intent;
     }
 
+    /* BEGIN Assignment broadcasts */
+
+    public static Intent noAssignmentsBroadcast(@NonNull final String guid) {
+        return new Intent(ACTION_NO_ASSIGNMENTS, assignmentsUri(guid));
+    }
+
     public static Intent updateAssignmentsBroadcast() {
         return new Intent(ACTION_UPDATE_ASSIGNMENTS, assignmentsUri());
     }
@@ -127,6 +134,8 @@ public final class BroadcastUtils
     public static Intent updateAssignmentsBroadcast(@NonNull final String guid) {
         return new Intent(ACTION_UPDATE_ASSIGNMENTS, assignmentsUri(guid));
     }
+
+    /* END Assignment broadcasts */
 
     public static Intent updateChurchesBroadcast(@NonNull final long... ids) {
         return updateChurchesBroadcast(null, ids);
@@ -154,6 +163,12 @@ public final class BroadcastUtils
         intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
         intent.putExtra(EXTRA_TRAINING_IDS, ids);
         return intent;
+    }
+
+    public static IntentFilter noAssignmentsFilter(@NonNull final String guid) {
+        final IntentFilter filter = new IntentFilter(ACTION_NO_ASSIGNMENTS);
+        addDataUri(filter, assignmentsUri(guid), PatternMatcher.PATTERN_LITERAL);
+        return filter;
     }
 
     public static IntentFilter updateAssignmentsFilter() {

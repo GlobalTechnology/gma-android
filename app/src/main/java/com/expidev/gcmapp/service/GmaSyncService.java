@@ -520,6 +520,9 @@ public class GmaSyncService extends ThreadedIntentService {
 
             // send broadcasts for updated data
             broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast(guid));
+            if (assignments.isEmpty()) {
+                broadcastManager.sendBroadcast(BroadcastUtils.noAssignmentsBroadcast(guid));
+            }
         } catch (final SQLException e) {
             Log.d(TAG, "error updating assignments", e);
         } finally {
