@@ -55,13 +55,13 @@ public class Assignment extends Base implements Cloneable {
     }
 
     @NonNull
-    private String guid;
+    private final String guid;
+    @NonNull
+    private final String ministryId;
     @Nullable
     private String id;
     @NonNull
     private Role role = Role.UNKNOWN;
-    @NonNull
-    private String ministryId = Ministry.INVALID_ID;
     @NonNull
     private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
     @Nullable
@@ -81,10 +81,8 @@ public class Assignment extends Base implements Cloneable {
 
     @NonNull
     public static Assignment fromJson(@NonNull final JSONObject json, @NonNull final String guid) throws JSONException {
-        final Assignment assignment = new Assignment();
-        assignment.guid = guid;
+        final Assignment assignment = new Assignment(guid, json.getString(JSON_MINISTRY_ID));
         assignment.id = json.optString(JSON_ID);
-        assignment.ministryId = json.getString(JSON_MINISTRY_ID);
         assignment.role = Role.fromRaw(json.optString(JSON_ROLE));
 
         // parse any inherited assignments
@@ -99,14 +97,17 @@ public class Assignment extends Base implements Cloneable {
         return assignment;
     }
 
-    public Assignment() {}
+    public Assignment(@NonNull final String guid, @NonNull final String ministryId) {
+        this.guid = guid;
+        this.ministryId = ministryId;
+    }
 
     protected Assignment(@NonNull final Assignment assignment) {
         super(assignment);
         this.guid = assignment.guid;
+        this.ministryId = assignment.ministryId;
         this.id = assignment.id;
         this.role = assignment.role;
-        this.ministryId = assignment.ministryId;
         this.mcc = assignment.mcc;
         for(final Assignment sub : assignment.subAssignments) {
             this.subAssignments.add(sub.clone());
@@ -119,10 +120,6 @@ public class Assignment extends Base implements Cloneable {
     @NonNull
     public String getGuid() {
         return guid;
-    }
-
-    public void setGuid(@NonNull String guid) {
-        this.guid = guid;
     }
 
     @Nullable
@@ -151,10 +148,6 @@ public class Assignment extends Base implements Cloneable {
     @NonNull
     public String getMinistryId() {
         return ministryId;
-    }
-
-    public void setMinistryId(@NonNull final String ministryId) {
-        this.ministryId = ministryId;
     }
 
     @NonNull
