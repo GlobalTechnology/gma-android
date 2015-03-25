@@ -506,7 +506,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     public Assignment createAssignment(@NonNull final String userEmail, @NonNull final String ministryId,
                                        @NonNull final Assignment.Role role) throws ApiException {
         // short-circuit if this is an invalid request
-        if (ministryId.equals(Ministry.INVALID_ID)) {
+        if (ministryId.equals(Ministry.INVALID_ID) || role == Assignment.Role.UNKNOWN) {
             return null;
         }
 
