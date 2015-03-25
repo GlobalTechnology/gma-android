@@ -200,7 +200,7 @@ public class GmaSyncService extends ThreadedIntentService {
 
         if (force || stale) {
             // fetch raw data from API & parse it
-            final List<Assignment> assignments = api.getAssignments(true);
+            final List<Assignment> assignments = api.getAssignments();
             if (assignments != null) {
                 this.updateAllAssignments(guid, assignments);
             }
