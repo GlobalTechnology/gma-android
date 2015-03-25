@@ -510,8 +510,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Nullable
-    public Assignment createAssignment(@NonNull final String userEmail, @NonNull final String ministryId,
-                                       @NonNull final Assignment.Role role) throws ApiException {
+    public Assignment createAssignment(@NonNull final String ministryId, @NonNull final Assignment.Role role,
+                                       @NonNull final String guid) throws ApiException {
         // short-circuit if this is an invalid request
         if (ministryId.equals(Ministry.INVALID_ID) || role == Assignment.Role.UNKNOWN) {
             return null;
@@ -523,9 +523,9 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
         // generate POST data
         final Map<String, Object> data = new HashMap<>();
-        data.put("username", userEmail);
         data.put("ministry_id", ministryId);
         data.put("team_role", role.raw);
+        data.put("key_guid", guid);
         request.setContent(new JSONObject(data));
 
         // issue request and process response
@@ -535,7 +535,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
             // if successful return parsed response
             if (conn.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
-                return Assignment.fromJson(new JSONObject(IOUtils.readString(conn.getInputStream())), request.guid);
+                return Assignment.fromJson(new JSONObject(IOUtils.readString(conn.getInputStream())), guid);
             }
         } catch (final IOException e) {
             throw new ApiSocketException(e);

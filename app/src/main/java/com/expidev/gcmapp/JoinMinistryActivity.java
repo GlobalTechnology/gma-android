@@ -113,14 +113,14 @@ public class JoinMinistryActivity extends ActionBarActivity
         final Ministry chosenMinistry = getMinistryByName(ministryName);
         String ministryId = chosenMinistry != null ? chosenMinistry.getMinistryId() : null;
 
-        new CreateAssignmentTask(this, ministryId, Assignment.Role.SELF_ASSIGNED) {
+        new CreateAssignmentTask(this, ministryId, Assignment.Role.SELF_ASSIGNED, mGuid) {
             @Override
             protected void onPostExecute(final Assignment assignment) {
                 super.onPostExecute(assignment);
 
                 if (assignment != null) {
                     // trigger a forced background sync of all assignments
-                    GmaSyncService.syncAssignments(JoinMinistryActivity.this, mTheKey.getGuid(), true);
+                    GmaSyncService.syncAssignments(JoinMinistryActivity.this, assignment.getGuid(), true);
 
                     // display dialog on success
                     // TODO: we should display the dialog when starting and change state to complete when we finish
