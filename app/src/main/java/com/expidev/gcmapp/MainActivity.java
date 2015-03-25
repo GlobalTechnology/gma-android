@@ -6,6 +6,7 @@ import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
 import static com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -44,6 +45,7 @@ import com.expidev.gcmapp.support.v4.content.TrainingLoader;
 import com.expidev.gcmapp.support.v4.fragment.CreateChurchFragment;
 import com.expidev.gcmapp.support.v4.fragment.EditChurchFragment;
 import com.expidev.gcmapp.support.v4.fragment.EditTrainingFragment;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.expidev.gcmapp.utils.Device;
 import com.expidevapps.android.measurements.activity.LoginActivity;
 import com.google.android.gms.common.ConnectionResult;
@@ -92,6 +94,7 @@ public class MainActivity extends ActionBarActivity
 
     /* BroadcastReceivers */
     private final LoginBroadcastReceiver mBroadcastReceiverLogin = new LoginBroadcastReceiver();
+    private final BroadcastReceiver mBroadcastReceiverNoAssignments = new NoAssignmentsBroadcastReceiver();
 
     /* Loader callback objects */
     private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
@@ -173,6 +176,11 @@ public class MainActivity extends ActionBarActivity
         // update active user
         mGuid = guid;
 
+        if(changed) {
+            // update no assignments receiver
+            updateNoAssignmentsBroadcastReceiver();
+        }
+
         // show login dialog if there isn't a valid active user
         if (mGuid == null) {
             showLogin();
@@ -187,6 +195,9 @@ public class MainActivity extends ActionBarActivity
     @Override
     public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_join_ministry:
+                joinNewMinistry();
+                return true;
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
@@ -303,10 +314,22 @@ public class MainActivity extends ActionBarActivity
 
     private void setupBroadcastReceivers() {
         mBroadcastReceiverLogin.registerReceiver(LocalBroadcastManager.getInstance(this));
+        updateNoAssignmentsBroadcastReceiver();
+    }
+
+    private void updateNoAssignmentsBroadcastReceiver() {
+        final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(this);
+        broadcastManager.unregisterReceiver(mBroadcastReceiverNoAssignments);
+        if (mGuid != null) {
+            broadcastManager.registerReceiver(mBroadcastReceiverNoAssignments,
+                                              BroadcastUtils.noAssignmentsFilter(mGuid));
+        }
     }
 
     private void cleanupBroadcastReceivers() {
-        mBroadcastReceiverLogin.unregisterReceiver(LocalBroadcastManager.getInstance(this));
+        final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(this);
+        mBroadcastReceiverLogin.unregisterReceiver(broadcastManager);
+        broadcastManager.unregisterReceiver(mBroadcastReceiverNoAssignments);
     }
 
     private void startLoaders() {
@@ -379,8 +402,7 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
-    public void joinNewMinistry(MenuItem menuItem)
-    {
+    void joinNewMinistry() {
         final Context context = this;
         if (Device.isConnected(getApplicationContext()))
         {
@@ -644,6 +666,13 @@ public class MainActivity extends ActionBarActivity
             if (!changingUser) {
                 onUpdateGuid(null);
             }
+        }
+    }
+
+    private class NoAssignmentsBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            joinNewMinistry();
         }
     }
 

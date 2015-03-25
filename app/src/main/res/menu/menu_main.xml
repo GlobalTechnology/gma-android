@@ -5,8 +5,7 @@
     <item android:id="@+id/action_join_ministry"
         android:title="@string/action_join_new_ministry"
         android:orderInCategory="1"
-        app:showAsAction="never"
-        android:onClick="joinNewMinistry" />
+        app:showAsAction="never"/>
     <item android:id="@+id/action_measurements"
           android:title="@string/title_activity_measurements"
           android:orderInCategory="2"
