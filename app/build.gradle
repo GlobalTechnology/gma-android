@@ -134,7 +134,7 @@ dependencies {
     compile 'me.thekey.android:thekey-api:0.7.1'
     compile 'me.thekey.android:thekey-lib:0.7.1'
 
-    compile 'org.ccci.gto.android:gto-support:0.4.4'
+    compile 'org.ccci.gto.android:gto-support:0.4.5-SNAPSHOT'
 
     compile 'com.github.machinarius:preferencefragment:0.1.1'
     compile 'com.viewpagerindicator:library:2.4.2-SNAPSHOT'

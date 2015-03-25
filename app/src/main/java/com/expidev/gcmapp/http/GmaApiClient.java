@@ -614,12 +614,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         @NonNull
         final Set<String> cookies;
 
-        Session(@Nullable final String id, @Nullable final Collection<String> cookies, @NonNull final String guid) {
+        Session(@Nullable final String id, @Nullable final Collection<String> cookies, @Nullable final String guid) {
             super(id, guid);
             this.cookies = Collections.unmodifiableSet(new HashSet<>(cookies));
         }
 
-        Session(@NonNull final SharedPreferences prefs, @NonNull final String guid) {
+        Session(@NonNull final SharedPreferences prefs, @Nullable final String guid) {
             super(prefs, guid);
             this.cookies = Collections.unmodifiableSet(SharedPreferencesUtils.getStringSet(
                     prefs, getPrefAttrName(PREF_COOKIES), Collections.<String>emptySet()));
