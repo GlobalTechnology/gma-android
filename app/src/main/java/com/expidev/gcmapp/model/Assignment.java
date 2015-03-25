@@ -71,17 +71,18 @@ public class Assignment extends Base implements Cloneable {
     private final List<Assignment> subAssignments = new ArrayList<>();
 
     @NonNull
-    public static List<Assignment> listFromJson(@NonNull final JSONArray json) throws JSONException {
+    public static List<Assignment> listFromJson(@NonNull final JSONArray json, @NonNull final String guid) throws JSONException {
         final List<Assignment> assignments = new ArrayList<>();
         for (int i = 0; i < json.length(); i++) {
-            assignments.add(fromJson(json.getJSONObject(i)));
+            assignments.add(fromJson(json.getJSONObject(i), guid));
         }
         return assignments;
     }
 
     @NonNull
-    public static Assignment fromJson(@NonNull final JSONObject json) throws JSONException {
+    public static Assignment fromJson(@NonNull final JSONObject json, @NonNull final String guid) throws JSONException {
         final Assignment assignment = new Assignment();
+        assignment.guid = guid;
         assignment.id = json.optString(JSON_ID);
         assignment.ministryId = json.getString(JSON_MINISTRY_ID);
         assignment.role = Role.fromRaw(json.optString(JSON_ROLE));
@@ -89,7 +90,7 @@ public class Assignment extends Base implements Cloneable {
         // parse any inherited assignments
         final JSONArray subAssignments = json.optJSONArray(JSON_SUB_ASSIGNMENTS);
         if (subAssignments != null) {
-            assignment.subAssignments.addAll(listFromJson(subAssignments));
+            assignment.subAssignments.addAll(listFromJson(subAssignments, guid));
         }
 
         // parse the merged ministry object

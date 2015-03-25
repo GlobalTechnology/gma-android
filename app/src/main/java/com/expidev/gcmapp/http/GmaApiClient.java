@@ -179,6 +179,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
     }
 
+    @Override
+    protected void onCleanupRequest(@NonNull final Request<Session> request) {
+        // we don't call the super method to prevent wiping the guid on a successful request
+        // super.onCleanupRequest(request);
+    }
+
     /* API methods */
 
     @NonNull
@@ -489,7 +495,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                return Assignment.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())));
+                assert request.guid != null : "request.guid should be non-null because the request was successful";
+                return Assignment.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())), request.guid);
             }
         } catch (final JSONException e) {
             Log.e(TAG, "error parsing getAllMinistries response", e);
@@ -528,7 +535,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
             // if successful return parsed response
             if (conn.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
-                return Assignment.fromJson(new JSONObject(IOUtils.readString(conn.getInputStream())));
+                return Assignment.fromJson(new JSONObject(IOUtils.readString(conn.getInputStream())), request.guid);
             }
         } catch (final IOException e) {
             throw new ApiSocketException(e);

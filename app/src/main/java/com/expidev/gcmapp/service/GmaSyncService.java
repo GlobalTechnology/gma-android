@@ -451,9 +451,9 @@ public class GmaSyncService extends ThreadedIntentService {
     private void saveAssignments(@NonNull final Intent intent) {
         final String guid = intent.getStringExtra(EXTRA_GUID);
         final String raw = intent.getStringExtra(EXTRA_ASSIGNMENTS);
-        if(raw != null) {
+        if (guid != null && raw != null) {
             try {
-                final List<Assignment> assignments = Assignment.listFromJson(new JSONArray(raw));
+                final List<Assignment> assignments = Assignment.listFromJson(new JSONArray(raw), guid);
 
                 this.updateAllAssignments(guid, assignments);
             } catch (final JSONException ignored) {
@@ -487,9 +487,6 @@ public class GmaSyncService extends ThreadedIntentService {
             final LinkedList<Assignment> toProcess = new LinkedList<>(assignments);
             while (toProcess.size() > 0) {
                 final Assignment assignment = toProcess.pop();
-
-                // set the guid on this assignment
-                assignment.setGuid(guid);
 
                 // update the ministry
                 final Ministry ministry = assignment.getMinistry();
