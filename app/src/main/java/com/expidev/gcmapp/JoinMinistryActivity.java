@@ -23,6 +23,7 @@ import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.GmaSyncService;
+import com.expidev.gcmapp.support.v4.fragment.JoinMinistryDialogFragment;
 import com.expidev.gcmapp.tasks.CreateAssignmentTask;
 
 import org.ccci.gto.android.common.db.util.CursorUtils;
@@ -30,7 +31,7 @@ import org.ccci.gto.android.common.db.util.CursorUtils;
 import java.util.List;
 
 public class JoinMinistryActivity extends ActionBarActivity
-{
+        implements JoinMinistryDialogFragment.OnJoinMinistryListener {
     private final String TAG = this.getClass().getSimpleName();
 
     private GmaDao mDao;
@@ -65,6 +66,11 @@ public class JoinMinistryActivity extends ActionBarActivity
 
         findViews();
         setupAdapters();
+    }
+
+    @Override
+    public void onJoinedMinistry(@NonNull final String ministryId) {
+        finish();
     }
 
     @Override
