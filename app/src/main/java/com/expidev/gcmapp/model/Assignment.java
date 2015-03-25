@@ -7,14 +7,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class Assignment extends Base implements Cloneable, Serializable {
-    private static final long serialVersionUID = 0L;
-
+public class Assignment extends Base implements Cloneable {
     public static final String JSON_ID = "id";
     public static final String JSON_MINISTRY_ID = "ministry_id";
     public static final String JSON_ROLE = "team_role";
