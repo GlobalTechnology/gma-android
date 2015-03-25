@@ -46,7 +46,6 @@ import com.expidev.gcmapp.support.v4.fragment.CreateChurchFragment;
 import com.expidev.gcmapp.support.v4.fragment.EditChurchFragment;
 import com.expidev.gcmapp.support.v4.fragment.EditTrainingFragment;
 import com.expidev.gcmapp.utils.BroadcastUtils;
-import com.expidev.gcmapp.utils.Device;
 import com.expidevapps.android.measurements.activity.LoginActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -403,34 +402,8 @@ public class MainActivity extends ActionBarActivity
     }
 
     void joinNewMinistry() {
-        final Context context = this;
-        if (Device.isConnected(getApplicationContext()))
-        {
-            if (mTheKey.getGuid() == null)
-            {
-                showLogin();
-            }
-            else
-            {
-                Intent goToJoinMinistryPage = new Intent(context, JoinMinistryActivity.class);
-                startActivity(goToJoinMinistryPage);
-            }
-        }
-        else
-        {
-            AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle("Internet Necessary")
-                .setMessage("You need Internet access to access this page")
-                .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        dialog.dismiss();
-                    }
-                })
-                .create();
-
-            alertDialog.show();
+        if (mGuid != null) {
+            JoinMinistryActivity.start(this, mGuid);
         }
     }
 

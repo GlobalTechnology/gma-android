@@ -1,10 +1,12 @@
 package com.expidev.gcmapp;
 
+import static com.expidev.gcmapp.Constants.EXTRA_GUID;
 import static org.ccci.gto.android.common.util.ViewUtils.findView;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,15 +29,27 @@ import org.ccci.gto.android.common.util.CursorUtils;
 
 import java.util.List;
 
-
 public class JoinMinistryActivity extends ActionBarActivity
 {
     private final String TAG = this.getClass().getSimpleName();
 
     private GmaDao mDao;
 
+    @NonNull
+    private String mGuid = "";
+
     private AutoCompleteTextView mMinistriesTextView = null;
     SimpleCursorAdapter mMinistriesAdapter = null;
+
+    public static void start(@NonNull final Context context, @NonNull final String guid) {
+        final Intent intent = new Intent(context, JoinMinistryActivity.class);
+        populateIntent(intent, guid);
+        context.startActivity(intent);
+    }
+
+    public static void populateIntent(@NonNull final Intent intent, @NonNull final String guid) {
+        intent.putExtra(EXTRA_GUID, guid);
+    }
 
     /* BEGIN lifecycle */
 
@@ -45,6 +59,10 @@ public class JoinMinistryActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_ministry);
         mDao = GmaDao.getInstance(this);
+
+        final Intent intent = this.getIntent();
+        mGuid = intent.getStringExtra(EXTRA_GUID);
+
         findViews();
         setupAdapters();
     }
