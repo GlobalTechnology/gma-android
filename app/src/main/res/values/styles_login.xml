@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Widget.GMA.Login.Button" parent="android:Widget.Button">
+        <item name="android:background">@color/gma_green</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+</resources>
