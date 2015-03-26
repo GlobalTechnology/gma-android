@@ -28,7 +28,7 @@ import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.github.machinarius.preferencefragment.PreferenceFragment;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
-import org.ccci.gto.android.common.util.CursorUtils;
+import org.ccci.gto.android.common.db.util.CursorUtils;
 
 import java.util.Collections;
 import java.util.Set;

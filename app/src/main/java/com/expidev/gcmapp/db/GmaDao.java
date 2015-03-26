@@ -145,7 +145,7 @@ public class GmaDao extends AbstractDao
         }
 
         // return where clause pair
-        return Pair.create(where, this.getBindValues(key));
+        return Pair.create(where, bindValues(key));
     }
 
     @NonNull

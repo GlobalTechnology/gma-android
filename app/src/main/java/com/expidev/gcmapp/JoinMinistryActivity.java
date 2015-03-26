@@ -25,7 +25,7 @@ import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.tasks.CreateAssignmentTask;
 
-import org.ccci.gto.android.common.util.CursorUtils;
+import org.ccci.gto.android.common.db.util.CursorUtils;
 
 import java.util.List;
 

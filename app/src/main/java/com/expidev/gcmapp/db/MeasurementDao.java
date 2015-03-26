@@ -211,7 +211,7 @@ public class MeasurementDao extends AbstractDao
             throw new IllegalArgumentException("invalid key for " + clazz);
         }
 
-        return Pair.create(where, this.getBindValues(key));
+        return Pair.create(where, bindValues(key));
     }
 
     @NonNull

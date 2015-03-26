@@ -14,7 +14,7 @@ import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.support.v4.fragment.measurement.MeasurementValueFragment;
 
-import org.ccci.gto.android.common.util.CursorUtils;
+import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.joda.time.YearMonth;
 
 public class MeasurementPagerAdapter extends FragmentPagerAdapter {

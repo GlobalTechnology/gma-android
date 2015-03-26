@@ -1,5 +1,7 @@
 package com.expidev.gcmapp.utils;
 
+import static org.ccci.gto.android.common.db.util.CursorUtils.getString;
+
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,7 +13,7 @@ public class CursorUtils {
     @Nullable
     public static YearMonth getYearMonth(@NonNull final Cursor c, @NonNull final String field,
                                          @Nullable final YearMonth defValue) {
-        final String raw = org.ccci.gto.android.common.util.CursorUtils.getString(c, field, null);
+        final String raw = getString(c, field, null);
         if (raw != null) {
             try {
                 return YearMonth.parse(raw);
@@ -32,7 +34,7 @@ public class CursorUtils {
     @Nullable
     public static LocalDate getLocalDate(@NonNull final Cursor c, @NonNull final String field,
                                          @Nullable final LocalDate defValue) {
-        final String raw = org.ccci.gto.android.common.util.CursorUtils.getString(c, field, null);
+        final String raw = getString(c, field, null);
         if (raw != null) {
             try {
                 return LocalDate.parse(raw);
