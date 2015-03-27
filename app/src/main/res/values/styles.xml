@@ -16,7 +16,7 @@
     <style name="TextAppearance.GMA.Large" parent="TextAppearance.AppCompat.Large"/>
 
     <style name="Widget.GMA.Button" parent="android:Widget.Button">
-        <item name="android:background">@color/gma_green</item>
-        <item name="android:minHeight">48dp</item>
+        <item name="android:background">@drawable/btn_default</item>
+        <item name="android:layout_height">72dp</item>
     </style>
 </resources>
