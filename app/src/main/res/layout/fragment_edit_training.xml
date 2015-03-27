@@ -103,19 +103,19 @@
     <Button
         android:id="@+id/training_update"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/update_button"
         android:layout_below="@id/data"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="10dp"/>
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="10dp"
+        style="@style/Widget.GMA.Button"
+        android:text="@string/update_button"/>
 
     <Button
         android:id="@+id/training_cancel"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/cancel_button"
-        android:layout_alignTop="@+id/training_update"
+        android:layout_alignTop="@id/training_update"
+        android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        style="@style/Widget.GMA.Button"
+        android:text="@string/cancel_button"/>
 </RelativeLayout>
