@@ -2,6 +2,7 @@ package com.expidev.gcmapp.support.v4.fragment;
 
 import static com.expidev.gcmapp.Constants.ARG_TRAINING_ID;
 import static com.expidev.gcmapp.utils.BroadcastUtils.updateTrainingBroadcast;
+import static org.ccci.gto.android.common.util.ThreadUtils.runOnBackgroundThread;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -174,17 +175,16 @@ public class EditTrainingFragment extends AbstractDialogFragment
                 final Context context = getActivity().getApplicationContext();
                 final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
                 final TrainingDao dao = TrainingDao.getInstance(context);
-                
-                dao.async(new Runnable()
-                {
+
+                runOnBackgroundThread(new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         dao.update(training, new String[] {Contract.Training.COLUMN_NAME,
-                        Contract.Training.COLUMN_TYPE, Contract.Training.COLUMN_DATE,
-                        Contract.Training.COLUMN_DIRTY});
-                        
-                        broadcastManager.sendBroadcast(updateTrainingBroadcast(training.getMinistryId(), training.getId()));
+                                Contract.Training.COLUMN_TYPE, Contract.Training.COLUMN_DATE,
+                                Contract.Training.COLUMN_DIRTY});
+
+                        broadcastManager
+                                .sendBroadcast(updateTrainingBroadcast(training.getMinistryId(), training.getId()));
 
                         TrainingService.syncDirtyTraining(context);
                     }

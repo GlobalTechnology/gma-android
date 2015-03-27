@@ -2,6 +2,7 @@ package com.expidev.gcmapp.support.v4.fragment;
 
 import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
 import static com.expidev.gcmapp.utils.BroadcastUtils.updateChurchesBroadcast;
+import static org.ccci.gto.android.common.util.ThreadUtils.runOnBackgroundThread;
 
 import android.content.Context;
 import android.database.SQLException;
@@ -109,7 +110,7 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
         final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
         final GmaDao dao = GmaDao.getInstance(context);
 
-        dao.async(new Runnable() {
+        runOnBackgroundThread(new Runnable() {
             @Override
             public void run() {
                 boolean saved = false;
