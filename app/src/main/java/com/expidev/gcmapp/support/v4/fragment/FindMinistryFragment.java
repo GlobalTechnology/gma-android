@@ -30,6 +30,7 @@ import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.support.v4.fragment.JoinMinistryDialogFragment.OnJoinMinistryListener;
 import com.expidev.gcmapp.support.v7.adapter.MinistryCursorRecyclerViewAdapter;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
@@ -37,13 +38,14 @@ import org.ccci.gto.android.common.recyclerview.adapter.CursorAdapter;
 import org.ccci.gto.android.common.recyclerview.decorator.DividerItemDecoration;
 import org.ccci.gto.android.common.recyclerview.layoutmanager.LinearLayoutManager;
 import org.ccci.gto.android.common.recyclerview.listener.ItemClickListener;
+import org.ccci.gto.android.common.support.v4.util.FragmentUtils;
 import org.ccci.gto.android.common.util.BundleUtils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.Optional;
 
-public class FindMinistryFragment extends Fragment {
+public class FindMinistryFragment extends Fragment implements OnJoinMinistryListener {
     private static final String ARG_QUERY = FindMinistryFragment.class.getName() + ".ARG_QUERY";
 
     @Nullable
@@ -136,6 +138,15 @@ public class FindMinistryFragment extends Fragment {
         // only fetch a new Ministries Cursor if the query has changed
         if (!old.equals(mQuery)) {
             fetchMinistriesCursor();
+        }
+    }
+
+    @Override
+    public void onJoinedMinistry(@NonNull final String ministryId) {
+        // cascade event up activity/fragment hierarchy
+        final OnJoinMinistryListener listener = FragmentUtils.getListener(this, OnJoinMinistryListener.class);
+        if (listener != null) {
+            listener.onJoinedMinistry(ministryId);
         }
     }
 
