@@ -1,6 +1,6 @@
 package com.expidev.gcmapp.support.v4.fragment;
 
-import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static com.expidev.gcmapp.Constants.ARG_GUID;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
@@ -185,7 +185,7 @@ public class FindMinistryFragment extends Fragment implements OnJoinMinistryList
         if (mMinistriesView != null) {
             mMinistriesView.setHasFixedSize(true);
             mMinistriesView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            mMinistriesView.addItemDecoration(new DividerItemDecoration(getActivity(), HORIZONTAL));
+            mMinistriesView.addItemDecoration(new DividerItemDecoration(getActivity(), VERTICAL));
 
             mMinistriesAdapter = new MinistryCursorRecyclerViewAdapter();
             mMinistriesView.setAdapter(mMinistriesAdapter);

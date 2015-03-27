@@ -11,6 +11,8 @@
 
     <style name="TextAppearance.GMA" parent="TextAppearance.AppCompat"/>
 
+    <style name="TextAppearance.GMA.Medium" parent="TextAppearance.AppCompat.Medium"/>
+
     <style name="TextAppearance.GMA.Large" parent="TextAppearance.AppCompat.Large"/>
 
     <style name="Widget.GMA.Button" parent="android:Widget.Button">
