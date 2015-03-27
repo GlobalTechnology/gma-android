@@ -3,6 +3,7 @@ package com.expidev.gcmapp.support.v4.fragment;
 import static com.expidev.gcmapp.Constants.ARG_GUID;
 import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Build;
@@ -77,13 +78,13 @@ public class JoinMinistryDialogFragment extends AbstractDialogFragment {
         super.onCreate(savedState);
 
         final Bundle args = this.getArguments();
-        mGuid = args != null ? args.getString(ARG_GUID) : null;
-        final String ministryId = args != null ? args.getString(ARG_MINISTRY_ID) : null;
-        mMinistryId = ministryId != null ? ministryId : Ministry.INVALID_ID;
+        mGuid = args.getString(ARG_GUID);
+        mMinistryId = args.getString(ARG_MINISTRY_ID);
     }
 
     @NonNull
     @Override
+    @SuppressLint("InflateParams")
     public Dialog onCreateDialog(@Nullable final Bundle savedState) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
