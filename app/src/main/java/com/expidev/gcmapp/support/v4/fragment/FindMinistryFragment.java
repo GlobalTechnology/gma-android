@@ -4,6 +4,9 @@ import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import static com.expidev.gcmapp.Constants.ARG_GUID;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -27,6 +31,7 @@ import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.support.v7.adapter.MinistryCursorRecyclerViewAdapter;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.ccci.gto.android.common.recyclerview.adapter.CursorAdapter;
 import org.ccci.gto.android.common.recyclerview.decorator.DividerItemDecoration;
@@ -51,7 +56,10 @@ public class FindMinistryFragment extends Fragment {
     @Nullable
     private MinistryCursorRecyclerViewAdapter mMinistriesAdapter;
     @NonNull
+    private final MinistriesUpdateBroadcastReceiver mReceiverMinistriesUpdate = new MinistriesUpdateBroadcastReceiver();
+    @NonNull
     private final MinistriesQueryListener mListenerQueryText = new MinistriesQueryListener();
+    @NonNull
     private final MinistriesOnClickListener mListenerMinistriesOnClick = new MinistriesOnClickListener();
 
     @NonNull
@@ -91,6 +99,9 @@ public class FindMinistryFragment extends Fragment {
         if (savedState != null) {
             mQuery = BundleUtils.getString(savedState, ARG_QUERY, "");
         }
+
+        // start listening for ministries updates
+        startBroadcastReceivers();
 
         // fetch initial Cursor
         fetchMinistriesCursor();
@@ -147,6 +158,16 @@ public class FindMinistryFragment extends Fragment {
         cleanupSearchView();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopBroadcastReceivers();
+        if(mLoadMinistriesTask != null) {
+            mLoadMinistriesTask.cancel(true);
+        }
+        changeMinistriesCursor(null);
+    }
+
     /* END lifecycle */
 
     private void setupMinistriesView() {
@@ -195,6 +216,16 @@ public class FindMinistryFragment extends Fragment {
         mSearchView = null;
     }
 
+    private void startBroadcastReceivers() {
+        final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(getActivity());
+        broadcastManager.registerReceiver(mReceiverMinistriesUpdate, BroadcastUtils.updateMinistriesFilter());
+    }
+
+    private void stopBroadcastReceivers() {
+        final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(getActivity());
+        broadcastManager.unregisterReceiver(mReceiverMinistriesUpdate);
+    }
+
     private void updateMinistriesView() {
         // update the ministries adapter cursor
         if (mMinistriesAdapter != null) {
@@ -205,13 +236,13 @@ public class FindMinistryFragment extends Fragment {
     private void fetchMinistriesCursor() {
         final LoadMinistriesTask old = mLoadMinistriesTask;
 
-        // create new task
+        // create & execute new task
         mLoadMinistriesTask = new LoadMinistriesTask();
         mLoadMinistriesTask.execute(mQuery);
 
         // stop old task
         if (old != null) {
-            old.cancel(false);
+            old.cancel(true);
         }
     }
 
@@ -235,6 +266,14 @@ public class FindMinistryFragment extends Fragment {
                 JoinMinistryDialogFragment.newInstance(mGuid, ministryId)
                         .show(fm.beginTransaction().addToBackStack("joinMinistryDialog"), "joinMinistryDialog");
             }
+        }
+    }
+
+    private final class MinistriesUpdateBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            // trigger an update of the displayed ministries
+            fetchMinistriesCursor();
         }
     }
 
@@ -283,6 +322,13 @@ public class FindMinistryFragment extends Fragment {
         protected void onPostExecute(@NonNull final Cursor cursor) {
             super.onPostExecute(cursor);
             changeMinistriesCursor(cursor);
+        }
+
+        @Override
+        protected void onCancelled(@Nullable final Cursor cursor) {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
     }
 }
