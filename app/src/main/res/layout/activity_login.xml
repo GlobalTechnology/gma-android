@@ -41,18 +41,19 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Welcome to GMA, click Login to get started."
             android:layout_marginTop="16dp"
-            android:gravity="center_horizontal"/>
+            android:gravity="center_horizontal"
+            android:textAppearance="@style/TextAppearance.GMA.Medium"
+            android:text="@string/text_login_welcome"/>
 
         <Button
             android:id="@+id/login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sign In"
-            android:gravity="center_vertical|center_horizontal"
             android:layout_marginTop="16dp"
-            style="@style/Widget.GMA.Login.Button"/>
+            android:gravity="center_vertical|center_horizontal"
+            style="@style/Widget.GMA.Login.Button"
+            android:text="@string/btn_login"/>
     </LinearLayout>
 
 </RelativeLayout>
