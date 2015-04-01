@@ -116,7 +116,6 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         super.onCreate(savedState);
 
         mGuid = getArguments().getString(ARG_GUID);
-        syncData(false);
     }
 
     @Override
@@ -215,14 +214,17 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         final boolean changedMcc = changed || oldMcc != newMcc;
         final boolean changedLocation = changed || !Objects.equal(oldLocation, newLocation) || oldZoom != newZoom;
 
+        // sync updated data
+        if (changed || changedMcc) {
+            syncData(false);
+        }
+
         // restart loaders if necessary
         if (changed || changedMcc) {
             // destroy old loaders
             final LoaderManager manager = getLoaderManager();
             manager.destroyLoader(LOADER_TRAININGS);
-            if (changed) {
-                manager.destroyLoader(LOADER_CHURCHES);
-            }
+            manager.destroyLoader(LOADER_CHURCHES);
 
             // start loaders for current assignment
             startLoaders(mAssignment);
@@ -268,7 +270,9 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private void syncData(final boolean force) {
         // trigger background syncing of data
         if (mAssignment != null) {
-            GmaSyncService.syncChurches(getActivity(), mAssignment.getMinistryId());
+            if (mAssignment.getMcc() == Ministry.Mcc.GCM) {
+                GmaSyncService.syncChurches(getActivity(), mAssignment.getMinistryId());
+            }
             TrainingService.syncTraining(getActivity(), mAssignment.getMinistryId(), mAssignment.getMcc());
         }
     }
