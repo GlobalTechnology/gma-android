@@ -225,4 +225,38 @@ public class Assignment extends Base implements Cloneable {
     {
         return getRole() == Role.BLOCKED;
     }
+
+    public boolean can(@NonNull final Task task) {
+        switch (task) {
+            case CREATE_CHURCH:
+            case EDIT_CHURCH:
+                return isLeadership();
+            case VIEW_CHURCH:
+                return true;
+            case EDIT_TRAINING:
+                return isLeadership();
+            case VIEW_TRAINING:
+                return !isSelfAssigned() && !isBlocked();
+            default:
+                return false;
+        }
+    }
+
+    public boolean can(@NonNull final Task task, @NonNull final Church church) {
+        switch (task) {
+            case VIEW_CHURCH:
+                switch (church.getSecurity()) {
+                    case PRIVATE:
+                        return isMember() || isLeadership();
+                    case LOCAL_PRIVATE:
+                        return isMember() || isLeader();
+                    case PUBLIC:
+                        return true;
+                    default:
+                        return false;
+                }
+            default:
+                return can(task);
+        }
+    }
 }

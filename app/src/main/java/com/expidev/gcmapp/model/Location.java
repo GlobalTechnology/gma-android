@@ -6,8 +6,8 @@ import android.support.annotation.Nullable;
 import com.google.android.gms.maps.model.LatLng;
 
 public abstract class Location extends Base {
-    private double latitude;
-    private double longitude;
+    private double latitude = Double.NaN;
+    private double longitude = Double.NaN;
 
     protected Location() {
     }
