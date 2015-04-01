@@ -25,7 +25,6 @@ import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.service.MeasurementsService;
-import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
 import com.expidev.gcmapp.support.v4.fragment.MapFragment;
 import com.expidev.gcmapp.utils.BroadcastUtils;
@@ -47,8 +46,6 @@ public class MainActivity extends ActionBarActivity {
 
     private static final int REQUEST_LOGIN_ACTIVITY = 0;
 
-    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-
     TheKey mTheKey;
 
     /* BroadcastReceivers */
@@ -63,8 +60,6 @@ public class MainActivity extends ActionBarActivity {
     private String mGuid = null;
     @Nullable
     private Assignment mAssignment;
-    @Nullable
-    private Ministry mCurrentMinistry;
 
     /* BEGIN lifecycle */
 
@@ -100,9 +95,6 @@ public class MainActivity extends ActionBarActivity {
             // destroy current loaders
             final LoaderManager manager = getSupportLoaderManager();
             manager.destroyLoader(LOADER_CURRENT_ASSIGNMENT);
-
-            // trigger null data loads to cleanup any cached data
-            onLoadCurrentAssignment(null);
         }
 
         // update active user
@@ -136,9 +128,9 @@ public class MainActivity extends ActionBarActivity {
                 return true;
             case R.id.action_refresh:
                 syncData(true);
-                return true;
+                break;
             case R.id.action_logout:
-                logout(item);
+                logout();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -157,39 +149,17 @@ public class MainActivity extends ActionBarActivity {
      * @param assignment the new assignment object
      */
     void onLoadCurrentAssignment(@Nullable final Assignment assignment) {
+        final Assignment old = mAssignment;
         mAssignment = assignment;
-
-        // store the current ministry
-        final Ministry old = mCurrentMinistry;
-        mCurrentMinistry = assignment != null ? assignment.getMinistry() : null;
 
         // determine if the current ministry changed
         final String oldId = old != null ? old.getMinistryId() : Ministry.INVALID_ID;
-        final String newId = mCurrentMinistry != null ? mCurrentMinistry.getMinistryId() : Ministry.INVALID_ID;
+        final String newId = mAssignment != null ? mAssignment.getMinistryId() : Ministry.INVALID_ID;
         final boolean changed = !oldId.equals(newId);
 
         // trigger some additional actions if we are changing our current ministry
-        if (changed) {
-            onChangeCurrentAssignment();
-        }
-    }
-
-    /**
-     * This event is triggered when the current ministry is changing from one to another
-     */
-    void onChangeCurrentAssignment() {
-        // sync churches & trainings
-        if (mAssignment != null) {
-            GmaSyncService.syncChurches(this, mAssignment.getMinistryId());
-            TrainingService.syncTraining(this, mAssignment.getMinistryId(), mAssignment.getMcc());
-            GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
-                                            YearMonth.now());
-            MeasurementsService.syncMeasurements(
-                this,
-                mAssignment.getMinistryId(),
-                mAssignment.getMcc(),
-                null,
-                mAssignment.getRole());
+        if (changed && mAssignment != null) {
+            syncData(false);
         }
     }
 
@@ -241,7 +211,7 @@ public class MainActivity extends ActionBarActivity {
         // build the args used for various loaders
         final Bundle args = new Bundle(2);
         args.putString(ARG_GUID, mGuid);
-        args.putBoolean(ARG_LOAD_MINISTRY, true);
+        args.putBoolean(ARG_LOAD_MINISTRY, false);
 
         manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, mLoaderCallbacksAttributes);
         manager.initLoader(LOADER_CURRENT_ASSIGNMENT, args, mLoaderCallbacksAssignment);
@@ -253,10 +223,10 @@ public class MainActivity extends ActionBarActivity {
             GmaSyncService.syncAssignments(this, mGuid, force);
             GmaSyncService.syncMinistries(this, force);
             if (mAssignment != null) {
-                GmaSyncService.syncChurches(this, mAssignment.getMinistryId());
-                TrainingService.syncTraining(this, mAssignment.getMinistryId(), mAssignment.getMcc());
                 GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
                                                 YearMonth.now());
+                MeasurementsService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(), null,
+                                                     mAssignment.getRole());
             }
         }
     }
@@ -289,8 +259,7 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    public void logout(MenuItem menuItem)
-    {
+    public void logout() {
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.logout)
                 .setMessage(R.string.logout_message)

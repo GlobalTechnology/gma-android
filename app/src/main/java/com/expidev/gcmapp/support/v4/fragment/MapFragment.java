@@ -21,6 +21,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -36,6 +37,8 @@ import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
+import com.expidev.gcmapp.service.GmaSyncService;
+import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.support.v4.content.ChurchesLoader;
 import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
 import com.expidev.gcmapp.support.v4.content.TrainingLoader;
@@ -113,6 +116,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         super.onCreate(savedState);
 
         mGuid = getArguments().getString(ARG_GUID);
+        syncData(false);
     }
 
     @Override
@@ -145,6 +149,16 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         super.onResume();
         loadVisibleMapLayers();
         updateMapMarkers();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                syncData(true);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -251,6 +265,14 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
     /* END lifecycle */
 
+    private void syncData(final boolean force) {
+        // trigger background syncing of data
+        if (mAssignment != null) {
+            GmaSyncService.syncChurches(getActivity(), mAssignment.getMinistryId());
+            TrainingService.syncTraining(getActivity(), mAssignment.getMinistryId(), mAssignment.getMcc());
+        }
+    }
+
     private void startLoaders() {
         // build the args used for various loaders
         final Bundle args = new Bundle(2);
@@ -268,14 +290,16 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private void startLoaders(@Nullable final Assignment assignment) {
         if (assignment != null) {
             // build the args used for various loaders
-            final Bundle args = new Bundle(2);
+            final Bundle args = new Bundle(3);
             args.putString(ARG_GUID, mGuid);
             args.putString(ARG_MINISTRY_ID, assignment.getMinistryId());
             args.putString(ARG_MCC, assignment.getMcc().toString());
 
             // start loaders
             final LoaderManager manager = this.getLoaderManager();
-            manager.initLoader(LOADER_CHURCHES, args, mLoaderCallbacksChurches);
+            if (assignment.getMcc() == Ministry.Mcc.GCM) {
+                manager.initLoader(LOADER_CHURCHES, args, mLoaderCallbacksChurches);
+            }
             if (assignment.getMcc() != Ministry.Mcc.UNKNOWN) {
                 manager.initLoader(LOADER_TRAININGS, args, mLoaderCallbacksTraining);
             }
