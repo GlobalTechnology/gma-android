@@ -113,14 +113,12 @@ public class Contract {
                 "DROP TABLE IF EXISTS associated_ministries";
     }
 
-    public static final class Ministry extends Base implements MinistryId {
+    public static final class Ministry extends Location implements MinistryId {
         public static final String TABLE_NAME = "ministries";
 
         public static final String COLUMN_MIN_CODE = "min_code";
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_MCCS = "mccs";
-        public static final String COLUMN_LATITUDE = "latitude";
-        public static final String COLUMN_LONGITUDE = "longitude";
         public static final String COLUMN_LOCATION_ZOOM = "location_zoom";
         public static final String COLUMN_PARENT_MINISTRY_ID = "parent_ministry_id";
 
@@ -131,8 +129,6 @@ public class Contract {
         static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_MIN_CODE = COLUMN_MIN_CODE + " TEXT";
         private static final String SQL_COLUMN_MCCS = COLUMN_MCCS + " TEXT NOT NULL DEFAULT ''";
-        private static final String SQL_COLUMN_LATITUDE = COLUMN_LATITUDE + " DECIMAL";
-        private static final String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
         private static final String SQL_COLUMN_LOCATION_ZOOM = COLUMN_LOCATION_ZOOM + " INTEGER";
         private static final String SQL_COLUMN_PARENT_MINISTRY_ID = COLUMN_PARENT_MINISTRY_ID + " TEXT";
         static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_MINISTRY_ID + ")";

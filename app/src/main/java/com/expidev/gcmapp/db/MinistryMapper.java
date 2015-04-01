@@ -9,10 +9,7 @@ import com.expidev.gcmapp.model.Ministry;
 
 import java.util.EnumSet;
 
-/**
- * Created by William.Randall on 2/3/2015.
- */
-public class MinistryMapper extends BaseMapper<Ministry> {
+public class MinistryMapper extends LocationMapper<Ministry> {
     @Override
     protected void mapField(
         @NonNull final ContentValues values,
@@ -31,12 +28,6 @@ public class MinistryMapper extends BaseMapper<Ministry> {
                 break;
             case Contract.Ministry.COLUMN_MCCS:
                 values.put(field, TextUtils.join(",", ministry.getMccs()));
-                break;
-            case Contract.Ministry.COLUMN_LATITUDE:
-                values.put(field, ministry.getLatitude());
-                break;
-            case Contract.Ministry.COLUMN_LONGITUDE:
-                values.put(field, ministry.getLongitude());
                 break;
             case Contract.Ministry.COLUMN_LOCATION_ZOOM:
                 values.put(field, ministry.getLocationZoom());
@@ -65,8 +56,6 @@ public class MinistryMapper extends BaseMapper<Ministry> {
         ministry.setParentMinistryId(getString(c, Contract.Ministry.COLUMN_PARENT_MINISTRY_ID, null));
         ministry.setName(getString(c, Contract.Ministry.COLUMN_NAME, null));
         ministry.setMinistryCode(getString(c, Contract.Ministry.COLUMN_MIN_CODE, null));
-        ministry.setLatitude(getDouble(c, Contract.Ministry.COLUMN_LATITUDE, 0));
-        ministry.setLongitude(getDouble(c, Contract.Ministry.COLUMN_LONGITUDE, 0));
         ministry.setLocationZoom(getInt(c, Contract.Ministry.COLUMN_LOCATION_ZOOM, 0));
 
         // parse COLUMN_MCCS

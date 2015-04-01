@@ -14,8 +14,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 
-public class Ministry extends Base implements Serializable
-{
+public class Ministry extends Location implements Serializable {
     private static final long serialVersionUID = 0L;
 
     public static final String JSON_MINISTRY_ID = "ministry_id";
@@ -73,8 +72,6 @@ public class Ministry extends Base implements Serializable
     private String name;
     @NonNull
     private final EnumSet<Mcc> mccs = EnumSet.noneOf(Mcc.class);
-    private double latitude;
-    private double longitude;
     private int locationZoom;
 
     @NonNull
@@ -192,22 +189,6 @@ public class Ministry extends Base implements Serializable
 
     public void removeMcc(@NonNull final Mcc mcc) {
         this.mccs.remove(mcc);
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(final double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(final double longitude) {
-        this.longitude = longitude;
     }
 
     public int getLocationZoom() {

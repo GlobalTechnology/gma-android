@@ -1,6 +1,9 @@
 package com.expidev.gcmapp.model;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import com.google.android.gms.maps.model.LatLng;
 
 public abstract class Location extends Base {
     private double latitude;
@@ -23,7 +26,7 @@ public abstract class Location extends Base {
         return latitude;
     }
 
-    public void setLatitude(final double latitude) {
+    public final void setLatitude(final double latitude) {
         this.latitude = latitude;
     }
 
@@ -31,7 +34,12 @@ public abstract class Location extends Base {
         return longitude;
     }
 
-    public void setLongitude(final double longitude) {
+    public final void setLongitude(final double longitude) {
         this.longitude = longitude;
+    }
+
+    @Nullable
+    public final LatLng getLocation() {
+        return hasLocation() ? new LatLng(latitude, longitude) : null;
     }
 }
