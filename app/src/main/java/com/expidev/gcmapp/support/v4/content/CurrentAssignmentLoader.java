@@ -64,7 +64,11 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
             loadMinistry(assignment);
         }
 
-        //TODO: validate MCC when possible
+        // validate MCC when possible
+        if (assignment != null && assignment.getMinistry() != null &&
+                !assignment.getMinistry().getMccs().contains(assignment.getMcc())) {
+            updateMcc(assignment);
+        }
 
         // return the assignment
         return assignment;
@@ -101,19 +105,24 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
     }
 
     private void updateMcc(@NonNull final Assignment assignment) {
+        assert mGuid != null;
         loadMinistry(assignment);
 
         // set the MCC based off of what is available for the ministry
         final Ministry ministry = assignment.getMinistry();
         if (ministry != null) {
-            // pick a random MCC
+            // pick a "random" MCC
             final EnumSet<Ministry.Mcc> mccs = ministry.getMccs();
-            assignment.setMcc(mccs.size() > 0 ? mccs.iterator().next() : Ministry.Mcc.UNKNOWN);
+            final Ministry.Mcc mcc = mccs.size() > 0 ? mccs.iterator().next() : Ministry.Mcc.UNKNOWN;
 
-            // update the assignment
-            mDao.update(assignment, new String[] {Contract.Assignment.COLUMN_MCC});
+            // update the assignment if the mcc is changing
+            if (mcc != assignment.getMcc()) {
+                assignment.setMcc(mcc);
+                mDao.update(assignment, new String[] {Contract.Assignment.COLUMN_MCC});
 
-            //TODO: should we broadcast this update?
+                // broadcast the MCC update
+                getContext().sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast(mGuid));
+            }
         }
     }
 
