@@ -184,10 +184,10 @@ public class Church extends Location implements Cloneable {
     }
 
     public void setName(@Nullable final String name) {
-        this.name = name;
-        if (mTrackingChanges) {
+        if (mTrackingChanges && !TextUtils.equals(this.name, name)) {
             mDirty.add(JSON_NAME);
         }
+        this.name = name;
     }
 
     @Nullable
@@ -196,10 +196,10 @@ public class Church extends Location implements Cloneable {
     }
 
     public void setContactEmail(@Nullable final String email) {
-        this.contactEmail = email;
-        if (mTrackingChanges) {
+        if (mTrackingChanges && !TextUtils.equals(this.contactEmail, email)) {
             mDirty.add(JSON_CONTACT_EMAIL);
         }
+        this.contactEmail = email;
     }
 
     @Nullable
@@ -208,10 +208,10 @@ public class Church extends Location implements Cloneable {
     }
 
     public void setContactName(@Nullable final String name) {
-        this.contactName = name;
-        if (mTrackingChanges) {
+        if (mTrackingChanges && !TextUtils.equals(this.contactName, name)) {
             mDirty.add(JSON_CONTACT_NAME);
         }
+        this.contactName = name;
     }
 
     @NonNull
@@ -220,10 +220,10 @@ public class Church extends Location implements Cloneable {
     }
 
     public void setDevelopment(@NonNull final Development development) {
-        this.development = development;
-        if (mTrackingChanges) {
+        if (mTrackingChanges && this.development != development) {
             mDirty.add(JSON_DEVELOPMENT);
         }
+        this.development = development;
     }
 
     public int getSize() {
@@ -231,10 +231,10 @@ public class Church extends Location implements Cloneable {
     }
 
     public void setSize(final int size) {
-        this.size = size;
-        if(mTrackingChanges) {
+        if (mTrackingChanges && this.size != size) {
             mDirty.add(JSON_SIZE);
         }
+        this.size = size;
     }
 
     @NonNull

@@ -57,6 +57,9 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
     @InjectView(R.id.size)
     TextView mSizeView;
 
+    @Nullable
+    ArrayAdapter<Development> mDevelopmentAdapter;
+
     /* BEGIN lifecycle */
 
     @NonNull
@@ -93,6 +96,7 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
     @Override
     public void onStop() {
         super.onStop();
+        cleanupViews();
         ButterKnife.reset(this);
     }
 
@@ -105,14 +109,17 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
             types.remove(Development.UNKNOWN);
 
             // generate Adapter for church types
-            final ArrayAdapter<Development> adapter =
-                    new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item,
-                                       types.toArray(new Development[types.size()]));
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mDevelopmentAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item,
+                                                     types.toArray(new Development[types.size()]));
+            mDevelopmentAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
             // attach adapter
-            mDevelopmentSpinner.setAdapter(adapter);
+            mDevelopmentSpinner.setAdapter(mDevelopmentAdapter);
         }
+    }
+
+    private void cleanupViews() {
+        mDevelopmentAdapter = null;
     }
 
     @Optional

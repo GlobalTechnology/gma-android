@@ -54,7 +54,7 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     private Church mChurch;
 
     @Optional
-    @InjectViews({R.id.nameRow, R.id.developmentRow})
+    @InjectViews({R.id.nameRow})
     List<View> mHiddenViews;
 
     public static EditChurchFragment newInstance(final long churchId) {
@@ -89,6 +89,13 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     void onLoadChurch(final Church church) {
         mChurch = church;
         updateViews();
+    }
+
+    @Override
+    protected void onChangeDevelopment(@NonNull final Development development) {
+        super.onChangeDevelopment(development);
+        mChanged[CHANGED_DEVELOPMENT] =
+                !development.equals(mChurch != null ? mChurch.getDevelopment() : Development.UNKNOWN);
     }
 
     void onTextUpdated(@NonNull final View view, @NonNull final String text) {
@@ -182,6 +189,10 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         }
         if (mSizeView != null && !mChanged[CHANGED_SIZE]) {
             mSizeView.setText(mChurch != null ? Integer.toString(mChurch.getSize()) : null);
+        }
+        if (mDevelopmentSpinner != null && mDevelopmentAdapter != null && !mChanged[CHANGED_DEVELOPMENT]) {
+            mDevelopmentSpinner.setSelection(
+                    mDevelopmentAdapter.getPosition(mChurch != null ? mChurch.getDevelopment() : Development.UNKNOWN));
         }
     }
 
