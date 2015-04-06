@@ -15,15 +15,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
     /*
      * Version history
      *
-     * 8: 2015-02-19
-     * 9: 2015-02-23
-     * 10: 2015-02-24
-     * 11: 2015-02-23
-     * 13: 2015-02-26
-     * v0.8.0
-     * 14: 2015-03-01
-     * 15: 2015-03-01
-     * 16: 2015-03-01
      * v0.8.1
      * 17: 2015-03-05
      * 18: 2015-03-06
@@ -82,35 +73,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
         int upgradeTo = oldVersion + 1;
         while (upgradeTo <= newVersion) {
             switch (upgradeTo) {
-                case 8:
-                    db.execSQL(Contract.Church.SQL_V8_CREATE_TABLE);
-                    break;
-                case 9:
-                    db.execSQL(Contract.Church.SQL_V9_ALTER_DIRTY);
-                    break;
-                case 10:
-                    db.execSQL(Contract.MeasurementDetails.SQL_V10_ALTER_LOCAL);
-                    db.execSQL(Contract.MeasurementDetails.SQL_V10_ALTER_PERSONAL);
-                    break;
-                case 11:
-                    db.execSQL(Contract.Assignment.SQL_V11_MCC);
-                    break;
-                case 12:
-                    db.execSQL(Contract.Assignment.SQL_DELETE_TABLE);
-                    db.execSQL(Contract.Assignment.SQL_CREATE_TABLE);
-                    break;
-                case 13:
-                    break;
-                case 14:
-                    db.execSQL(Contract.LegacyTables.SQL_DELETE_ALL_MINISTRIES_TABLE);
-                    break;
-                case 15:
-                    db.execSQL(Contract.Ministry.SQL_V15_RENAME_TABLE);
-                    break;
-                case 16:
-                    db.execSQL(Contract.Ministry.SQL_V16_MCCS);
-                    // XXX: we should have converted legacy data, but because we have no real users yet I'm skipping it -DF
-                    break;
                 case 17:
                     db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
                     break;

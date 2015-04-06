@@ -149,11 +149,6 @@ public class Contract {
                         SQL_COLUMN_MCCS, SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE, SQL_COLUMN_LOCATION_ZOOM,
                         SQL_COLUMN_PARENT_MINISTRY_ID, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
-
-        @Deprecated
-        public static final String SQL_V15_RENAME_TABLE = "ALTER TABLE associated_ministries RENAME TO " + TABLE_NAME;
-        @Deprecated
-        public static final String SQL_V16_MCCS = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_MCCS;
     }
 
     public static final class Assignment extends Base implements Guid, MinistryId {
@@ -186,9 +181,6 @@ public class Contract {
                         SQL_COLUMN_ROLE, SQL_COLUMN_MCC, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY,
                         SQL_FOREIGN_KEY_MINISTRIES}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
-
-        @Deprecated
-        public static final String SQL_V11_MCC = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_MCC;
     }
 
     public static final class Church extends Location implements MinistryId {
@@ -230,15 +222,6 @@ public class Contract {
                         SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
-        // DB migration queries
-        @Deprecated
-        public static final String SQL_V8_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
-                .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME,
-                        SQL_COLUMN_CONTACT_NAME, SQL_COLUMN_CONTACT_EMAIL, SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE,
-                        SQL_COLUMN_DEVELOPMENT, SQL_COLUMN_SIZE, SQL_COLUMN_SECURITY, SQL_COLUMN_LAST_SYNCED,
-                        SQL_PRIMARY_KEY}) + ")";
-        @Deprecated
-        public static final String SQL_V9_ALTER_DIRTY = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_DIRTY;
         @Deprecated
         public static final String SQL_v22_ALTER_NEW = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_NEW;
     }
@@ -415,14 +398,6 @@ public class Contract {
                 SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_PERIOD, SQL_COLUMN_LOCAL_AMOUNT,
                 SQL_COLUMN_PERSONAL_AMOUNT, SQL_COLUMN_LAST_SYNCED }) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
-
-        // DB migration queries
-        @Deprecated
-        public static final String SQL_V10_ALTER_LOCAL = "ALTER TABLE " + TABLE_NAME +
-            " ADD COLUMN " + SQL_COLUMN_LOCAL_AMOUNT + ";";
-        @Deprecated
-        public static final String SQL_V10_ALTER_PERSONAL = "ALTER TABLE " + TABLE_NAME +
-            " ADD COLUMN " + SQL_COLUMN_PERSONAL_AMOUNT + ";";
     }
 
     public static abstract class MeasurementDetailsData extends Base implements MinistryId {
