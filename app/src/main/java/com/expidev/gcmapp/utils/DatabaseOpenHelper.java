@@ -8,8 +8,7 @@ import android.util.Log;
 
 import com.expidev.gcmapp.db.Contract;
 
-public class DatabaseOpenHelper extends SQLiteOpenHelper
-{
+public class DatabaseOpenHelper extends SQLiteOpenHelper {
     private final String TAG = getClass().getSimpleName();
 
     /*
@@ -24,8 +23,10 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
      * 22: 2015-03-10
      * v0.8.2 - v0.8.3
      * 23: 2015-03-24
+     * 24: 2015-04-06
+     * 25: 2015-04-08
      */
-    private static final int DATABASE_VERSION = 23;
+    private static final int DATABASE_VERSION = 25;
     private static final String DATABASE_NAME = "gcm_data.db";
 
     private static final Object LOCK_INSTANCE = new Object();
@@ -85,8 +86,8 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
                     // XXX: let's just recreate the tables instead of altering the existing tables
                     db.execSQL(Contract.MinistryMeasurement.SQL_DELETE_TABLE);
                     db.execSQL(Contract.PersonalMeasurement.SQL_DELETE_TABLE);
-                    db.execSQL(Contract.PersonalMeasurement.SQL_CREATE_TABLE);
-                    db.execSQL(Contract.MinistryMeasurement.SQL_CREATE_TABLE);
+                    db.execSQL(Contract.PersonalMeasurement.SQL_V21_CREATE_TABLE);
+                    db.execSQL(Contract.MinistryMeasurement.SQL_V21_CREATE_TABLE);
                     break;
                 case 22:
                     db.execSQL(Contract.Church.SQL_v22_ALTER_NEW);
@@ -95,6 +96,12 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
                     db.execSQL(Contract.MeasurementType.SQL_V23_PERMLINKSTUB);
                     db.execSQL(Contract.PersonalMeasurement.SQL_V23_PERMLINKSTUB);
                     db.execSQL(Contract.MinistryMeasurement.SQL_V23_PERMLINKSTUB);
+                    break;
+                case 24:
+                    break;
+                case 25:
+                    db.execSQL(Contract.PersonalMeasurement.SQL_V25_ALTER_DELTA);
+                    db.execSQL(Contract.MinistryMeasurement.SQL_V25_ALTER_DELTA);
                     break;
                 default:
                     // unrecognized version, let's just reset the database and return

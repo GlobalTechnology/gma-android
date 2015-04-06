@@ -32,6 +32,7 @@ public abstract class MeasurementValue extends Base {
     @NonNull
     private final YearMonth period;
     private int value = 0;
+    private int delta = 0;
 
     protected MeasurementValue(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
                                @NonNull final String permLinkStub, @NonNull final YearMonth period) {
@@ -67,6 +68,14 @@ public abstract class MeasurementValue extends Base {
 
     public void setValue(final int value) {
         this.value = value;
+    }
+
+    public int getDelta() {
+        return delta;
+    }
+
+    public void setDelta(final int delta) {
+        this.delta = delta;
     }
 
     @Nullable

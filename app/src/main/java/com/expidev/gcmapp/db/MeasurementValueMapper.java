@@ -26,6 +26,9 @@ public abstract class MeasurementValueMapper<T extends MeasurementValue> extends
             case Contract.MeasurementValue.COLUMN_VALUE:
                 values.put(field, measurement.getValue());
                 break;
+            case Contract.MeasurementValue.COLUMN_DELTA:
+                values.put(field, measurement.getDelta());
+                break;
             default:
                 super.mapField(values, field, measurement);
                 break;
@@ -37,6 +40,7 @@ public abstract class MeasurementValueMapper<T extends MeasurementValue> extends
     public T toObject(@NonNull final Cursor c) {
         final T measurement = super.toObject(c);
         measurement.setValue(getInt(c, Contract.MeasurementValue.COLUMN_VALUE, 0));
+        measurement.setDelta(getInt(c, Contract.MeasurementValue.COLUMN_DELTA, 0));
         return measurement;
     }
 }

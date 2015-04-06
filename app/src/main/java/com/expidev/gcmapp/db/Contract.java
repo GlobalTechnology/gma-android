@@ -286,17 +286,19 @@ public class Contract {
         static final String COLUMN_MCC = "mcc";
         static final String COLUMN_PERIOD = "period";
         public static final String COLUMN_VALUE = "value";
+        public static final String COLUMN_DELTA = "delta";
 
         static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
         static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
         static final String SQL_COLUMN_VALUE = COLUMN_VALUE + " INTEGER";
+        static final String SQL_COLUMN_DELTA = COLUMN_DELTA + " INTEGER";
     }
 
     public static final class MinistryMeasurement extends MeasurementValue {
         static final String TABLE_NAME = "localMeasurements";
 
         static final String[] PROJECTION_ALL =
-                {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD, COLUMN_VALUE};
+                {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD, COLUMN_VALUE, COLUMN_DELTA};
 
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils
                 .join(",", new Object[] {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD}) + ")";
@@ -308,20 +310,29 @@ public class Contract {
         public static final String SQL_CREATE_TABLE =
                 "CREATE TABLE " + TABLE_NAME + " (" + TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID,
                         SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_MCC, SQL_COLUMN_PERIOD,
-                        SQL_COLUMN_VALUE, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
+                        SQL_COLUMN_VALUE, SQL_COLUMN_DELTA, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
+        @Deprecated
+        public static final String SQL_V21_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+                TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_PERM_LINK_STUB,
+                        SQL_COLUMN_MCC, SQL_COLUMN_PERIOD, SQL_COLUMN_VALUE, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) +
+                ");";
         @Deprecated
         public static final String SQL_V23_PERMLINKSTUB =
                 "UPDATE " + TABLE_NAME + " SET " + COLUMN_PERM_LINK_STUB + " = replace(" + COLUMN_PERM_LINK_STUB +
                         ", 'lmi_total_', '')";
+        @Deprecated
+        public static final String SQL_V25_ALTER_DELTA =
+                "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_DELTA;
     }
 
     public static final class PersonalMeasurement extends MeasurementValue implements Guid {
         static final String TABLE_NAME = "personalMeasurements";
 
         static final String[] PROJECTION_ALL =
-                {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD, COLUMN_VALUE};
+                {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD, COLUMN_VALUE,
+                        COLUMN_DELTA};
 
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils
                 .join(",", new Object[] {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB,
@@ -333,14 +344,22 @@ public class Contract {
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_GUID, SQL_COLUMN_MINISTRY_ID,
-                        SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_MCC, SQL_COLUMN_PERIOD,
-                        SQL_COLUMN_VALUE, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
+                        SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_MCC, SQL_COLUMN_PERIOD, SQL_COLUMN_VALUE,
+                        SQL_COLUMN_DELTA, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
+        @Deprecated
+        public static final String SQL_V21_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+                TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_GUID, SQL_COLUMN_MINISTRY_ID,
+                        SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_MCC, SQL_COLUMN_PERIOD, SQL_COLUMN_VALUE,
+                        SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
         @Deprecated
         public static final String SQL_V23_PERMLINKSTUB =
                 "UPDATE " + TABLE_NAME + " SET " + COLUMN_PERM_LINK_STUB + " = replace(" + COLUMN_PERM_LINK_STUB +
                         ", 'lmi_total_', '')";
+        @Deprecated
+        public static final String SQL_V25_ALTER_DELTA =
+                "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_DELTA;
     }
 
     public static final class Measurement extends Base implements MinistryId {
