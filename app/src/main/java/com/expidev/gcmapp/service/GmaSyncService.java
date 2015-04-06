@@ -338,42 +338,32 @@ public class GmaSyncService extends ThreadedIntentService {
 
             // only update the saved ministries if we received any back
             if (ministries != null) {
-                // save all ministries to the database
-                final Transaction tx = mDao.newTransaction();
-                try {
-                    tx.begin();
-
-                    // load current ministries
-                    final Map<String, Ministry> current = new HashMap<>();
-                    for (final Ministry ministry : mDao.get(Ministry.class)) {
-                        current.put(ministry.getMinistryId(), ministry);
-                    }
-
-                    // update all the ministry names
-                    for (final Ministry ministry : ministries) {
-                        // this is only a very minimal update, so don't log last synced for new ministries
-                        ministry.setLastSynced(0);
-                        mDao.updateOrInsert(ministry, new String[] {Contract.Ministry.COLUMN_NAME});
-
-                        // remove from the list of current ministries
-                        current.remove(ministry.getMinistryId());
-                    }
-
-                    // remove any current ministries we didn't see, we can do this because we just retrieved a complete list
-                    for (final Ministry ministry : current.values()) {
-                        mDao.delete(ministry);
-                    }
-
-                    tx.setSuccessful();
-
-                    // update the synced time
-                    prefs.edit().putLong(PREF_SYNC_TIME_MINISTRIES, System.currentTimeMillis()).apply();
-
-                    // send broadcasts that data has been updated in the database
-                    broadcastManager.sendBroadcast(BroadcastUtils.updateMinistriesBroadcast());
-                } finally {
-                    tx.end();
+                // load current ministries
+                final Map<String, Ministry> current = new HashMap<>();
+                for (final Ministry ministry : mDao.get(Ministry.class)) {
+                    current.put(ministry.getMinistryId(), ministry);
                 }
+
+                // update all the ministry names
+                for (final Ministry ministry : ministries) {
+                    // this is only a very minimal update, so don't log last synced for new ministries
+                    ministry.setLastSynced(0);
+                    mDao.updateOrInsert(ministry, new String[] {Contract.Ministry.COLUMN_NAME});
+
+                    // remove from the list of current ministries
+                    current.remove(ministry.getMinistryId());
+                }
+
+                // remove any current ministries we didn't see, we can do this because we just retrieved a complete list
+                for (final Ministry ministry : current.values()) {
+                    mDao.delete(ministry);
+                }
+
+                // update the synced time
+                prefs.edit().putLong(PREF_SYNC_TIME_MINISTRIES, System.currentTimeMillis()).apply();
+
+                // send broadcasts that data has been updated in the database
+                broadcastManager.sendBroadcast(BroadcastUtils.updateMinistriesBroadcast());
             }
         }
     }
