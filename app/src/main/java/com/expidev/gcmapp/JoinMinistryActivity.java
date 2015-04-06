@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 
 import com.expidev.gcmapp.support.v4.fragment.FindMinistryFragment;
@@ -14,6 +15,8 @@ import com.expidev.gcmapp.support.v4.fragment.JoinMinistryDialogFragment;
 
 public class JoinMinistryActivity extends ActionBarActivity
         implements JoinMinistryDialogFragment.OnJoinMinistryListener {
+    private static final String TAG_FIND_MINISTRY = "findMinistry";
+
     @NonNull
     private String mGuid = "";
 
@@ -33,9 +36,7 @@ public class JoinMinistryActivity extends ActionBarActivity
         final Intent intent = this.getIntent();
         mGuid = intent.getStringExtra(EXTRA_GUID);
 
-        if (savedState == null) {
-            loadFindMinistryFragment();
-        }
+        loadFindMinistryFragment(false);
     }
 
     @Override
@@ -45,8 +46,12 @@ public class JoinMinistryActivity extends ActionBarActivity
 
     /* END lifecycle */
 
-    private void loadFindMinistryFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.findMinistry, FindMinistryFragment.newInstance(mGuid)).commit();
+    private void loadFindMinistryFragment(final boolean force) {
+        // only load the findMinistry fragment if it's not currently loaded
+        final FragmentManager fm = getSupportFragmentManager();
+        if (force || fm.findFragmentByTag(TAG_FIND_MINISTRY) == null) {
+            fm.beginTransaction().replace(R.id.findMinistry, FindMinistryFragment.newInstance(mGuid), TAG_FIND_MINISTRY)
+                    .commit();
+        }
     }
 }
