@@ -275,6 +275,7 @@ public class Church extends Location implements Cloneable {
     }
 
     @Override
+    @SuppressWarnings("CloneDoesntCallSuperClone")
     public Church clone() {
         return new Church(this);
     }
