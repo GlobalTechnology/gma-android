@@ -2,7 +2,6 @@ package com.expidev.gcmapp.support.v4.fragment;
 
 import static com.expidev.gcmapp.Constants.ARG_CHURCH_ID;
 import static com.expidev.gcmapp.utils.BroadcastUtils.updateChurchesBroadcast;
-import static org.ccci.gto.android.common.util.ThreadUtils.runOnBackgroundThread;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -23,6 +22,7 @@ import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.support.v4.content.ChurchLoader;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.ccci.gto.android.common.util.AsyncTaskCompat;
 
 import java.util.List;
 
@@ -148,7 +148,7 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                 final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
                 final GmaDao dao = GmaDao.getInstance(context);
 
-                runOnBackgroundThread(new Runnable() {
+                AsyncTaskCompat.execute(new Runnable() {
                     @Override
                     public void run() {
                         // update in the database

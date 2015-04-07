@@ -4,7 +4,6 @@ import static com.expidev.gcmapp.Constants.ARG_GUID;
 import static com.expidev.gcmapp.Constants.PREFS_SETTINGS;
 import static com.expidev.gcmapp.Constants.PREF_CURRENT_MINISTRY;
 import static com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
-import static org.ccci.gto.android.common.util.ThreadUtils.runOnBackgroundThread;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -30,6 +29,7 @@ import com.github.machinarius.preferencefragment.PreferenceFragment;
 
 import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.ccci.gto.android.common.util.AsyncTaskCompat;
 
 import java.util.Collections;
 import java.util.Set;
@@ -220,7 +220,7 @@ public class SettingsFragment extends PreferenceFragment {
                 final Context context = getActivity();
                 final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
                 final GmaDao dao = GmaDao.getInstance(context);
-                runOnBackgroundThread(new Runnable() {
+                AsyncTaskCompat.execute(new Runnable() {
                     @Override
                     public void run() {
                         // store changes

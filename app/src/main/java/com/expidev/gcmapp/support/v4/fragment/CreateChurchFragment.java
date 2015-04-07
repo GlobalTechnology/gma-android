@@ -2,7 +2,6 @@ package com.expidev.gcmapp.support.v4.fragment;
 
 import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
 import static com.expidev.gcmapp.utils.BroadcastUtils.updateChurchesBroadcast;
-import static org.ccci.gto.android.common.util.ThreadUtils.runOnBackgroundThread;
 
 import android.content.Context;
 import android.database.SQLException;
@@ -21,6 +20,8 @@ import com.expidev.gcmapp.model.Church.Development;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.GmaSyncService;
 import com.google.android.gms.maps.model.LatLng;
+
+import org.ccci.gto.android.common.util.AsyncTaskCompat;
 
 import java.security.SecureRandom;
 
@@ -110,7 +111,7 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
         final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
         final GmaDao dao = GmaDao.getInstance(context);
 
-        runOnBackgroundThread(new Runnable() {
+        AsyncTaskCompat.execute(new Runnable() {
             @Override
             public void run() {
                 boolean saved = false;

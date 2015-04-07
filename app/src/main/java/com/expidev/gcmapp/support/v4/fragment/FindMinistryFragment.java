@@ -39,7 +39,7 @@ import org.ccci.gto.android.common.recyclerview.decorator.DividerItemDecoration;
 import org.ccci.gto.android.common.recyclerview.layoutmanager.LinearLayoutManager;
 import org.ccci.gto.android.common.recyclerview.listener.ItemClickListener;
 import org.ccci.gto.android.common.support.v4.util.FragmentUtils;
-import org.ccci.gto.android.common.util.BundleUtils;
+import org.ccci.gto.android.common.util.BundleCompat;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -99,7 +99,7 @@ public class FindMinistryFragment extends Fragment implements OnJoinMinistryList
 
         // load previous saved query
         if (savedState != null) {
-            mQuery = BundleUtils.getString(savedState, ARG_QUERY, "");
+            mQuery = BundleCompat.getString(savedState, ARG_QUERY, "");
         }
 
         // start listening for ministries updates
