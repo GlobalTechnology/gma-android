@@ -1,7 +1,6 @@
 package com.expidev.gcmapp.support.v4.content;
 
 import android.content.Context;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,11 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-/**
- * Created by William.Randall on 2/23/2015.
- */
-public class MeasurementDetailsLoader extends AsyncTaskBroadcastReceiverLoader<MeasurementDetails>
-{
+public class MeasurementDetailsLoader extends AsyncTaskBroadcastReceiverLoader<MeasurementDetails> {
     private final MeasurementDao measurementDao;
 
     @Nullable
@@ -34,30 +29,20 @@ public class MeasurementDetailsLoader extends AsyncTaskBroadcastReceiverLoader<M
     @Nullable
     private String period;
 
-    public MeasurementDetailsLoader(
-        @NonNull final Context context,
-        @Nullable final Bundle args,
-        @NonNull final IntentFilter... filters)
-    {
+    public MeasurementDetailsLoader(@NonNull final Context context, @Nullable final Bundle args) {
         this(
             context,
             args != null ? args.getString(Constants.ARG_MEASUREMENT_ID) : null,
             args != null ? args.getString(Constants.ARG_MINISTRY_ID) : null,
             args != null ? args.getString(Constants.ARG_MCC) : null,
-            args != null ? args.getString(Constants.ARG_PERIOD) : null,
-            filters
+            args != null ? args.getString(Constants.ARG_PERIOD) : null
         );
     }
 
-    public MeasurementDetailsLoader(
-        @NonNull final Context context,
-        @Nullable String measurementId,
-        @Nullable String ministryId,
-        @Nullable String mcc,
-        @Nullable String period,
-        @NonNull final IntentFilter... filters)
-    {
-        super(context, filters);
+    public MeasurementDetailsLoader(@NonNull final Context context, @Nullable final String measurementId,
+                                    @Nullable final String ministryId, @Nullable final String mcc,
+                                    @Nullable final String period) {
+        super(context);
 
         measurementDao = MeasurementDao.getInstance(context);
 

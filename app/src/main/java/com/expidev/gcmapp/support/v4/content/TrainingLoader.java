@@ -1,7 +1,8 @@
 package com.expidev.gcmapp.support.v4.content;
 
+import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
+
 import android.content.Context;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,26 +16,17 @@ import org.ccci.gto.android.common.support.v4.content.AsyncTaskBroadcastReceiver
 
 import java.util.List;
 
-import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
-
-/**
- * Created by matthewfrederick on 2/24/15.
- */
-public class TrainingLoader extends AsyncTaskBroadcastReceiverLoader<List<Training>>
-{
+public class TrainingLoader extends AsyncTaskBroadcastReceiverLoader<List<Training>> {
     private final TrainingDao mDao;
     @Nullable
     private final String mMinistyId;
-    
-    public TrainingLoader(@NonNull final Context context, @Nullable final Bundle bundle,
-                          @NonNull final IntentFilter... filters)
-    {
-        this(context, bundle != null ? bundle.getString(ARG_MINISTRY_ID) : null, filters);      
+
+    public TrainingLoader(@NonNull final Context context, @Nullable final Bundle bundle) {
+        this(context, bundle != null ? bundle.getString(ARG_MINISTRY_ID) : null);
     }
-    public TrainingLoader(@NonNull final Context context, @Nullable final String ministryId,
-                          @NonNull final IntentFilter... filters)
-    {
-        super(context, filters);
+
+    public TrainingLoader(@NonNull final Context context, @Nullable final String ministryId) {
+        super(context);
         if (ministryId != null)
         {
             setBroadcastReceiver(new TrainingLoaderBroadcastReceiver(this, ministryId));
