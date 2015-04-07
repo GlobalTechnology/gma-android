@@ -17,21 +17,21 @@ public class Contract {
         static final String SQL_COLUMN_LAST_SYNCED = COLUMN_LAST_SYNCED + " INTEGER";
     }
 
-    private static interface Guid {
-        static final String COLUMN_GUID = "guid";
+    private interface Guid {
+        String COLUMN_GUID = "guid";
 
-        static final String SQL_COLUMN_GUID = COLUMN_GUID + " TEXT NOT NULL DEFAULT ''";
+        String SQL_COLUMN_GUID = COLUMN_GUID + " TEXT NOT NULL DEFAULT ''";
 
-        static final String SQL_WHERE_GUID = COLUMN_GUID + " = ?";
+        String SQL_WHERE_GUID = COLUMN_GUID + " = ?";
     }
 
-    private static interface MinistryId {
-        public static final String COLUMN_MINISTRY_ID = "ministry_id";
+    private interface MinistryId {
+        String COLUMN_MINISTRY_ID = "ministry_id";
 
-        public static final String SQL_COLUMN_MINISTRY_ID =
+        String SQL_COLUMN_MINISTRY_ID =
                 COLUMN_MINISTRY_ID + " TEXT COLLATE NOCASE NOT NULL DEFAULT ''";
 
-        public static final String SQL_WHERE_MINISTRY = COLUMN_MINISTRY_ID + " = ?";
+        String SQL_WHERE_MINISTRY = COLUMN_MINISTRY_ID + " = ?";
     }
 
     public static abstract class Location extends Base {
@@ -230,12 +230,12 @@ public class Contract {
     //              Measurement Contracts                       //
     //////////////////////////////////////////////////////////////
 
-    private static interface MeasurementPermLink {
-        static final String COLUMN_PERM_LINK_STUB = "perm_link";
+    private interface MeasurementPermLink {
+        String COLUMN_PERM_LINK_STUB = "perm_link";
 
-        static final String SQL_COLUMN_PERM_LINK_STUB = COLUMN_PERM_LINK_STUB + " TEXT NOT NULL DEFAULT ''";
+        String SQL_COLUMN_PERM_LINK_STUB = COLUMN_PERM_LINK_STUB + " TEXT NOT NULL DEFAULT ''";
 
-        static final String SQL_WHERE_PERM_LINK_STUB = COLUMN_PERM_LINK_STUB + " = ?";
+        String SQL_WHERE_PERM_LINK_STUB = COLUMN_PERM_LINK_STUB + " = ?";
     }
 
     public static final class MeasurementType extends Base implements MeasurementPermLink {
