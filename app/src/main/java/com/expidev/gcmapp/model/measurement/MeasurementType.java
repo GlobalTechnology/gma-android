@@ -21,6 +21,7 @@ public class MeasurementType extends Base {
     public static final String ARG_COLUMN = MeasurementType.class.getName() + ".ARG_COLUMN";
 
     static final String JSON_PERM_LINK_STUB = "perm_link_stub";
+    static final String JSON_TYPE_ID = "measurement_type_id";
     private static final String JSON_NAME = "name";
     private static final String JSON_DESCRIPTION = "description";
     private static final String JSON_SECTION = "section";

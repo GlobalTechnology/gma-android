@@ -8,6 +8,8 @@ import com.expidev.gcmapp.model.Base;
 import com.expidev.gcmapp.model.Ministry;
 
 import org.joda.time.YearMonth;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -19,6 +21,10 @@ public abstract class MeasurementValue extends Base {
     @IntDef({TYPE_PERSONAL, TYPE_LOCAL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ValueType {}
+
+    private static final String JSON_PERIOD = "period";
+    private static final String JSON_MCC = "mcc";
+    private static final String JSON_VALUE = "value";
 
     @Nullable
     private MeasurementType type;
@@ -85,5 +91,14 @@ public abstract class MeasurementValue extends Base {
 
     public void setType(@Nullable final MeasurementType type) {
         this.type = type;
+    }
+
+    @NonNull
+    public JSONObject toJson() throws JSONException {
+        final JSONObject json = new JSONObject();
+        json.put(JSON_PERIOD, period.toString());
+        json.put(JSON_MCC, mcc.raw);
+        json.put(JSON_VALUE, value);
+        return json;
     }
 }

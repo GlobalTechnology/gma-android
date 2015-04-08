@@ -1,7 +1,9 @@
 package com.expidev.gcmapp.model.measurement;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 
 import org.joda.time.YearMonth;
@@ -9,10 +11,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class PersonalMeasurement extends MeasurementValue {
+    private static final String JSON_ASSIGNMENT_ID = "assignment_id";
     static final String JSON_VALUE = "person";
 
     @NonNull
     private final String guid;
+
+    @Nullable
+    private Assignment assignment;
 
     public PersonalMeasurement(@NonNull final String guid, @NonNull final String ministryId,
                                @NonNull final Ministry.Mcc mcc, @NonNull final String permLink,
@@ -34,5 +40,31 @@ public class PersonalMeasurement extends MeasurementValue {
     @NonNull
     public String getGuid() {
         return guid;
+    }
+
+    @Nullable
+    public Assignment getAssignment() {
+        return this.assignment;
+    }
+
+    public void setAssignment(@Nullable final Assignment assignment) {
+        this.assignment = assignment;
+    }
+
+    @NonNull
+    @Override
+    public JSONObject toJson() throws JSONException {
+        if (assignment == null) {
+            throw new JSONException("Assignment is unavailable");
+        }
+        final MeasurementType type = getType();
+        if (type == null) {
+            throw new JSONException("MeasurementType is unavailable");
+        }
+
+        final JSONObject json = super.toJson();
+        json.put(JSON_ASSIGNMENT_ID, assignment.getId());
+        json.put(MeasurementType.JSON_TYPE_ID, type.getPersonalId());
+        return json;
     }
 }
