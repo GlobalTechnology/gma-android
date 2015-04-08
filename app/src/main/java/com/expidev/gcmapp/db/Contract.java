@@ -269,6 +269,21 @@ public class Contract {
         static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_PERM_LINK_STUB;
         public static final String SQL_WHERE_COLUMN = SQL_PREFIX + COLUMN_COLUMN + " = ?";
 
+        public static final String SQL_JOIN_ON_MINISTRY_MEASUREMENT =
+                SQL_PREFIX + COLUMN_PERM_LINK_STUB + " = " + MinistryMeasurement.SQL_PREFIX +
+                        MinistryMeasurement.COLUMN_PERM_LINK_STUB;
+        public static final String SQL_JOIN_ON_PERSONAL_MEASUREMENT =
+                SQL_PREFIX + COLUMN_PERM_LINK_STUB + " = " + PersonalMeasurement.SQL_PREFIX +
+                        PersonalMeasurement.COLUMN_PERM_LINK_STUB;
+        public static final Join<com.expidev.gcmapp.model.measurement.MeasurementType, com.expidev.gcmapp.model.measurement.MinistryMeasurement>
+                JOIN_MINISTRY_MEASUREMENT = Join.create(com.expidev.gcmapp.model.measurement.MeasurementType.class,
+                                                        com.expidev.gcmapp.model.measurement.MinistryMeasurement.class)
+                .on(SQL_JOIN_ON_MINISTRY_MEASUREMENT);
+        public static final Join<com.expidev.gcmapp.model.measurement.MeasurementType, com.expidev.gcmapp.model.measurement.PersonalMeasurement>
+                JOIN_PERSONAL_MEASUREMENT = Join.create(com.expidev.gcmapp.model.measurement.MeasurementType.class,
+                                                        com.expidev.gcmapp.model.measurement.PersonalMeasurement.class)
+                .on(SQL_JOIN_ON_PERSONAL_MEASUREMENT);
+
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_PERSONAL_ID, SQL_COLUMN_LOCAL_ID,
                         SQL_COLUMN_TOTAL_ID, SQL_COLUMN_NAME, SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_DESCRIPTION,
@@ -292,6 +307,9 @@ public class Contract {
         static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
         static final String SQL_COLUMN_VALUE = COLUMN_VALUE + " INTEGER";
         static final String SQL_COLUMN_DELTA = COLUMN_DELTA + " INTEGER";
+
+        static final String SQL_WHERE_MCC = COLUMN_MCC + " = ?";
+        static final String SQL_WHERE_PERIOD = COLUMN_PERIOD + " = ?";
     }
 
     public static final class MinistryMeasurement extends MeasurementValue {
@@ -303,9 +321,16 @@ public class Contract {
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils
                 .join(",", new Object[] {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD}) + ")";
 
+        public static final String SQL_PREFIX = TABLE_NAME + ".";
+
+        private static final String SQL_WHERE_MINISTRY = SQL_PREFIX + MinistryId.SQL_WHERE_MINISTRY;
+        private static final String SQL_WHERE_MCC = SQL_PREFIX + MeasurementValue.SQL_WHERE_MCC;
+        private static final String SQL_WHERE_PERIOD = SQL_PREFIX + MeasurementValue.SQL_WHERE_PERIOD;
+        public static final String SQL_WHERE_MINISTRY_MCC_PERIOD =
+                SQL_WHERE_MINISTRY + " AND " + SQL_WHERE_MCC + " AND " + SQL_WHERE_PERIOD;
         static final String SQL_WHERE_PRIMARY_KEY =
-                SQL_WHERE_MINISTRY + " AND " + COLUMN_MCC + " = ? AND " + SQL_WHERE_PERM_LINK_STUB + " AND " +
-                        COLUMN_PERIOD + " = ?";
+                SQL_WHERE_MINISTRY + " AND " + SQL_WHERE_MCC + " AND " + SQL_WHERE_PERM_LINK_STUB + " AND " +
+                        SQL_WHERE_PERIOD;
 
         public static final String SQL_CREATE_TABLE =
                 "CREATE TABLE " + TABLE_NAME + " (" + TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID,
@@ -337,6 +362,8 @@ public class Contract {
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils
                 .join(",", new Object[] {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB,
                         COLUMN_PERIOD}) + ")";
+
+        private static final String SQL_PREFIX = TABLE_NAME + ".";
 
         static final String SQL_WHERE_PRIMARY_KEY =
                 SQL_WHERE_GUID + " AND " + SQL_WHERE_MINISTRY + " AND " + COLUMN_MCC + " = ? AND " +
