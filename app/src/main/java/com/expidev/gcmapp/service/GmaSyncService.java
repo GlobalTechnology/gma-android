@@ -74,6 +74,9 @@ public class GmaSyncService extends ThreadedIntentService {
     private static final long STALE_DURATION_ASSIGNMENTS = DAY_IN_MS;
     private static final long STALE_DURATION_MINISTRIES = 7 * DAY_IN_MS;
 
+    // locks to synchronize various sync types
+    private final Object mLockDirtyChurches = new Object();
+
     @NonNull
     private GmaDao mDao;
     private LocalBroadcastManager broadcastManager;
@@ -411,49 +414,51 @@ public class GmaSyncService extends ThreadedIntentService {
         }
     }
 
-    private synchronized void syncDirtyChurches(@NonNull final GmaApiClient api) throws ApiException {
-        final List<Church> churches = mDao.get(Church.class, Contract.Church.SQL_WHERE_DIRTY, null);
+    private void syncDirtyChurches(@NonNull final GmaApiClient api) throws ApiException {
+        synchronized (mLockDirtyChurches) {
+            final List<Church> churches = mDao.get(Church.class, Contract.Church.SQL_WHERE_DIRTY, null);
 
-        // ministry_id => church_id
-        final Multimap<String, Long> broadcasts = HashMultimap.create();
+            // ministry_id => church_id
+            final Multimap<String, Long> broadcasts = HashMultimap.create();
 
-        // process all churches that are dirty
-        for (final Church church : churches) {
-            try {
-                if (church.isNew()) {
-                    // try creating the church
-                    if (api.createChurch(church)) {
-                        mDao.delete(church);
+            // process all churches that are dirty
+            for (final Church church : churches) {
+                try {
+                    if (church.isNew()) {
+                        // try creating the church
+                        if (api.createChurch(church)) {
+                            mDao.delete(church);
 
-                        // add church to list of broadcasts
-                        broadcasts.put(church.getMinistryId(), church.getId());
+                            // add church to list of broadcasts
+                            broadcasts.put(church.getMinistryId(), church.getId());
+                        }
+                    } else if (church.isDirty()) {
+                        // generate dirty JSON
+                        final JSONObject json = church.dirtyToJson();
+
+                        // update the church
+                        final boolean success = api.updateChurch(church.getId(), json);
+
+                        // was successful update?
+                        if (success) {
+                            // clear dirty attributes
+                            church.setDirty(null);
+                            mDao.update(church, new String[] {Contract.Church.COLUMN_DIRTY});
+
+                            // add church to list of broadcasts
+                            broadcasts.put(church.getMinistryId(), church.getId());
+                        }
                     }
-                } else if (church.isDirty()) {
-                    // generate dirty JSON
-                    final JSONObject json = church.dirtyToJson();
-
-                    // update the church
-                    final boolean success = api.updateChurch(church.getId(), json);
-
-                    // was successful update?
-                    if (success) {
-                        // clear dirty attributes
-                        church.setDirty(null);
-                        mDao.update(church, new String[] {Contract.Church.COLUMN_DIRTY});
-
-                        // add church to list of broadcasts
-                        broadcasts.put(church.getMinistryId(), church.getId());
-                    }
+                } catch (final JSONException ignored) {
+                    // this shouldn't happen when generating json
                 }
-            } catch (final JSONException ignored) {
-                // this shouldn't happen when generating json
             }
-        }
 
-        // send broadcasts for each ministryId with churches that were changed
-        for (final String ministryId : broadcasts.keySet()) {
-            broadcastManager.sendBroadcast(
-                    BroadcastUtils.updateChurchesBroadcast(ministryId, Longs.toArray(broadcasts.get(ministryId))));
+            // send broadcasts for each ministryId with churches that were changed
+            for (final String ministryId : broadcasts.keySet()) {
+                broadcastManager.sendBroadcast(
+                        BroadcastUtils.updateChurchesBroadcast(ministryId, Longs.toArray(broadcasts.get(ministryId))));
+            }
         }
     }
 
