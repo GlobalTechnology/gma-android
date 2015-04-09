@@ -191,6 +191,8 @@ public class GmaSyncService extends ThreadedIntentService {
 
     /* END lifecycle */
 
+    /* BEGIN Assignment sync */
+
     private void syncAssignments(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
         final SharedPreferences prefs = this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE);
         final String guid = intent.getStringExtra(EXTRA_GUID);
@@ -204,237 +206,6 @@ public class GmaSyncService extends ThreadedIntentService {
             if (assignments != null) {
                 this.updateAllAssignments(guid, assignments);
             }
-        }
-    }
-
-    private static String[] PROJECTION_GET_CHURCHES_DATA = {Contract.Church.COLUMN_MINISTRY_ID,
-            Contract.Church.COLUMN_NAME, Contract.Church.COLUMN_CONTACT_NAME,
-            Contract.Church.COLUMN_CONTACT_EMAIL, Contract.Church.COLUMN_LATITUDE,
-            Contract.Church.COLUMN_LONGITUDE, Contract.Church.COLUMN_SIZE,
-            Contract.Church.COLUMN_DEVELOPMENT, Contract.Church.COLUMN_SECURITY,
-            Contract.Church.COLUMN_LAST_SYNCED};
-
-    private void syncChurches(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
-        final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
-        if (ministryId == null) {
-            return;
-        }
-
-        final List<Church> churches = api.getChurches(ministryId);
-
-        // only update churches if we get data back
-        if(churches != null) {
-            final Transaction tx = mDao.newTransaction();
-            try {
-                tx.begin();
-
-                // load current churches
-                final LongSparseArray<Church> current = new LongSparseArray<>();
-                for (final Church church : mDao
-                        .get(Church.class, Contract.Church.SQL_WHERE_MINISTRY, bindValues(ministryId))) {
-                    current.put(church.getId(), church);
-                }
-
-                // process all fetched churches
-                long[] ids = new long[current.size() + churches.size()];
-                int j = 0;
-                for(final Church church : churches) {
-                    final long id = church.getId();
-                    final Church existing = current.get(id);
-
-                    // persist church in database (if it doesn't exist or (isn't new and isn't dirty))
-                    if (existing == null || (!existing.isNew() && !existing.isDirty())) {
-                        church.setLastSynced(new Date());
-                        mDao.updateOrInsert(church, PROJECTION_GET_CHURCHES_DATA);
-
-                        // mark this id as having been changed
-                        ids[j++] = id;
-                    }
-
-                    // remove this church from the list of churches
-                    current.remove(id);
-                }
-
-                // delete any remaining churches that weren't returned from the API
-                for(int i = 0; i< current.size(); i++) {
-                    final Church church = current.valueAt(i);
-                    // only delete the church if it isn't new
-                    if (!church.isNew()) {
-                        mDao.delete(church);
-
-                        // mark these ids as being updated as well
-                        ids[j++] = church.getId();
-                    }
-                }
-
-                // mark transaction successful
-                tx.setSuccessful();
-
-                // send broadcasts that data has been updated
-                broadcastManager.sendBroadcast(
-                        BroadcastUtils.updateChurchesBroadcast(ministryId, Arrays.copyOf(ids, j)));
-            } finally {
-                tx.end();
-            }
-        }
-    }
-
-    private synchronized void syncDirtyChurches(@NonNull final GmaApiClient api) throws ApiException {
-        final List<Church> churches = mDao.get(Church.class, Contract.Church.SQL_WHERE_DIRTY, null);
-
-        // ministry_id => church_id
-        final Multimap<String, Long> broadcasts = HashMultimap.create();
-
-        // process all churches that are dirty
-        for (final Church church : churches) {
-            try {
-                if (church.isNew()) {
-                    // try creating the church
-                    if (api.createChurch(church)) {
-                        mDao.delete(church);
-
-                        // add church to list of broadcasts
-                        broadcasts.put(church.getMinistryId(), church.getId());
-                    }
-                } else if (church.isDirty()) {
-                    // generate dirty JSON
-                    final JSONObject json = church.dirtyToJson();
-
-                    // update the church
-                    final boolean success = api.updateChurch(church.getId(), json);
-
-                    // was successful update?
-                    if (success) {
-                        // clear dirty attributes
-                        church.setDirty(null);
-                        mDao.update(church, new String[] {Contract.Church.COLUMN_DIRTY});
-
-                        // add church to list of broadcasts
-                        broadcasts.put(church.getMinistryId(), church.getId());
-                    }
-                }
-            } catch (final JSONException ignored) {
-                // this shouldn't happen when generating json
-            }
-        }
-
-        // send broadcasts for each ministryId with churches that were changed
-        for (final String ministryId : broadcasts.keySet()) {
-            broadcastManager.sendBroadcast(
-                    BroadcastUtils.updateChurchesBroadcast(ministryId, Longs.toArray(broadcasts.get(ministryId))));
-        }
-    }
-
-    private void syncMinistries(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
-        final SharedPreferences prefs = this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE);
-        final boolean force = intent.getBooleanExtra(EXTRA_FORCE, false);
-        final boolean stale =
-                System.currentTimeMillis() - prefs.getLong(PREF_SYNC_TIME_MINISTRIES, 0) > STALE_DURATION_MINISTRIES;
-
-        // only sync if being forced or the data is stale
-        if (force || stale) {
-            // refresh the list of ministries if the load is being forced
-            final List<Ministry> ministries = api.getMinistries();
-
-            // only update the saved ministries if we received any back
-            if (ministries != null) {
-                // load current ministries
-                final Map<String, Ministry> current = new HashMap<>();
-                for (final Ministry ministry : mDao.get(Ministry.class)) {
-                    current.put(ministry.getMinistryId(), ministry);
-                }
-
-                // update all the ministry names
-                for (final Ministry ministry : ministries) {
-                    // this is only a very minimal update, so don't log last synced for new ministries
-                    ministry.setLastSynced(0);
-                    mDao.updateOrInsert(ministry, new String[] {Contract.Ministry.COLUMN_NAME});
-
-                    // remove from the list of current ministries
-                    current.remove(ministry.getMinistryId());
-                }
-
-                // remove any current ministries we didn't see, we can do this because we just retrieved a complete list
-                for (final Ministry ministry : current.values()) {
-                    mDao.delete(ministry);
-                }
-
-                // update the synced time
-                prefs.edit().putLong(PREF_SYNC_TIME_MINISTRIES, System.currentTimeMillis()).apply();
-
-                // send broadcasts that data has been updated in the database
-                broadcastManager.sendBroadcast(BroadcastUtils.updateMinistriesBroadcast());
-            }
-        }
-    }
-
-    private static final String[] PROJECTION_SYNC_MEASUREMENT_TYPES_TYPE =
-            {Contract.MeasurementType.COLUMN_DESCRIPTION, Contract.MeasurementType.COLUMN_SECTION,
-                    Contract.MeasurementType.COLUMN_COLUMN, Contract.MeasurementType.COLUMN_SORT_ORDER,
-                    Contract.MeasurementType.COLUMN_PERSONAL_ID, Contract.MeasurementType.COLUMN_LOCAL_ID,
-                    Contract.MeasurementType.COLUMN_TOTAL_ID, Contract.MeasurementType.COLUMN_LAST_SYNCED};
-
-    private void syncMeasurementTypes(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
-        final List<MeasurementType> types = api.getMeasurementTypes();
-        if (types != null) {
-            for (final MeasurementType type : types) {
-                mDao.updateOrInsert(type, PROJECTION_SYNC_MEASUREMENT_TYPES_TYPE);
-            }
-        }
-    }
-
-    private static final String[] PROJECTION_SYNC_MEASUREMENTS_TYPE =
-            {Contract.MeasurementType.COLUMN_NAME, Contract.MeasurementType.COLUMN_PERM_LINK_STUB,
-                    Contract.MeasurementType.COLUMN_DESCRIPTION, Contract.MeasurementType.COLUMN_SECTION,
-                    Contract.MeasurementType.COLUMN_COLUMN, Contract.MeasurementType.COLUMN_SORT_ORDER,
-                    Contract.MeasurementType.COLUMN_LOCAL_ID, Contract.MeasurementType.COLUMN_PERSONAL_ID,
-                    Contract.MeasurementType.COLUMN_TOTAL_ID, Contract.MeasurementType.COLUMN_LAST_SYNCED};
-    private static final String[] PROJECTION_SYNC_MEASUREMENTS_MINISTRY_MEASUREMENT =
-            {Contract.MinistryMeasurement.COLUMN_VALUE, Contract.MinistryMeasurement.COLUMN_LAST_SYNCED};
-    private static final String[] PROJECTION_SYNC_MEASUREMENTS_PERSONAL_MEASUREMENT =
-            {Contract.PersonalMeasurement.COLUMN_VALUE, Contract.PersonalMeasurement.COLUMN_LAST_SYNCED};
-
-    private void syncMeasurements(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
-        // get parameters for sync from the intent & sanitize
-        final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
-        final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(intent.getStringExtra(Constants.ARG_MCC));
-        final String rawPeriod = intent.getStringExtra(Constants.ARG_PERIOD);
-        final YearMonth period = rawPeriod != null ? YearMonth.parse(rawPeriod) : YearMonth.now();
-        if (ministryId == null || ministryId.equals(Ministry.INVALID_ID)) {
-            return;
-        }
-        if (mcc == Ministry.Mcc.UNKNOWN) {
-            return;
-        }
-
-        // fetch the requested measurements from the api
-        final List<Measurement> measurements = api.getMeasurements(ministryId, mcc, period);
-        if (measurements != null) {
-            // update measurement data in the database
-            for (final Measurement measurement : measurements) {
-                // update the measurement type data
-                final MeasurementType type = measurement.getType();
-                if (type != null) {
-                    type.setLastSynced();
-                    mDao.updateOrInsert(type, PROJECTION_SYNC_MEASUREMENTS_TYPE);
-                }
-
-                // update ministry measurements
-                final MinistryMeasurement ministryMeasurement = measurement.getMinistryMeasurement();
-                if (ministryMeasurement != null) {
-                    ministryMeasurement.setLastSynced();
-                    mDao.updateOrInsert(ministryMeasurement, PROJECTION_SYNC_MEASUREMENTS_MINISTRY_MEASUREMENT);
-                }
-
-                // update personal measurements
-                final PersonalMeasurement personalMeasurement = measurement.getPersonalMeasurement();
-                if (personalMeasurement != null) {
-                    personalMeasurement.setLastSynced();
-                    mDao.updateOrInsert(personalMeasurement, PROJECTION_SYNC_MEASUREMENTS_PERSONAL_MEASUREMENT);
-                }
-            }
-
-            //TODO: broadcasts
         }
     }
 
@@ -516,4 +287,249 @@ public class GmaSyncService extends ThreadedIntentService {
             tx.end();
         }
     }
+
+    /* END Assignment sync */
+
+    /* BEGIN Ministry sync */
+
+    private void syncMinistries(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
+        final SharedPreferences prefs = this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE);
+        final boolean force = intent.getBooleanExtra(EXTRA_FORCE, false);
+        final boolean stale =
+                System.currentTimeMillis() - prefs.getLong(PREF_SYNC_TIME_MINISTRIES, 0) > STALE_DURATION_MINISTRIES;
+
+        // only sync if being forced or the data is stale
+        if (force || stale) {
+            // refresh the list of ministries if the load is being forced
+            final List<Ministry> ministries = api.getMinistries();
+
+            // only update the saved ministries if we received any back
+            if (ministries != null) {
+                // load current ministries
+                final Map<String, Ministry> current = new HashMap<>();
+                for (final Ministry ministry : mDao.get(Ministry.class)) {
+                    current.put(ministry.getMinistryId(), ministry);
+                }
+
+                // update all the ministry names
+                for (final Ministry ministry : ministries) {
+                    // this is only a very minimal update, so don't log last synced for new ministries
+                    ministry.setLastSynced(0);
+                    mDao.updateOrInsert(ministry, new String[] {Contract.Ministry.COLUMN_NAME});
+
+                    // remove from the list of current ministries
+                    current.remove(ministry.getMinistryId());
+                }
+
+                // remove any current ministries we didn't see, we can do this because we just retrieved a complete list
+                for (final Ministry ministry : current.values()) {
+                    mDao.delete(ministry);
+                }
+
+                // update the synced time
+                prefs.edit().putLong(PREF_SYNC_TIME_MINISTRIES, System.currentTimeMillis()).apply();
+
+                // send broadcasts that data has been updated in the database
+                broadcastManager.sendBroadcast(BroadcastUtils.updateMinistriesBroadcast());
+            }
+        }
+    }
+
+    /* END Ministry sync */
+
+    /* BEGIN Church sync */
+
+    private static String[] PROJECTION_GET_CHURCHES_DATA = {Contract.Church.COLUMN_MINISTRY_ID,
+            Contract.Church.COLUMN_NAME, Contract.Church.COLUMN_CONTACT_NAME,
+            Contract.Church.COLUMN_CONTACT_EMAIL, Contract.Church.COLUMN_LATITUDE,
+            Contract.Church.COLUMN_LONGITUDE, Contract.Church.COLUMN_SIZE,
+            Contract.Church.COLUMN_DEVELOPMENT, Contract.Church.COLUMN_SECURITY,
+            Contract.Church.COLUMN_LAST_SYNCED};
+
+    private void syncChurches(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
+        final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
+        if (ministryId == null) {
+            return;
+        }
+
+        final List<Church> churches = api.getChurches(ministryId);
+
+        // only update churches if we get data back
+        if (churches != null) {
+            final Transaction tx = mDao.newTransaction();
+            try {
+                tx.begin();
+
+                // load current churches
+                final LongSparseArray<Church> current = new LongSparseArray<>();
+                for (final Church church : mDao
+                        .get(Church.class, Contract.Church.SQL_WHERE_MINISTRY, bindValues(ministryId))) {
+                    current.put(church.getId(), church);
+                }
+
+                // process all fetched churches
+                long[] ids = new long[current.size() + churches.size()];
+                int j = 0;
+                for (final Church church : churches) {
+                    final long id = church.getId();
+                    final Church existing = current.get(id);
+
+                    // persist church in database (if it doesn't exist or (isn't new and isn't dirty))
+                    if (existing == null || (!existing.isNew() && !existing.isDirty())) {
+                        church.setLastSynced(new Date());
+                        mDao.updateOrInsert(church, PROJECTION_GET_CHURCHES_DATA);
+
+                        // mark this id as having been changed
+                        ids[j++] = id;
+                    }
+
+                    // remove this church from the list of churches
+                    current.remove(id);
+                }
+
+                // delete any remaining churches that weren't returned from the API
+                for (int i = 0; i < current.size(); i++) {
+                    final Church church = current.valueAt(i);
+                    // only delete the church if it isn't new
+                    if (!church.isNew()) {
+                        mDao.delete(church);
+
+                        // mark these ids as being updated as well
+                        ids[j++] = church.getId();
+                    }
+                }
+
+                // mark transaction successful
+                tx.setSuccessful();
+
+                // send broadcasts that data has been updated
+                broadcastManager.sendBroadcast(
+                        BroadcastUtils.updateChurchesBroadcast(ministryId, Arrays.copyOf(ids, j)));
+            } finally {
+                tx.end();
+            }
+        }
+    }
+
+    private synchronized void syncDirtyChurches(@NonNull final GmaApiClient api) throws ApiException {
+        final List<Church> churches = mDao.get(Church.class, Contract.Church.SQL_WHERE_DIRTY, null);
+
+        // ministry_id => church_id
+        final Multimap<String, Long> broadcasts = HashMultimap.create();
+
+        // process all churches that are dirty
+        for (final Church church : churches) {
+            try {
+                if (church.isNew()) {
+                    // try creating the church
+                    if (api.createChurch(church)) {
+                        mDao.delete(church);
+
+                        // add church to list of broadcasts
+                        broadcasts.put(church.getMinistryId(), church.getId());
+                    }
+                } else if (church.isDirty()) {
+                    // generate dirty JSON
+                    final JSONObject json = church.dirtyToJson();
+
+                    // update the church
+                    final boolean success = api.updateChurch(church.getId(), json);
+
+                    // was successful update?
+                    if (success) {
+                        // clear dirty attributes
+                        church.setDirty(null);
+                        mDao.update(church, new String[] {Contract.Church.COLUMN_DIRTY});
+
+                        // add church to list of broadcasts
+                        broadcasts.put(church.getMinistryId(), church.getId());
+                    }
+                }
+            } catch (final JSONException ignored) {
+                // this shouldn't happen when generating json
+            }
+        }
+
+        // send broadcasts for each ministryId with churches that were changed
+        for (final String ministryId : broadcasts.keySet()) {
+            broadcastManager.sendBroadcast(
+                    BroadcastUtils.updateChurchesBroadcast(ministryId, Longs.toArray(broadcasts.get(ministryId))));
+        }
+    }
+
+    /* END Church sync */
+
+    /* BEGIN Measurement sync */
+
+    private static final String[] PROJECTION_SYNC_MEASUREMENT_TYPES_TYPE =
+            {Contract.MeasurementType.COLUMN_DESCRIPTION, Contract.MeasurementType.COLUMN_SECTION,
+                    Contract.MeasurementType.COLUMN_COLUMN, Contract.MeasurementType.COLUMN_SORT_ORDER,
+                    Contract.MeasurementType.COLUMN_PERSONAL_ID, Contract.MeasurementType.COLUMN_LOCAL_ID,
+                    Contract.MeasurementType.COLUMN_TOTAL_ID, Contract.MeasurementType.COLUMN_LAST_SYNCED};
+
+    private void syncMeasurementTypes(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
+        final List<MeasurementType> types = api.getMeasurementTypes();
+        if (types != null) {
+            for (final MeasurementType type : types) {
+                mDao.updateOrInsert(type, PROJECTION_SYNC_MEASUREMENT_TYPES_TYPE);
+            }
+        }
+    }
+
+    private static final String[] PROJECTION_SYNC_MEASUREMENTS_TYPE =
+            {Contract.MeasurementType.COLUMN_NAME, Contract.MeasurementType.COLUMN_PERM_LINK_STUB,
+                    Contract.MeasurementType.COLUMN_DESCRIPTION, Contract.MeasurementType.COLUMN_SECTION,
+                    Contract.MeasurementType.COLUMN_COLUMN, Contract.MeasurementType.COLUMN_SORT_ORDER,
+                    Contract.MeasurementType.COLUMN_LOCAL_ID, Contract.MeasurementType.COLUMN_PERSONAL_ID,
+                    Contract.MeasurementType.COLUMN_TOTAL_ID, Contract.MeasurementType.COLUMN_LAST_SYNCED};
+    private static final String[] PROJECTION_SYNC_MEASUREMENTS_MINISTRY_MEASUREMENT =
+            {Contract.MinistryMeasurement.COLUMN_VALUE, Contract.MinistryMeasurement.COLUMN_LAST_SYNCED};
+    private static final String[] PROJECTION_SYNC_MEASUREMENTS_PERSONAL_MEASUREMENT =
+            {Contract.PersonalMeasurement.COLUMN_VALUE, Contract.PersonalMeasurement.COLUMN_LAST_SYNCED};
+
+    private void syncMeasurements(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
+        // get parameters for sync from the intent & sanitize
+        final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
+        final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(intent.getStringExtra(Constants.ARG_MCC));
+        final String rawPeriod = intent.getStringExtra(Constants.ARG_PERIOD);
+        final YearMonth period = rawPeriod != null ? YearMonth.parse(rawPeriod) : YearMonth.now();
+        if (ministryId == null || ministryId.equals(Ministry.INVALID_ID)) {
+            return;
+        }
+        if (mcc == Ministry.Mcc.UNKNOWN) {
+            return;
+        }
+
+        // fetch the requested measurements from the api
+        final List<Measurement> measurements = api.getMeasurements(ministryId, mcc, period);
+        if (measurements != null) {
+            // update measurement data in the database
+            for (final Measurement measurement : measurements) {
+                // update the measurement type data
+                final MeasurementType type = measurement.getType();
+                if (type != null) {
+                    type.setLastSynced();
+                    mDao.updateOrInsert(type, PROJECTION_SYNC_MEASUREMENTS_TYPE);
+                }
+
+                // update ministry measurements
+                final MinistryMeasurement ministryMeasurement = measurement.getMinistryMeasurement();
+                if (ministryMeasurement != null) {
+                    ministryMeasurement.setLastSynced();
+                    mDao.updateOrInsert(ministryMeasurement, PROJECTION_SYNC_MEASUREMENTS_MINISTRY_MEASUREMENT);
+                }
+
+                // update personal measurements
+                final PersonalMeasurement personalMeasurement = measurement.getPersonalMeasurement();
+                if (personalMeasurement != null) {
+                    personalMeasurement.setLastSynced();
+                    mDao.updateOrInsert(personalMeasurement, PROJECTION_SYNC_MEASUREMENTS_PERSONAL_MEASUREMENT);
+                }
+            }
+
+            //TODO: broadcasts
+        }
+    }
+
+    /* END Measurements sync */
 }
