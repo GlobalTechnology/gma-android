@@ -116,7 +116,7 @@ public class TrainingDao extends AbstractDao
     }
 
     public void saveTraining(@NonNull final Training training) {
-        final SQLiteDatabase database = dbHelper.getWritableDatabase();
+        final SQLiteDatabase database = getWritableDatabase();
         try
         {
             database.beginTransaction();
@@ -142,7 +142,7 @@ public class TrainingDao extends AbstractDao
 
     public void deleteAllData()
     {
-        final SQLiteDatabase database = this.dbHelper.getWritableDatabase();
+        final SQLiteDatabase database = getWritableDatabase();
 
         database.beginTransaction();
 
