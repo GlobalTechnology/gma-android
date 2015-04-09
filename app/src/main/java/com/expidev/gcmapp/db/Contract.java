@@ -350,6 +350,8 @@ public class Contract {
         @Deprecated
         public static final String SQL_V25_ALTER_DELTA =
                 "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_DELTA;
+        @Deprecated
+        public static final String SQL_V26_UPDATE_DELTA = "UPDATE " + TABLE_NAME + " SET " + COLUMN_DELTA + " = 0";
     }
 
     public static final class PersonalMeasurement extends MeasurementValue implements Guid {
@@ -387,6 +389,8 @@ public class Contract {
         @Deprecated
         public static final String SQL_V25_ALTER_DELTA =
                 "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_DELTA;
+        @Deprecated
+        public static final String SQL_V26_UPDATE_DELTA = "UPDATE " + TABLE_NAME + " SET " + COLUMN_DELTA + " = 0";
     }
 
     public static final class Measurement extends Base implements MinistryId {
