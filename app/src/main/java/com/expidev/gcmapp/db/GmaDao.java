@@ -1,6 +1,7 @@
 package com.expidev.gcmapp.db;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.util.Pair;
 
@@ -8,12 +9,14 @@ import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.MeasurementType;
+import com.expidev.gcmapp.model.measurement.MeasurementValue;
 import com.expidev.gcmapp.model.measurement.MinistryMeasurement;
 import com.expidev.gcmapp.model.measurement.PersonalMeasurement;
 import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.Mapper;
+import org.ccci.gto.android.common.util.ArrayUtils;
 
 public class GmaDao extends AbstractDao
 {
@@ -173,5 +176,40 @@ public class GmaDao extends AbstractDao
         }
 
         return super.getPrimaryKeyWhere(obj);
+    }
+
+    public void updateMeasurementValueDelta(@NonNull final MeasurementValue value, final int change) {
+        // short-circuit if the delta isn't actually changing
+        if (change == 0) {
+            return;
+        }
+
+        // create MeasurementValue if it doesn't exist
+        insert(value, SQLiteDatabase.CONFLICT_IGNORE);
+
+        // build update query
+        final StringBuilder sql = new StringBuilder();
+        sql.append("UPDATE ").append(getTable(value.getClass()))
+                .append(" SET " + Contract.MeasurementValue.COLUMN_DELTA + " = ");
+        if (value instanceof PersonalMeasurement) {
+            sql.append("max(");
+        }
+        sql.append(Contract.MeasurementValue.COLUMN_DELTA + " + ?");
+        if (value instanceof PersonalMeasurement) {
+            sql.append(", 0 - " + Contract.MeasurementValue.COLUMN_VALUE + ")");
+        }
+        final Pair<String, String[]> where = getPrimaryKeyWhere(value);
+        sql.append(" WHERE ").append(where.first);
+        final String[] args = ArrayUtils.merge(String.class, bindValues(change), where.second);
+
+        // perform update and sanitize PersonalMeasurements
+        final SQLiteDatabase db = getWritableDatabase();
+        try {
+            db.beginTransaction();
+            db.execSQL(sql.toString(), args);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 }
