@@ -4,9 +4,18 @@ import static com.expidev.gcmapp.Constants.ARG_GUID;
 import static com.expidev.gcmapp.Constants.ARG_MCC;
 import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
 import static com.expidev.gcmapp.Constants.ARG_PERIOD;
+import static com.expidev.gcmapp.Constants.ARG_TYPE;
 import static com.expidev.gcmapp.model.measurement.MeasurementType.ARG_COLUMN;
+import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_LOCAL;
+import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_PERSONAL;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_JOINS;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_ORDER_BY;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_PROJECTION;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE_ARGS;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,14 +30,20 @@ import android.view.ViewGroup;
 
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.db.Contract;
+import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.MeasurementType;
-import com.expidev.gcmapp.model.measurement.MeasurementValue;
+import com.expidev.gcmapp.model.measurement.MeasurementValue.ValueType;
+import com.expidev.gcmapp.model.measurement.MinistryMeasurement;
+import com.expidev.gcmapp.model.measurement.PersonalMeasurement;
 import com.expidev.gcmapp.support.v4.adapter.MeasurementPagerAdapter;
-import com.expidev.gcmapp.support.v4.content.MeasurementTypesCursorLoader;
 import com.viewpagerindicator.CirclePageIndicator;
 
+import org.ccci.gto.android.common.db.Join;
+import org.ccci.gto.android.common.db.support.v4.content.DaoCursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
+import org.ccci.gto.android.common.util.ArrayUtils;
 import org.joda.time.YearMonth;
 
 import butterknife.ButterKnife;
@@ -36,7 +51,7 @@ import butterknife.InjectView;
 import butterknife.Optional;
 
 public class MeasurementsPagerFragment extends Fragment {
-    static final int LOADER_MEASUREMENT_TYPES = 1;
+    static final int LOADER_MEASUREMENTS = 1;
 
     private final CursorLoaderCallbacks mLoaderCallbacksCursor = new CursorLoaderCallbacks();
 
@@ -51,6 +66,8 @@ public class MeasurementsPagerFragment extends Fragment {
     private Ministry.Mcc mMcc = Ministry.Mcc.UNKNOWN;
     @NonNull
     private YearMonth mPeriod;
+    @ValueType
+    private int mType = TYPE_PERSONAL;
 
     @Nullable
     @Optional
@@ -62,13 +79,16 @@ public class MeasurementsPagerFragment extends Fragment {
     @InjectView(R.id.indicator)
     CirclePageIndicator mPagerIndicator = null;
 
-    public static MeasurementsPagerFragment newInstance(@NonNull final String guid, @NonNull final String ministryId,
+    @NonNull
+    public static MeasurementsPagerFragment newInstance(@ValueType final int type, @NonNull final String guid,
+                                                        @NonNull final String ministryId,
                                                         @NonNull final Ministry.Mcc mcc,
                                                         @NonNull final YearMonth period,
                                                         @NonNull final MeasurementType.Column column) {
         final MeasurementsPagerFragment fragment = new MeasurementsPagerFragment();
 
         final Bundle args = new Bundle();
+        args.putInt(ARG_TYPE, type);
         args.putString(ARG_GUID, guid);
         args.putString(ARG_MINISTRY_ID, ministryId);
         args.putString(ARG_MCC, mcc.toString());
@@ -87,6 +107,8 @@ public class MeasurementsPagerFragment extends Fragment {
 
         // process arguments
         final Bundle args = this.getArguments();
+        //noinspection ResourceType
+        mType = args.getInt(ARG_TYPE);
         mGuid = args.getString(ARG_GUID);
         mMinistryId = args.getString(ARG_MINISTRY_ID);
         mMcc = Ministry.Mcc.fromRaw(args.getString(ARG_MCC));
@@ -130,8 +152,7 @@ public class MeasurementsPagerFragment extends Fragment {
 
     private void setupViewPager() {
         if (mPager != null) {
-            mAdapter = new MeasurementPagerAdapter(getChildFragmentManager(), MeasurementValue.TYPE_PERSONAL, mGuid,
-                                                   mMinistryId, mMcc, mPeriod);
+            mAdapter = new MeasurementPagerAdapter(getActivity(), mType, mGuid, mMinistryId, mMcc, mPeriod);
             mPager.setAdapter(mAdapter);
 
             // configure view pager indicator
@@ -145,11 +166,52 @@ public class MeasurementsPagerFragment extends Fragment {
         final LoaderManager manager = this.getLoaderManager();
 
         // start the MeasurementTypes Cursor loader
-        final Bundle measurementTypesArgs = new Bundle(2);
-        measurementTypesArgs.putString(ARG_COLUMN, mColumn != null ? mColumn.toString() : null);
-        measurementTypesArgs.putStringArray(ARG_PROJECTION, new String[] {Contract.MeasurementType.COLUMN_ROWID,
-                Contract.MeasurementType.COLUMN_PERM_LINK_STUB});
-        manager.initLoader(LOADER_MEASUREMENT_TYPES, measurementTypesArgs, mLoaderCallbacksCursor);
+        manager.initLoader(LOADER_MEASUREMENTS, getLoaderArgsMeasurements(), mLoaderCallbacksCursor);
+    }
+
+    private static final String[] PROJECTION_BASE =
+            {Contract.MeasurementType.COLUMN_ROWID, Contract.MeasurementType.COLUMN_PERM_LINK_STUB,
+                    Contract.MeasurementType.COLUMN_NAME, Contract.MeasurementType.COLUMN_TOTAL_ID};
+    private static final Join<MeasurementType, PersonalMeasurement> JOIN_PERSONAL_MEASUREMENT =
+            Contract.MeasurementType.JOIN_PERSONAL_MEASUREMENT.type("LEFT").andOn(
+                    Contract.PersonalMeasurement.SQL_WHERE_GUID_MINISTRY_MCC_PERIOD);
+    private static final Join<MeasurementType, MinistryMeasurement> JOIN_MINISTRY_MEASUREMENT =
+            Contract.MeasurementType.JOIN_MINISTRY_MEASUREMENT.type("LEFT").andOn(
+                    Contract.MinistryMeasurement.SQL_WHERE_MINISTRY_MCC_PERIOD);
+
+    @NonNull
+    private Bundle getLoaderArgsMeasurements() {
+        final Bundle args = new Bundle(5);
+
+        // generate joins & projections based on measurement type
+        switch (mType) {
+            case TYPE_LOCAL:
+                args.putParcelableArray(ARG_JOINS,
+                                        new Join[] {JOIN_MINISTRY_MEASUREMENT.args(mMinistryId, mMcc, mPeriod)});
+                args.putStringArray(ARG_PROJECTION, ArrayUtils.merge(String.class, PROJECTION_BASE, new String[] {
+                        Contract.MinistryMeasurement.SQL_PREFIX + Contract.MinistryMeasurement.COLUMN_VALUE,
+                        Contract.MinistryMeasurement.SQL_PREFIX + Contract.MinistryMeasurement.COLUMN_DELTA}));
+                break;
+            case TYPE_PERSONAL:
+                args.putParcelableArray(ARG_JOINS,
+                                        new Join[] {JOIN_PERSONAL_MEASUREMENT.args(mGuid, mMinistryId, mMcc, mPeriod)});
+                args.putStringArray(ARG_PROJECTION, ArrayUtils.merge(String.class, PROJECTION_BASE, new String[] {
+                        Contract.PersonalMeasurement.SQL_PREFIX + Contract.PersonalMeasurement.COLUMN_VALUE,
+                        Contract.PersonalMeasurement.SQL_PREFIX + Contract.PersonalMeasurement.COLUMN_DELTA}));
+                break;
+            default:
+                args.putStringArray(ARG_PROJECTION, PROJECTION_BASE);
+                break;
+        }
+
+        // set WHERE and ORDER BY clauses
+        if (mColumn != null) {
+            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_COLUMN);
+            args.putStringArray(ARG_WHERE_ARGS, bindValues(mColumn));
+        }
+        args.putString(ARG_ORDER_BY, Contract.MeasurementType.COLUMN_SORT_ORDER);
+
+        return args;
     }
 
     private class CursorLoaderCallbacks extends SimpleLoaderCallbacks<Cursor> {
@@ -157,8 +219,12 @@ public class MeasurementsPagerFragment extends Fragment {
         @Override
         public Loader<Cursor> onCreateLoader(final int id, @Nullable final Bundle args) {
             switch (id) {
-                case LOADER_MEASUREMENT_TYPES:
-                    return new MeasurementTypesCursorLoader(getActivity(), args);
+                case LOADER_MEASUREMENTS:
+                    final Context context = getActivity();
+                    final CursorBroadcastReceiverLoader loader =
+                            new DaoCursorBroadcastReceiverLoader<>(context, GmaDao.getInstance(context),
+                                                                   MeasurementType.class, args);
+                    return loader;
                 default:
                     return null;
             }
@@ -166,7 +232,7 @@ public class MeasurementsPagerFragment extends Fragment {
 
         public void onLoadFinished(@NonNull final Loader<Cursor> loader, @Nullable final Cursor cursor) {
             switch (loader.getId()) {
-                case LOADER_MEASUREMENT_TYPES:
+                case LOADER_MEASUREMENTS:
                     onLoadMeasurementTypes(cursor);
                     break;
             }

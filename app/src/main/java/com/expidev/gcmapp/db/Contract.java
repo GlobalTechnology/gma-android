@@ -365,8 +365,14 @@ public class Contract {
                 .join(",", new Object[] {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB,
                         COLUMN_PERIOD}) + ")";
 
-        private static final String SQL_PREFIX = TABLE_NAME + ".";
+        public static final String SQL_PREFIX = TABLE_NAME + ".";
 
+        private static final String SQL_WHERE_GUID = SQL_PREFIX + Guid.SQL_WHERE_GUID;
+        private static final String SQL_WHERE_MINISTRY = SQL_PREFIX + MinistryId.SQL_WHERE_MINISTRY;
+        private static final String SQL_WHERE_MCC = SQL_PREFIX + MeasurementValue.SQL_WHERE_MCC;
+        private static final String SQL_WHERE_PERIOD = SQL_PREFIX + MeasurementValue.SQL_WHERE_PERIOD;
+        public static final String SQL_WHERE_GUID_MINISTRY_MCC_PERIOD =
+                SQL_WHERE_GUID + " AND " + SQL_WHERE_MINISTRY + " AND " + SQL_WHERE_MCC + " AND " + SQL_WHERE_PERIOD;
         static final String SQL_WHERE_PRIMARY_KEY =
                 SQL_WHERE_GUID + " AND " + SQL_WHERE_MINISTRY + " AND " + COLUMN_MCC + " = ? AND " +
                         SQL_WHERE_PERM_LINK_STUB + " AND " + COLUMN_PERIOD + " = ?";

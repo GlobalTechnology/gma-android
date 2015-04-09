@@ -4,6 +4,7 @@ import static com.expidev.gcmapp.Constants.ARG_GUID;
 import static com.expidev.gcmapp.Constants.ARG_MCC;
 import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
 import static com.expidev.gcmapp.Constants.ARG_PERIOD;
+import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_PERSONAL;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.measurement.MeasurementType;
+import com.expidev.gcmapp.model.measurement.MeasurementValue.ValueType;
 
 import org.joda.time.YearMonth;
 
@@ -52,6 +54,8 @@ public class ColumnsListFragment extends Fragment {
     @InjectView(R.id.outcomesContent)
     View mOutcomesContent;
 
+    @ValueType
+    private int mType = TYPE_PERSONAL;
     private String mGuid;
     private String mMinistryId = Ministry.INVALID_ID;
     private Ministry.Mcc mMcc = Ministry.Mcc.UNKNOWN;
@@ -121,24 +125,18 @@ public class ColumnsListFragment extends Fragment {
     /* END lifecycle */
 
     private void setupMeasurementFragments() {
-        final MeasurementsPagerFragment faithFragment = mFaithContent != null ?
-                MeasurementsPagerFragment.newInstance(mGuid, mMinistryId, mMcc, mPeriod, MeasurementType.Column.FAITH) :
-                null;
-        final MeasurementsPagerFragment fruitFragment = mFruitContent != null ?
-                MeasurementsPagerFragment.newInstance(mGuid, mMinistryId, mMcc, mPeriod, MeasurementType.Column.FRUIT) :
-                null;
-        final MeasurementsPagerFragment outcomesFragment = mOutcomesContent != null ? MeasurementsPagerFragment
-                .newInstance(mGuid, mMinistryId, mMcc, mPeriod, MeasurementType.Column.OUTCOME) : null;
-
         final FragmentTransaction tx = getChildFragmentManager().beginTransaction();
-        if (faithFragment != null) {
-            tx.replace(R.id.faithPagerFragment, faithFragment);
+        if (mFaithContent != null) {
+            tx.replace(R.id.faithPagerFragment, MeasurementsPagerFragment
+                    .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, MeasurementType.Column.FAITH));
         }
-        if (fruitFragment != null) {
-            tx.replace(R.id.fruitPagerFragment, fruitFragment);
+        if (mFruitContent != null) {
+            tx.replace(R.id.fruitPagerFragment, MeasurementsPagerFragment
+                    .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, MeasurementType.Column.FRUIT));
         }
-        if (outcomesFragment != null) {
-            tx.replace(R.id.outcomesPagerFragment, outcomesFragment);
+        if (mOutcomesContent != null) {
+            tx.replace(R.id.outcomesPagerFragment, MeasurementsPagerFragment
+                    .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, MeasurementType.Column.OUTCOME));
         }
         tx.commit();
     }
