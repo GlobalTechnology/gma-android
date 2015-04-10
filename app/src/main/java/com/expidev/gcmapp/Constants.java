@@ -23,6 +23,7 @@ public class Constants {
     public static final String EXTRA_MCC = "mcc";
     public static final String EXTRA_PERIOD = "period";
     public static final String EXTRA_TRAINING_IDS = "training_ids";
+    public static final String EXTRA_TYPE = "type";
 
     /* result codes */
     public static final int BLOCKED_MINISTRY = 1;

@@ -4,6 +4,7 @@ import static com.expidev.gcmapp.Constants.ARG_GUID;
 import static com.expidev.gcmapp.Constants.ARG_MCC;
 import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
 import static com.expidev.gcmapp.Constants.ARG_PERIOD;
+import static com.expidev.gcmapp.Constants.ARG_TYPE;
 import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_NONE;
 
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.model.Ministry.Mcc;
 import com.expidev.gcmapp.model.measurement.MeasurementType;
 import com.expidev.gcmapp.model.measurement.MeasurementValue.ValueType;
 
@@ -57,16 +59,21 @@ public class ColumnsListFragment extends Fragment {
     @ValueType
     private /* final */ int mType = TYPE_NONE;
     @NonNull
-    private String mGuid;
-    private String mMinistryId = Ministry.INVALID_ID;
-    private Ministry.Mcc mMcc = Ministry.Mcc.UNKNOWN;
-    private YearMonth mPeriod;
+    private /* final */ String mGuid;
+    @NonNull
+    private /* final */ String mMinistryId = Ministry.INVALID_ID;
+    @NonNull
+    private /* final */ Mcc mMcc = Mcc.UNKNOWN;
+    @NonNull
+    private /* final */ YearMonth mPeriod;
 
-    public static ColumnsListFragment newInstance(@NonNull final String guid, @NonNull final String ministryId,
-                                                  @NonNull final Ministry.Mcc mcc, @NonNull final YearMonth period) {
+    public static ColumnsListFragment newInstance(@ValueType final int type, @NonNull final String guid,
+                                                  @NonNull final String ministryId, @NonNull final Mcc mcc,
+                                                  @NonNull final YearMonth period) {
         final ColumnsListFragment fragment = new ColumnsListFragment();
 
         final Bundle args = new Bundle();
+        args.putInt(ARG_TYPE, type);
         args.putString(ARG_GUID, guid);
         args.putString(ARG_MINISTRY_ID, ministryId);
         args.putString(ARG_MCC, mcc.toString());
@@ -76,17 +83,29 @@ public class ColumnsListFragment extends Fragment {
         return fragment;
     }
 
+    @ValueType
+    public int getType() {
+        return mType;
+    }
+
+    @NonNull
+    public YearMonth getPeriod() {
+        return mPeriod;
+    }
+
     /* BEGIN lifecycle */
 
     @Override
+    @SuppressWarnings("ResourceType")
     public void onCreate(final Bundle savedState) {
         super.onCreate(savedState);
 
         // process arguments
         final Bundle args = this.getArguments();
+        mType = args.getInt(ARG_TYPE, mType);
         mGuid = args.getString(ARG_GUID);
         mMinistryId = args.getString(ARG_MINISTRY_ID);
-        mMcc = Ministry.Mcc.fromRaw(args.getString(ARG_MCC));
+        mMcc = Mcc.fromRaw(args.getString(ARG_MCC));
         mPeriod = YearMonth.parse(args.getString(ARG_PERIOD));
     }
 

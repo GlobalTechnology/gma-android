@@ -5,6 +5,7 @@ import static com.expidev.gcmapp.Constants.ARG_MEASUREMENT_ID;
 import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
 import static com.expidev.gcmapp.Constants.ARG_PERIOD;
 import static com.expidev.gcmapp.Constants.ARG_PERMLINK;
+import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_NONE;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -197,7 +198,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             case android.R.id.home:
                 final Intent upIntent = NavUtils.getParentActivityIntent(this);
                 MeasurementsActivity.populateIntent(upIntent, mTheKey.getGuid(), ministryId, Ministry.Mcc.fromRaw(mcc),
-                                                    YearMonth.parse(period));
+                                                    TYPE_NONE, YearMonth.parse(period));
 
                 if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
                     // This activity is NOT part of this app's task, so create a new task

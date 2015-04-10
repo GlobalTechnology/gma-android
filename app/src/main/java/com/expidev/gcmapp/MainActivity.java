@@ -1,6 +1,10 @@
 package com.expidev.gcmapp;
 
 import static com.expidev.gcmapp.Constants.ARG_GUID;
+import static com.expidev.gcmapp.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
+import static com.expidev.gcmapp.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
+import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_LOCAL;
+import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_PERSONAL;
 import static com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
 
 import android.app.AlertDialog;
@@ -20,6 +24,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.expidev.gcmapp.activity.MeasurementsActivity;
 import com.expidev.gcmapp.activity.SettingsActivity;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
@@ -240,9 +245,10 @@ public class MainActivity extends ActionBarActivity {
     public void goToMeasurements(MenuItem menuItem)
     {
         if (mAssignment != null) {
-            if (!mAssignment.isBlocked()) {
-                com.expidev.gcmapp.activity.MeasurementsActivity
-                        .start(this, mAssignment.getGuid(), mAssignment.getMinistryId(), mAssignment.getMcc());
+            if (mAssignment.can(UPDATE_PERSONAL_MEASUREMENTS) || mAssignment.can(UPDATE_MINISTRY_MEASUREMENTS)) {
+                MeasurementsActivity
+                        .start(this, mAssignment.getGuid(), mAssignment.getMinistryId(), mAssignment.getMcc(),
+                               mAssignment.can(UPDATE_PERSONAL_MEASUREMENTS) ? TYPE_PERSONAL : TYPE_LOCAL);
             } else {
                 AlertDialog alertDialog = new AlertDialog.Builder(this)
                         .setTitle(getString(R.string.title_dialog_blocked))
