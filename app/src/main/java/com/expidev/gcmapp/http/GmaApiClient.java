@@ -17,6 +17,7 @@ import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.model.measurement.Measurement;
 import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.model.measurement.MeasurementType;
+import com.expidev.gcmapp.model.measurement.MeasurementValue;
 import com.expidev.gcmapp.service.GmaSyncService;
 
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
@@ -30,6 +31,8 @@ import org.joda.time.YearMonth;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.HttpCookie;
@@ -48,6 +51,7 @@ import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.TheKeyImpl;
 
 public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Session>, Session> {
+    private static final Logger LOG = LoggerFactory.getLogger(GmaApiClient.class);
     private final String TAG = getClass().getSimpleName();
 
     private static final String PREF_COOKIES = "cookies";
@@ -388,6 +392,44 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
 
         return null;
+    }
+
+    public boolean updateMeasurements(@NonNull final MeasurementValue... measurements) throws ApiException {
+        // short-circuit if we don't have any measurements to update
+        if (measurements.length == 0) {
+            return false;
+        }
+
+        // build request
+        final Request<Session> request = new Request<>(MEASUREMENTS);
+        request.method = Method.POST;
+        try {
+            final JSONArray json = new JSONArray();
+            for (final MeasurementValue value : measurements) {
+                json.put(value.toUpdateJson(MEASUREMENTS_SOURCE));
+            }
+            request.setContent(json);
+        } catch (final JSONException e) {
+            LOG.error("Error generating update JSON", e);
+            return false;
+        }
+
+        // process request
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+
+            // is this a successful response?
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
+                return true;
+            }
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+
+        return false;
     }
 
     @Nullable

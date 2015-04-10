@@ -29,13 +29,13 @@ public class MinistryMeasurement extends MeasurementValue {
 
     @NonNull
     @Override
-    public JSONObject toJson() throws JSONException {
+    public JSONObject toUpdateJson(@NonNull final String source) throws JSONException {
         final MeasurementType type = getType();
         if (type == null) {
             throw new JSONException("MeasurementType is unavailable");
         }
 
-        final JSONObject json = super.toJson();
+        final JSONObject json = super.toUpdateJson(source);
         json.put(MeasurementType.JSON_TYPE_ID, type.getLocalId());
         json.put(JSON_MINISTRY_ID, getMinistryId());
         return json;

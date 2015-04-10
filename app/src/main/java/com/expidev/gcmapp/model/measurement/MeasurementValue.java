@@ -24,6 +24,7 @@ public abstract class MeasurementValue extends Base {
 
     private static final String JSON_PERIOD = "period";
     private static final String JSON_MCC = "mcc";
+    private static final String JSON_SOURCE = "source";
     private static final String JSON_VALUE = "value";
 
     @Nullable
@@ -94,11 +95,12 @@ public abstract class MeasurementValue extends Base {
     }
 
     @NonNull
-    public JSONObject toJson() throws JSONException {
+    public JSONObject toUpdateJson(@NonNull final String source) throws JSONException {
         final JSONObject json = new JSONObject();
         json.put(JSON_PERIOD, period.toString());
         json.put(JSON_MCC, mcc.raw);
-        json.put(JSON_VALUE, value);
+        json.put(JSON_SOURCE, source);
+        json.put(JSON_VALUE, value + delta);
         return json;
     }
 }

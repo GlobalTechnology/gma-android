@@ -53,7 +53,7 @@ public class PersonalMeasurement extends MeasurementValue {
 
     @NonNull
     @Override
-    public JSONObject toJson() throws JSONException {
+    public JSONObject toUpdateJson(@NonNull final String source) throws JSONException {
         if (assignment == null) {
             throw new JSONException("Assignment is unavailable");
         }
@@ -62,7 +62,7 @@ public class PersonalMeasurement extends MeasurementValue {
             throw new JSONException("MeasurementType is unavailable");
         }
 
-        final JSONObject json = super.toJson();
+        final JSONObject json = super.toUpdateJson(source);
         json.put(JSON_ASSIGNMENT_ID, assignment.getId());
         json.put(MeasurementType.JSON_TYPE_ID, type.getPersonalId());
         return json;
