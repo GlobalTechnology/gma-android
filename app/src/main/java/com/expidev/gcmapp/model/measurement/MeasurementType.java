@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.expidev.gcmapp.model.Base;
+import com.google.common.base.Function;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,6 +36,14 @@ public class MeasurementType extends Base {
     private static final String JSON_PERSONAL_ID = "person_id";
     private static final String JSON_LOCAL_ID = "local_id";
     private static final String JSON_TOTAL_ID = "total_id";
+
+    public static final Function<MeasurementType, String> FUNCTION_PERMLINK = new Function<MeasurementType, String>() {
+        @NonNull
+        @Override
+        public String apply(@NonNull final MeasurementType type) {
+            return type.getPermLinkStub();
+        }
+    };
 
     public enum Section {
         WIN, BUILD, SEND, OTHER, UNKNOWN;

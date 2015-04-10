@@ -310,6 +310,7 @@ public class Contract {
 
         static final String SQL_WHERE_MCC = COLUMN_MCC + " = ?";
         static final String SQL_WHERE_PERIOD = COLUMN_PERIOD + " = ?";
+        public static final String SQL_WHERE_DIRTY = COLUMN_DELTA + " != 0";
     }
 
     public static final class MinistryMeasurement extends MeasurementValue {

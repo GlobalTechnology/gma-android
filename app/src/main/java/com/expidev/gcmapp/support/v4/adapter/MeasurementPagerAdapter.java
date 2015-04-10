@@ -23,6 +23,7 @@ import com.expidev.gcmapp.model.measurement.MeasurementValue;
 import com.expidev.gcmapp.model.measurement.MeasurementValue.ValueType;
 import com.expidev.gcmapp.model.measurement.MinistryMeasurement;
 import com.expidev.gcmapp.model.measurement.PersonalMeasurement;
+import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.support.v4.adapter.MeasurementPagerAdapter.ViewHolder;
 
 import org.ccci.gto.android.common.db.util.CursorUtils;
@@ -190,7 +191,7 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
             // update the backing measurement
             final MeasurementValue value = getValue();
             if (value != null) {
-                AsyncTaskCompat.execute(new UpdateDeltaRunnable(mDao, value, delta));
+                AsyncTaskCompat.execute(new UpdateDeltaRunnable(mContext, mDao, mGuid, value, delta));
             }
 
             // update the value view
@@ -236,13 +237,20 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
 
     private static final class UpdateDeltaRunnable implements Runnable {
         @NonNull
+        private final Context mContext;
+        @NonNull
         private final GmaDao mDao;
+        @NonNull
+        private final String mGuid;
         @NonNull
         private final MeasurementValue mValue;
         private final int mDelta;
 
-        public UpdateDeltaRunnable(@NonNull final GmaDao dao, @NonNull final MeasurementValue value, final int delta) {
+        public UpdateDeltaRunnable(@NonNull final Context context, @NonNull final GmaDao dao,
+                                   @NonNull final String guid, @NonNull final MeasurementValue value, final int delta) {
+            mContext = context;
             mDao = dao;
+            mGuid = guid;
             mValue = value;
             mDelta = delta;
         }
@@ -251,6 +259,10 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
         public void run() {
             // store the delta change in the local database
             mDao.updateMeasurementValueDelta(mValue, mDelta);
+
+            // trigger a sync of dirty measurements
+            GmaSyncService.syncDirtyMeasurements(mContext, mGuid, mValue.getMinistryId(), mValue.getMcc(),
+                                                 mValue.getPeriod());
         }
     }
 }
