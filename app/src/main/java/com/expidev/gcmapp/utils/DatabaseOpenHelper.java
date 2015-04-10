@@ -63,12 +63,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
 
     @Override
     public void onUpgrade(@NonNull final SQLiteDatabase db, final int oldVersion, final int newVersion) {
-        if (oldVersion < 7) {
-            // version is too old, reset database
-            resetDatabase(db);
-            return;
-        }
-
         // perform upgrade in increments
         int upgradeTo = oldVersion + 1;
         while (upgradeTo <= newVersion) {
