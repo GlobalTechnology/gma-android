@@ -7,6 +7,7 @@ import static com.expidev.gcmapp.Constants.ARG_PERIOD;
 import static com.expidev.gcmapp.Constants.ARG_TYPE;
 import static com.expidev.gcmapp.model.measurement.MeasurementType.ARG_COLUMN;
 import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_LOCAL;
+import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_NONE;
 import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_PERSONAL;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_JOINS;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_ORDER_BY;
@@ -67,7 +68,7 @@ public class MeasurementsPagerFragment extends Fragment {
     @NonNull
     private YearMonth mPeriod;
     @ValueType
-    private int mType = TYPE_PERSONAL;
+    private /* final */ int mType = TYPE_NONE;
 
     @Nullable
     @Optional
@@ -102,13 +103,13 @@ public class MeasurementsPagerFragment extends Fragment {
     /* BEGIN lifecycle */
 
     @Override
+    @SuppressWarnings("ResourceType")
     public void onCreate(@Nullable final Bundle savedState) {
         super.onCreate(savedState);
 
         // process arguments
         final Bundle args = this.getArguments();
-        //noinspection ResourceType
-        mType = args.getInt(ARG_TYPE);
+        mType = args.getInt(ARG_TYPE, TYPE_NONE);
         mGuid = args.getString(ARG_GUID);
         mMinistryId = args.getString(ARG_MINISTRY_ID);
         mMcc = Ministry.Mcc.fromRaw(args.getString(ARG_MCC));

@@ -4,7 +4,7 @@ import static com.expidev.gcmapp.Constants.ARG_GUID;
 import static com.expidev.gcmapp.Constants.ARG_MCC;
 import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
 import static com.expidev.gcmapp.Constants.ARG_PERIOD;
-import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_PERSONAL;
+import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_NONE;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -55,7 +55,8 @@ public class ColumnsListFragment extends Fragment {
     View mOutcomesContent;
 
     @ValueType
-    private int mType = TYPE_PERSONAL;
+    private /* final */ int mType = TYPE_NONE;
+    @NonNull
     private String mGuid;
     private String mMinistryId = Ministry.INVALID_ID;
     private Ministry.Mcc mMcc = Ministry.Mcc.UNKNOWN;

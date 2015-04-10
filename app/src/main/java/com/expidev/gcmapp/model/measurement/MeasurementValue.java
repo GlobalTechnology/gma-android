@@ -15,10 +15,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 public abstract class MeasurementValue extends Base {
+    public static final int TYPE_NONE = 0;
     public static final int TYPE_PERSONAL = 1;
     public static final int TYPE_LOCAL = 2;
 
-    @IntDef({TYPE_PERSONAL, TYPE_LOCAL})
+    @IntDef({TYPE_NONE, TYPE_PERSONAL, TYPE_LOCAL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ValueType {}
 
