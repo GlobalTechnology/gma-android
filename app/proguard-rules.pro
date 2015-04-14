@@ -67,3 +67,7 @@
 -assumenosideeffects class org.slf4j.** {
     *;
 }
+
+
+# GTO support, this should be removed for v0.5.1+
+-dontwarn org.ccci.gto.android.common.widget.AccordionView$State
