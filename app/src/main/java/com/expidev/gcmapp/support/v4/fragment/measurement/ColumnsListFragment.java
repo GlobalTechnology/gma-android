@@ -11,10 +11,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.model.Ministry;
@@ -22,39 +24,19 @@ import com.expidev.gcmapp.model.Ministry.Mcc;
 import com.expidev.gcmapp.model.measurement.MeasurementType;
 import com.expidev.gcmapp.model.measurement.MeasurementValue.ValueType;
 
+import org.ccci.gto.android.common.util.ViewCompat;
+import org.ccci.gto.android.common.widget.AccordionView;
 import org.joda.time.YearMonth;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnClick;
 import butterknife.Optional;
 
 public class ColumnsListFragment extends Fragment {
     @Nullable
     @Optional
-    @InjectView(R.id.faithHeader)
-    View mFaithHeader;
-    @Nullable
-    @Optional
-    @InjectView(R.id.fruitHeader)
-    View mFruitHeader;
-    @Nullable
-    @Optional
-    @InjectView(R.id.outcomesHeader)
-    View mOutcomesHeader;
-
-    @Nullable
-    @Optional
-    @InjectView(R.id.faithContent)
-    View mFaithContent;
-    @Nullable
-    @Optional
-    @InjectView(R.id.fruitContent)
-    View mFruitContent;
-    @Nullable
-    @Optional
-    @InjectView(R.id.outcomesContent)
-    View mOutcomesContent;
+    @InjectView(R.id.accordion)
+    AccordionView mAccordion;
 
     @ValueType
     private /* final */ int mType = TYPE_NONE;
@@ -112,28 +94,14 @@ public class ColumnsListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container,
                              @Nullable final Bundle savedState) {
-        return inflater.inflate(R.layout.fragment_measurement_columns_accordion, container, false);
+        return inflater.inflate(R.layout.fragment_measurements_accordion, container, false);
     }
 
     @Override
     public void onViewCreated(final View view, @Nullable final Bundle savedState) {
         super.onViewCreated(view, savedState);
         ButterKnife.inject(this, view);
-        setupMeasurementFragments();
-    }
-
-    @Optional
-    @OnClick({R.id.faithHeader, R.id.fruitHeader, R.id.outcomesHeader})
-    void onToggleSection(@NonNull final View view) {
-        if (mFaithContent != null) {
-            mFaithContent.setVisibility(mFaithHeader == view ? View.VISIBLE : View.GONE);
-        }
-        if (mFruitContent != null) {
-            mFruitContent.setVisibility(mFruitHeader == view ? View.VISIBLE : View.GONE);
-        }
-        if (mOutcomesContent != null) {
-            mOutcomesContent.setVisibility(mOutcomesHeader == view ? View.VISIBLE : View.GONE);
-        }
+        setupAccordion();
     }
 
     @Override
@@ -144,20 +112,123 @@ public class ColumnsListFragment extends Fragment {
 
     /* END lifecycle */
 
-    private void setupMeasurementFragments() {
-        final FragmentTransaction tx = getChildFragmentManager().beginTransaction();
-        if (mFaithContent != null) {
-            tx.replace(R.id.faithPagerFragment, MeasurementsPagerFragment
-                    .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, MeasurementType.Column.FAITH));
+    private void setupAccordion() {
+        if (mAccordion != null) {
+            mAccordion.setAdapter(new AccordionAdapter());
         }
-        if (mFruitContent != null) {
-            tx.replace(R.id.fruitPagerFragment, MeasurementsPagerFragment
-                    .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, MeasurementType.Column.FRUIT));
+    }
+
+    static class ViewHolder extends AccordionView.ViewHolder {
+        @Optional
+        @Nullable
+        @InjectView(R.id.logo)
+        ImageView mLogoTop;
+        @Optional
+        @Nullable
+        @InjectView(R.id.logo_bottom)
+        ImageView mLogoBottom;
+        @Optional
+        @Nullable
+        @InjectView(R.id.name)
+        TextView mTitleView;
+        @Optional
+        @Nullable
+        @InjectView(R.id.pagerFragment)
+        View mPagerFrame;
+
+        final int mPagerId;
+
+        public ViewHolder(@NonNull final View header, @NonNull final View content) {
+            super();
+            mPagerId = ViewCompat.generateViewId();
+            ButterKnife.inject(this, content);
+
+            // ButterKnife.inject only works with one root view. So, check headerContainer for missing header Views
+            mLogoTop = ButterKnife.findById(header, R.id.logo);
+            mTitleView = ButterKnife.findById(header, R.id.name);
+
+            // set a unique pager id if we found the Pager
+            if (mPagerFrame != null) {
+                mPagerFrame.setId(mPagerId);
+            }
         }
-        if (mOutcomesContent != null) {
-            tx.replace(R.id.outcomesPagerFragment, MeasurementsPagerFragment
-                    .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, MeasurementType.Column.OUTCOME));
+    }
+
+    private class AccordionAdapter extends AccordionView.Adapter<ViewHolder> {
+        private MeasurementType.Column[] mColumns = {MeasurementType.Column.FAITH, MeasurementType.Column.FRUIT,
+                MeasurementType.Column.OUTCOME};
+
+        @Override
+        public int getCount() {
+            return mColumns.length;
         }
-        tx.commit();
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull final ViewGroup headerParent,
+                                             @NonNull final ViewGroup contentParent, int position) {
+            final LayoutInflater inflater = LayoutInflater.from(getActivity());
+            final View header = inflater.inflate(R.layout.accordion_measurements_header, headerParent);
+            final View content = inflater.inflate(R.layout.accordion_measurements_content_pager, contentParent);
+            return new ViewHolder(header, content);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+            // update label and logo based on column
+            final int label;
+            final int logoTop;
+            final int logoBottom;
+            switch (mColumns[position]) {
+                case FRUIT:
+                    label = R.string.label_measurements_column_fruit;
+                    logoTop = R.drawable.ic_header_measurements_fruit;
+                    logoBottom = R.drawable.ic_header_measurements_fruit_under;
+                    break;
+                case OUTCOME:
+                    label = R.string.label_measurements_column_outcomes;
+                    logoTop = R.drawable.ic_header_measurements_outcomes;
+                    logoBottom = R.drawable.ic_header_measurements_outcomes_under;
+                    break;
+                case FAITH:
+                default:
+                    label = R.string.label_measurements_column_faith;
+                    logoTop = R.drawable.ic_header_measurements_faith;
+                    logoBottom = R.drawable.ic_header_measurements_faith_under;
+                    break;
+            }
+
+            if (holder.mTitleView != null) {
+                holder.mTitleView.setText(label);
+            }
+            if (holder.mLogoTop != null) {
+                holder.mLogoTop.setImageResource(logoTop);
+            }
+            if (holder.mLogoBottom != null) {
+                holder.mLogoBottom.setImageResource(logoBottom);
+            }
+
+            // create fragment if we don't currently have one
+            if (holder.mPagerFrame != null) {
+                final FragmentManager fm = getChildFragmentManager();
+                final Fragment fragment = fm.findFragmentById(holder.mPagerId);
+                if (fragment == null) {
+                    fm.beginTransaction().replace(holder.mPagerId, MeasurementsPagerFragment
+                            .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, mColumns[position])).commit();
+                }
+            }
+        }
+
+        @Override
+        public void onDestroyViewHolder(@NonNull final ViewHolder holder) {
+            super.onDestroyViewHolder(holder);
+
+            // remove the fragment if it exists
+            final FragmentManager fm = getChildFragmentManager();
+            final Fragment fragment = fm.findFragmentById(holder.mPagerId);
+            if (fragment != null) {
+                fm.beginTransaction().remove(fragment).commit();
+            }
+        }
     }
 }

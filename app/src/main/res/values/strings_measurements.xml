@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label_measurements_column_faith">Faith Actions</string>
+    <string name="label_measurements_column_fruit">Fruit</string>
+    <string name="label_measurements_column_outcomes">Outcomes</string>
+</resources>

@@ -120,7 +120,7 @@ public class MeasurementsPagerFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container,
                              @Nullable final Bundle savedState) {
-        final View view = inflater.inflate(R.layout.fragment_measurement_pager, container, false);
+        final View view = inflater.inflate(R.layout.fragment_measurements_pager, container, false);
         ButterKnife.inject(this, view);
         return view;
     }

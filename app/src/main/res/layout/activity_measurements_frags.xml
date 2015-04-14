@@ -36,10 +36,17 @@
             android:padding="8dp"/>
     </LinearLayout>
 
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_below="@id/periodNav"
+        android:background="#c6c8c6"/>
+
     <FrameLayout
         android:id="@+id/frame_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/periodNav"/>
+        android:layout_below="@id/divider"/>
 
 </RelativeLayout>

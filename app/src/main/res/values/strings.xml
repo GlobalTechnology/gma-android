@@ -61,12 +61,6 @@
     <string name="training_activities">Training Activities</string>
     <string name="campuses">Campuses</string>
 
-    <!-- Measurements Activity -->
-    <string name="ministry_name_placeholder">Ministry Name</string>
-    <string name="period_placeholder">Period</string>
-    <string name="period_left">"&#60;&#60;</string>
-    <string name="period_right">&#62;&#62;</string>
-
     <!-- Measurement Details Graph -->
     <string name="action_measurement_details">Measurement Details</string>
     <string name="local">Local</string>

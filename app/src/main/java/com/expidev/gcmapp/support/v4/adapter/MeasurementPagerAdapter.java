@@ -106,7 +106,7 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
     @Override
     protected ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent) {
         return new ViewHolder(
-                LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_measurement_value, parent, false));
+                LayoutInflater.from(parent.getContext()).inflate(R.layout.page_measurements_value, parent, false));
     }
 
     @Override

@@ -4,6 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:minHeight="190dp"
     tools:background="#ffffff">
 
     <RelativeLayout
@@ -20,8 +21,9 @@
             android:id="@+id/valueBg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:src="@drawable/bg_measurements_value"
-            android:layout_centerInParent="true"/>
+            tools:ignore="ContentDescription"/>
 
         <TextView
             android:id="@+id/value"
