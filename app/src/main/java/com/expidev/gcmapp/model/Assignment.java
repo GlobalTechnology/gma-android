@@ -191,9 +191,8 @@ public class Assignment extends Base implements Cloneable {
         return "id: " + id;
     }
 
-    public boolean isLeader()
-    {
-        return getRole() == Role.LEADER;
+    private boolean isLeader() {
+        return this.role == Role.LEADER;
     }
 
     public boolean isInheritedLeader()
