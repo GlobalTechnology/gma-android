@@ -277,11 +277,13 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         return null;
     }
 
-    public boolean createChurch(@NonNull final Church church) throws ApiException, JSONException {
+    @Nullable
+    public Church createChurch(@NonNull final Church church) throws ApiException, JSONException {
         return this.createChurch(church.toJson());
     }
 
-    public boolean createChurch(@NonNull final JSONObject church) throws ApiException {
+    @Nullable
+    public Church createChurch(@NonNull final JSONObject church) throws ApiException {
         // build request
         final Request<Session> request = new Request<>(CHURCHES);
         request.method = Method.POST;
@@ -293,12 +295,18 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             conn = this.sendRequest(request);
 
             // is this a successful response?
-            return conn.getResponseCode() == HttpURLConnection.HTTP_CREATED;
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
+                return Church.fromJson(new JSONObject(IOUtils.readString(conn.getInputStream())));
+            }
+        } catch (final JSONException e) {
+            LOG.error("error parsing createChurch response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
         } finally {
             IOUtils.closeQuietly(conn);
         }
+
+        return null;
     }
 
     public boolean updateChurch(@NonNull final Church church) throws ApiException, JSONException {

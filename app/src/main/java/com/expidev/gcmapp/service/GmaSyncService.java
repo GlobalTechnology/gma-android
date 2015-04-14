@@ -440,6 +440,7 @@ public class GmaSyncService extends ThreadedIntentService {
         }
     }
 
+    @SuppressWarnings("AccessToStaticFieldLockedOnInstance")
     private void syncDirtyChurches(@NonNull final GmaApiClient api) throws ApiException {
         synchronized (mLockDirtyChurches) {
             final List<Church> churches = mDao.get(Church.class, Contract.Church.SQL_WHERE_DIRTY, null);
@@ -452,11 +453,17 @@ public class GmaSyncService extends ThreadedIntentService {
                 try {
                     if (church.isNew()) {
                         // try creating the church
-                        if (api.createChurch(church)) {
+                        final Church newChurch = api.createChurch(church);
+
+                        // update id of church
+                        if (newChurch != null) {
                             mDao.delete(church);
+                            newChurch.setLastSynced(new Date());
+                            mDao.updateOrInsert(newChurch, PROJECTION_GET_CHURCHES_DATA);
 
                             // add church to list of broadcasts
                             broadcasts.put(church.getMinistryId(), church.getId());
+                            broadcasts.put(church.getMinistryId(), newChurch.getId());
                         }
                     } else if (church.isDirty()) {
                         // generate dirty JSON
