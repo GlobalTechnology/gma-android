@@ -29,7 +29,7 @@ public class Assignment extends Base implements Cloneable {
         @Nullable
         public final String raw;
 
-        private Role(final String raw) {
+        Role(final String raw) {
             this.raw = raw;
         }
 
@@ -180,6 +180,7 @@ public class Assignment extends Base implements Cloneable {
     }
 
     @Override
+    @SuppressWarnings("CloneDoesntCallSuperClone")
     public Assignment clone() {
         return new Assignment(this);
     }
