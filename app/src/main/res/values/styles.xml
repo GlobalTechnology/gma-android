@@ -2,6 +2,11 @@
     <color name="gma_green">#58b231</color>
     <color name="measurementValueBackground">#faf8f7</color>
 
+    <!-- Default Shadow settings -->
+    <dimen name="shdw_length">4dp</dimen>
+    <color name="shdw_start">#33000000</color>
+    <color name="shdw_end">#00000000</color>
+
     <style name="Base"/>
 
     <style name="Theme.GMA" parent="Theme.AppCompat.Light.DarkActionBar">

@@ -5,6 +5,19 @@
     android:layout_height="match_parent">
 
     <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/shdw_length"
+        android:src="@drawable/shdw_below"
+        tools:ignore="ContentDescription"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/shdw_length"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/shdw_above"
+        tools:ignore="ContentDescription"/>
+
+    <ImageView
         android:id="@+id/logo_bottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
