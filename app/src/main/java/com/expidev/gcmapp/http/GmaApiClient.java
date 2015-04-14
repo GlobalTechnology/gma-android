@@ -65,7 +65,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     private static final Map<String, GmaApiClient> INSTANCES = new HashMap<>();
 
     private GmaApiClient(final Context context, final String guid) {
-        super(context, TheKeyImpl.getInstance(context), BuildConfig.GCM_BASE_URI, "gcm_api_sessions", guid);
+        super(context, TheKeyImpl.getInstance(context),
+              BuildConfig.GMA_API_BASE_URI + "v" + BuildConfig.GMA_API_VERSION + "/", "gma_api_sessions", guid);
     }
 
     @Deprecated

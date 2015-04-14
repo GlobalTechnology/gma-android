@@ -37,6 +37,7 @@ android {
         targetSdkVersion 22
 
         buildConfigField "long", "THEKEY_CLIENTID", "7439283632057308L"
+        buildConfigField "int", "GMA_API_VERSION", "2"
 
         resValue "string", "google_maps_api_key", "AIzaSyAATaK4l6LRKP5KA61KI2NkHAXd4ilS7NM"
     }
@@ -70,7 +71,7 @@ android {
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
 
-            buildConfigField "String", "GCM_BASE_URI", "\"https://stage-measurements.global-registry.org/v2/\""
+            buildConfigField "String", "GMA_API_BASE_URI", "\"https://stage-measurements.global-registry.org/\""
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AAfd80ddf74e333f27c92d3f89f125be5cecf9c532\""
 
             resValue "string", "google_maps_api_key", "AIzaSyCsM4eK9ZND1yZXv9Lg004peeepnKGH0EY"
@@ -86,7 +87,7 @@ android {
                 signingConfig signingConfigs.demo
             }
 
-            buildConfigField "String", "GCM_BASE_URI", "\"https://stage-measurements.global-registry.org/v2/\""
+            buildConfigField "String", "GMA_API_BASE_URI", "\"https://stage-measurements.global-registry.org/\""
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA8cb9761bdbec4e9ada73f4f4953f5c347f315d37\""
         }
         release {
@@ -97,7 +98,7 @@ android {
                 signingConfig signingConfigs.release
             }
 
-            buildConfigField "String", "GCM_BASE_URI", "\"https://measurements.global-registry.org/v2/\""
+            buildConfigField "String", "GMA_API_BASE_URI", "\"https://measurements.global-registry.org/\""
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA3128e4005a5f2d68e0d232aebec6e9936950e042\""
         }
     }
