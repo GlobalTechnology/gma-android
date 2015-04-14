@@ -225,13 +225,12 @@ public class Assignment extends Base implements Cloneable {
         switch (task) {
             case CREATE_CHURCH:
             case EDIT_CHURCH:
-                return isLeadership();
+                return !isBlocked();
             case VIEW_CHURCH:
-                return true;
+                return false;
             case EDIT_TRAINING:
-                return isLeadership();
             case VIEW_TRAINING:
-                return !isSelfAssigned() && !isBlocked();
+                return !isBlocked();
             case UPDATE_PERSONAL_MEASUREMENTS:
                 return isLeader() || isMember() || isSelfAssigned();
             case UPDATE_MINISTRY_MEASUREMENTS:
