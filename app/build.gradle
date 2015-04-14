@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.newrelic.agent.android:agent-gradle-plugin:4.265.0"
+        classpath "com.newrelic.agent.android:agent-gradle-plugin:4.273.4"
     }
 }
 
@@ -129,12 +129,12 @@ dependencies {
     compile 'com.google.guava:guava:18.0'
     compile 'com.google.maps.android:android-maps-utils:0.3.4'
 
-    compile 'com.newrelic.agent.android:android-agent:4.265.0'
+    compile 'com.newrelic.agent.android:android-agent:4.273.4'
 
     compile 'com.jakewharton:butterknife:6.1.0'
 
-    compile 'me.thekey.android:thekey-api:0.7.1'
-    compile 'me.thekey.android:thekey-lib:0.7.1'
+    compile 'me.thekey.android:thekey-api:0.7.2'
+    compile 'me.thekey.android:thekey-lib:0.7.2'
 
     compile 'org.ccci.gto.android:gto-support-api:0.5.0'
     compile 'org.ccci.gto.android:gto-support-core:0.5.0'
