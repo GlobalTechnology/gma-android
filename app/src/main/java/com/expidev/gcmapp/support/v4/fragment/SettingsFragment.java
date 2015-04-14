@@ -169,7 +169,7 @@ public class SettingsFragment extends PreferenceFragment {
             if (mPrefMinistry.getEntries().length == 0) {
                 mPrefMinistry.setSummary(R.string.pref_summary_ministry_none_available);
             } else if (mPrefMinistry.getEntry() == null) {
-                mPrefMinistry.setSummary(R.string.pref_summary_mcc_none_set);
+                mPrefMinistry.setSummary(R.string.pref_summary_ministry_none_set);
             } else {
                 mPrefMinistry.setSummary(R.string.pref_summary_ministry);
             }
