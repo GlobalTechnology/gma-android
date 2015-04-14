@@ -3,6 +3,7 @@ package com.expidev.gcmapp.support.v4.fragment;
 import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
 import static com.expidev.gcmapp.utils.BroadcastUtils.updateChurchesBroadcast;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -32,6 +33,7 @@ import butterknife.Optional;
 public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     private static String ARG_LOCATION = CreateChurchFragment.class.getName() + ".ARG_LOCATION";
 
+    @SuppressLint("TrulyRandom")
     private static final SecureRandom RAND = new SecureRandom();
 
     @NonNull

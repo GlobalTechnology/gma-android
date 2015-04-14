@@ -4,6 +4,7 @@ import static com.expidev.gcmapp.Constants.ARG_GUID;
 import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Build;
@@ -85,6 +86,7 @@ public class JoinMinistryDialogFragment extends AbstractDialogFragment {
     @NonNull
     @Override
     @SuppressLint("InflateParams")
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public Dialog onCreateDialog(@Nullable final Bundle savedState) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
