@@ -1,15 +1,22 @@
 package com.expidev.gcmapp.utils;
 
 import android.content.Context;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
+import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.db.Contract;
+import com.google.common.base.Throwables;
+
+import org.ccci.gto.android.common.newrelic.CrashReporterUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
-    private final String TAG = getClass().getSimpleName();
+    private static final Logger LOG = LoggerFactory.getLogger(DatabaseOpenHelper.class);
 
     /*
      * Version history
@@ -27,111 +34,141 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
      * 25: 2015-04-08
      * 26: 2015-04-09
      */
-    private static final int DATABASE_VERSION = 26;
     private static final String DATABASE_NAME = "gcm_data.db";
+    private static final int DATABASE_VERSION = 26;
 
     private static final Object LOCK_INSTANCE = new Object();
-    private static DatabaseOpenHelper instance;
+    private static DatabaseOpenHelper INSTANCE;
 
-    private DatabaseOpenHelper(final Context context)
-    {
+    private final Context mContext;
+
+    private DatabaseOpenHelper(@NonNull final Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        mContext = context;
     }
-    
-    public static DatabaseOpenHelper getInstance(Context context)
-    {
+
+    @NonNull
+    public static DatabaseOpenHelper getInstance(@NonNull final Context context) {
         synchronized (LOCK_INSTANCE) {
-            if (instance == null) {
-                instance = new DatabaseOpenHelper(context.getApplicationContext());
+            if (INSTANCE == null) {
+                INSTANCE = new DatabaseOpenHelper(context.getApplicationContext());
             }
         }
 
-        return instance;
+        return INSTANCE;
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db)
-    {
-        Log.i(TAG, "Creating database...");
-        createAssociatedMinistryTable(db);
-        createAssignmentsTable(db);
-        createTrainingTables(db);
-        db.execSQL(Contract.Church.SQL_CREATE_TABLE);
-        db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
-        db.execSQL(Contract.MinistryMeasurement.SQL_CREATE_TABLE);
-        db.execSQL(Contract.PersonalMeasurement.SQL_CREATE_TABLE);
-        createMeasurementsTables(db);
+    public void onCreate(@NonNull final SQLiteDatabase db) {
+        try {
+            db.beginTransaction();
+
+            createAssociatedMinistryTable(db);
+            createAssignmentsTable(db);
+            createTrainingTables(db);
+            db.execSQL(Contract.Church.SQL_CREATE_TABLE);
+            db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
+            db.execSQL(Contract.MinistryMeasurement.SQL_CREATE_TABLE);
+            db.execSQL(Contract.PersonalMeasurement.SQL_CREATE_TABLE);
+            createMeasurementsTables(db);
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 
     @Override
     public void onUpgrade(@NonNull final SQLiteDatabase db, final int oldVersion, final int newVersion) {
-        // perform upgrade in increments
-        int upgradeTo = oldVersion + 1;
-        while (upgradeTo <= newVersion) {
-            switch (upgradeTo) {
-                case 17:
-                    db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
-                    break;
-                case 18:
-                    db.execSQL(Contract.MinistryMeasurement.SQL_CREATE_TABLE);
-                    break;
-                case 19:
-                    db.execSQL(Contract.PersonalMeasurement.SQL_CREATE_TABLE);
-                    break;
-                case 20:
-                    // XXX: let's just recreate the table instead of altering the existing table
-                    db.execSQL(Contract.MeasurementType.SQL_DELETE_TABLE);
-                    db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
-                    break;
-                case 21:
-                    // XXX: let's just recreate the tables instead of altering the existing tables
-                    db.execSQL(Contract.MinistryMeasurement.SQL_DELETE_TABLE);
-                    db.execSQL(Contract.PersonalMeasurement.SQL_DELETE_TABLE);
-                    db.execSQL(Contract.PersonalMeasurement.SQL_V21_CREATE_TABLE);
-                    db.execSQL(Contract.MinistryMeasurement.SQL_V21_CREATE_TABLE);
-                    break;
-                case 22:
-                    db.execSQL(Contract.Church.SQL_v22_ALTER_NEW);
-                    break;
-                case 23:
-                    db.execSQL(Contract.MeasurementType.SQL_V23_PERMLINKSTUB);
-                    db.execSQL(Contract.PersonalMeasurement.SQL_V23_PERMLINKSTUB);
-                    db.execSQL(Contract.MinistryMeasurement.SQL_V23_PERMLINKSTUB);
-                    break;
-                case 24:
-                    break;
-                case 25:
-                    db.execSQL(Contract.PersonalMeasurement.SQL_V25_ALTER_DELTA);
-                    db.execSQL(Contract.MinistryMeasurement.SQL_V25_ALTER_DELTA);
-                    break;
-                case 26:
-                    db.execSQL(Contract.PersonalMeasurement.SQL_V26_UPDATE_DELTA);
-                    db.execSQL(Contract.MinistryMeasurement.SQL_V26_UPDATE_DELTA);
-                    break;
-                default:
-                    // unrecognized version, let's just reset the database and return
-                    resetDatabase(db);
-                    return;
+        try {
+            // perform upgrade in increments
+            int upgradeTo = oldVersion + 1;
+            while (upgradeTo <= newVersion) {
+                switch (upgradeTo) {
+                    case 17:
+                        db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
+                        break;
+                    case 18:
+                        db.execSQL(Contract.MinistryMeasurement.SQL_CREATE_TABLE);
+                        break;
+                    case 19:
+                        db.execSQL(Contract.PersonalMeasurement.SQL_CREATE_TABLE);
+                        break;
+                    case 20:
+                        // XXX: let's just recreate the table instead of altering the existing table
+                        db.execSQL(Contract.MeasurementType.SQL_DELETE_TABLE);
+                        db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
+                        break;
+                    case 21:
+                        // XXX: let's just recreate the tables instead of altering the existing tables
+                        db.execSQL(Contract.MinistryMeasurement.SQL_DELETE_TABLE);
+                        db.execSQL(Contract.PersonalMeasurement.SQL_DELETE_TABLE);
+                        db.execSQL(Contract.PersonalMeasurement.SQL_V21_CREATE_TABLE);
+                        db.execSQL(Contract.MinistryMeasurement.SQL_V21_CREATE_TABLE);
+                        break;
+                    case 22:
+                        db.execSQL(Contract.Church.SQL_v22_ALTER_NEW);
+                        break;
+                    case 23:
+                        db.execSQL(Contract.MeasurementType.SQL_V23_PERMLINKSTUB);
+                        db.execSQL(Contract.PersonalMeasurement.SQL_V23_PERMLINKSTUB);
+                        db.execSQL(Contract.MinistryMeasurement.SQL_V23_PERMLINKSTUB);
+                        break;
+                    case 24:
+                        break;
+                    case 25:
+                        db.execSQL(Contract.PersonalMeasurement.SQL_V25_ALTER_DELTA);
+                        db.execSQL(Contract.MinistryMeasurement.SQL_V25_ALTER_DELTA);
+                        break;
+                    case 26:
+                        db.execSQL(Contract.PersonalMeasurement.SQL_V26_UPDATE_DELTA);
+                        db.execSQL(Contract.MinistryMeasurement.SQL_V26_UPDATE_DELTA);
+                        break;
+                    default:
+                        // unrecognized version
+                        throw new SQLiteException("Unrecognized database version");
+                }
+
+                // perform next upgrade increment
+                upgradeTo++;
+            }
+        } catch (final SQLException e) {
+            LOG.error("error upgrading database", e);
+
+            // report (or rethrow) exception
+            if (BuildConfig.DEBUG) {
+                throw Throwables.propagate(e);
+            } else {
+                CrashReporterUtils.reportException(mContext, e);
             }
 
-            // perform next upgrade increment
-            upgradeTo++;
+            // let's try resetting the database instead
+            resetDatabase(db);
         }
     }
 
     @Override
     public void onDowngrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
         // reset the database, don't try and downgrade tables
-        this.resetDatabase(db);
+        resetDatabase(db);
     }
 
     private void resetDatabase(final SQLiteDatabase db) {
-        db.execSQL(Contract.Church.SQL_DELETE_TABLE);
-        db.execSQL(Contract.MeasurementType.SQL_DELETE_TABLE);
-        db.execSQL(Contract.MinistryMeasurement.SQL_DELETE_TABLE);
-        db.execSQL(Contract.PersonalMeasurement.SQL_DELETE_TABLE);
-        deleteAllTables(db);
-        onCreate(db);
+        try {
+            db.beginTransaction();
+
+            db.execSQL(Contract.Church.SQL_DELETE_TABLE);
+            db.execSQL(Contract.MeasurementType.SQL_DELETE_TABLE);
+            db.execSQL(Contract.MinistryMeasurement.SQL_DELETE_TABLE);
+            db.execSQL(Contract.PersonalMeasurement.SQL_DELETE_TABLE);
+            deleteAllTables(db);
+
+            onCreate(db);
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 
     /**

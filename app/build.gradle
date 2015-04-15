@@ -140,7 +140,11 @@ dependencies {
     compile 'org.ccci.gto.android:gto-support-api:0.5.1-SNAPSHOT'
     compile 'org.ccci.gto.android:gto-support-core:0.5.1-SNAPSHOT'
     compile 'org.ccci.gto.android:gto-support-db:0.5.1-SNAPSHOT'
+    compile 'org.ccci.gto.android:gto-support-newrelic:0.5.1-SNAPSHOT'
     compile 'org.ccci.gto.android:gto-support-recyclerview:0.5.1-SNAPSHOT'
+
+    compile 'org.slf4j:slf4j-api:1.7.10'
+    compile 'org.slf4j:slf4j-android:1.7.10'
 
     compile 'com.github.machinarius:preferencefragment:0.1.1'
     compile 'com.viewpagerindicator:library:2.4.2-SNAPSHOT'
