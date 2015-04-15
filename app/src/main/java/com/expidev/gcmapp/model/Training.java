@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import com.expidev.gcmapp.BuildConfig;
+
 import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,15 +24,17 @@ import java.util.Set;
 public class Training extends Location implements Cloneable {
     public static final long INVALID_ID = -1;
 
-    public static final String JSON_ID = "Id";
-    public static final String JSON_NAME = "name";
-    public static final String JSON_MINISTRY_ID = "ministry_id";
-    public static final String JSON_TYPE = "type";
-    public static final String JSON_DATE = "date";
-    public static final String JSON_MCC = "mcc";
-    public static final String JSON_LATITUDE = "latitude";
-    public static final String JSON_LONGITUDE = "longitude";
-    public static final String JSON_COMPLETIONS = "gcm_training_completions";
+    @Deprecated
+    private static final String JSON_ID_V2 = "Id";
+    private static final String JSON_ID = "id";
+    private static final String JSON_NAME = "name";
+    private static final String JSON_MINISTRY_ID = "ministry_id";
+    private static final String JSON_TYPE = "type";
+    private static final String JSON_DATE = "date";
+    private static final String JSON_MCC = "mcc";
+    private static final String JSON_LATITUDE = "latitude";
+    private static final String JSON_LONGITUDE = "longitude";
+    private static final String JSON_COMPLETIONS = "gcm_training_completions";
 
     private long id;
     @NonNull
@@ -79,7 +83,12 @@ public class Training extends Location implements Cloneable {
     public static Training fromJson(@NonNull final JSONObject json) throws JSONException {
         final Training training = new Training();
 
-        training.id = json.getLong(JSON_ID);
+        if (BuildConfig.GMA_API_VERSION < 4) {
+            training.id = json.getLong(JSON_ID_V2);
+        } else {
+            training.id = json.getLong(JSON_ID);
+        }
+
         training.ministryId = json.getString(JSON_MINISTRY_ID);
         training.name = json.getString(JSON_NAME);
         training.type = json.getString(JSON_TYPE);
@@ -241,7 +250,9 @@ public class Training extends Location implements Cloneable {
     public static class Completion extends Base {
         public static final long INVALID_ID = -1;
 
-        private static final String JSON_ID = "Id";
+        @Deprecated
+        private static final String JSON_ID_V2 = "Id";
+        private static final String JSON_ID = "id";
         private static final String JSON_TRAINING_ID = "training_id";
         private static final String JSON_PHASE = "phase";
         private static final String JSON_NUMBER_COMPLETED = "number_completed";
@@ -266,7 +277,13 @@ public class Training extends Location implements Cloneable {
         @NonNull
         public static Completion fromJson(@NonNull final JSONObject json) throws JSONException {
             final Completion completion = new Completion();
-            completion.id = json.getLong(JSON_ID);
+
+            if (BuildConfig.GMA_API_VERSION < 4) {
+                completion.id = json.getLong(JSON_ID_V2);
+            } else {
+                completion.id = json.getLong(JSON_ID);
+            }
+
             completion.trainingId = json.getLong(JSON_TRAINING_ID);
             completion.phase = json.getInt(JSON_PHASE);
             completion.numberCompleted = json.getInt(JSON_NUMBER_COMPLETED);
