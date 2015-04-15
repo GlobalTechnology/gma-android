@@ -13,7 +13,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'newrelic'
 
 group 'org.ccci.gto.android'
-version '0.8.4'
+version '0.8.5-SNAPSHOT'
 
 def generateVersionCode(version) {
     def code = 0;
