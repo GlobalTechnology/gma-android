@@ -3,6 +3,8 @@ package com.expidev.gcmapp.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.expidev.gcmapp.BuildConfig;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -98,7 +100,7 @@ public class Ministry extends Location implements Serializable {
             }
         }
         // parse legacy has_{mcc} flags if we don't have an mccs array
-        else {
+        else if (BuildConfig.GMA_API_VERSION < 4) {
             if (json.optBoolean(JSON_HAS_DS, false)) {
                 ministry.mccs.add(Mcc.DS);
             }
