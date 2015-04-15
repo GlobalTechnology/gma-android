@@ -3,12 +3,9 @@ package com.expidev.gcmapp.support.v4.fragment;
 import static com.expidev.gcmapp.Constants.ARG_TRAINING_ID;
 import static com.expidev.gcmapp.utils.BroadcastUtils.updateTrainingBroadcast;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,7 +13,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,6 +24,7 @@ import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.service.TrainingService;
 import com.expidev.gcmapp.support.v4.content.SingleTrainingLoader;
 
+import org.ccci.gto.android.common.app.AlertDialogCompat;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.support.v4.fragment.AbstractDialogFragment;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
@@ -96,19 +93,10 @@ public class EditTrainingFragment extends AbstractDialogFragment
     
     @NonNull
     @Override
-    @SuppressLint("inflateParams")
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public Dialog onCreateDialog(final Bundle savedState)
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-        {
-            builder.setView(R.layout.fragment_edit_training);
-        }
-        else
-        {
-            builder.setView(LayoutInflater.from(getActivity()).inflate(R.layout.fragment_edit_training, null));
-        }
+        AlertDialogCompat.setView(builder, getActivity(), R.layout.fragment_edit_training);
         return builder.create();
     }
 

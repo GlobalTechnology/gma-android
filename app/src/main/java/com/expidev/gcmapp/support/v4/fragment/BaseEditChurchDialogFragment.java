@@ -1,15 +1,11 @@
 package com.expidev.gcmapp.support.v4.fragment;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.view.LayoutInflater;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -17,6 +13,8 @@ import android.widget.TextView;
 
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.model.Church.Development;
+
+import org.ccci.gto.android.common.app.AlertDialogCompat;
 
 import java.util.EnumSet;
 
@@ -64,15 +62,9 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
 
     @NonNull
     @Override
-    @SuppressLint("InflateParams")
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public Dialog onCreateDialog(final Bundle savedState) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder.setView(R.layout.fragment_edit_church);
-        } else {
-            builder.setView(LayoutInflater.from(getActivity()).inflate(R.layout.fragment_edit_church, null));
-        }
+        AlertDialogCompat.setView(builder,getActivity(),R.layout.fragment_edit_church);
         return builder.create();
     }
 
