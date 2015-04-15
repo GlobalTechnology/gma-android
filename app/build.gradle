@@ -136,10 +136,10 @@ dependencies {
     compile 'me.thekey.android:thekey-api:0.7.2'
     compile 'me.thekey.android:thekey-lib:0.7.2'
 
-    compile 'org.ccci.gto.android:gto-support-api:0.5.0'
-    compile 'org.ccci.gto.android:gto-support-core:0.5.0'
-    compile 'org.ccci.gto.android:gto-support-db:0.5.0'
-    compile 'org.ccci.gto.android:gto-support-recyclerview:0.5.0'
+    compile 'org.ccci.gto.android:gto-support-api:0.5.1-SNAPSHOT'
+    compile 'org.ccci.gto.android:gto-support-core:0.5.1-SNAPSHOT'
+    compile 'org.ccci.gto.android:gto-support-db:0.5.1-SNAPSHOT'
+    compile 'org.ccci.gto.android:gto-support-recyclerview:0.5.1-SNAPSHOT'
 
     compile 'com.github.machinarius:preferencefragment:0.1.1'
     compile 'com.viewpagerindicator:library:2.4.2-SNAPSHOT'
