@@ -114,16 +114,12 @@ public class Ministry extends Location implements Serializable {
         }
 
         // load location data
-        double latitude = json.optDouble(JSON_LATITUDE);
-        double longitude = json.optDouble(JSON_LONGITUDE);
         final JSONObject location = json.optJSONObject(JSON_LOCATION);
         if (location != null) {
             // location JSON currently broke in getMinistry
-            latitude = location.optDouble(JSON_LATITUDE, latitude);
-            longitude = location.optDouble(JSON_LONGITUDE, longitude);
+            ministry.setLatitude(location.optDouble(JSON_LATITUDE));
+            ministry.setLongitude(location.optDouble(JSON_LONGITUDE));
         }
-        ministry.setLatitude(latitude);
-        ministry.setLongitude(longitude);
         ministry.setLocationZoom(json.optInt(JSON_LOCATION_ZOOM));
 
         return ministry;
