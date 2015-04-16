@@ -40,8 +40,7 @@ import com.google.common.primitives.Longs;
 
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.app.ThreadedIntentService;
-import org.ccci.gto.android.common.db.AbstractDao;
-import org.ccci.gto.android.common.db.AbstractDao.Transaction;
+import org.ccci.gto.android.common.db.Transaction;
 import org.ccci.gto.android.common.util.ThreadUtils;
 import org.ccci.gto.android.common.util.ThreadUtils.GenericKey;
 import org.joda.time.YearMonth;
@@ -253,7 +252,7 @@ public class GmaSyncService extends ThreadedIntentService {
 
     private void updateAllAssignments(@NonNull final String guid, @NonNull final List<Assignment> assignments) {
         // wrap entire update in a transaction
-        final AbstractDao.Transaction tx = mDao.newTransaction();
+        final Transaction tx = mDao.newTransaction();
         try {
             tx.begin();
 

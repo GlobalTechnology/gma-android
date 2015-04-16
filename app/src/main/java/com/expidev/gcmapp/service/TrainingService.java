@@ -23,7 +23,7 @@ import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.ccci.gto.android.common.api.ApiException;
-import org.ccci.gto.android.common.db.AbstractDao.Transaction;
+import org.ccci.gto.android.common.db.Transaction;
 import org.json.JSONException;
 import org.json.JSONObject;
 

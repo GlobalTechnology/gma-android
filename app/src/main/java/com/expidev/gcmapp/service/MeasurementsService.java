@@ -27,7 +27,7 @@ import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.app.ThreadedIntentService;
-import org.ccci.gto.android.common.db.AbstractDao;
+import org.ccci.gto.android.common.db.Transaction;
 import org.joda.time.YearMonth;
 import org.json.JSONObject;
 
@@ -193,7 +193,7 @@ public class MeasurementsService extends ThreadedIntentService
     private void updateMeasurements(List<Measurement> measurements)
     {
         // save measurements for the given period, ministry, and mcc to the database
-        final AbstractDao.Transaction transaction = measurementDao.newTransaction();
+        final Transaction transaction = measurementDao.newTransaction();
 
         try
         {
@@ -301,7 +301,7 @@ public class MeasurementsService extends ThreadedIntentService
 
     private void updateMeasurementDetails(List<MeasurementDetails> measurementDetailsList) throws ApiException
     {
-        final AbstractDao.Transaction transaction = measurementDao.newTransaction();
+        final Transaction transaction = measurementDao.newTransaction();
 
         try
         {
