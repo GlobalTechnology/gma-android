@@ -43,7 +43,7 @@ import com.expidev.gcmapp.model.measurement.SubMinistryDetails;
 import com.expidev.gcmapp.model.measurement.TeamMemberDetails;
 import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
-import com.expidev.gcmapp.support.v4.content.MeasurementDetailsLoader;
+import com.expidev.gcmapp.support.v4.content.LegacyMeasurementDetailsLoader;
 import com.expidev.gcmapp.utils.ViewUtils;
 import com.expidev.gcmapp.view.HorizontalLineView;
 import com.expidev.gcmapp.view.TextHeaderView;
@@ -813,7 +813,7 @@ public class MeasurementDetailsActivity extends ActionBarActivity
             switch(id)
             {
                 case LOADER_MEASUREMENT_DETAILS:
-                    return new MeasurementDetailsLoader(MeasurementDetailsActivity.this, args);
+                    return new LegacyMeasurementDetailsLoader(MeasurementDetailsActivity.this, args);
                 default:
                     return null;
             }

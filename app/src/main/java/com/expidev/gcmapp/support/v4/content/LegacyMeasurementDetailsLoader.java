@@ -17,7 +17,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class MeasurementDetailsLoader extends AsyncTaskBroadcastReceiverLoader<MeasurementDetails> {
+@Deprecated
+public class LegacyMeasurementDetailsLoader extends AsyncTaskBroadcastReceiverLoader<MeasurementDetails> {
     private final MeasurementDao measurementDao;
 
     @Nullable
@@ -29,7 +30,7 @@ public class MeasurementDetailsLoader extends AsyncTaskBroadcastReceiverLoader<M
     @Nullable
     private String period;
 
-    public MeasurementDetailsLoader(@NonNull final Context context, @Nullable final Bundle args) {
+    public LegacyMeasurementDetailsLoader(@NonNull final Context context, @Nullable final Bundle args) {
         this(
             context,
             args != null ? args.getString(Constants.ARG_MEASUREMENT_ID) : null,
@@ -39,9 +40,9 @@ public class MeasurementDetailsLoader extends AsyncTaskBroadcastReceiverLoader<M
         );
     }
 
-    public MeasurementDetailsLoader(@NonNull final Context context, @Nullable final String measurementId,
-                                    @Nullable final String ministryId, @Nullable final String mcc,
-                                    @Nullable final String period) {
+    public LegacyMeasurementDetailsLoader(@NonNull final Context context, @Nullable final String measurementId,
+                                          @Nullable final String ministryId, @Nullable final String mcc,
+                                          @Nullable final String period) {
         super(context);
 
         measurementDao = MeasurementDao.getInstance(context);
