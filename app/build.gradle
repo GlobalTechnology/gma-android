@@ -37,7 +37,7 @@ android {
         targetSdkVersion 22
 
         buildConfigField "long", "THEKEY_CLIENTID", "7439283632057308L"
-        buildConfigField "int", "GMA_API_VERSION", "2"
+        buildConfigField "int", "GMA_API_VERSION", "4"
 
         resValue "string", "google_maps_api_key", "AIzaSyAATaK4l6LRKP5KA61KI2NkHAXd4ilS7NM"
     }
@@ -71,7 +71,6 @@ android {
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
 
-            buildConfigField "int", "GMA_API_VERSION", "4"
             buildConfigField "String", "GMA_API_BASE_URI", "\"https://stage-measurements.global-registry.org/\""
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AAfd80ddf74e333f27c92d3f89f125be5cecf9c532\""
 
