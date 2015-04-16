@@ -24,6 +24,7 @@ public class MeasurementType extends Base {
     static final String JSON_PERM_LINK_STUB = "perm_link_stub";
     static final String JSON_TYPE_ID = "measurement_type_id";
     private static final String JSON_NAME = "name";
+    private static final String JSON_ENGLISH = "english";
     private static final String JSON_DESCRIPTION = "description";
     private static final String JSON_SECTION = "section";
     private static final String JSON_COLUMN = "column";
@@ -121,7 +122,11 @@ public class MeasurementType extends Base {
     public static MeasurementType fromJson(@NonNull final JSONObject json) throws JSONException {
         final MeasurementType type = new MeasurementType(json.getString(JSON_PERM_LINK_STUB));
 
-        type.name = json.optString(JSON_NAME, null);
+        if (json.has(JSON_NAME)) {
+            type.name = json.optString(JSON_NAME, null);
+        } else if (json.has(JSON_ENGLISH)) {
+            type.name = json.optString(JSON_ENGLISH, null);
+        }
         type.description = json.getString(JSON_DESCRIPTION);
         type.section = Section.fromRaw(json.getString(JSON_SECTION));
         type.column = Column.fromRaw(json.getString(JSON_COLUMN));
