@@ -33,9 +33,11 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
      * 24: 2015-04-06
      * 25: 2015-04-08
      * 26: 2015-04-09
+     * v0.8.4
+     * 27: 2015-04-15
      */
     private static final String DATABASE_NAME = "gcm_data.db";
-    private static final int DATABASE_VERSION = 26;
+    private static final int DATABASE_VERSION = 27;
 
     private static final Object LOCK_INSTANCE = new Object();
     private static DatabaseOpenHelper INSTANCE;
@@ -123,6 +125,11 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                     case 26:
                         db.execSQL(Contract.PersonalMeasurement.SQL_V26_UPDATE_DELTA);
                         db.execSQL(Contract.MinistryMeasurement.SQL_V26_UPDATE_DELTA);
+                        break;
+                    case 27:
+                        db.execSQL(Contract.MeasurementType.SQL_V27_UPDATE_PERMLINKSTUB);
+                        db.execSQL(Contract.PersonalMeasurement.SQL_V27_UPDATE_PERMLINKSTUB);
+                        db.execSQL(Contract.MinistryMeasurement.SQL_V27_UPDATE_PERMLINKSTUB);
                         break;
                     default:
                         // unrecognized version

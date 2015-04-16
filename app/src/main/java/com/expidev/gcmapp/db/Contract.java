@@ -236,6 +236,11 @@ public class Contract {
         String SQL_COLUMN_PERM_LINK_STUB = COLUMN_PERM_LINK_STUB + " TEXT NOT NULL DEFAULT ''";
 
         String SQL_WHERE_PERM_LINK_STUB = COLUMN_PERM_LINK_STUB + " = ?";
+
+        @Deprecated
+        String SQL_V27_UPDATE_PERMLINKSTUB_BASE =
+                " SET " + COLUMN_PERM_LINK_STUB + " = substr(" + COLUMN_PERM_LINK_STUB + ", 8) WHERE substr(" +
+                        COLUMN_PERM_LINK_STUB + ", 1,7) = 'custom_'";
     }
 
     public static final class MeasurementType extends Base implements MeasurementPermLink {
@@ -295,6 +300,9 @@ public class Contract {
         public static final String SQL_V23_PERMLINKSTUB =
                 "UPDATE " + TABLE_NAME + " SET " + COLUMN_PERM_LINK_STUB + " = replace(" + COLUMN_PERM_LINK_STUB +
                         ", 'lmi_total_', '')";
+        @Deprecated
+        public static final String SQL_V27_UPDATE_PERMLINKSTUB = "UPDATE " + TABLE_NAME +
+                SQL_V27_UPDATE_PERMLINKSTUB_BASE;
     }
 
     public static abstract class MeasurementValue extends Base implements MinistryId, MeasurementPermLink {
@@ -353,6 +361,9 @@ public class Contract {
                 "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_DELTA;
         @Deprecated
         public static final String SQL_V26_UPDATE_DELTA = "UPDATE " + TABLE_NAME + " SET " + COLUMN_DELTA + " = 0";
+        @Deprecated
+        public static final String SQL_V27_UPDATE_PERMLINKSTUB = "UPDATE " + TABLE_NAME +
+                SQL_V27_UPDATE_PERMLINKSTUB_BASE;
     }
 
     public static final class PersonalMeasurement extends MeasurementValue implements Guid {
@@ -398,6 +409,9 @@ public class Contract {
                 "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_DELTA;
         @Deprecated
         public static final String SQL_V26_UPDATE_DELTA = "UPDATE " + TABLE_NAME + " SET " + COLUMN_DELTA + " = 0";
+        @Deprecated
+        public static final String SQL_V27_UPDATE_PERMLINKSTUB = "UPDATE " + TABLE_NAME +
+                SQL_V27_UPDATE_PERMLINKSTUB_BASE;
     }
 
     public static final class Measurement extends Base implements MinistryId {
