@@ -35,9 +35,10 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
      * 26: 2015-04-09
      * v0.8.4
      * 27: 2015-04-15
+     * 28: 2015-04-16
      */
     private static final String DATABASE_NAME = "gcm_data.db";
-    private static final int DATABASE_VERSION = 27;
+    private static final int DATABASE_VERSION = 28;
 
     private static final Object LOCK_INSTANCE = new Object();
     private static DatabaseOpenHelper INSTANCE;
@@ -72,6 +73,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
             db.execSQL(Contract.MinistryMeasurement.SQL_CREATE_TABLE);
             db.execSQL(Contract.PersonalMeasurement.SQL_CREATE_TABLE);
+            db.execSQL(Contract.MeasurementDetails.SQL_CREATE_TABLE);
             createMeasurementsTables(db);
 
             db.setTransactionSuccessful();
@@ -131,6 +133,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                         db.execSQL(Contract.PersonalMeasurement.SQL_V27_UPDATE_PERMLINKSTUB);
                         db.execSQL(Contract.MinistryMeasurement.SQL_V27_UPDATE_PERMLINKSTUB);
                         break;
+                    case 28:
+                        db.execSQL(Contract.MeasurementDetails.SQL_CREATE_TABLE);
+                        break;
                     default:
                         // unrecognized version
                         throw new SQLiteException("Unrecognized database version");
@@ -168,6 +173,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             db.execSQL(Contract.MeasurementType.SQL_DELETE_TABLE);
             db.execSQL(Contract.MinistryMeasurement.SQL_DELETE_TABLE);
             db.execSQL(Contract.PersonalMeasurement.SQL_DELETE_TABLE);
+            db.execSQL(Contract.MeasurementDetails.SQL_DELETE_TABLE);
             deleteAllTables(db);
 
             onCreate(db);

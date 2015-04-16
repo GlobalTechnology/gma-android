@@ -21,9 +21,9 @@ public class MeasurementDetails extends Base {
     @NonNull
     private final Mcc mcc;
     @NonNull
-    private final YearMonth period;
-    @NonNull
     private final String permLink;
+    @NonNull
+    private final YearMonth period;
 
     @Nullable
     private String rawJson;
@@ -32,12 +32,12 @@ public class MeasurementDetails extends Base {
     private int version;
 
     public MeasurementDetails(@NonNull final String guid, @NonNull final String ministryId, @NonNull final Mcc mcc,
-                              @NonNull final YearMonth period, @NonNull final String permLink) {
+                              @NonNull final String permLink, @NonNull final YearMonth period) {
         this.guid = guid;
         this.ministryId = ministryId;
         this.mcc = mcc;
-        this.period = period;
         this.permLink = permLink;
+        this.period = period;
     }
 
     @NonNull
@@ -55,13 +55,13 @@ public class MeasurementDetails extends Base {
         return mcc;
     }
 
-    public YearMonth getPeriod() {
-        return period;
-    }
-
     @NonNull
     public String getPermLink() {
         return permLink;
+    }
+
+    public YearMonth getPeriod() {
+        return period;
     }
 
     @Nullable
@@ -98,6 +98,10 @@ public class MeasurementDetails extends Base {
         resetTransients();
         this.json = json;
         this.version = version;
+    }
+
+    public int getVersion() {
+        return version;
     }
 
     private void resetTransients() {

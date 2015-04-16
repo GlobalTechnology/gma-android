@@ -248,6 +248,12 @@ public class Contract {
                         COLUMN_PERM_LINK_STUB + ", 1,7) = 'custom_'";
     }
 
+    private interface Period {
+        String COLUMN_PERIOD = "period";
+        String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
+        static final String SQL_WHERE_PERIOD = COLUMN_PERIOD + " = ?";
+    }
+
     public static final class MeasurementType extends Base implements MeasurementPermLink {
         static final String TABLE_NAME = "measurementTypes";
 
@@ -310,16 +316,13 @@ public class Contract {
                 SQL_V27_UPDATE_PERMLINKSTUB_BASE;
     }
 
-    public static abstract class MeasurementValue extends Base implements MinistryId, Mcc, MeasurementPermLink {
-        static final String COLUMN_PERIOD = "period";
+    public static abstract class MeasurementValue extends Base implements MinistryId, Mcc, MeasurementPermLink, Period {
         public static final String COLUMN_VALUE = "value";
         public static final String COLUMN_DELTA = "delta";
 
-        static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
         static final String SQL_COLUMN_VALUE = COLUMN_VALUE + " INTEGER";
         static final String SQL_COLUMN_DELTA = COLUMN_DELTA + " INTEGER";
 
-        static final String SQL_WHERE_PERIOD = COLUMN_PERIOD + " = ?";
         public static final String SQL_WHERE_DIRTY = COLUMN_DELTA + " != 0";
     }
 
@@ -416,6 +419,36 @@ public class Contract {
                 SQL_V27_UPDATE_PERMLINKSTUB_BASE;
     }
 
+    public static final class MeasurementDetails extends Base
+            implements Guid, MinistryId, Mcc, MeasurementPermLink, Period {
+        static final String TABLE_NAME = "measurementDetails";
+
+        static final String COLUMN_JSON = "json";
+        static final String COLUMN_VERSION = "jsonVersion";
+
+        static final String[] PROJECTION_ALL =
+                {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD, COLUMN_JSON,
+                        COLUMN_VERSION, COLUMN_LAST_SYNCED};
+
+        private static final String SQL_COLUMN_JSON = COLUMN_JSON + " TEXT";
+        private static final String SQL_COLUMN_VERSION = COLUMN_VERSION + " INTEGER";
+        private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils.join(",", new Object[] {COLUMN_GUID,
+                COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD}) + ")";
+
+        private static final String SQL_PREFIX = TABLE_NAME + ".";
+
+        static final String SQL_WHERE_PRIMARY_KEY =
+                SQL_WHERE_GUID + " AND " + SQL_WHERE_MINISTRY + " AND " + SQL_WHERE_MCC + " AND " +
+                        SQL_WHERE_PERM_LINK_STUB + " AND " + SQL_WHERE_PERIOD;
+
+        public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+                TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_GUID, SQL_COLUMN_MINISTRY_ID,
+                        SQL_COLUMN_MCC, SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_PERIOD, SQL_COLUMN_JSON,
+                        SQL_COLUMN_VERSION, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
+        public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
+
+    @Deprecated
     public static final class Measurement extends Base implements MinistryId {
         public static final String TABLE_NAME = "measurements";
         private static final String INDEX_NAME = "measurements_unique_index";
