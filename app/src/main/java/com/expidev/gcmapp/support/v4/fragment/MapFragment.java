@@ -11,6 +11,7 @@ import static com.expidev.gcmapp.model.Task.VIEW_CHURCH;
 import static com.expidev.gcmapp.model.Task.VIEW_TRAINING;
 import static com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -84,6 +85,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
     @Nullable
     private GoogleMap mMap;
+    private boolean mMapInitialized = false;
     @Nullable
     private ClusterManager<Marker> mClusterManager;
     private final boolean[] mMapLayers = new boolean[6];
@@ -112,6 +114,16 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     /* BEGIN lifecycle */
 
     @Override
+    public void onAttach(@NonNull final Activity activity) {
+        super.onAttach(activity);
+
+        // get the GoogleMap as soon as it's available
+        if (checkPlayServices()) {
+            getMapAsync(this);
+        }
+    }
+
+    @Override
     public void onCreate(@Nullable final Bundle savedState) {
         super.onCreate(savedState);
 
@@ -131,10 +143,6 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     public void onViewCreated(@NonNull final View view, @Nullable final Bundle savedState) {
         super.onViewCreated(view, savedState);
         ButterKnife.inject(this, view);
-
-        if (checkPlayServices()) {
-            getMapAsync(this);
-        }
     }
 
     @Override
@@ -255,6 +263,9 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(@NonNull final GoogleMap map) {
+        // is the map still initialized? Only true if it's been initialized and the map isn't changing
+        mMapInitialized = mMapInitialized && map == mMap;
+
         mMap = map;
         initMap();
     }
@@ -323,9 +334,10 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     }
 
     private void initMap() {
-        if (mMap != null) {
-            mClusterManager = new ClusterManager<>(getActivity(), mMap);
-            mClusterManager.setRenderer(new MarkerRender(getActivity(), mMap, mClusterManager));
+        final Context context = getActivity();
+        if (!mMapInitialized && context != null && mMap != null) {
+            mClusterManager = new ClusterManager<>(context, mMap);
+            mClusterManager.setRenderer(new MarkerRender(context, mMap, mClusterManager));
             mClusterManager.setOnClusterItemInfoWindowClickListener(
                     new ClusterManager.OnClusterItemInfoWindowClickListener<Marker>() {
                         @Override
@@ -345,6 +357,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             loadVisibleMapLayers();
             updateMapLocation();
             updateMapMarkers();
+
+            mMapInitialized = true;
         }
     }
 
