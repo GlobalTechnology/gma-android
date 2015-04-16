@@ -68,7 +68,7 @@ public class MeasurementType extends Base {
     }
 
     public enum Column {
-        FAITH, FRUIT, OUTCOME, UNKNOWN;
+        FAITH, FRUIT, OUTCOME, OTHER, UNKNOWN;
 
         @NonNull
         public static Column fromRaw(@Nullable final String raw) {
@@ -80,6 +80,8 @@ public class MeasurementType extends Base {
                         return FRUIT;
                     case "outcome":
                         return OUTCOME;
+                    case "other":
+                        return OTHER;
                 }
             }
 

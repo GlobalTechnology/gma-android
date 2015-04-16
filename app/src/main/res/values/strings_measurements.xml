@@ -3,4 +3,5 @@
     <string name="label_measurements_column_faith">Faith Actions</string>
     <string name="label_measurements_column_fruit">Fruit</string>
     <string name="label_measurements_column_outcomes">Outcomes</string>
+    <string name="label_measurements_column_other">Other</string>
 </resources>

@@ -191,8 +191,14 @@ public class ColumnsListFragment extends Fragment {
                     logoBottom = R.drawable.ic_header_measurements_outcomes_under;
                     break;
                 case FAITH:
-                default:
                     label = R.string.label_measurements_column_faith;
+                    logoTop = R.drawable.ic_header_measurements_faith;
+                    logoBottom = R.drawable.ic_header_measurements_faith_under;
+                    break;
+                case OTHER:
+                default:
+                    label = R.string.label_measurements_column_other;
+                    //TODO get separate header graphics for Other measurements
                     logoTop = R.drawable.ic_header_measurements_faith;
                     logoBottom = R.drawable.ic_header_measurements_faith_under;
                     break;
