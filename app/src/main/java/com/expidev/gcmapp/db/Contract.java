@@ -423,7 +423,7 @@ public class Contract {
             implements Guid, MinistryId, Mcc, MeasurementPermLink, Period {
         static final String TABLE_NAME = "measurementDetails";
 
-        static final String COLUMN_JSON = "json";
+        public static final String COLUMN_JSON = "json";
         static final String COLUMN_VERSION = "jsonVersion";
 
         static final String[] PROJECTION_ALL =

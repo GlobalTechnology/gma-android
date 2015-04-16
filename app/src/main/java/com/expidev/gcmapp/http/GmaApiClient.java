@@ -12,10 +12,10 @@ import com.expidev.gcmapp.http.GmaApiClient.Session;
 import com.expidev.gcmapp.json.MeasurementsJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
+import com.expidev.gcmapp.model.MeasurementDetails;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.model.measurement.Measurement;
-import com.expidev.gcmapp.model.measurement.MeasurementDetails;
 import com.expidev.gcmapp.model.measurement.MeasurementType;
 import com.expidev.gcmapp.model.measurement.MeasurementValue;
 import com.expidev.gcmapp.service.GmaSyncService;
@@ -402,6 +402,48 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         return null;
     }
 
+    @Nullable
+    public MeasurementDetails getMeasurementDetails(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
+                                                    @NonNull final String permLink, @NonNull final YearMonth period)
+            throws ApiException {
+        // short-circuit if we don't have a valid ministryId or mcc
+        if (ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
+            return null;
+        }
+        assert mcc.raw != null : "only Mcc.UNKNOWN has a null raw value";
+
+        // build request
+        final Request<Session> request = new Request<>(MEASUREMENTS + "/" + permLink);
+        request.params.add(param("ministry_id", ministryId));
+        request.params.add(param("mcc", mcc.raw));
+        request.params.add(param("period", period.toString()));
+
+        // process request
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+
+            // is this a successful response?
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                if (request.guid != null) {
+                    final MeasurementDetails details =
+                            new MeasurementDetails(request.guid, ministryId, mcc, permLink, period);
+                    details.setJson(new JSONObject(IOUtils.readString(conn.getInputStream())),
+                                    BuildConfig.GMA_API_VERSION);
+                    return details;
+                }
+            }
+        } catch (final JSONException e) {
+            LOG.error("error parsing getMeasurementDetails JSON response", e);
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+
+        return null;
+    }
+
     public boolean updateMeasurements(@NonNull final MeasurementValue... measurements) throws ApiException {
         // short-circuit if we don't have any measurements to update
         if (measurements.length == 0) {
@@ -441,6 +483,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Nullable
+    @Deprecated
     public JSONObject getDetailsForMeasurement(@NonNull final String measurementId, @NonNull final String ministryId,
                                                @NonNull final Ministry.Mcc mcc, @Nullable final String period)
             throws ApiException {
@@ -478,12 +521,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         return null;
     }
 
-    public boolean updateMeasurementDetails(List<MeasurementDetails> measurementDetailsList, String assignmentId)
-        throws JSONException, ApiException
-    {
+    @Deprecated
+    public boolean updateMeasurementDetails(
+            List<com.expidev.gcmapp.model.measurement.MeasurementDetails> measurementDetailsList, String assignmentId)
+            throws JSONException, ApiException {
         List<JSONObject> data = new ArrayList<>();
-        for(MeasurementDetails measurementDetails : measurementDetailsList)
-        {
+        for (com.expidev.gcmapp.model.measurement.MeasurementDetails measurementDetails : measurementDetailsList) {
             // Can be positive or negative
             if(measurementDetails.getLocalValue() != 0)
             {

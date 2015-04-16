@@ -4,6 +4,7 @@ import static com.expidev.gcmapp.Constants.EXTRA_GUID;
 import static com.expidev.gcmapp.Constants.EXTRA_MCC;
 import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
 import static com.expidev.gcmapp.Constants.EXTRA_PERIOD;
+import static com.expidev.gcmapp.Constants.EXTRA_PERMLINK;
 import static com.expidev.gcmapp.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
 import static com.expidev.gcmapp.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
@@ -25,6 +26,7 @@ import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.http.GmaApiClient;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
+import com.expidev.gcmapp.model.MeasurementDetails;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Ministry.Mcc;
 import com.expidev.gcmapp.model.measurement.Measurement;
@@ -76,6 +78,7 @@ public class GmaSyncService extends ThreadedIntentService {
     private static final int SYNCTYPE_MEASUREMENT_TYPES = 6;
     private static final int SYNCTYPE_MEASUREMENTS = 7;
     private static final int SYNCTYPE_DIRTY_MEASUREMENTS = 8;
+    private static final int SYNCTYPE_MEASUREMENT_DETAILS = 9;
 
     // various stale data durations
     private static final long HOUR_IN_MS = 60 * 60 * 1000;
@@ -88,7 +91,7 @@ public class GmaSyncService extends ThreadedIntentService {
     private final Map<GenericKey, Object> mLocksDirtyMeasurements = new ArrayMap<>();
 
     @NonNull
-    private GmaDao mDao;
+    private /* final */ GmaDao mDao;
     private LocalBroadcastManager broadcastManager;
 
     public GmaSyncService() {
@@ -169,6 +172,19 @@ public class GmaSyncService extends ThreadedIntentService {
         context.startService(intent);
     }
 
+    public static void syncMeasurementDetails(@NonNull final Context context, @NonNull final String guid,
+                                              @NonNull final String ministryId, @NonNull final Mcc mcc,
+                                              @NonNull final String permLink, @NonNull final YearMonth period) {
+        final Intent intent = new Intent(context, GmaSyncService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_MEASUREMENT_DETAILS);
+        intent.putExtra(EXTRA_GUID, guid);
+        intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
+        intent.putExtra(EXTRA_MCC, mcc.toString());
+        intent.putExtra(EXTRA_PERMLINK, permLink);
+        intent.putExtra(EXTRA_PERIOD, period.toString());
+        context.startService(intent);
+    }
+
     /* BEGIN lifecycle */
 
     @Override
@@ -208,6 +224,9 @@ public class GmaSyncService extends ThreadedIntentService {
                     break;
                 case SYNCTYPE_DIRTY_MEASUREMENTS:
                     syncDirtyMeasurements(api, intent);
+                    break;
+                case SYNCTYPE_MEASUREMENT_DETAILS:
+                    syncMeasurementDetails(api, intent);
                     break;
                 default:
                     break;
@@ -663,6 +682,37 @@ public class GmaSyncService extends ThreadedIntentService {
 
         if (sendBroadcasts) {
             //TODO: broadcasts
+        }
+    }
+
+    private void syncMeasurementDetails(@NonNull final GmaApiClient api, @NonNull final Intent intent)
+            throws ApiException {
+        // get parameters for sync from the intent & sanitize
+        final String guid = intent.getStringExtra(EXTRA_GUID);
+        final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
+        final Mcc mcc = Mcc.fromRaw(intent.getStringExtra(Constants.ARG_MCC));
+        final String permLink = intent.getStringExtra(EXTRA_PERMLINK);
+        final String rawPeriod = intent.getStringExtra(Constants.ARG_PERIOD);
+        final YearMonth period = rawPeriod != null ? YearMonth.parse(rawPeriod) : YearMonth.now();
+        if (guid == null) {
+            return;
+        }
+        if (ministryId == null || ministryId.equals(Ministry.INVALID_ID)) {
+            return;
+        }
+        if (mcc == Mcc.UNKNOWN) {
+            return;
+        }
+        if (permLink == null) {
+            return;
+        }
+
+        // fetch details from the API
+        final MeasurementDetails details = api.getMeasurementDetails(ministryId, mcc, permLink, period);
+        if (details != null) {
+            details.setLastSynced();
+            mDao.updateOrInsert(details, new String[] {Contract.MeasurementDetails.COLUMN_JSON,
+                    Contract.MeasurementDetails.COLUMN_LAST_SYNCED});
         }
     }
 
