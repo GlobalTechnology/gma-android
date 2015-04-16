@@ -65,8 +65,8 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         try {
             db.beginTransaction();
 
-            createAssociatedMinistryTable(db);
-            createAssignmentsTable(db);
+            db.execSQL(Contract.Ministry.SQL_CREATE_TABLE);
+            db.execSQL(Contract.Assignment.SQL_CREATE_TABLE);
             createTrainingTables(db);
             db.execSQL(Contract.Church.SQL_CREATE_TABLE);
             db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
@@ -176,25 +176,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         } finally {
             db.endTransaction();
         }
-    }
-
-    /**
-     * This table holds information for ministries in GMA.
-     */
-    private void createAssociatedMinistryTable(SQLiteDatabase db)
-    {
-        db.execSQL(Contract.Ministry.SQL_CREATE_TABLE);
-    }
-
-    /**
-     * This table holds information for assignments the current user
-     * has to existing ministries/teams. This is closely related to the
-     * Associated Ministries table, where every assignment will have an
-     * associated ministry.
-     */
-    private void createAssignmentsTable(SQLiteDatabase db)
-    {
-        db.execSQL(Contract.Assignment.SQL_CREATE_TABLE);
     }
 
     private void createTrainingTables(SQLiteDatabase db)
