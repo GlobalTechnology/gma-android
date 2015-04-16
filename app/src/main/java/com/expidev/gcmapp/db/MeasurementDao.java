@@ -29,7 +29,7 @@ public class MeasurementDao extends AbstractDao
     private static MeasurementDao instance;
 
     private static final Mapper<Measurement> MEASUREMENT_MAPPER = new MeasurementMapper();
-    private static final Mapper<MeasurementDetails> MEASUREMENT_DETAILS_MAPPER = new MeasurementDetailsMapper();
+    private static final Mapper<MeasurementDetails> MEASUREMENT_DETAILS_MAPPER = new LegacyMeasurementDetailsMapper();
     private static final Mapper<SixMonthAmounts> SIX_MONTH_AMOUNTS_MAPPER = new SixMonthAmountsMapper();
     private static final Mapper<MeasurementTypeIds> MEASUREMENT_TYPE_IDS_MAPPER = new MeasurementTypeIdsMapper();
     private static final Mapper<BreakdownData> BREAKDOWN_DATA_MAPPER = new BreakdownDataMapper();
@@ -64,7 +64,7 @@ public class MeasurementDao extends AbstractDao
         }
         else if(MeasurementDetails.class.equals(clazz))
         {
-            return Contract.MeasurementDetails.TABLE_NAME;
+            return Contract.LegacyMeasurementDetails.TABLE_NAME;
         }
         else if(SixMonthAmounts.class.equals(clazz))
         {
@@ -99,7 +99,7 @@ public class MeasurementDao extends AbstractDao
         }
         else if(MeasurementDetails.class.equals(clazz))
         {
-            return Contract.MeasurementDetails.PROJECTION_ALL;
+            return Contract.LegacyMeasurementDetails.PROJECTION_ALL;
         }
         else if(SixMonthAmounts.class.equals(clazz))
         {
@@ -177,7 +177,7 @@ public class MeasurementDao extends AbstractDao
         else if(MeasurementDetails.class.equals(clazz))
         {
             keyLength = 4;
-            where = Contract.MeasurementDetails.SQL_WHERE_MEASUREMENT;
+            where = Contract.LegacyMeasurementDetails.SQL_WHERE_MEASUREMENT;
         }
         else if(SixMonthAmounts.class.equals(clazz))
         {
@@ -294,7 +294,7 @@ public class MeasurementDao extends AbstractDao
         final Ministry.Mcc mcc = measurementDetails.getMcc();
         String period = measurementDetails.getPeriod();
 
-        this.updateOrInsert(measurementDetails, Contract.MeasurementDetails.PROJECTION_ALL);
+        this.updateOrInsert(measurementDetails, Contract.LegacyMeasurementDetails.PROJECTION_ALL);
 
         saveMeasurementTypeIds(measurementDetails.getMeasurementTypeIds(), measurementId, ministryId, mcc, period);
 
@@ -401,7 +401,7 @@ public class MeasurementDao extends AbstractDao
 
         List<MeasurementDetails> baseResults = this.get(
             MeasurementDetails.class,
-            Contract.MeasurementDetails.SQL_WHERE_MEASUREMENT,
+            Contract.LegacyMeasurementDetails.SQL_WHERE_MEASUREMENT,
             whereArgs);
 
         if(baseResults.size() < 1)

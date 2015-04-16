@@ -9,11 +9,8 @@ import com.expidev.gcmapp.model.Ministry;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * Created by William.Randall on 1/29/2015.
- */
-public class MeasurementDetails extends Base implements Serializable
-{
+@Deprecated
+public class MeasurementDetails extends Base implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private String measurementId;

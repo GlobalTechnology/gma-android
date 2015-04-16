@@ -443,7 +443,8 @@ public class Contract {
                 COLUMN_PERIOD }) + ");";
     }
 
-    public static final class MeasurementDetails extends Base implements MinistryId {
+    @Deprecated
+    public static final class LegacyMeasurementDetails extends Base implements MinistryId {
         public static final String TABLE_NAME = "measurement_details";
 
         static final String COLUMN_MEASUREMENT_ID = "measurement_id"; //Foreign key for Measurement
