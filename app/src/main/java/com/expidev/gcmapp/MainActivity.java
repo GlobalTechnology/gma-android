@@ -227,6 +227,7 @@ public class MainActivity extends ActionBarActivity {
             // trigger background syncing of data
             GmaSyncService.syncAssignments(this, mGuid, force);
             GmaSyncService.syncMinistries(this, force);
+            GmaSyncService.syncMeasurementTypes(this);
             if (mAssignment != null) {
                 GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
                                                 YearMonth.now());

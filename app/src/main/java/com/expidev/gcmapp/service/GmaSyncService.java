@@ -92,7 +92,7 @@ public class GmaSyncService extends ThreadedIntentService {
     private LocalBroadcastManager broadcastManager;
 
     public GmaSyncService() {
-        super("GmaSyncService", 5);
+        super("GmaSyncService", 10);
     }
 
     public static void syncMinistries(final Context context) {
