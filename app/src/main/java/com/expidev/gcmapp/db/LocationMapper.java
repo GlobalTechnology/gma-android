@@ -10,10 +10,10 @@ public abstract class LocationMapper<T extends Location> extends BaseMapper<T> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field, @NonNull final T obj) {
         switch (field) {
-            case Contract.Church.COLUMN_LATITUDE:
+            case Contract.Location.COLUMN_LATITUDE:
                 values.put(field, obj.getLatitude());
                 break;
-            case Contract.Church.COLUMN_LONGITUDE:
+            case Contract.Location.COLUMN_LONGITUDE:
                 values.put(field, obj.getLongitude());
                 break;
             default:

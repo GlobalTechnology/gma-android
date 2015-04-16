@@ -34,15 +34,15 @@ public class Contract {
         String SQL_WHERE_MINISTRY = COLUMN_MINISTRY_ID + " = ?";
     }
 
-    public static abstract class Location extends Base {
-        public static final String COLUMN_LATITUDE = "latitude";
-        public static final String COLUMN_LONGITUDE = "longitude";
+    public interface Location {
+        String COLUMN_LATITUDE = "latitude";
+        String COLUMN_LONGITUDE = "longitude";
 
-        static final String SQL_COLUMN_LATITUDE = COLUMN_LATITUDE + " DECIMAL";
-        static final String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
+        String SQL_COLUMN_LATITUDE = COLUMN_LATITUDE + " DECIMAL";
+        String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
     }
 
-    public static final class Training extends Location implements MinistryId {
+    public static final class Training extends Base implements MinistryId, Location {
         public static final String TABLE_NAME = "training";
 
         static final String COLUMN_ID = _ID;
@@ -113,7 +113,7 @@ public class Contract {
                 "DROP TABLE IF EXISTS associated_ministries";
     }
 
-    public static final class Ministry extends Location implements MinistryId {
+    public static final class Ministry extends Base implements MinistryId, Location {
         public static final String TABLE_NAME = "ministries";
 
         public static final String COLUMN_MIN_CODE = "min_code";
@@ -183,7 +183,7 @@ public class Contract {
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
-    public static final class Church extends Location implements MinistryId {
+    public static final class Church extends Base implements MinistryId, Location {
         public static final String TABLE_NAME = "churches";
 
         static final String COLUMN_ID = _ID;
