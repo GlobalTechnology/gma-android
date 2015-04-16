@@ -28,10 +28,17 @@ public class Contract {
     private interface MinistryId {
         String COLUMN_MINISTRY_ID = "ministry_id";
 
-        String SQL_COLUMN_MINISTRY_ID =
-                COLUMN_MINISTRY_ID + " TEXT COLLATE NOCASE NOT NULL DEFAULT ''";
+        String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT COLLATE NOCASE NOT NULL DEFAULT ''";
 
         String SQL_WHERE_MINISTRY = COLUMN_MINISTRY_ID + " = ?";
+    }
+
+    private interface Mcc {
+        String COLUMN_MCC = "mcc";
+
+        String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT NOT NULL DEFAULT ''";
+
+        String SQL_WHERE_MCC = COLUMN_MCC + " = ?";
     }
 
     public interface Location {
@@ -151,11 +158,10 @@ public class Contract {
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
-    public static final class Assignment extends Base implements Guid, MinistryId {
+    public static final class Assignment extends Base implements Guid, MinistryId, Mcc {
         public static final String TABLE_NAME = "assignments";
 
         public static final String COLUMN_ROLE = "team_role";
-        public static final String COLUMN_MCC = "mcc";
         public static final String COLUMN_ID = "assignment_id";
 
         static final String[] PROJECTION_ALL =
@@ -164,7 +170,6 @@ public class Contract {
         public static final String[] PROJECTION_API_CREATE_ASSIGNMENT = PROJECTION_API_GET_ASSIGNMENT;
 
         private static final String SQL_COLUMN_ROLE = COLUMN_ROLE + " TEXT";
-        private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT NOT NULL DEFAULT ''";
         private static final String SQL_COLUMN_ID = COLUMN_ID + " TEXT";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_GUID + "," + COLUMN_MINISTRY_ID + ")";
         private static final String SQL_FOREIGN_KEY_MINISTRIES =
@@ -305,18 +310,15 @@ public class Contract {
                 SQL_V27_UPDATE_PERMLINKSTUB_BASE;
     }
 
-    public static abstract class MeasurementValue extends Base implements MinistryId, MeasurementPermLink {
-        static final String COLUMN_MCC = "mcc";
+    public static abstract class MeasurementValue extends Base implements MinistryId, Mcc, MeasurementPermLink {
         static final String COLUMN_PERIOD = "period";
         public static final String COLUMN_VALUE = "value";
         public static final String COLUMN_DELTA = "delta";
 
-        static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
         static final String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
         static final String SQL_COLUMN_VALUE = COLUMN_VALUE + " INTEGER";
         static final String SQL_COLUMN_DELTA = COLUMN_DELTA + " INTEGER";
 
-        static final String SQL_WHERE_MCC = COLUMN_MCC + " = ?";
         static final String SQL_WHERE_PERIOD = COLUMN_PERIOD + " = ?";
         public static final String SQL_WHERE_DIRTY = COLUMN_DELTA + " != 0";
     }
@@ -333,7 +335,7 @@ public class Contract {
         public static final String SQL_PREFIX = TABLE_NAME + ".";
 
         private static final String SQL_WHERE_MINISTRY = SQL_PREFIX + MinistryId.SQL_WHERE_MINISTRY;
-        private static final String SQL_WHERE_MCC = SQL_PREFIX + MeasurementValue.SQL_WHERE_MCC;
+        private static final String SQL_WHERE_MCC = SQL_PREFIX + Mcc.SQL_WHERE_MCC;
         private static final String SQL_WHERE_PERIOD = SQL_PREFIX + MeasurementValue.SQL_WHERE_PERIOD;
         public static final String SQL_WHERE_MINISTRY_MCC_PERIOD =
                 SQL_WHERE_MINISTRY + " AND " + SQL_WHERE_MCC + " AND " + SQL_WHERE_PERIOD;
@@ -381,7 +383,7 @@ public class Contract {
 
         private static final String SQL_WHERE_GUID = SQL_PREFIX + Guid.SQL_WHERE_GUID;
         private static final String SQL_WHERE_MINISTRY = SQL_PREFIX + MinistryId.SQL_WHERE_MINISTRY;
-        private static final String SQL_WHERE_MCC = SQL_PREFIX + MeasurementValue.SQL_WHERE_MCC;
+        private static final String SQL_WHERE_MCC = SQL_PREFIX + Mcc.SQL_WHERE_MCC;
         private static final String SQL_WHERE_PERIOD = SQL_PREFIX + MeasurementValue.SQL_WHERE_PERIOD;
         public static final String SQL_WHERE_GUID_MINISTRY_MCC_PERIOD =
                 SQL_WHERE_GUID + " AND " + SQL_WHERE_MINISTRY + " AND " + SQL_WHERE_MCC + " AND " + SQL_WHERE_PERIOD;
