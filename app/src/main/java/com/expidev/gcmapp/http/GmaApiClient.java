@@ -54,6 +54,9 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     private static final Logger LOG = LoggerFactory.getLogger(GmaApiClient.class);
     private final String TAG = getClass().getSimpleName();
 
+    public static final int V2 = 2;
+    public static final int V4 = 4;
+
     private static final String PREF_COOKIES = "cookies";
 
     private static final String ASSIGNMENTS = "assignments";
