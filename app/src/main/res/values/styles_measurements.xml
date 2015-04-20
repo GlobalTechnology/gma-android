@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <color name="measurements_graph_personal">#3366CC</color>
+    <color name="measurements_graph_local">#DC3912</color>
+    <color name="measurements_graph_total">#FF9900</color>
+
     <style name="Theme.GMA.Measurements">
         <!--<item name="actionBarTheme">@style/Theme.GMA.Measurements.ActionBar</item>-->
     </style>
