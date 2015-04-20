@@ -148,6 +148,7 @@ dependencies {
 
     compile 'com.github.machinarius:preferencefragment:0.1.1'
     compile 'com.github.PhilJay:MPAndroidChart:v2.0.9'
+    compile 'com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.6.2'
     compile 'com.viewpagerindicator:library:2.4.2-SNAPSHOT'
     compile 'net.danlew:android.joda:2.7.1'
     compile 'org.achartengine:achartengine:1.2.0'
