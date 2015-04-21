@@ -57,6 +57,7 @@ public class MeasurementDetails extends Base {
 
     @Nullable
     private transient Table<Integer, YearMonth, Integer> history;
+    private transient int total;
     @Nullable
     private transient Breakdown[] local;
     private transient int localTotal = 0;
@@ -64,10 +65,10 @@ public class MeasurementDetails extends Base {
     private transient Breakdown[] team;
     private transient int teamTotal = 0;
     @Nullable
-    private transient AssignmentBreakdown[] selfAssigned;
+    private transient Breakdown[] selfAssigned;
     private transient int selfAssignedTotal = 0;
     @Nullable
-    private transient MinistryBreakdown[] subMinistries;
+    private transient Breakdown[] subMinistries;
     private transient int subMinistriesTotal = 0;
 
     public MeasurementDetails(@NonNull final String guid, @NonNull final String ministryId, @NonNull final Mcc mcc,
@@ -146,79 +147,85 @@ public class MeasurementDetails extends Base {
     @NonNull
     public Table<Integer, YearMonth, Integer> getHistory() {
         if (this.history == null) {
-            this.history = parseHistory();
+            parseHistory();
         }
 
         return this.history;
     }
 
+    public int getTotal() {
+        if (this.history == null) {
+            parseHistory();
+        }
+
+        return total;
+    }
+
     @NonNull
     public Breakdown[] getLocalBreakdown() {
         if (this.local == null) {
-            this.local = parseLocalBreakdown();
+            parseLocalBreakdown();
         }
 
         return this.local;
     }
 
     public int getLocalBreakdownTotal() {
+        if (this.local == null) {
+            parseLocalBreakdown();
+        }
+
         return this.localTotal;
     }
 
     @NonNull
     public Breakdown[] getTeamBreakdown() {
         if (this.team == null) {
-            this.team = parseTeamBreakdown();
-
-            int total = 0;
-            for (final Breakdown breakdown : this.team) {
-                total += breakdown.getValue();
-            }
-            this.teamTotal = total;
+            parseTeamBreakdown();
         }
 
         return this.team;
     }
 
     public int getTeamBreakdownTotal() {
+        if (this.team == null) {
+            parseTeamBreakdown();
+        }
+
         return this.teamTotal;
     }
 
     @NonNull
     public Breakdown[] getSubMinistriesBreakdown() {
         if (this.subMinistries == null) {
-            this.subMinistries = parseSubMinistriesBreakdown();
-
-            int total = 0;
-            for (final Breakdown breakdown : this.subMinistries) {
-                total += breakdown.getValue();
-            }
-            this.subMinistriesTotal = total;
+            parseSubMinistriesBreakdown();
         }
 
         return this.subMinistries;
     }
 
     public int getSubMinistriesBreakdownTotal() {
+        if (this.subMinistries == null) {
+            parseSubMinistriesBreakdown();
+        }
+
         return this.subMinistriesTotal;
     }
 
     @NonNull
     public Breakdown[] getSelfAssignedBreakdown() {
         if (this.selfAssigned == null) {
-            this.selfAssigned = parseSelfAssignedBreakdown();
-
-            int total = 0;
-            for (final Breakdown breakdown : this.selfAssigned) {
-                total += breakdown.getValue();
-            }
-            this.selfAssignedTotal = total;
+            parseSelfAssignedBreakdown();
         }
 
         return this.selfAssigned;
     }
 
     public int getSelfAssignedBreakdownTotal() {
+        if (this.selfAssigned == null) {
+            parseSelfAssignedBreakdown();
+        }
+
         return this.selfAssignedTotal;
     }
 
@@ -238,8 +245,7 @@ public class MeasurementDetails extends Base {
         this.subMinistriesTotal = 0;
     }
 
-    @NonNull
-    private Table<Integer, YearMonth, Integer> parseHistory() {
+    private void parseHistory() {
         final ImmutableTable.Builder<Integer, YearMonth, Integer> table = ImmutableTable.builder();
         table.orderColumnsBy(YearMonthComparator.INSTANCE);
 
@@ -269,8 +275,15 @@ public class MeasurementDetails extends Base {
                         final Iterator<String> periods = history.keys();
                         while (periods.hasNext()) {
                             try {
-                                final String period = periods.next();
-                                table.put(type, YearMonth.parse(period), history.optInt(period, 0));
+                                final String rawPeriod = periods.next();
+                                final YearMonth period = YearMonth.parse(rawPeriod);
+                                final int value = history.optInt(rawPeriod, 0);
+                                table.put(type, period, value);
+
+                                // update total count
+                                if (type == TYPE_TOTAL && this.period.equals(period)) {
+                                    this.total = value;
+                                }
                             } catch (final Exception e) {
                                 LOG.debug("Error processing MeasurementDetails history", e);
                             }
@@ -280,10 +293,10 @@ public class MeasurementDetails extends Base {
             }
         }
 
-        return table.build();
+        this.history = table.build();
     }
 
-    private SimpleBreakdown[] parseLocalBreakdown() {
+    private void parseLocalBreakdown() {
         final JSONObject json = getJson();
         if (json != null) {
             final JSONObject localJson = json.optJSONObject(JSON_BREAKDOWN_LOCAL);
@@ -298,22 +311,25 @@ public class MeasurementDetails extends Base {
                             data.add(new SimpleBreakdown("Local", value));
                             break;
                         case "total":
-                            this.localTotal = value;
+//                            this.localTotal = value;
                             break;
                         default:
                             data.add(new SimpleBreakdown(key, value));
                             break;
                     }
                 }
-                return data.toArray(new SimpleBreakdown[data.size()]);
+
+                this.local = data.toArray(new SimpleBreakdown[data.size()]);
+                this.localTotal = sumBreakdowns(this.local);
+                return;
             }
         }
 
-        return new SimpleBreakdown[0];
+        this.local = new SimpleBreakdown[0];
+        this.localTotal = 0;
     }
 
-    @NonNull
-    private Breakdown[] parseTeamBreakdown() {
+    private void parseTeamBreakdown() {
         final Breakdown[] raw;
         final JSONObject json = getJson();
         final int me;
@@ -333,17 +349,20 @@ public class MeasurementDetails extends Base {
         final Breakdown[] team = new Breakdown[raw.length + 1];
         team[0] = new SimpleBreakdown("You", me);
         System.arraycopy(raw, 0, team, 1, raw.length);
-        return team;
+        this.team = team;
+        this.teamTotal = sumBreakdowns(this.team);
     }
 
-    @NonNull
-    private AssignmentBreakdown[] parseSelfAssignedBreakdown() {
+    private void parseSelfAssignedBreakdown() {
         final JSONObject json = getJson();
         if (json != null) {
-            return parseAssignmentBreakdown(json.optJSONArray(JSON_BREAKDOWN_SELF_ASSIGNED));
+            this.selfAssigned = parseAssignmentBreakdown(json.optJSONArray(JSON_BREAKDOWN_SELF_ASSIGNED));
+            this.selfAssignedTotal = sumBreakdowns(this.selfAssigned);
+            return;
         }
 
-        return new AssignmentBreakdown[0];
+        this.selfAssigned = new AssignmentBreakdown[0];
+        this.selfAssignedTotal = 0;
     }
 
     @NonNull
@@ -360,8 +379,7 @@ public class MeasurementDetails extends Base {
         return new AssignmentBreakdown[0];
     }
 
-    @NonNull
-    private MinistryBreakdown[] parseSubMinistriesBreakdown() {
+    private void parseSubMinistriesBreakdown() {
         final JSONObject json = getJson();
         if (json != null) {
             final JSONArray ministriesJson = json.optJSONArray(JSON_BREAKDOWN_SUB_MINISTRIES);
@@ -371,11 +389,25 @@ public class MeasurementDetails extends Base {
                 for (int i = 0; i < breakdowns.length; i++) {
                     breakdowns[i] = new MinistryBreakdown(ministriesJson.optJSONObject(i));
                 }
-                return breakdowns;
+
+                this.subMinistries = breakdowns;
+                this.subMinistriesTotal = sumBreakdowns(breakdowns);
+                return;
             }
         }
 
-        return new MinistryBreakdown[0];
+        this.subMinistries = new MinistryBreakdown[0];
+        this.subMinistriesTotal = 0;
+    }
+
+    private int sumBreakdowns(@Nullable final Breakdown[] breakdowns) {
+        int total = 0;
+        if (breakdowns != null) {
+            for (final Breakdown breakdown : breakdowns) {
+                total += breakdown.getValue();
+            }
+        }
+        return total;
     }
 
     public interface Breakdown {
