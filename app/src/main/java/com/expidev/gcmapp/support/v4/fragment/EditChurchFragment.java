@@ -1,6 +1,8 @@
 package com.expidev.gcmapp.support.v4.fragment;
 
+import static android.view.View.GONE;
 import static com.expidev.gcmapp.Constants.ARG_CHURCH_ID;
+import static com.expidev.gcmapp.Constants.VISIBILITY;
 import static com.expidev.gcmapp.utils.BroadcastUtils.updateChurchesBroadcast;
 
 import android.content.Context;
@@ -40,13 +42,6 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     private static final int CHANGED_DEVELOPMENT = 2;
     private static final int CHANGED_SIZE = 3;
 
-    private static final ButterKnife.Action<View> HIDDEN = new ButterKnife.Action<View>() {
-        @Override
-        public void apply(@NonNull final View view, final int index) {
-            view.setVisibility(View.GONE);
-        }
-    };
-
     private long mChurchId = Church.INVALID_ID;
     @NonNull
     private boolean[] mChanged = new boolean[4];
@@ -82,7 +77,7 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     public void onStart() {
         super.onStart();
         this.startLoaders();
-        ButterKnife.apply(mHiddenViews, HIDDEN);
+        ButterKnife.apply(mHiddenViews, VISIBILITY, GONE);
         updateViews();
     }
 
