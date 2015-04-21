@@ -5,6 +5,7 @@ import static com.expidev.gcmapp.Constants.EXTRA_MCC;
 import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
 import static com.expidev.gcmapp.Constants.EXTRA_PERIOD;
 import static com.expidev.gcmapp.Constants.EXTRA_PERMLINK;
+import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_NONE;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,9 +14,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 
 import com.expidev.gcmapp.R;
+import com.expidev.gcmapp.activity.MeasurementsActivity;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.support.v4.fragment.measurement.MeasurementDetailsFragment;
 
@@ -68,6 +73,32 @@ public class MeasurementDetailsActivity extends ActionBarActivity {
         mPeriod = YearMonth.parse(intent.getStringExtra(EXTRA_PERIOD));
 
         createDetailsFragmentsIfNeeded();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                final Intent upIntent = NavUtils.getParentActivityIntent(this);
+                MeasurementsActivity.populateIntent(upIntent, mGuid, mMinistryId, mMcc, TYPE_NONE, mPeriod);
+
+                if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
+                    // This activity is NOT part of this app's task, so create a new task
+                    // when navigating up, with a synthesized back stack.
+                    TaskStackBuilder.create(this)
+                            // Add all of this activity's parents to the back stack
+                            .addNextIntentWithParentStack(upIntent)
+                                    // Navigate up to the closest parent
+                            .startActivities();
+                } else {
+                    // This activity is part of this app's task, so simply
+                    // navigate up to the logical parent activity.
+                    NavUtils.navigateUpTo(this, upIntent);
+                }
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     /* END lifecycle */
