@@ -20,12 +20,12 @@
         android:theme="@style/Theme.GMA">
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="sensorPortrait"
+            android:screenOrientation="userPortrait"
             android:label="@string/title_activity_main">
         </activity>
         <activity
             android:name="com.expidevapps.android.measurements.activity.LoginActivity"
-            android:screenOrientation="sensorPortrait"
+            android:screenOrientation="userPortrait"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -33,6 +33,7 @@
         </activity>
         <activity
             android:name=".activity.SettingsActivity"
+            android:screenOrientation="userPortrait"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity">
             <meta-data
@@ -41,6 +42,7 @@
         </activity>
         <activity
             android:name=".JoinMinistryActivity"
+            android:screenOrientation="user"
             android:label="@string/title_activity_join_ministry"
             android:parentActivityName=".MainActivity">
             <meta-data
@@ -50,6 +52,7 @@
         
         <activity
             android:name=".MapSettings"
+            android:screenOrientation="user"
             android:label="@string/title_activity_map_settings"
             android:parentActivityName=".MainActivity" >
             <meta-data
@@ -61,7 +64,7 @@
             android:name=".activity.MeasurementsActivity"
             android:label="@string/title_activity_measurements"
             android:theme="@style/Theme.GMA.Measurements"
-            android:screenOrientation="sensorPortrait"
+            android:screenOrientation="userPortrait"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
