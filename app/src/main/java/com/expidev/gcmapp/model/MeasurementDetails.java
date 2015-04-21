@@ -1,5 +1,6 @@
 package com.expidev.gcmapp.model;
 
+import static com.expidev.gcmapp.Constants.MEASUREMENTS_SOURCE;
 import static com.expidev.gcmapp.http.GmaApiClient.V4;
 import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_LOCAL;
 import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_PERSONAL;
@@ -20,8 +21,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 
 public class MeasurementDetails extends Base {
     private static final Logger LOG = LoggerFactory.getLogger(MeasurementDetails.class);
@@ -29,6 +32,8 @@ public class MeasurementDetails extends Base {
     private static final String JSON_HISTORY_TOTAL = "total";
     private static final String JSON_HISTORY_LOCAL = "local";
     private static final String JSON_HISTORY_PERSONAL = "my_measurements";
+    private static final String JSON_BREAKDOWN_SELF = "self_breakdown";
+    private static final String JSON_BREAKDOWN_LOCAL = "local_breakdown";
     private static final String JSON_BREAKDOWN_TEAM = "team";
     private static final String JSON_BREAKDOWN_SELF_ASSIGNED = "self_assigned";
     private static final String JSON_BREAKDOWN_SUB_MINISTRIES = "sub_ministries";
@@ -53,11 +58,17 @@ public class MeasurementDetails extends Base {
     @Nullable
     private transient Table<Integer, YearMonth, Integer> history;
     @Nullable
-    private transient AssignmentBreakdown[] team;
+    private transient Breakdown[] local;
+    private transient int localTotal = 0;
+    @Nullable
+    private transient Breakdown[] team;
+    private transient int teamTotal = 0;
     @Nullable
     private transient AssignmentBreakdown[] selfAssigned;
+    private transient int selfAssignedTotal = 0;
     @Nullable
     private transient MinistryBreakdown[] subMinistries;
+    private transient int subMinistriesTotal = 0;
 
     public MeasurementDetails(@NonNull final String guid, @NonNull final String ministryId, @NonNull final Mcc mcc,
                               @NonNull final String permLink, @NonNull final YearMonth period) {
@@ -142,30 +153,73 @@ public class MeasurementDetails extends Base {
     }
 
     @NonNull
+    public Breakdown[] getLocalBreakdown() {
+        if (this.local == null) {
+            this.local = parseLocalBreakdown();
+        }
+
+        return this.local;
+    }
+
+    public int getLocalBreakdownTotal() {
+        return this.localTotal;
+    }
+
+    @NonNull
     public Breakdown[] getTeamBreakdown() {
         if (this.team == null) {
             this.team = parseTeamBreakdown();
+
+            int total = 0;
+            for (final Breakdown breakdown : this.team) {
+                total += breakdown.getValue();
+            }
+            this.teamTotal = total;
         }
 
         return this.team;
+    }
+
+    public int getTeamBreakdownTotal() {
+        return this.teamTotal;
     }
 
     @NonNull
     public Breakdown[] getSubMinistriesBreakdown() {
         if (this.subMinistries == null) {
             this.subMinistries = parseSubMinistriesBreakdown();
+
+            int total = 0;
+            for (final Breakdown breakdown : this.subMinistries) {
+                total += breakdown.getValue();
+            }
+            this.subMinistriesTotal = total;
         }
 
         return this.subMinistries;
+    }
+
+    public int getSubMinistriesBreakdownTotal() {
+        return this.subMinistriesTotal;
     }
 
     @NonNull
     public Breakdown[] getSelfAssignedBreakdown() {
         if (this.selfAssigned == null) {
             this.selfAssigned = parseSelfAssignedBreakdown();
+
+            int total = 0;
+            for (final Breakdown breakdown : this.selfAssigned) {
+                total += breakdown.getValue();
+            }
+            this.selfAssignedTotal = total;
         }
 
         return this.selfAssigned;
+    }
+
+    public int getSelfAssignedBreakdownTotal() {
+        return this.selfAssignedTotal;
     }
 
     private void resetTransients() {
@@ -173,9 +227,15 @@ public class MeasurementDetails extends Base {
         this.rawJson = null;
         this.version = 0;
         this.history = null;
+        this.local = null;
         this.team = null;
         this.selfAssigned = null;
         this.subMinistries = null;
+
+        this.localTotal = 0;
+        this.teamTotal = 0;
+        this.selfAssignedTotal = 0;
+        this.subMinistriesTotal = 0;
     }
 
     @NonNull
@@ -223,14 +283,57 @@ public class MeasurementDetails extends Base {
         return table.build();
     }
 
-    @NonNull
-    private AssignmentBreakdown[] parseTeamBreakdown() {
+    private SimpleBreakdown[] parseLocalBreakdown() {
         final JSONObject json = getJson();
         if (json != null) {
-            return parseAssignmentBreakdown(json.optJSONArray(JSON_BREAKDOWN_TEAM));
+            final JSONObject localJson = json.optJSONObject(JSON_BREAKDOWN_LOCAL);
+            if (localJson != null) {
+                final List<SimpleBreakdown> data = new ArrayList<>();
+                final Iterator<String> keys = localJson.keys();
+                while (keys.hasNext()) {
+                    final String key = keys.next();
+                    final int value = localJson.optInt(key, 0);
+                    switch (key) {
+                        case MEASUREMENTS_SOURCE:
+                            data.add(new SimpleBreakdown("Local", value));
+                            break;
+                        case "total":
+                            this.localTotal = value;
+                            break;
+                        default:
+                            data.add(new SimpleBreakdown(key, value));
+                            break;
+                    }
+                }
+                return data.toArray(new SimpleBreakdown[data.size()]);
+            }
         }
 
-        return new AssignmentBreakdown[0];
+        return new SimpleBreakdown[0];
+    }
+
+    @NonNull
+    private Breakdown[] parseTeamBreakdown() {
+        final Breakdown[] raw;
+        final JSONObject json = getJson();
+        final int me;
+        if (json != null) {
+            raw = parseAssignmentBreakdown(json.optJSONArray(JSON_BREAKDOWN_TEAM));
+            final JSONObject selfJson = json.optJSONObject(JSON_BREAKDOWN_SELF);
+            if (selfJson != null) {
+                me = selfJson.optInt(MEASUREMENTS_SOURCE, 0);
+            } else {
+                me = 0;
+            }
+        } else {
+            raw = new Breakdown[0];
+            me = 0;
+        }
+
+        final Breakdown[] team = new Breakdown[raw.length + 1];
+        team[0] = new SimpleBreakdown("You", me);
+        System.arraycopy(raw, 0, team, 1, raw.length);
+        return team;
     }
 
     @NonNull
@@ -363,6 +466,34 @@ public class MeasurementDetails extends Base {
         }
 
         @Nullable
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public int getValue() {
+            return value;
+        }
+    }
+
+    static final class SimpleBreakdown implements Breakdown {
+        @NonNull
+        private final String name;
+        private final int value;
+
+        public SimpleBreakdown(@NonNull final String name, final int value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        @NonNull
+        @Override
+        public Object getId() {
+            return name;
+        }
+
+        @NonNull
         @Override
         public String getName() {
             return name;

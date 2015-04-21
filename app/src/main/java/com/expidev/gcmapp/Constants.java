@@ -31,4 +31,7 @@ public class Constants {
 
     /* request codes */
     public static final int REQUEST_EXIT = 1;
+
+    /* measurements source */
+    public static final String MEASUREMENTS_SOURCE = "gma-app";
 }

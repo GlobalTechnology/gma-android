@@ -1,5 +1,7 @@
 package com.expidev.gcmapp.http;
 
+import static com.expidev.gcmapp.Constants.MEASUREMENTS_SOURCE;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
@@ -66,8 +68,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     private static final String MINISTRIES = "ministries";
     private static final String TOKEN = "token";
     private static final String TRAINING = "training";
-
-    private static final String MEASUREMENTS_SOURCE = "gma-app";
 
     private static final Map<String, GmaApiClient> INSTANCES = new HashMap<>();
 
