@@ -260,7 +260,7 @@ public class Contract {
     private interface Period {
         String COLUMN_PERIOD = "period";
         String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
-        static final String SQL_WHERE_PERIOD = COLUMN_PERIOD + " = ?";
+        String SQL_WHERE_PERIOD = COLUMN_PERIOD + " = ?";
     }
 
     public static final class MeasurementType extends Base implements MeasurementPermLink {
