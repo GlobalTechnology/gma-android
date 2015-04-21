@@ -4,18 +4,18 @@ import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 
 import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.db.Contract;
 import com.google.common.base.Throwables;
 
+import org.ccci.gto.android.common.db.WalSQLiteOpenHelper;
 import org.ccci.gto.android.common.newrelic.CrashReporterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DatabaseOpenHelper extends SQLiteOpenHelper {
+public class DatabaseOpenHelper extends WalSQLiteOpenHelper {
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseOpenHelper.class);
 
     /*

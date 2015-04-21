@@ -17,6 +17,7 @@ import com.expidev.gcmapp.utils.DatabaseOpenHelper;
 
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.Mapper;
+import org.ccci.gto.android.common.db.Transaction;
 import org.ccci.gto.android.common.util.ArrayUtils;
 
 public class GmaDao extends AbstractDao
@@ -219,12 +220,13 @@ public class GmaDao extends AbstractDao
 
         // perform update and sanitize PersonalMeasurements
         final SQLiteDatabase db = getWritableDatabase();
+        final Transaction tx = new Transaction(db);
         try {
-            db.beginTransaction();
+            tx.beginTransactionNonExclusive();
             db.execSQL(sql.toString(), args);
-            db.setTransactionSuccessful();
+            tx.setTransactionSuccessful();
         } finally {
-            db.endTransaction();
+            tx.endTransaction();
         }
     }
 }

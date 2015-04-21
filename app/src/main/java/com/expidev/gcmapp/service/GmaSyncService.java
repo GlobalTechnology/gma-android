@@ -273,7 +273,7 @@ public class GmaSyncService extends ThreadedIntentService {
         // wrap entire update in a transaction
         final Transaction tx = mDao.newTransaction();
         try {
-            tx.begin();
+            tx.beginTransactionNonExclusive();
 
             // load pre-existing Assignments (ministry_id => assignment)
             final Map<String, Assignment> existing = new HashMap<>();
@@ -405,7 +405,7 @@ public class GmaSyncService extends ThreadedIntentService {
         if (churches != null) {
             final Transaction tx = mDao.newTransaction();
             try {
-                tx.begin();
+                tx.beginTransactionNonExclusive();
 
                 // load current churches
                 final LongSparseArray<Church> current = new LongSparseArray<>();

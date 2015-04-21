@@ -129,7 +129,7 @@ public class TrainingService extends IntentService
         final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(intent.getStringExtra(MINISTRY_MCC));
 
         final Transaction tx = mDao.newTransaction();
-        tx.begin();
+        tx.beginTransactionNonExclusive();
         
         try
         {
