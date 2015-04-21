@@ -330,7 +330,8 @@ public class Contract {
         static final String TABLE_NAME = "localMeasurements";
 
         static final String[] PROJECTION_ALL =
-                {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD, COLUMN_VALUE, COLUMN_DELTA};
+                {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD, COLUMN_VALUE, COLUMN_DELTA,
+                        COLUMN_LAST_SYNCED};
 
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils
                 .join(",", new Object[] {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD}) + ")";
@@ -376,7 +377,7 @@ public class Contract {
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD, COLUMN_VALUE,
-                        COLUMN_DELTA};
+                        COLUMN_DELTA, COLUMN_LAST_SYNCED};
 
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils
                 .join(",", new Object[] {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB,
