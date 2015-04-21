@@ -12,9 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.expidev.gcmapp.service.GmaSyncService;
-import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.service.TrainingService;
-import com.expidev.gcmapp.service.Type;
 
 import java.util.Locale;
 
@@ -35,8 +33,6 @@ public final class BroadcastUtils
     private static final String ACTION_UPDATE_CHURCHES = GmaSyncService.class.getName() + ".ACTION_UPDATE_CHURCHES";
     private static final String ACTION_UPDATE_MINISTRIES = GmaSyncService.class.getName() + ".ACTION_UPDATE_MINISTRIES";
     private static final String ACTION_UPDATE_TRAINING = TrainingService.class.getName() + ".ACTION_UPDATE_TRAINING";
-    private static final String ACTION_UPDATE_MEASUREMENTS = MeasurementsService.class.getName() + ".ACTION_UPDATE_MEASUREMENTS";
-    private static final String ACTION_UPDATE_MEASUREMENT_DETAILS = MeasurementsService.class.getName() + ".ACTION_UPDATE_MEASUREMENT_DETAILS";
 
     public static final String ACTION_START = BroadcastUtils.class.getName() + ".ACTION_START";
     public static final String ACTION_RUNNING = BroadcastUtils.class.getName() + ".ACTION_RUNNING";
@@ -112,13 +108,6 @@ public final class BroadcastUtils
     public static Intent runningBroadcast()
     {
         return new Intent(ACTION_RUNNING);
-    }
-
-    public static Intent stopBroadcast(Type type)
-    {
-        Intent intent = new Intent(ACTION_STOP);
-        intent.putExtra(ACTION_TYPE, type);
-        return intent;
     }
 
     /* BEGIN Assignment broadcasts */
@@ -208,27 +197,4 @@ public final class BroadcastUtils
         return new IntentFilter(ACTION_UPDATE_TRAINING);
     }
 
-    public static IntentFilter updateMeasurementsFilter()
-    {
-        final IntentFilter filter = new IntentFilter(ACTION_UPDATE_MEASUREMENTS);
-        addDataUri(filter, measurementsUri(), PatternMatcher.PATTERN_LITERAL);
-        return filter;
-    }
-
-    public static IntentFilter updateMeasurementDetailsFilter()
-    {
-        final IntentFilter filter = new IntentFilter(ACTION_UPDATE_MEASUREMENT_DETAILS);
-        addDataUri(filter, measurementDetailsUri(), PatternMatcher.PATTERN_LITERAL);
-        return filter;
-    }
-
-    public static Intent updateMeasurementsBroadcast()
-    {
-        return new Intent(ACTION_UPDATE_MEASUREMENTS, measurementsUri());
-    }
-
-    public static Intent updateMeasurementDetailsBroadcast()
-    {
-        return new Intent(ACTION_UPDATE_MEASUREMENT_DETAILS, measurementDetailsUri());
-    }
 }

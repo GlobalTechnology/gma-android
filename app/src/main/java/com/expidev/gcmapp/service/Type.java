@@ -6,7 +6,5 @@ package com.expidev.gcmapp.service;
 public enum Type
 {
     SYNC_TRAINING,
-    SYNC_DIRTY_TRAINING,
-    SAVE_MEASUREMENT_DETAILS,
-    SYNC_MEASUREMENTS
+    SYNC_DIRTY_TRAINING
 }

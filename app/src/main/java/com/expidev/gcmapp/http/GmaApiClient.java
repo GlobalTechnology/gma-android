@@ -11,7 +11,6 @@ import android.util.Log;
 
 import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.http.GmaApiClient.Session;
-import com.expidev.gcmapp.json.MeasurementsJsonParser;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.MeasurementDetails;
@@ -39,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -483,93 +481,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
 
         return false;
-    }
-
-    @Nullable
-    @Deprecated
-    public JSONObject getDetailsForMeasurement(@NonNull final String measurementId, @NonNull final String ministryId,
-                                               @NonNull final Ministry.Mcc mcc, @Nullable final String period)
-            throws ApiException {
-        // short-circuit if we don't have a valid ministryId and mcc
-        if (ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
-            return null;
-        }
-        assert mcc.raw != null : "Only Mcc.UNKNOWN has a null raw value";
-
-        // build request
-        final Request<Session> request = new Request<>(MEASUREMENTS + "/" + measurementId);
-        request.params.add(param("ministry_id", ministryId));
-        request.params.add(param("mcc", mcc.raw));
-        if (period != null) {
-            request.params.add(param("period", period));
-        }
-
-        // process request
-        HttpURLConnection conn = null;
-        try {
-            conn = this.sendRequest(request);
-
-            // is this a successful response?
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                return new JSONObject(IOUtils.readString(conn.getInputStream()));
-            }
-        } catch (final JSONException e) {
-            Log.e(TAG, "error parsing getAllMinistries response", e);
-        } catch (final IOException e) {
-            throw new ApiSocketException(e);
-        } finally {
-            IOUtils.closeQuietly(conn);
-        }
-
-        return null;
-    }
-
-    @Deprecated
-    public boolean updateMeasurementDetails(
-            List<com.expidev.gcmapp.model.measurement.MeasurementDetails> measurementDetailsList, String assignmentId)
-            throws JSONException, ApiException {
-        List<JSONObject> data = new ArrayList<>();
-        for (com.expidev.gcmapp.model.measurement.MeasurementDetails measurementDetails : measurementDetailsList) {
-            // Can be positive or negative
-            if(measurementDetails.getLocalValue() != 0)
-            {
-                data.add(MeasurementsJsonParser.createJsonForMeasurementDetails(measurementDetails, "local", assignmentId));
-            }
-            if(measurementDetails.getPersonalValue() != 0)
-            {
-                data.add(MeasurementsJsonParser.createJsonForMeasurementDetails(measurementDetails, "personal", assignmentId));
-            }
-        }
-
-        return updateMeasurementDetails(MeasurementsJsonParser.createPostJsonForMeasurementDetails(data));
-    }
-
-    public boolean updateMeasurementDetails(JSONArray data) throws ApiException
-    {
-        // build request
-        final Request<Session> request = new Request<>(MEASUREMENTS);
-        request.method = Method.POST;
-        request.setContent(data);
-
-        // process request
-        HttpURLConnection conn = null;
-        try
-        {
-            conn = this.sendRequest(request);
-            Log.i(TAG, "Response Code: " + conn.getResponseCode());
-            Log.i(TAG, "Data POSTed: " + data.toString());
-
-            // is this a successful response?
-            return conn.getResponseCode() == HttpURLConnection.HTTP_CREATED;
-        }
-        catch (final IOException e)
-        {
-            throw new ApiSocketException(e);
-        }
-        finally
-        {
-            IOUtils.closeQuietly(conn);
-        }
     }
 
     /* END measurement methods */

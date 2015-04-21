@@ -29,7 +29,6 @@ import com.expidev.gcmapp.activity.SettingsActivity;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.service.GmaSyncService;
-import com.expidev.gcmapp.service.MeasurementsService;
 import com.expidev.gcmapp.support.v4.content.CurrentAssignmentLoader;
 import com.expidev.gcmapp.support.v4.fragment.MapFragment;
 import com.expidev.gcmapp.utils.BroadcastUtils;
@@ -231,8 +230,6 @@ public class MainActivity extends ActionBarActivity {
             if (mAssignment != null) {
                 GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
                                                 YearMonth.now());
-                MeasurementsService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(), null,
-                                                     mAssignment.getRole());
             }
         }
     }

@@ -36,9 +36,10 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
      * v0.8.4
      * 27: 2015-04-15
      * 28: 2015-04-16
+     * 29: 2015-04-21
      */
     private static final String DATABASE_NAME = "gcm_data.db";
-    private static final int DATABASE_VERSION = 28;
+    private static final int DATABASE_VERSION = 29;
 
     private static final Object LOCK_INSTANCE = new Object();
     private static DatabaseOpenHelper INSTANCE;
@@ -74,7 +75,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             db.execSQL(Contract.MinistryMeasurement.SQL_CREATE_TABLE);
             db.execSQL(Contract.PersonalMeasurement.SQL_CREATE_TABLE);
             db.execSQL(Contract.MeasurementDetails.SQL_CREATE_TABLE);
-            createMeasurementsTables(db);
 
             db.setTransactionSuccessful();
         } finally {
@@ -136,6 +136,15 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                     case 28:
                         db.execSQL(Contract.MeasurementDetails.SQL_CREATE_TABLE);
                         break;
+                    case 29:
+                        db.execSQL(Contract.LegacyTables.SQL_DELETE_MEASUREMENTS_TABLE);
+                        db.execSQL(Contract.LegacyTables.SQL_DELETE_MEASUREMENTS_DETAILS_TABLE);
+                        db.execSQL(Contract.LegacyTables.SQL_DELETE_MEASUREMENTS_BREAKDOWN_TABLE);
+                        db.execSQL(Contract.LegacyTables.SQL_DELETE_MEASUREMENTS_SIX_MONTHS_TABLE);
+                        db.execSQL(Contract.LegacyTables.SQL_DELETE_MEASUREMENTS_SUB_MINISTRIES_TABLE);
+                        db.execSQL(Contract.LegacyTables.SQL_DELETE_MEASUREMENTS_TEAM_MEMBERS_TABLE);
+                        db.execSQL(Contract.LegacyTables.SQL_DELETE_MEASUREMENTS_TYPE_IDS_TABLE);
+                        break;
                     default:
                         // unrecognized version
                         throw new SQLiteException("Unrecognized database version");
@@ -176,6 +185,17 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             db.execSQL(Contract.MeasurementDetails.SQL_DELETE_TABLE);
             deleteAllTables(db);
 
+            // delete any orphaned legacy tables
+            db.execSQL(Contract.LegacyTables.SQL_DELETE_ALL_MINISTRIES_TABLE);
+            db.execSQL(Contract.LegacyTables.SQL_DELETE_ASSOCIATED_MINISTRIES_TABLE);
+            db.execSQL(Contract.LegacyTables.SQL_DELETE_MEASUREMENTS_TABLE);
+            db.execSQL(Contract.LegacyTables.SQL_DELETE_MEASUREMENTS_DETAILS_TABLE);
+            db.execSQL(Contract.LegacyTables.SQL_DELETE_MEASUREMENTS_BREAKDOWN_TABLE);
+            db.execSQL(Contract.LegacyTables.SQL_DELETE_MEASUREMENTS_SIX_MONTHS_TABLE);
+            db.execSQL(Contract.LegacyTables.SQL_DELETE_MEASUREMENTS_SUB_MINISTRIES_TABLE);
+            db.execSQL(Contract.LegacyTables.SQL_DELETE_MEASUREMENTS_TEAM_MEMBERS_TABLE);
+            db.execSQL(Contract.LegacyTables.SQL_DELETE_MEASUREMENTS_TYPE_IDS_TABLE);
+
             onCreate(db);
 
             db.setTransactionSuccessful();
@@ -190,37 +210,11 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
         db.execSQL(Contract.Training.Completion.SQL_CREATE_TABLE);
     }
 
-    /**
-     * These tables hold measurement and measurement details data
-     */
-    private void createMeasurementsTables(SQLiteDatabase db)
-    {
-        db.execSQL(Contract.Measurement.SQL_CREATE_TABLE);
-        db.execSQL(Contract.Measurement.SQL_CREATE_INDEX);
-        db.execSQL(Contract.LegacyMeasurementDetails.SQL_CREATE_TABLE);
-        db.execSQL(Contract.MeasurementTypeIds.SQL_CREATE_TABLE);
-        db.execSQL(Contract.SixMonthAmounts.SQL_CREATE_TABLE);
-        db.execSQL(Contract.BreakdownData.SQL_CREATE_TABLE);
-        db.execSQL(Contract.TeamMemberDetails.SQL_CREATE_TABLE);
-        db.execSQL(Contract.SubMinistryDetails.SQL_CREATE_TABLE);
-    }
-
     private void deleteAllTables(SQLiteDatabase db)
     {
         db.execSQL(Contract.Training.Completion.SQL_DELETE_TABLE);
         db.execSQL(Contract.Training.SQL_DELETE_TABLE);
         db.execSQL(Contract.Ministry.SQL_DELETE_TABLE);
         db.execSQL(Contract.Assignment.SQL_DELETE_TABLE);
-        db.execSQL(Contract.Measurement.SQL_DELETE_TABLE);
-        db.execSQL(Contract.LegacyMeasurementDetails.SQL_DELETE_TABLE);
-        db.execSQL(Contract.MeasurementTypeIds.SQL_DELETE_TABLE);
-        db.execSQL(Contract.SixMonthAmounts.SQL_DELETE_TABLE);
-        db.execSQL(Contract.BreakdownData.SQL_DELETE_TABLE);
-        db.execSQL(Contract.TeamMemberDetails.SQL_DELETE_TABLE);
-        db.execSQL(Contract.SubMinistryDetails.SQL_DELETE_TABLE);
-
-        // delete any orphaned legacy tables
-        db.execSQL(Contract.LegacyTables.SQL_DELETE_ALL_MINISTRIES_TABLE);
-        db.execSQL(Contract.LegacyTables.SQL_DELETE_ASSOCIATED_MINISTRIES_TABLE);
     }
 }

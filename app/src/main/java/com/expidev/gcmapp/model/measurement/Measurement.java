@@ -3,7 +3,6 @@ package com.expidev.gcmapp.model.measurement;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.model.Base;
 import com.expidev.gcmapp.model.Ministry;
 
@@ -20,17 +19,12 @@ public class Measurement extends Base implements Serializable
 {
     private static final long serialVersionUID = 0L;
 
-    @Deprecated
-    private static final String JSON_MEASUREMENT_ID = "measurement_id";
-
     @Nullable
     private MeasurementType type;
     @Nullable
     private MinistryMeasurement ministryMeasurement;
     @Nullable
     private PersonalMeasurement personalMeasurement;
-    @Deprecated
-    private String measurementId;
     @NonNull
     private YearMonth period = YearMonth.now();
     @NonNull
@@ -66,15 +60,6 @@ public class Measurement extends Base implements Serializable
             measurement.personalMeasurement = PersonalMeasurement.fromJson(json, guid, ministryId, mcc, period);
         }
 
-        if (BuildConfig.GMA_API_VERSION < 4) {
-            measurement.measurementId = json.getString(JSON_MEASUREMENT_ID);
-        } else {
-            final JSONObject ids = json.optJSONObject("measurement_type_ids");
-            if (ids != null) {
-                measurement.measurementId = ids.getString("total");
-            }
-        }
-
         return measurement;
     }
 
@@ -103,18 +88,6 @@ public class Measurement extends Base implements Serializable
 
     public void setPersonalMeasurement(@Nullable final PersonalMeasurement personalMeasurement) {
         this.personalMeasurement = personalMeasurement;
-    }
-
-    @Deprecated
-    public String getMeasurementId()
-    {
-        return measurementId;
-    }
-
-    @Deprecated
-    public void setMeasurementId(String measurementId)
-    {
-        this.measurementId = measurementId;
     }
 
     @NonNull
