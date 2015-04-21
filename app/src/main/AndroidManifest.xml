@@ -70,6 +70,17 @@
 
         <activity
             android:name=".MeasurementDetailsActivity"
+            android:screenOrientation="userPortrait"
+            android:label="@string/title_activity_measurement_details"
+            android:parentActivityName=".activity.MeasurementsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.expidev.gcmapp.activity.MeasurementsActivity"/>
+        </activity>
+
+        <activity
+            android:name="com.expidevapps.android.measurements.activity.MeasurementDetailsActivity"
+            android:screenOrientation="userPortrait"
             android:label="@string/title_activity_measurement_details"
             android:parentActivityName=".activity.MeasurementsActivity">
             <meta-data

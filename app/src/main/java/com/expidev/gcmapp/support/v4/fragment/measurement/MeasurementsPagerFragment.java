@@ -182,7 +182,7 @@ public class MeasurementsPagerFragment extends Fragment {
 
     private static final String[] PROJECTION_BASE =
             {Contract.MeasurementType.COLUMN_ROWID, Contract.MeasurementType.COLUMN_PERM_LINK_STUB,
-                    Contract.MeasurementType.COLUMN_NAME, Contract.MeasurementType.COLUMN_TOTAL_ID};
+                    Contract.MeasurementType.COLUMN_NAME};
     private static final Join<MeasurementType, PersonalMeasurement> JOIN_PERSONAL_MEASUREMENT =
             Contract.MeasurementType.JOIN_PERSONAL_MEASUREMENT.type("LEFT").andOn(
                     Contract.PersonalMeasurement.SQL_WHERE_GUID_MINISTRY_MCC_PERIOD);

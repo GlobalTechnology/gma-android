@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.expidev.gcmapp.MeasurementDetailsActivity;
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.GmaDao;
@@ -25,6 +24,7 @@ import com.expidev.gcmapp.model.measurement.MinistryMeasurement;
 import com.expidev.gcmapp.model.measurement.PersonalMeasurement;
 import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.support.v4.adapter.MeasurementPagerAdapter.ViewHolder;
+import com.expidevapps.android.measurements.activity.MeasurementDetailsActivity;
 
 import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.support.v4.adapter.CursorPagerAdapter;
@@ -114,7 +114,6 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
         super.onBindViewHolder(holder, c);
         holder.mPermLink = CursorUtils.getString(c, Contract.MeasurementType.COLUMN_PERM_LINK_STUB, null);
         holder.mName = CursorUtils.getString(c, Contract.MeasurementType.COLUMN_NAME, null);
-        holder.mTotalId = CursorUtils.getString(c, Contract.MeasurementType.COLUMN_TOTAL_ID, null);
 
         // update views
         if (holder.mNameView != null) {
@@ -129,7 +128,6 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
         holder.mRepeatingClickListener.resetTask();
         holder.mPermLink = null;
         holder.mName = null;
-        holder.mTotalId = null;
         holder.mValue = null;
     }
 
@@ -159,8 +157,6 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
         String mPermLink;
         @Nullable
         String mName;
-        @Nullable
-        String mTotalId;
 
         @Nullable
         MeasurementValue mValue = null;
@@ -229,8 +225,8 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
         @Optional
         @OnClick(R.id.value)
         void onClickValue() {
-            if (mPermLink != null && mTotalId != null) {
-                MeasurementDetailsActivity.start(mContext, mMinistryId, mMcc, mPermLink, mPeriod, mTotalId, mName);
+            if (mPermLink != null) {
+                MeasurementDetailsActivity.start(mContext, mGuid, mMinistryId, mMcc, mPermLink, mPeriod);
             }
         }
     }
