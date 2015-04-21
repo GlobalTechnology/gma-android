@@ -111,10 +111,6 @@ repositories {
         name "maven.gcx.org"
         url "https://maven.gcx.org/"
     }
-    maven {
-        name "achartengine"
-        url "https://repository-achartengine.forge.cloudbees.com/snapshot/"
-    }
     // This is a temporary workaround until ViewPagerIndicator is distributed as an aar
     maven {
         url 'https://github.com/Dahlgren/vpi-aar/raw/master/'
@@ -151,7 +147,6 @@ dependencies {
     compile 'com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.6.2'
     compile 'com.viewpagerindicator:library:2.4.2-SNAPSHOT'
     compile 'net.danlew:android.joda:2.7.1'
-    compile 'org.achartengine:achartengine:1.2.0'
 
     debugCompile 'com.facebook.stetho:stetho:1.1.0'
 }
