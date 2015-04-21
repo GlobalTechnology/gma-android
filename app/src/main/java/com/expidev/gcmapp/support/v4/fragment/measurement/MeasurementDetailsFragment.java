@@ -1,5 +1,6 @@
 package com.expidev.gcmapp.support.v4.fragment.measurement;
 
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static com.expidev.gcmapp.Constants.ARG_GUID;
 import static com.expidev.gcmapp.Constants.ARG_MCC;
 import static com.expidev.gcmapp.Constants.ARG_MINISTRY_ID;
@@ -39,6 +40,7 @@ import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemA
 import com.h6ah4i.android.widget.advrecyclerview.expandable.RecyclerViewExpandableItemManager;
 import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils;
 
+import org.ccci.gto.android.common.recyclerview.decorator.DividerItemDecoration;
 import org.ccci.gto.android.common.recyclerview.layoutmanager.LinearLayoutManager;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.joda.time.YearMonth;
@@ -201,6 +203,9 @@ public class MeasurementDetailsFragment extends Fragment {
 
             // attach the RecyclerView to the ExpandableItemManager
             mBreakdownExpandableItemManager.attachRecyclerView(mBreakdownView);
+
+            // set some item decorators
+            mBreakdownView.addItemDecoration(new DividerItemDecoration(getActivity(), VERTICAL));
         }
     }
 
@@ -222,7 +227,7 @@ public class MeasurementDetailsFragment extends Fragment {
     private void setupChart() {
         if (mChartView != null) {
             mChartView.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-            mChartView.setTouchEnabled(false);
+            mChartView.setDescription(null);
 
             updateChart();
         }
@@ -261,6 +266,7 @@ public class MeasurementDetailsFragment extends Fragment {
                     data.addDataSet(dataSet);
                 }
                 mChartView.setData(data);
+                mChartView.invalidate();
             } else {
                 mChartView.clear();
             }

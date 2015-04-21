@@ -1,5 +1,11 @@
 package com.expidev.gcmapp;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.view.View;
+
+import butterknife.ButterKnife;
+
 public class Constants {
     /* SharedPreference constants */
     public static final String PREFS_SETTINGS = "gcm_prefs";
@@ -34,4 +40,14 @@ public class Constants {
 
     /* measurements source */
     public static final String MEASUREMENTS_SOURCE = "gma-app";
+
+    /* common ButterKnife Settings/Actions */
+    public static final ButterKnife.Setter<View, Integer> VISIBILITY = new ButterKnife.Setter<View, Integer>() {
+        @Override
+        public void set(@Nullable final View view, @NonNull final Integer value, final int index) {
+            if (view != null) {
+                view.setVisibility(value);
+            }
+        }
+    };
 }

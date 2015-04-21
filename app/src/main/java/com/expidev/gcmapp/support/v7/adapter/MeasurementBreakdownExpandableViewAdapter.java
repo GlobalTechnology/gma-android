@@ -1,5 +1,9 @@
 package com.expidev.gcmapp.support.v7.adapter;
 
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+import static com.expidev.gcmapp.Constants.VISIBILITY;
+
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,11 +15,12 @@ import android.widget.TextView;
 
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.model.MeasurementDetails;
-import com.expidev.gcmapp.support.v7.adapter.MeasurementBreakdownExpandableViewAdapter.ItemViewHolder;
+import com.expidev.gcmapp.support.v7.adapter.MeasurementBreakdownExpandableViewAdapter.ViewHolder;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractExpandableItemAdapter;
+import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractExpandableItemViewHolder;
 
 import org.ccci.gto.android.common.support.v4.util.IdUtils;
 
@@ -23,10 +28,10 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.InjectViews;
 import butterknife.Optional;
 
-public class MeasurementBreakdownExpandableViewAdapter
-        extends AbstractExpandableItemAdapter<ItemViewHolder, ItemViewHolder> {
+public class MeasurementBreakdownExpandableViewAdapter extends AbstractExpandableItemAdapter<ViewHolder, ViewHolder> {
     private final int GROUP_TOTAL = 1;
     private final int GROUP_LOCAL = 2;
     private final int GROUP_TEAM = 3;
@@ -56,13 +61,7 @@ public class MeasurementBreakdownExpandableViewAdapter
 
     @Override
     public int getGroupItemViewType(final int groupPosition) {
-        switch (mGroups[groupPosition]) {
-            case GROUP_TOTAL:
-            case GROUP_LOCAL:
-                return R.layout.list_item_measurement_breakdown_value;
-            default:
-                return R.layout.list_item_measurement_breakdown_section;
-        }
+        return R.layout.list_item_measurement_breakdown_section;
     }
 
     @Override
@@ -70,8 +69,9 @@ public class MeasurementBreakdownExpandableViewAdapter
         assert mDetails != null : "There are only groups when we have MeasurementDetails";
         switch (mGroups[groupPosition]) {
             case GROUP_TOTAL:
-            case GROUP_LOCAL:
                 return 0;
+            case GROUP_LOCAL:
+                return mDetails.getLocalBreakdown().length;
             case GROUP_TEAM:
                 return mDetails.getTeamBreakdown().length;
             case GROUP_SELFASSIGNED:
@@ -88,6 +88,9 @@ public class MeasurementBreakdownExpandableViewAdapter
         assert mDetails != null : "There are only children when we have MeasurementDetails";
         final Object rawId;
         switch (mGroups[groupPosition]) {
+            case GROUP_LOCAL:
+                rawId = mDetails.getLocalBreakdown()[childPosition].getId();
+                break;
             case GROUP_TEAM:
                 rawId = mDetails.getTeamBreakdown()[childPosition].getId();
                 break;
@@ -112,7 +115,10 @@ public class MeasurementBreakdownExpandableViewAdapter
     public void updateDetails(@Nullable final MeasurementDetails details) {
         mDetails = details;
         if (mDetails != null) {
-            final List<Integer> groups = Lists.newArrayList(GROUP_TOTAL, GROUP_LOCAL);
+            final List<Integer> groups = Lists.newArrayList(GROUP_TOTAL);
+            if (mDetails.getLocalBreakdown().length > 0) {
+                groups.add(GROUP_LOCAL);
+            }
             if (mDetails.getTeamBreakdown().length > 0) {
                 groups.add(GROUP_TEAM);
             }
@@ -132,36 +138,39 @@ public class MeasurementBreakdownExpandableViewAdapter
     /* BEGIN lifecycle */
 
     @Override
-    public ItemViewHolder onCreateGroupViewHolder(@NonNull final ViewGroup parent, @LayoutRes final int layout) {
-        return new ItemViewHolder(LayoutInflater.from(parent.getContext()).inflate(layout, parent, false));
+    public ViewHolder onCreateGroupViewHolder(@NonNull final ViewGroup parent, @LayoutRes final int layout) {
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(layout, parent, false));
     }
 
     @Override
-    public ItemViewHolder onCreateChildViewHolder(@NonNull final ViewGroup parent, @LayoutRes final int layout) {
-        return new ItemViewHolder(LayoutInflater.from(parent.getContext()).inflate(layout, parent, false));
+    public ViewHolder onCreateChildViewHolder(@NonNull final ViewGroup parent, @LayoutRes final int layout) {
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(layout, parent, false));
     }
 
     @Override
-    public void onBindGroupViewHolder(@NonNull final ItemViewHolder holder, final int groupPosition, final int layout) {
+    public void onBindGroupViewHolder(@NonNull final ViewHolder holder, final int groupPosition, final int layout) {
         String label = null;
         String value = null;
         switch (mGroups[groupPosition]) {
-            case GROUP_LOCAL:
-                label = "Local Team";
-                //TODO: value
-                break;
             case GROUP_TOTAL:
                 label = "Total";
-                //TODO: value
+                value = Integer.toString(mDetails != null ? mDetails.getTotal() : 0);
+                break;
+            case GROUP_LOCAL:
+                label = "Local Team";
+                value = Integer.toString(mDetails != null ? mDetails.getLocalBreakdownTotal() : 0);
                 break;
             case GROUP_SELFASSIGNED:
                 label = "Self Assigned Members";
+                value = Integer.toString(mDetails != null ? mDetails.getSelfAssignedBreakdownTotal() : 0);
                 break;
             case GROUP_TEAM:
                 label = "Team Members";
+                value = Integer.toString(mDetails != null ? mDetails.getTeamBreakdownTotal() : 0);
                 break;
             case GROUP_SUBMINISTRIES:
                 label = "Sub-Ministries / Teams";
+                value = Integer.toString(mDetails != null ? mDetails.getSubMinistriesBreakdownTotal() : 0);
                 break;
         }
 
@@ -171,14 +180,19 @@ public class MeasurementBreakdownExpandableViewAdapter
         if (holder.mValue != null) {
             holder.mValue.setText(value);
         }
+
+        ButterKnife.apply(holder.mHiddenOnEmpty, VISIBILITY, getChildCount(groupPosition) == 0 ? INVISIBLE : VISIBLE);
     }
 
     @Override
-    public void onBindChildViewHolder(@NonNull final ItemViewHolder holder, final int groupPosition,
+    public void onBindChildViewHolder(@NonNull final ViewHolder holder, final int groupPosition,
                                       final int childPosition, final int layout) {
         assert mDetails != null : "There are only children to bind when we have MeasurementDetails";
         final MeasurementDetails.Breakdown breakdown;
         switch (mGroups[groupPosition]) {
+            case GROUP_LOCAL:
+                breakdown = mDetails.getLocalBreakdown()[childPosition];
+                break;
             case GROUP_TEAM:
                 breakdown = mDetails.getTeamBreakdown()[childPosition];
                 break;
@@ -201,30 +215,14 @@ public class MeasurementBreakdownExpandableViewAdapter
     }
 
     @Override
-    public boolean onCheckCanExpandOrCollapseGroup(final ItemViewHolder holder, final int groupPosition, final int x,
+    public boolean onCheckCanExpandOrCollapseGroup(final ViewHolder holder, final int groupPosition, final int x,
                                                    final int y, final boolean expand) {
-        switch (mGroups[groupPosition]) {
-            case GROUP_LOCAL:
-            case GROUP_TOTAL:
-                return false;
-            case GROUP_SELFASSIGNED:
-            case GROUP_TEAM:
-            case GROUP_SUBMINISTRIES:
-                return true;
-            default:
-                return false;
-        }
+        return getChildCount(groupPosition) > 0;
     }
 
     /* END lifecycle */
 
-    static final class GroupViewHolder extends RecyclerView.ViewHolder {
-        public GroupViewHolder(@NonNull final View view) {
-            super(view);
-        }
-    }
-
-    static final class ItemViewHolder extends RecyclerView.ViewHolder {
+    static final class ViewHolder extends AbstractExpandableItemViewHolder {
         @Nullable
         @Optional
         @InjectView(R.id.label)
@@ -233,8 +231,11 @@ public class MeasurementBreakdownExpandableViewAdapter
         @Optional
         @InjectView(R.id.value)
         TextView mValue;
+        @Optional
+        @InjectViews(R.id.icon)
+        List<View> mHiddenOnEmpty;
 
-        public ItemViewHolder(@NonNull final View view) {
+        public ViewHolder(@NonNull final View view) {
             super(view);
             ButterKnife.inject(this, view);
         }

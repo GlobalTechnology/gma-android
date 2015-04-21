@@ -1,11 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="8dp">
+
+    <com.expidev.gcmapp.view.ExpandableStateImageView
+        android:id="@+id/icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_measurements_expanded_indicator"/>
+
+    <TextView
+        android:id="@+id/value"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:textAppearance="@style/TextAppearance.GMA.Large"
+        tools:text="1000"/>
 
     <TextView
         android:id="@+id/label"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Section"/>
+        android:layout_toEndOf="@id/icon"
+        android:layout_toRightOf="@id/icon"
+        android:layout_toStartOf="@+id/value"
+        android:layout_toLeftOf="@+id/value"
+        android:textAppearance="@style/TextAppearance.GMA.Large"
+        android:maxLines="1"
+        android:ellipsize="end"
+        tools:text="Section"/>
+
 </RelativeLayout>
