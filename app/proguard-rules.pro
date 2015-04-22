@@ -25,6 +25,10 @@
 }
 
 
+# Crashlytics
+-keepattributes SourceFile,LineNumberTable
+
+
 # Google Guava
 -dontwarn javax.annotation.**
 -dontwarn sun.misc.Unsafe

@@ -96,6 +96,9 @@
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="@string/google_maps_api_key" />
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="221defd61d27b8bacf5d79b9cd169754ced3fd24"/>
 
         <receiver android:name=".Sync.ConnectionBroadcastReceiver" >
             <intent-filter>
@@ -109,5 +112,4 @@
                  android:exported="false" />
 
     </application>
-
 </manifest>

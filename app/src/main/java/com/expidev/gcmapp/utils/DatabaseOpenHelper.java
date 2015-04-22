@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.support.annotation.NonNull;
 
+import com.crashlytics.android.Crashlytics;
 import com.expidev.gcmapp.BuildConfig;
 import com.expidev.gcmapp.db.Contract;
 import com.google.common.base.Throwables;
@@ -160,6 +161,7 @@ public class DatabaseOpenHelper extends WalSQLiteOpenHelper {
             if (BuildConfig.DEBUG) {
                 throw Throwables.propagate(e);
             } else {
+                Crashlytics.logException(e);
                 CrashReporterUtils.reportException(mContext, e);
             }
 

@@ -5,8 +5,10 @@ import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
 
 import android.app.Application;
 
+import com.crashlytics.android.Crashlytics;
 import com.newrelic.agent.android.NewRelic;
 
+import io.fabric.sdk.android.Fabric;
 import net.danlew.android.joda.JodaTimeAndroid;
 
 import me.thekey.android.TheKey;
@@ -17,6 +19,7 @@ public class GcmApplication extends Application implements TheKeyContext {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
 
         // initialize Android Joda-Time
         JodaTimeAndroid.init(this);
