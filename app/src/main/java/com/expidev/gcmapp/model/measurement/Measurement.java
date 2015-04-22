@@ -11,26 +11,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Measurement extends Base implements Serializable
-{
-    private static final long serialVersionUID = 0L;
-
+public class Measurement extends Base {
     @Nullable
     private MeasurementType type;
     @Nullable
     private MinistryMeasurement ministryMeasurement;
     @Nullable
     private PersonalMeasurement personalMeasurement;
-    @NonNull
-    private YearMonth period = YearMonth.now();
-    @NonNull
-    private String ministryId = Ministry.INVALID_ID;
-    @NonNull
-    private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
 
     @NonNull
     public static List<Measurement> listFromJson(@NonNull final JSONArray json, @NonNull final String guid,
@@ -48,9 +38,6 @@ public class Measurement extends Base implements Serializable
                                        @NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
                                        @NonNull final YearMonth period) throws JSONException {
         final Measurement measurement = new Measurement();
-        measurement.ministryId = ministryId;
-        measurement.mcc = mcc;
-        measurement.period = period;
 
         measurement.type = MeasurementType.fromJson(json);
         if (json.has(MinistryMeasurement.JSON_VALUE)) {
@@ -68,57 +55,13 @@ public class Measurement extends Base implements Serializable
         return type;
     }
 
-    public void setType(@Nullable final MeasurementType type) {
-        this.type = type;
-    }
-
     @Nullable
     public MinistryMeasurement getMinistryMeasurement() {
         return ministryMeasurement;
     }
 
-    public void setMinistryMeasurement(@Nullable final MinistryMeasurement ministryMeasurement) {
-        this.ministryMeasurement = ministryMeasurement;
-    }
-
     @Nullable
     public PersonalMeasurement getPersonalMeasurement() {
         return personalMeasurement;
-    }
-
-    public void setPersonalMeasurement(@Nullable final PersonalMeasurement personalMeasurement) {
-        this.personalMeasurement = personalMeasurement;
-    }
-
-    @NonNull
-    public YearMonth getPeriod() {
-        return period;
-    }
-
-    public void setPeriod(@NonNull final YearMonth period) {
-        this.period = period;
-    }
-
-    @NonNull
-    public String getMinistryId()
-    {
-        return ministryId;
-    }
-
-    public void setMinistryId(@NonNull final String ministryId) {
-        this.ministryId = ministryId;
-    }
-
-    @NonNull
-    public Ministry.Mcc getMcc() {
-        return this.mcc;
-    }
-
-    public void setMcc(@Nullable final String mcc) {
-        setMcc(Ministry.Mcc.fromRaw(mcc));
-    }
-
-    public void setMcc(@NonNull final Ministry.Mcc mcc) {
-        this.mcc = mcc;
     }
 }
