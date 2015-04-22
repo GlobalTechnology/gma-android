@@ -16,6 +16,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
@@ -36,7 +37,6 @@ import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.ccci.gto.android.common.recyclerview.adapter.CursorAdapter;
 import org.ccci.gto.android.common.recyclerview.decorator.DividerItemDecoration;
-import org.ccci.gto.android.common.recyclerview.layoutmanager.LinearLayoutManager;
 import org.ccci.gto.android.common.recyclerview.listener.ItemClickListener;
 import org.ccci.gto.android.common.support.v4.util.FragmentUtils;
 import org.ccci.gto.android.common.util.BundleCompat;

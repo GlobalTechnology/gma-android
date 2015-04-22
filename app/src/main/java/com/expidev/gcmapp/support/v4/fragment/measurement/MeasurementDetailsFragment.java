@@ -16,6 +16,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,7 +42,6 @@ import com.h6ah4i.android.widget.advrecyclerview.expandable.RecyclerViewExpandab
 import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils;
 
 import org.ccci.gto.android.common.recyclerview.decorator.DividerItemDecoration;
-import org.ccci.gto.android.common.recyclerview.layoutmanager.LinearLayoutManager;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.joda.time.YearMonth;
 
