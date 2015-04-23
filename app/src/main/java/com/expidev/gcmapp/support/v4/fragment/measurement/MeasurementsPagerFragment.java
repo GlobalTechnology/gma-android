@@ -144,7 +144,7 @@ public class MeasurementsPagerFragment extends Fragment {
             mAdapter.swapCursor(c);
         }
 
-        // trigger datasyncs for all loaded measurements
+        // trigger details sync for all loaded measurements
         if (c != null) {
             c.moveToPosition(-1);
             while (c.moveToNext()) {

@@ -175,6 +175,13 @@ public class GmaSyncService extends ThreadedIntentService {
     public static void syncMeasurementDetails(@NonNull final Context context, @NonNull final String guid,
                                               @NonNull final String ministryId, @NonNull final Mcc mcc,
                                               @NonNull final String permLink, @NonNull final YearMonth period) {
+        syncMeasurementDetails(context, guid, ministryId, mcc, permLink, period, false);
+    }
+
+    public static void syncMeasurementDetails(@NonNull final Context context, @NonNull final String guid,
+                                              @NonNull final String ministryId, @NonNull final Mcc mcc,
+                                              @NonNull final String permLink, @NonNull final YearMonth period,
+                                              final boolean force) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_MEASUREMENT_DETAILS);
         intent.putExtra(EXTRA_GUID, guid);
@@ -182,6 +189,7 @@ public class GmaSyncService extends ThreadedIntentService {
         intent.putExtra(EXTRA_MCC, mcc.toString());
         intent.putExtra(EXTRA_PERMLINK, permLink);
         intent.putExtra(EXTRA_PERIOD, period.toString());
+        intent.putExtra(EXTRA_FORCE, force);
         context.startService(intent);
     }
 
@@ -636,6 +644,9 @@ public class GmaSyncService extends ThreadedIntentService {
                 // clear dirty values for the measurements updated
                 for (final MeasurementValue value : dirty) {
                     mDao.updateMeasurementValueDelta(value, 0 - value.getDelta());
+
+                    // Force a details sync for this updated measurement
+                    syncMeasurementDetails(this, guid, ministryId, mcc, value.getPermLinkStub(), period, true);
                 }
 
                 // update the measurements one last time

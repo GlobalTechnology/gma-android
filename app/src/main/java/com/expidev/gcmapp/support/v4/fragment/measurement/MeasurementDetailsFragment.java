@@ -288,7 +288,7 @@ public class MeasurementDetailsFragment extends Fragment {
     }
 
     private void syncData(final boolean force) {
-        GmaSyncService.syncMeasurementDetails(getActivity(), mGuid, mMinistryId, mMcc, mPermLink, mPeriod);
+        GmaSyncService.syncMeasurementDetails(getActivity(), mGuid, mMinistryId, mMcc, mPermLink, mPeriod, force);
     }
 
     private final class MeasurementDetailsLoaderCallbacks extends SimpleLoaderCallbacks<MeasurementDetails> {
