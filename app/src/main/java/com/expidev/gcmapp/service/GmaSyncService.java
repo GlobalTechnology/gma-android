@@ -527,8 +527,17 @@ public class GmaSyncService extends ThreadedIntentService {
     private void syncMeasurementTypes(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
         final List<MeasurementType> types = api.getMeasurementTypes();
         if (types != null) {
+            final List<String> updatedTypes = new ArrayList<>();
+
             for (final MeasurementType type : types) {
                 mDao.updateOrInsert(type, PROJECTION_SYNC_MEASUREMENT_TYPES_TYPE);
+                updatedTypes.add(type.getPermLinkStub());
+            }
+
+            // send broadcasts
+            if (!updatedTypes.isEmpty()) {
+                broadcastManager.sendBroadcast(BroadcastUtils.updateMeasurementTypesBroadcast(
+                        updatedTypes.toArray(new String[updatedTypes.size()])));
             }
         }
     }
@@ -656,6 +665,8 @@ public class GmaSyncService extends ThreadedIntentService {
     }
 
     private void saveMeasurements(@NonNull final List<Measurement> measurements, final boolean sendBroadcasts) {
+        final List<String> updatedTypes = new ArrayList<>();
+
         // update measurement data in the database
         for (final Measurement measurement : measurements) {
             // update the measurement type data
@@ -663,6 +674,7 @@ public class GmaSyncService extends ThreadedIntentService {
             if (type != null) {
                 type.setLastSynced();
                 mDao.updateOrInsert(type, PROJECTION_SYNC_MEASUREMENTS_TYPE);
+                updatedTypes.add(type.getPermLinkStub());
             }
 
             // update ministry measurements
@@ -681,6 +693,11 @@ public class GmaSyncService extends ThreadedIntentService {
         }
 
         if (sendBroadcasts) {
+            if (!updatedTypes.isEmpty()) {
+                broadcastManager.sendBroadcast(BroadcastUtils.updateMeasurementTypesBroadcast(
+                        updatedTypes.toArray(new String[updatedTypes.size()])));
+            }
+
             //TODO: broadcasts
         }
     }

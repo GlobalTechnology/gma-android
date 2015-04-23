@@ -39,6 +39,7 @@ import com.expidev.gcmapp.model.measurement.MinistryMeasurement;
 import com.expidev.gcmapp.model.measurement.PersonalMeasurement;
 import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.support.v4.adapter.MeasurementPagerAdapter;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.viewpagerindicator.CirclePageIndicator;
 
 import org.ccci.gto.android.common.db.Join;
@@ -62,13 +63,13 @@ public class MeasurementsPagerFragment extends Fragment {
     private MeasurementType.Column mColumn;
 
     @NonNull
-    private String mGuid;
+    private /* final */ String mGuid;
     @NonNull
-    private String mMinistryId = Ministry.INVALID_ID;
+    private /* final */ String mMinistryId = Ministry.INVALID_ID;
     @NonNull
-    private Ministry.Mcc mMcc = Ministry.Mcc.UNKNOWN;
+    private /* final */ Ministry.Mcc mMcc = Ministry.Mcc.UNKNOWN;
     @NonNull
-    private YearMonth mPeriod;
+    private /* final */ YearMonth mPeriod;
     @ValueType
     private /* final */ int mType = TYPE_NONE;
 
@@ -235,6 +236,7 @@ public class MeasurementsPagerFragment extends Fragment {
                     final CursorBroadcastReceiverLoader loader =
                             new DaoCursorBroadcastReceiverLoader<>(context, GmaDao.getInstance(context),
                                                                    MeasurementType.class, args);
+                    loader.addIntentFilter(BroadcastUtils.updateMeasurementTypesFilter());
                     return loader;
                 default:
                     return null;

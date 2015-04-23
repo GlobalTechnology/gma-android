@@ -2,6 +2,7 @@ package com.expidev.gcmapp.utils;
 
 import static com.expidev.gcmapp.Constants.EXTRA_CHURCH_IDS;
 import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
+import static com.expidev.gcmapp.Constants.EXTRA_PERMLINKS;
 import static com.expidev.gcmapp.Constants.EXTRA_TRAINING_IDS;
 
 import android.content.Intent;
@@ -33,6 +34,8 @@ public final class BroadcastUtils
     private static final String ACTION_UPDATE_CHURCHES = GmaSyncService.class.getName() + ".ACTION_UPDATE_CHURCHES";
     private static final String ACTION_UPDATE_MINISTRIES = GmaSyncService.class.getName() + ".ACTION_UPDATE_MINISTRIES";
     private static final String ACTION_UPDATE_TRAINING = TrainingService.class.getName() + ".ACTION_UPDATE_TRAINING";
+    private static final String ACTION_UPDATE_MEASUREMENT_TYPES =
+            GmaSyncService.class.getName() + ".ACTION_UPDATE_MEASUREMENT_TYPES";
 
     public static final String ACTION_START = BroadcastUtils.class.getName() + ".ACTION_START";
     public static final String ACTION_RUNNING = BroadcastUtils.class.getName() + ".ACTION_RUNNING";
@@ -154,6 +157,16 @@ public final class BroadcastUtils
         return intent;
     }
 
+    /* BEGIN Measurement broadcasts */
+
+    public static Intent updateMeasurementTypesBroadcast(@NonNull final String... permLinks) {
+        final Intent intent = new Intent(ACTION_UPDATE_MEASUREMENT_TYPES);
+        intent.putExtra(EXTRA_PERMLINKS, permLinks);
+        return intent;
+    }
+
+    /* END Measurement broadcasts */
+
     public static IntentFilter noAssignmentsFilter(@NonNull final String guid) {
         final IntentFilter filter = new IntentFilter(ACTION_NO_ASSIGNMENTS);
         addDataUri(filter, assignmentsUri(guid), PatternMatcher.PATTERN_LITERAL);
@@ -197,4 +210,12 @@ public final class BroadcastUtils
         return new IntentFilter(ACTION_UPDATE_TRAINING);
     }
 
+    /* BEGIN Measurement filters */
+
+    @NonNull
+    public static IntentFilter updateMeasurementTypesFilter() {
+        return new IntentFilter(ACTION_UPDATE_MEASUREMENT_TYPES);
+    }
+
+    /* END Measurement filters */
 }
