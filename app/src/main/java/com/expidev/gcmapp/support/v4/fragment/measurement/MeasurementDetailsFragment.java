@@ -19,12 +19,14 @@ import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.model.MeasurementDetails;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.support.v4.content.MeasurementDetailsLoader;
 import com.expidev.gcmapp.support.v7.adapter.MeasurementBreakdownExpandableViewAdapter;
 import com.github.mikephil.charting.charts.LineChart;
@@ -113,6 +115,7 @@ public class MeasurementDetailsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable final Bundle savedState) {
         super.onCreate(savedState);
+        setHasOptionsMenu(true);
 
         // process arguments
         final Bundle args = this.getArguments();
@@ -141,6 +144,17 @@ public class MeasurementDetailsFragment extends Fragment {
     public void onStart() {
         super.onStart();
         startLoaders();
+        syncData(false);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                syncData(true);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     void onLoadDetails(@Nullable final MeasurementDetails details) {
@@ -271,6 +285,10 @@ public class MeasurementDetailsFragment extends Fragment {
                 mChartView.clear();
             }
         }
+    }
+
+    private void syncData(final boolean force) {
+        GmaSyncService.syncMeasurementDetails(getActivity(), mGuid, mMinistryId, mMcc, mPermLink, mPeriod);
     }
 
     private final class MeasurementDetailsLoaderCallbacks extends SimpleLoaderCallbacks<MeasurementDetails> {

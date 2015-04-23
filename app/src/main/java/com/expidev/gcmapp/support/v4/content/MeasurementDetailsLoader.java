@@ -15,6 +15,7 @@ import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.model.MeasurementDetails;
 import com.expidev.gcmapp.model.Ministry;
 import com.expidev.gcmapp.model.Ministry.Mcc;
+import com.expidev.gcmapp.utils.BroadcastUtils;
 
 import org.ccci.gto.android.common.support.v4.content.AsyncTaskBroadcastReceiverLoader;
 import org.ccci.gto.android.common.util.BundleCompat;
@@ -45,6 +46,9 @@ public class MeasurementDetailsLoader extends AsyncTaskBroadcastReceiverLoader<M
             mPermLink = args.getString(ARG_PERMLINK);
             final String rawPeriod = args.getString(ARG_PERIOD);
             mPeriod = rawPeriod != null ? YearMonth.parse(rawPeriod) : YearMonth.now();
+
+            addIntentFilter(
+                    BroadcastUtils.updateMeasurementDetailsFilter(mGuid, mMinistryId, mMcc, mPeriod, mPermLink));
         } else {
             mGuid = null;
             mMinistryId = Ministry.INVALID_ID;

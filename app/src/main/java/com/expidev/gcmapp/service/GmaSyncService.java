@@ -730,6 +730,10 @@ public class GmaSyncService extends ThreadedIntentService {
             details.setLastSynced();
             mDao.updateOrInsert(details, new String[] {Contract.MeasurementDetails.COLUMN_JSON,
                     Contract.MeasurementDetails.COLUMN_LAST_SYNCED});
+
+            // broadcast the measurement details sync
+            broadcastManager.sendBroadcast(
+                    BroadcastUtils.updateMeasurementDetailsBroadcast(guid, ministryId, mcc, period, permLink));
         }
     }
 

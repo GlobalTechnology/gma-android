@@ -12,8 +12,11 @@ import android.os.PatternMatcher;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.expidev.gcmapp.model.Ministry.Mcc;
 import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.service.TrainingService;
+
+import org.joda.time.YearMonth;
 
 import java.util.Locale;
 
@@ -27,7 +30,6 @@ public final class BroadcastUtils
     private static final Uri URI_MINISTRIES = Uri.parse("gma://ministries/");
     private static final Uri URI_TRAINING = Uri.parse("gma://training/");
     private static final Uri URI_MEASUREMENTS = Uri.parse("gma://measurements/");
-    private static final Uri URI_MEASUREMENT_DETAILS = Uri.parse("gma://measurementdetails/");
 
     private static final String ACTION_NO_ASSIGNMENTS = GmaSyncService.class.getName() + ".ACTION_NO_ASSIGNMENTS";
     private static final String ACTION_UPDATE_ASSIGNMENTS = GmaSyncService.class.getName() + ".ACTION_UPDATE_ASSIGNMENTS";
@@ -36,6 +38,8 @@ public final class BroadcastUtils
     private static final String ACTION_UPDATE_TRAINING = TrainingService.class.getName() + ".ACTION_UPDATE_TRAINING";
     private static final String ACTION_UPDATE_MEASUREMENT_TYPES =
             GmaSyncService.class.getName() + ".ACTION_UPDATE_MEASUREMENT_TYPES";
+    private static final String ACTION_UPDATE_MEASUREMENT_DETAILS =
+            GmaSyncService.class.getName() + ".ACTION_UPDATE_MEASUREMENT_DETAILS";
 
     public static final String ACTION_START = BroadcastUtils.class.getName() + ".ACTION_START";
     public static final String ACTION_RUNNING = BroadcastUtils.class.getName() + ".ACTION_RUNNING";
@@ -81,9 +85,22 @@ public final class BroadcastUtils
         return URI_MEASUREMENTS;
     }
 
-    private static Uri measurementDetailsUri()
-    {
-        return URI_MEASUREMENT_DETAILS;
+    private static Uri.Builder measurementsUriBuilder(@NonNull final String guid, @NonNull final String ministryId,
+                                                      @NonNull final Mcc mcc,
+                                                      @NonNull final YearMonth period) {
+        return URI_MEASUREMENTS.buildUpon().appendPath(guid).appendPath(ministryId).appendPath(mcc.toString())
+                .appendPath(period.toString());
+    }
+
+    private static Uri measurementsUri(@NonNull final String guid, @NonNull final String ministryId,
+                                       @NonNull final Mcc mcc, @NonNull final YearMonth period) {
+        return measurementsUriBuilder(guid, ministryId, mcc, period).build();
+    }
+
+    private static Uri measurementsUri(@NonNull final String guid, @NonNull final String ministryId,
+                                       @NonNull final Mcc mcc, @NonNull final YearMonth period,
+                                       @NonNull final String permLink) {
+        return measurementsUriBuilder(guid, ministryId, mcc, period).appendPath(permLink).build();
     }
 
     /* Intent Filter generation methods */
@@ -165,6 +182,12 @@ public final class BroadcastUtils
         return intent;
     }
 
+    public static Intent updateMeasurementDetailsBroadcast(@NonNull final String guid, @NonNull final String ministryId,
+                                                           @NonNull final Mcc mcc, @NonNull final YearMonth period,
+                                                           @NonNull final String permLink) {
+        return new Intent(ACTION_UPDATE_MEASUREMENT_DETAILS, measurementsUri(guid, ministryId, mcc, period, permLink));
+    }
+
     /* END Measurement broadcasts */
 
     public static IntentFilter noAssignmentsFilter(@NonNull final String guid) {
@@ -215,6 +238,15 @@ public final class BroadcastUtils
     @NonNull
     public static IntentFilter updateMeasurementTypesFilter() {
         return new IntentFilter(ACTION_UPDATE_MEASUREMENT_TYPES);
+    }
+
+    public static IntentFilter updateMeasurementDetailsFilter(@NonNull final String guid,
+                                                              @NonNull final String ministryId, @NonNull final Mcc mcc,
+                                                              @NonNull final YearMonth period,
+                                                              @NonNull final String permLink) {
+        final IntentFilter filter = new IntentFilter(ACTION_UPDATE_MEASUREMENT_DETAILS);
+        addDataUri(filter, measurementsUri(guid, ministryId, mcc, period, permLink), PatternMatcher.PATTERN_LITERAL);
+        return filter;
     }
 
     /* END Measurement filters */
