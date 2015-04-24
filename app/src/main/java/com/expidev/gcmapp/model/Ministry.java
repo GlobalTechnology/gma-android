@@ -24,8 +24,6 @@ public class Ministry extends Location implements Serializable {
     public static final String JSON_CODE = "min_code";
     public static final String JSON_MCCS = "mccs";
     public static final String JSON_LOCATION = "location";
-    public static final String JSON_LATITUDE = "latitude";
-    public static final String JSON_LONGITUDE = "longitude";
     public static final String JSON_LOCATION_ZOOM = "location_zoom";
 
     @Deprecated

@@ -2,7 +2,6 @@ package com.expidev.gcmapp.model;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 
 import com.expidev.gcmapp.BuildConfig;
 
@@ -16,10 +15,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public class Training extends Location implements Cloneable {
     public static final long INVALID_ID = -1;
@@ -32,8 +28,6 @@ public class Training extends Location implements Cloneable {
     private static final String JSON_TYPE = "type";
     private static final String JSON_DATE = "date";
     private static final String JSON_MCC = "mcc";
-    private static final String JSON_LATITUDE = "latitude";
-    private static final String JSON_LONGITUDE = "longitude";
     private static final String JSON_COMPLETIONS = "gcm_training_completions";
 
     private long id;
@@ -47,9 +41,6 @@ public class Training extends Location implements Cloneable {
     private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
     @NonNull
     private final List<Completion> completions = new ArrayList<>();
-    private boolean mTrackingChanges = false;
-    @NonNull
-    private final Set<String> mDirty = new HashSet<>();
 
     public Training()
     {       
@@ -187,11 +178,6 @@ public class Training extends Location implements Cloneable {
         this.mcc = mcc;
     }
 
-    public void trackingChanges(final boolean state)
-    {
-        mTrackingChanges = state;
-    }
-
     @NonNull
     public List<Completion> getCompletions() {
         return Collections.unmodifiableList(completions);
@@ -214,31 +200,9 @@ public class Training extends Location implements Cloneable {
         return new Training(this);
     }
     
-    public boolean isDirty()
-    {
-        return !mDirty.isEmpty();
-    }
-    
-    public void setDirty(@Nullable final String dirty)
-    {
-        mDirty.clear();
-        if (dirty != null) Collections.addAll(mDirty, TextUtils.split(dirty, ","));
-    }
-    
-    public JSONObject dirtyToJson() throws JSONException
-    {
-        final JSONObject json = this.toJson();
-        final Iterator<String> keys = json.keys();
-        while (keys.hasNext())
-        {
-            if (!this.mDirty.contains(keys.next())) keys.remove();
-        }
-        return json;
-    }
-    
     public JSONObject toJson() throws JSONException
     {
-        final JSONObject json = new JSONObject();
+        final JSONObject json = super.toJson();
         json.put(JSON_NAME, this.getName());
         json.put(JSON_MINISTRY_ID, this.getMinistryId());
         json.put(JSON_DATE, this.getDate());

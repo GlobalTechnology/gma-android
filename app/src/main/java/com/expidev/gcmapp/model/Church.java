@@ -12,11 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public class Church extends Location implements Cloneable {
     public static final long INVALID_ID = -1;
@@ -92,8 +88,6 @@ public class Church extends Location implements Cloneable {
     public static final String JSON_NAME = "name";
     public static final String JSON_CONTACT_EMAIL = "contact_email";
     public static final String JSON_CONTACT_NAME = "contact_name";
-    public static final String JSON_LATITUDE = "latitude";
-    public static final String JSON_LONGITUDE = "longitude";
     public static final String JSON_DEVELOPMENT = "development";
     public static final String JSON_SIZE = "size";
     public static final String JSON_SECURITY = "security";
@@ -114,9 +108,6 @@ public class Church extends Location implements Cloneable {
     private int size = 0;
 
     private boolean mNew = false;
-    @NonNull
-    private final Set<String> mDirty = new HashSet<>();
-    private boolean mTrackingChanges = false;
 
     @NonNull
     public static List<Church> listFromJson(@NonNull final JSONArray json) throws JSONException {
@@ -254,51 +245,20 @@ public class Church extends Location implements Cloneable {
         return mNew;
     }
 
-    public void setDirty(@Nullable final String dirty) {
-        mDirty.clear();
-        if (dirty != null) {
-            Collections.addAll(mDirty, TextUtils.split(dirty, ","));
-        }
-    }
-
-    @NonNull
-    public String getDirty() {
-        return TextUtils.join(",", mDirty);
-    }
-
-    public boolean isDirty() {
-        return !mDirty.isEmpty();
-    }
-
-    public void trackingChanges(final boolean state) {
-        mTrackingChanges = state;
-    }
-
     @Override
     @SuppressWarnings("CloneDoesntCallSuperClone")
     public Church clone() {
         return new Church(this);
     }
 
-    public JSONObject dirtyToJson() throws JSONException {
-        final JSONObject json = this.toJson();
-        final Iterator<String> keys = json.keys();
-        while (keys.hasNext()) {
-            if (!this.mDirty.contains(keys.next())) {
-                keys.remove();
-            }
-        }
-        return json;
-    }
-
+    @NonNull
+    @Override
     public JSONObject toJson() throws JSONException {
-        final JSONObject json = new JSONObject();
+        final JSONObject json = super.toJson();
         json.put(JSON_MINISTRY_ID, this.ministryId);
         json.put(JSON_NAME, this.name);
         json.put(JSON_CONTACT_NAME, this.contactName);
         json.put(JSON_CONTACT_EMAIL, this.contactEmail);
-        json.put(JSON_LATITUDE, this.getLatitude());
-        json.put(JSON_LONGITUDE, this.getLongitude());
         if (this.development != Development.UNKNOWN) {
             json.put(JSON_DEVELOPMENT, this.development.id);
         }
