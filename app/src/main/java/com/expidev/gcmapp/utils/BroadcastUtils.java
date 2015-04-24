@@ -45,9 +45,6 @@ public final class BroadcastUtils
 
     public static final String ACTION_START = BroadcastUtils.class.getName() + ".ACTION_START";
     public static final String ACTION_RUNNING = BroadcastUtils.class.getName() + ".ACTION_RUNNING";
-    public static final String ACTION_STOP = BroadcastUtils.class.getName() + ".ACTION_STOP";
-    
-    public static final String ACTION_TYPE = BroadcastUtils.class.getName() + ".ACTION_TYPE";
 
     private static Uri assignmentsUri() {
         return URI_ASSIGNMENTS;
