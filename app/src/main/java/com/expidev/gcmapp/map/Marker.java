@@ -22,6 +22,11 @@ public abstract class Marker<T extends Location> implements ClusterItem {
         mPosition = obj.getLocation();
     }
 
+    @NonNull
+    public final T getObject() {
+        return mObj;
+    }
+
     public abstract String getName();
 
     public abstract String getSnippet();
@@ -29,8 +34,13 @@ public abstract class Marker<T extends Location> implements ClusterItem {
     @DrawableRes
     public abstract int getItemImage();
 
+    @NonNull
     @Override
     public final LatLng getPosition() {
         return mPosition;
+    }
+
+    public boolean isDraggable() {
+        return false;
     }
 }

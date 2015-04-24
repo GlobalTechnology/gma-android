@@ -30,6 +30,8 @@ import android.widget.TextView;
 
 import com.expidev.gcmapp.MapSettings;
 import com.expidev.gcmapp.R;
+import com.expidev.gcmapp.db.Contract;
+import com.expidev.gcmapp.db.GmaDao;
 import com.expidev.gcmapp.map.ChurchMarker;
 import com.expidev.gcmapp.map.Marker;
 import com.expidev.gcmapp.map.MarkerRender;
@@ -37,6 +39,7 @@ import com.expidev.gcmapp.map.TrainingMarker;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
+import com.expidev.gcmapp.model.Task;
 import com.expidev.gcmapp.model.Training;
 import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.service.TrainingService;
@@ -53,7 +56,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.common.base.Objects;
 import com.google.maps.android.clustering.ClusterManager;
 
+import org.ccci.gto.android.common.db.Transaction;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.ccci.gto.android.common.util.AsyncTaskCompat;
 
 import java.util.List;
 
@@ -338,7 +343,9 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         final Context context = getActivity();
         if (!mMapInitialized && context != null && mMap != null) {
             mClusterManager = new ClusterManager<>(context, mMap);
-            mClusterManager.setRenderer(new MarkerRender(context, mMap, mClusterManager));
+            final MarkerRender renderer = new MarkerRender(context, mMap, mClusterManager);
+            renderer.setMarkerDragListener(new MarkerDragListener());
+            mClusterManager.setRenderer(renderer);
             mClusterManager.setOnClusterItemInfoWindowClickListener(
                     new ClusterManager.OnClusterItemInfoWindowClickListener<Marker>() {
                         @Override
@@ -353,6 +360,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             mMap.setOnCameraChangeListener(mClusterManager);
             mMap.setOnMarkerClickListener(mClusterManager);
             mMap.setOnInfoWindowClickListener(mClusterManager);
+            mMap.setOnMarkerDragListener(mClusterManager.getMarkerManager());
             mMap.setOnMapLongClickListener(new MapLongClickListener());
 
             loadVisibleMapLayers();
@@ -477,6 +485,69 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             if (fm.findFragmentByTag("editTraining") == null) {
                 EditTrainingFragment fragment = EditTrainingFragment.newInstance(trainingId);
                 fragment.show(fm.beginTransaction().addToBackStack("editTraining"), "editTraining");
+            }
+        }
+    }
+
+    private class MarkerDragListener implements MarkerRender.OnMarkerDragListener<Marker> {
+        @Override
+        public void onMarkerDragEnd(@NonNull final Marker marker, @NonNull final LatLng position) {
+            if (marker instanceof ChurchMarker) {
+                final Church church = ((ChurchMarker) marker).getObject();
+                if (mAssignment != null && mAssignment.can(Task.EDIT_CHURCH, church)) {
+                    // update church location in the database
+                    AsyncTaskCompat.execute(
+                            new ChurchLocationRunnable(getActivity(), ((ChurchMarker) marker).getChurchId(), position));
+
+                    // update the backing church object in this marker
+                    church.setLatitude(position.latitude);
+                    church.setLongitude(position.longitude);
+                }
+
+                // update map markers to their new state (this will also reset a church that we weren't actually allowed to move)
+                // XXX: this currently recreates all map markers, which is incredibly heavy to update a single node
+                updateMapMarkers();
+            }
+        }
+    }
+
+    private static class ChurchLocationRunnable implements Runnable {
+        private Context mContext;
+        private long mId;
+        private LatLng mLocation;
+
+        public ChurchLocationRunnable(@NonNull final Context context, final long id, @NonNull final LatLng location) {
+            mContext = context.getApplicationContext();
+            mId = id;
+            mLocation = location;
+        }
+
+        @Override
+        public void run() {
+            final GmaDao dao = GmaDao.getInstance(mContext);
+            final Transaction tx = dao.newTransaction();
+            try {
+                tx.beginTransactionNonExclusive();
+
+                final Church church = dao.find(Church.class, mId);
+                if (church != null) {
+                    // update the location of this church
+                    church.trackingChanges(true);
+                    church.setLatitude(mLocation.latitude);
+                    church.setLongitude(mLocation.longitude);
+                    church.trackingChanges(false);
+
+                    // store the update
+                    dao.update(church, new String[] {Contract.Church.COLUMN_LATITUDE, Contract.Church.COLUMN_LONGITUDE,
+                            Contract.Church.COLUMN_DIRTY});
+
+                    // sync the updated church back to the cloud
+                    GmaSyncService.syncDirtyChurches(mContext);
+                }
+
+                tx.setTransactionSuccessful();
+            } finally {
+                tx.endTransaction();
             }
         }
     }

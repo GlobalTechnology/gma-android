@@ -29,4 +29,9 @@ public class ChurchMarker extends Marker<Church> {
     public int getItemImage() {
         return mObj.getDevelopment().image;
     }
+
+    @Override
+    public boolean isDraggable() {
+        return true;
+    }
 }
