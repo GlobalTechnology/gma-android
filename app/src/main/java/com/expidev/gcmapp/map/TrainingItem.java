@@ -6,8 +6,8 @@ import android.support.annotation.NonNull;
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.model.Training;
 
-public class TrainingMarker extends Marker<Training> {
-    public TrainingMarker(@NonNull final Training obj) {
+public class TrainingItem extends GmaItem<Training> {
+    public TrainingItem(@NonNull final Training obj) {
         super(obj);
     }
     

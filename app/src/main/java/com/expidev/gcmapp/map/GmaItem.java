@@ -7,13 +7,13 @@ import com.expidev.gcmapp.model.Location;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
-public abstract class Marker<T extends Location> implements ClusterItem {
+public abstract class GmaItem<T extends Location> implements ClusterItem {
     @NonNull
     protected final T mObj;
     @NonNull
     private final LatLng mPosition;
 
-    protected Marker(@NonNull final T obj) {
+    protected GmaItem(@NonNull final T obj) {
         mObj = obj;
         if (!obj.hasLocation()) {
             throw new IllegalArgumentException("Location object needs to have a location to be rendered");

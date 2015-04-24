@@ -6,26 +6,27 @@ import android.support.annotation.Nullable;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 
-public class MarkerRender extends DefaultClusterRenderer<Marker> {
+public class MarkerRender extends DefaultClusterRenderer<GmaItem> {
     @NonNull
-    private final ClusterManager<Marker> mClusterManager;
+    private final ClusterManager<GmaItem> mClusterManager;
 
     @Nullable
-    private OnMarkerDragListener<Marker> mMarkerDragListener;
+    private OnMarkerDragListener<GmaItem> mMarkerDragListener;
 
     public MarkerRender(@NonNull final Context context, @NonNull final GoogleMap map,
-                        @NonNull final ClusterManager<Marker> clusterManager) {
+                        @NonNull final ClusterManager<GmaItem> clusterManager) {
         super(context, map, clusterManager);
         mClusterManager = clusterManager;
     }
 
-    public void setMarkerDragListener(@Nullable final OnMarkerDragListener<Marker> listener) {
+    public void setMarkerDragListener(@Nullable final OnMarkerDragListener<GmaItem> listener) {
         mMarkerDragListener = listener;
     }
 
@@ -36,21 +37,21 @@ public class MarkerRender extends DefaultClusterRenderer<Marker> {
         super.onAdd();
         mClusterManager.getMarkerCollection().setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
-            public void onMarkerDragStart(com.google.android.gms.maps.model.Marker marker) {
+            public void onMarkerDragStart(Marker marker) {
                 // do nothing
             }
 
             @Override
-            public void onMarkerDrag(com.google.android.gms.maps.model.Marker marker) {
+            public void onMarkerDrag(Marker marker) {
                 // do nothing
             }
 
             @Override
-            public void onMarkerDragEnd(com.google.android.gms.maps.model.Marker marker) {
+            public void onMarkerDragEnd(@NonNull final Marker marker) {
                 if (mMarkerDragListener != null) {
-                    final Marker item = getClusterItem(marker);
+                    final GmaItem item = getClusterItem(marker);
                     if (item != null) {
-                        mMarkerDragListener.onMarkerDragEnd(item, marker.getPosition());
+                        mMarkerDragListener.onMarkerDragEnd(item, marker);
                     }
                 }
             }
@@ -58,7 +59,7 @@ public class MarkerRender extends DefaultClusterRenderer<Marker> {
     }
 
     @Override
-    protected void onBeforeClusterItemRendered(final Marker item, final MarkerOptions markerOptions) {
+    protected void onBeforeClusterItemRendered(final GmaItem item, final MarkerOptions markerOptions) {
         super.onBeforeClusterItemRendered(item, markerOptions);
         markerOptions.icon(BitmapDescriptorFactory.fromResource(item.getItemImage()));
         markerOptions.title(item.getName());
@@ -67,14 +68,14 @@ public class MarkerRender extends DefaultClusterRenderer<Marker> {
     }
 
     @Override
-    protected void onBeforeClusterRendered(Cluster<Marker> cluster, MarkerOptions markerOptions) {
+    protected void onBeforeClusterRendered(Cluster<GmaItem> cluster, MarkerOptions markerOptions) {
         super.onBeforeClusterRendered(cluster, markerOptions);
         int churches = 0;
         int trainings = 0;
-        for (final Marker marker : cluster.getItems()) {
-            if(marker instanceof ChurchMarker) {
+        for (final GmaItem item : cluster.getItems()) {
+            if (item instanceof ChurchItem) {
                 churches++;
-            } else if(marker instanceof TrainingMarker) {
+            } else if (item instanceof TrainingItem) {
                 trainings++;
             }
         }
@@ -101,7 +102,7 @@ public class MarkerRender extends DefaultClusterRenderer<Marker> {
 
     /* END lifecycle */
 
-    public interface OnMarkerDragListener<T> {
-        void onMarkerDragEnd(@NonNull T marker, @NonNull LatLng position);
+    public interface OnMarkerDragListener<T extends ClusterItem> {
+        void onMarkerDragEnd(@NonNull T item, @NonNull Marker marker);
     }
 }

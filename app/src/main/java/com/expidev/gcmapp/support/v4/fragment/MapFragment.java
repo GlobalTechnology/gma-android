@@ -33,10 +33,10 @@ import com.expidev.gcmapp.MapSettings;
 import com.expidev.gcmapp.R;
 import com.expidev.gcmapp.db.Contract;
 import com.expidev.gcmapp.db.GmaDao;
-import com.expidev.gcmapp.map.ChurchMarker;
-import com.expidev.gcmapp.map.Marker;
+import com.expidev.gcmapp.map.ChurchItem;
+import com.expidev.gcmapp.map.GmaItem;
 import com.expidev.gcmapp.map.MarkerRender;
-import com.expidev.gcmapp.map.TrainingMarker;
+import com.expidev.gcmapp.map.TrainingItem;
 import com.expidev.gcmapp.model.Assignment;
 import com.expidev.gcmapp.model.Church;
 import com.expidev.gcmapp.model.Ministry;
@@ -54,6 +54,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.common.base.Objects;
 import com.google.maps.android.clustering.ClusterManager;
 
@@ -97,7 +98,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private GoogleMap mMap;
     private boolean mMapInitialized = false;
     @Nullable
-    private ClusterManager<Marker> mClusterManager;
+    private ClusterManager<GmaItem> mClusterManager;
     private final boolean[] mMapLayers = new boolean[6];
 
     @NonNull
@@ -352,13 +353,13 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             renderer.setMarkerDragListener(new MarkerDragListener());
             mClusterManager.setRenderer(renderer);
             mClusterManager.setOnClusterItemInfoWindowClickListener(
-                    new ClusterManager.OnClusterItemInfoWindowClickListener<Marker>() {
+                    new ClusterManager.OnClusterItemInfoWindowClickListener<GmaItem>() {
                         @Override
-                        public void onClusterItemInfoWindowClick(final Marker marker) {
-                            if (marker instanceof ChurchMarker) {
-                                showEditChurch(((ChurchMarker) marker).getChurchId());
-                            } else if (marker instanceof TrainingMarker) {
-                                showEditTraining(((TrainingMarker) marker).getTrainingId());
+                        public void onClusterItemInfoWindowClick(final GmaItem item) {
+                            if (item instanceof ChurchItem) {
+                                showEditChurch(((ChurchItem) item).getChurchId());
+                            } else if (item instanceof TrainingItem) {
+                                showEditTraining(((TrainingItem) item).getTrainingId());
                             }
                         }
                     });
@@ -438,7 +439,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                     }
 
                     if (render) {
-                        mClusterManager.addItem(new ChurchMarker(church));
+                        mClusterManager.addItem(new ChurchItem(church));
                     }
                 }
             }
@@ -452,7 +453,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 mTrainings != null) {
             for (final Training training : mTrainings) {
                 if (training.hasLocation()) {
-                    mClusterManager.addItem(new TrainingMarker(training));
+                    mClusterManager.addItem(new TrainingItem(training));
                 }
             }
         }
@@ -494,24 +495,31 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         }
     }
 
-    private class MarkerDragListener implements MarkerRender.OnMarkerDragListener<Marker> {
+    private class MarkerDragListener implements MarkerRender.OnMarkerDragListener<GmaItem> {
         @Override
-        public void onMarkerDragEnd(@NonNull final Marker marker, @NonNull final LatLng position) {
-            if (marker instanceof ChurchMarker) {
-                final Church church = ((ChurchMarker) marker).getObject();
+        public void onMarkerDragEnd(@NonNull final GmaItem item, @NonNull final Marker marker) {
+            if (item instanceof ChurchItem) {
+                final Church church = ((ChurchItem) item).getObject();
                 if (mAssignment != null && mAssignment.can(Task.EDIT_CHURCH, church)) {
                     // update church location in the database
+                    final LatLng position = marker.getPosition();
                     AsyncTaskCompat.execute(
-                            new ChurchLocationRunnable(getActivity(), ((ChurchMarker) marker).getChurchId(), position));
+                            new ChurchLocationRunnable(getActivity(), ((ChurchItem) item).getChurchId(), position));
 
-                    // update the backing church object in this marker
+                    // update the currently loaded backing church object
                     church.setLatitude(position.latitude);
                     church.setLongitude(position.longitude);
-                }
 
-                // update map markers to their new state (this will also reset a church that we weren't actually allowed to move)
-                // XXX: this currently recreates all map markers, which is incredibly heavy to update a single node
-                updateMapMarkers();
+                    // update map markers to their new state
+                    // XXX: this currently recreates all map markers, which is incredibly heavy to update a single node
+                    updateMapMarkers();
+                } else {
+                    // reset position because you weren't actually allowed to move the item
+                    marker.setPosition(item.getPosition());
+                }
+            } else {
+                // reset position because you weren't actually allowed to move the item
+                marker.setPosition(item.getPosition());
             }
         }
     }

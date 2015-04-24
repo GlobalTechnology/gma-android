@@ -5,8 +5,8 @@ import android.support.annotation.NonNull;
 
 import com.expidev.gcmapp.model.Church;
 
-public class ChurchMarker extends Marker<Church> {
-    public ChurchMarker(@NonNull final Church obj) {
+public class ChurchItem extends GmaItem<Church> {
+    public ChurchItem(@NonNull final Church obj) {
         super(obj);
     }
 
