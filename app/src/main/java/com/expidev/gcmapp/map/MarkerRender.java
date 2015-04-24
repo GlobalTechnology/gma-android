@@ -37,8 +37,13 @@ public class MarkerRender extends DefaultClusterRenderer<GmaItem> {
         super.onAdd();
         mClusterManager.getMarkerCollection().setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
-            public void onMarkerDragStart(Marker marker) {
-                // do nothing
+            public void onMarkerDragStart(@NonNull final Marker marker) {
+                if (mMarkerDragListener != null) {
+                    final GmaItem item = getClusterItem(marker);
+                    if (item != null) {
+                        mMarkerDragListener.onMarkerDragStart(item, marker);
+                    }
+                }
             }
 
             @Override
@@ -103,6 +108,8 @@ public class MarkerRender extends DefaultClusterRenderer<GmaItem> {
     /* END lifecycle */
 
     public interface OnMarkerDragListener<T extends ClusterItem> {
+        void onMarkerDragStart(@NonNull T item, @NonNull Marker marker);
+
         void onMarkerDragEnd(@NonNull T item, @NonNull Marker marker);
     }
 }

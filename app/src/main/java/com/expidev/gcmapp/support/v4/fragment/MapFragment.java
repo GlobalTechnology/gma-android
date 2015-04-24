@@ -497,6 +497,14 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
     private class MarkerDragListener implements MarkerRender.OnMarkerDragListener<GmaItem> {
         @Override
+        public void onMarkerDragStart(@NonNull GmaItem item, @NonNull Marker marker) {
+            // perform haptic feedback to let user know something is happening
+            if (mMapFrame != null) {
+                mMapFrame.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+            }
+        }
+
+        @Override
         public void onMarkerDragEnd(@NonNull final GmaItem item, @NonNull final Marker marker) {
             if (item instanceof ChurchItem) {
                 final Church church = ((ChurchItem) item).getObject();
