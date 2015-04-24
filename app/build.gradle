@@ -16,7 +16,7 @@ apply plugin: 'io.fabric'
 apply plugin: 'newrelic'
 
 group 'org.ccci.gto.android'
-version '0.8.5'
+version '0.8.6-SNAPSHOT'
 
 def generateVersionCode(version) {
     def code = 0;
