@@ -126,6 +126,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     @Override
     public void onCreate(@Nullable final Bundle savedState) {
         super.onCreate(savedState);
+        setHasOptionsMenu(true);
 
         mGuid = getArguments().getString(ARG_GUID);
     }
