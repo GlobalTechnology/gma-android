@@ -33,7 +33,7 @@ public class Church extends Location implements Cloneable {
         @DrawableRes
         public final int image;
 
-        private Development(final int id, int image) {
+        Development(final int id, int image) {
             this.id = id;
             this.image = image;
         }
@@ -65,7 +65,7 @@ public class Church extends Location implements Cloneable {
 
         public final int id;
 
-        private Security(final int id) {
+        Security(final int id) {
             this.id = id;
         }
 

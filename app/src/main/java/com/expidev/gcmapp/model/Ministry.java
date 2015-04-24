@@ -41,7 +41,7 @@ public class Ministry extends Location implements Serializable {
         @Nullable
         public final String raw;
 
-        private Mcc(final String raw) {
+        Mcc(final String raw) {
             this.raw = raw;
         }
 
