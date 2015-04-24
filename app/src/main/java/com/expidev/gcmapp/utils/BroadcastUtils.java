@@ -154,6 +154,8 @@ public final class BroadcastUtils
 
     /* END Assignment broadcasts */
 
+    /* BEGIN Church broadcasts */
+
     public static Intent updateChurchesBroadcast(@NonNull final long... ids) {
         return updateChurchesBroadcast(null, ids);
     }
@@ -164,6 +166,8 @@ public final class BroadcastUtils
         intent.putExtra(EXTRA_CHURCH_IDS, ids);
         return intent;
     }
+
+    /* END Church broadcasts */
 
     public static Intent updateMinistriesBroadcast() {
         return new Intent(ACTION_UPDATE_MINISTRIES, ministriesUri());
@@ -207,6 +211,8 @@ public final class BroadcastUtils
 
     /* END Measurement broadcasts */
 
+    /* BEGIN Assignment filters */
+
     public static IntentFilter noAssignmentsFilter(@NonNull final String guid) {
         final IntentFilter filter = new IntentFilter(ACTION_NO_ASSIGNMENTS);
         addDataUri(filter, assignmentsUri(guid), PatternMatcher.PATTERN_LITERAL);
@@ -225,6 +231,10 @@ public final class BroadcastUtils
         return filter;
     }
 
+    /* END Assignment filters */
+
+    /* BEGIN Church filters */
+
     public static IntentFilter updateChurchesFilter() {
         return updateChurchesFilter(null);
     }
@@ -238,6 +248,8 @@ public final class BroadcastUtils
         }
         return filter;
     }
+
+    /* END Church filters */
 
     public static IntentFilter updateMinistriesFilter() {
         final IntentFilter filter = new IntentFilter(ACTION_UPDATE_MINISTRIES);
