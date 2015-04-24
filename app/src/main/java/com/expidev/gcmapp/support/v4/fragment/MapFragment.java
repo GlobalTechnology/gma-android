@@ -21,6 +21,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -83,6 +84,10 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private final ChurchesLoaderCallbacks mLoaderCallbacksChurches = new ChurchesLoaderCallbacks();
     private final TrainingsLoaderCallbacks mLoaderCallbacksTraining = new TrainingsLoaderCallbacks();
 
+    @Optional
+    @Nullable
+    @InjectView(R.id.map)
+    FrameLayout mMapFrame;
     @Optional
     @Nullable
     @InjectView(R.id.name)
@@ -555,6 +560,10 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private class MapLongClickListener implements GoogleMap.OnMapLongClickListener {
         @Override
         public void onMapLongClick(final LatLng pos) {
+            if (mMapFrame != null) {
+                mMapFrame.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+            }
+
             showCreateChurch(pos);
         }
     }
