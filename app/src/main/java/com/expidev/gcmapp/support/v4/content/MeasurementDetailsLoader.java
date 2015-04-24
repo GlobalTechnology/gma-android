@@ -48,7 +48,7 @@ public class MeasurementDetailsLoader extends AsyncTaskBroadcastReceiverLoader<M
             mPeriod = rawPeriod != null ? YearMonth.parse(rawPeriod) : YearMonth.now();
 
             addIntentFilter(
-                    BroadcastUtils.updateMeasurementDetailsFilter(mGuid, mMinistryId, mMcc, mPeriod, mPermLink));
+                    BroadcastUtils.updateMeasurementDetailsFilter(mMinistryId, mMcc, mPeriod, mGuid, mPermLink));
         } else {
             mGuid = null;
             mMinistryId = Ministry.INVALID_ID;

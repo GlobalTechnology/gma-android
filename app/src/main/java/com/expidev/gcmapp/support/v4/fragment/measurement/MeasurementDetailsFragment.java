@@ -124,6 +124,9 @@ public class MeasurementDetailsFragment extends Fragment {
         mMcc = Ministry.Mcc.fromRaw(args.getString(ARG_MCC));
         mPermLink = args.getString(ARG_PERMLINK);
         mPeriod = YearMonth.parse(args.getString(ARG_PERIOD));
+
+        // start an initial data sync
+        syncData(false);
     }
 
     @Override
@@ -144,7 +147,6 @@ public class MeasurementDetailsFragment extends Fragment {
     public void onStart() {
         super.onStart();
         startLoaders();
-        syncData(false);
     }
 
     @Override

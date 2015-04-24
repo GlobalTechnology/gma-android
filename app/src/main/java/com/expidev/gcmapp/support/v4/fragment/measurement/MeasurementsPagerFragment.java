@@ -37,14 +37,12 @@ import com.expidev.gcmapp.model.measurement.MeasurementType;
 import com.expidev.gcmapp.model.measurement.MeasurementValue.ValueType;
 import com.expidev.gcmapp.model.measurement.MinistryMeasurement;
 import com.expidev.gcmapp.model.measurement.PersonalMeasurement;
-import com.expidev.gcmapp.service.GmaSyncService;
 import com.expidev.gcmapp.support.v4.adapter.MeasurementPagerAdapter;
 import com.expidev.gcmapp.utils.BroadcastUtils;
 import com.viewpagerindicator.CirclePageIndicator;
 
 import org.ccci.gto.android.common.db.Join;
 import org.ccci.gto.android.common.db.support.v4.content.DaoCursorBroadcastReceiverLoader;
-import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.util.ArrayUtils;
@@ -143,15 +141,6 @@ public class MeasurementsPagerFragment extends Fragment {
         if (mAdapter != null) {
             mAdapter.swapCursor(c);
         }
-
-        // trigger details sync for all loaded measurements
-        if (c != null) {
-            c.moveToPosition(-1);
-            while (c.moveToNext()) {
-                GmaSyncService.syncMeasurementDetails(getActivity(), mGuid, mMinistryId, mMcc, CursorUtils
-                        .getNonNullString(c, Contract.MeasurementType.COLUMN_PERM_LINK_STUB, ""), mPeriod);
-            }
-        }
     }
 
     @Override
@@ -237,6 +226,16 @@ public class MeasurementsPagerFragment extends Fragment {
                             new DaoCursorBroadcastReceiverLoader<>(context, GmaDao.getInstance(context),
                                                                    MeasurementType.class, args);
                     loader.addIntentFilter(BroadcastUtils.updateMeasurementTypesFilter());
+                    switch (mType) {
+                        case TYPE_LOCAL:
+                            loader.addIntentFilter(
+                                    BroadcastUtils.updateMeasurementValuesFilter(mMinistryId, mMcc, mPeriod));
+                            break;
+                        case TYPE_PERSONAL:
+                            loader.addIntentFilter(
+                                    BroadcastUtils.updateMeasurementValuesFilter(mMinistryId, mMcc, mPeriod, mGuid));
+                            break;
+                    }
                     return loader;
                 default:
                     return null;

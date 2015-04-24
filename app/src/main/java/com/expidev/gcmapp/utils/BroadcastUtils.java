@@ -38,6 +38,8 @@ public final class BroadcastUtils
     private static final String ACTION_UPDATE_TRAINING = TrainingService.class.getName() + ".ACTION_UPDATE_TRAINING";
     private static final String ACTION_UPDATE_MEASUREMENT_TYPES =
             GmaSyncService.class.getName() + ".ACTION_UPDATE_MEASUREMENT_TYPES";
+    private static final String ACTION_UPDATE_MEASUREMENT_VALUES =
+            GmaSyncService.class.getName() + ".ACTION_UPDATE_MEASUREMENT_VALUES";
     private static final String ACTION_UPDATE_MEASUREMENT_DETAILS =
             GmaSyncService.class.getName() + ".ACTION_UPDATE_MEASUREMENT_DETAILS";
 
@@ -85,22 +87,31 @@ public final class BroadcastUtils
         return URI_MEASUREMENTS;
     }
 
-    private static Uri.Builder measurementsUriBuilder(@NonNull final String guid, @NonNull final String ministryId,
-                                                      @NonNull final Mcc mcc,
+    private static Uri.Builder measurementsUriBuilder(@NonNull final String ministryId, @NonNull final Mcc mcc,
                                                       @NonNull final YearMonth period) {
-        return URI_MEASUREMENTS.buildUpon().appendPath(guid).appendPath(ministryId).appendPath(mcc.toString())
+        return URI_MEASUREMENTS.buildUpon().appendPath(ministryId).appendPath(mcc.toString())
                 .appendPath(period.toString());
     }
 
-    private static Uri measurementsUri(@NonNull final String guid, @NonNull final String ministryId,
-                                       @NonNull final Mcc mcc, @NonNull final YearMonth period) {
-        return measurementsUriBuilder(guid, ministryId, mcc, period).build();
+    private static Uri.Builder measurementsUriBuilder(@NonNull final String ministryId, @NonNull final Mcc mcc,
+                                                      @NonNull final YearMonth period, @NonNull final String guid) {
+        return measurementsUriBuilder(ministryId, mcc, period).appendPath(guid);
     }
 
-    private static Uri measurementsUri(@NonNull final String guid, @NonNull final String ministryId,
-                                       @NonNull final Mcc mcc, @NonNull final YearMonth period,
+    private static Uri measurementsUri(@NonNull final String ministryId, @NonNull final Mcc mcc,
+                                       @NonNull final YearMonth period) {
+        return measurementsUriBuilder(ministryId, mcc, period).build();
+    }
+
+    private static Uri measurementsUri(@NonNull final String ministryId, @NonNull final Mcc mcc,
+                                       @NonNull final YearMonth period, @NonNull final String guid) {
+        return measurementsUriBuilder(ministryId, mcc, period, guid).build();
+    }
+
+    private static Uri measurementsUri(@NonNull final String ministryId, @NonNull final Mcc mcc,
+                                       @NonNull final YearMonth period, @NonNull final String guid,
                                        @NonNull final String permLink) {
-        return measurementsUriBuilder(guid, ministryId, mcc, period).appendPath(permLink).build();
+        return measurementsUriBuilder(ministryId, mcc, period, guid).appendPath(permLink).build();
     }
 
     /* Intent Filter generation methods */
@@ -182,10 +193,19 @@ public final class BroadcastUtils
         return intent;
     }
 
-    public static Intent updateMeasurementDetailsBroadcast(@NonNull final String guid, @NonNull final String ministryId,
-                                                           @NonNull final Mcc mcc, @NonNull final YearMonth period,
+    public static Intent updateMeasurementValuesBroadcast(@NonNull final String ministryId, @NonNull final Mcc mcc,
+                                                          @NonNull final YearMonth period, @NonNull final String guid,
+                                                          @NonNull final String... permLinks) {
+        final Intent intent =
+                new Intent(ACTION_UPDATE_MEASUREMENT_VALUES, measurementsUri(ministryId, mcc, period, guid));
+        intent.putExtra(EXTRA_PERMLINKS, permLinks);
+        return intent;
+    }
+
+    public static Intent updateMeasurementDetailsBroadcast(@NonNull final String ministryId, @NonNull final Mcc mcc,
+                                                           @NonNull final YearMonth period, @NonNull final String guid,
                                                            @NonNull final String permLink) {
-        return new Intent(ACTION_UPDATE_MEASUREMENT_DETAILS, measurementsUri(guid, ministryId, mcc, period, permLink));
+        return new Intent(ACTION_UPDATE_MEASUREMENT_DETAILS, measurementsUri(ministryId, mcc, period, guid, permLink));
     }
 
     /* END Measurement broadcasts */
@@ -240,12 +260,27 @@ public final class BroadcastUtils
         return new IntentFilter(ACTION_UPDATE_MEASUREMENT_TYPES);
     }
 
-    public static IntentFilter updateMeasurementDetailsFilter(@NonNull final String guid,
-                                                              @NonNull final String ministryId, @NonNull final Mcc mcc,
+    public static IntentFilter updateMeasurementValuesFilter(@NonNull final String ministryId, @NonNull final Mcc mcc,
+                                                             @NonNull final YearMonth period) {
+        final IntentFilter filter = new IntentFilter(ACTION_UPDATE_MEASUREMENT_VALUES);
+        addDataUri(filter, measurementsUri(ministryId, mcc, period), PatternMatcher.PATTERN_PREFIX);
+        return filter;
+    }
+
+    public static IntentFilter updateMeasurementValuesFilter(@NonNull final String ministryId, @NonNull final Mcc mcc,
+                                                             @NonNull final YearMonth period,
+                                                             @NonNull final String guid) {
+        final IntentFilter filter = new IntentFilter(ACTION_UPDATE_MEASUREMENT_VALUES);
+        addDataUri(filter, measurementsUri(ministryId, mcc, period, guid), PatternMatcher.PATTERN_LITERAL);
+        return filter;
+    }
+
+    public static IntentFilter updateMeasurementDetailsFilter(@NonNull final String ministryId, @NonNull final Mcc mcc,
                                                               @NonNull final YearMonth period,
+                                                              @NonNull final String guid,
                                                               @NonNull final String permLink) {
         final IntentFilter filter = new IntentFilter(ACTION_UPDATE_MEASUREMENT_DETAILS);
-        addDataUri(filter, measurementsUri(guid, ministryId, mcc, period, permLink), PatternMatcher.PATTERN_LITERAL);
+        addDataUri(filter, measurementsUri(ministryId, mcc, period, guid, permLink), PatternMatcher.PATTERN_LITERAL);
         return filter;
     }
 

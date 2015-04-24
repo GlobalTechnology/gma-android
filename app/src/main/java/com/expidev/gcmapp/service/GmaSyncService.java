@@ -54,9 +54,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class GmaSyncService extends ThreadedIntentService {
     private static final String TAG = GmaSyncService.class.getSimpleName();
@@ -563,10 +565,14 @@ public class GmaSyncService extends ThreadedIntentService {
 
     private void syncMeasurements(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
         // get parameters for sync from the intent & sanitize
+        final String guid = intent.getStringExtra(EXTRA_GUID);
         final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
         final Mcc mcc = Mcc.fromRaw(intent.getStringExtra(Constants.ARG_MCC));
         final String rawPeriod = intent.getStringExtra(Constants.ARG_PERIOD);
         final YearMonth period = rawPeriod != null ? YearMonth.parse(rawPeriod) : YearMonth.now();
+        if (guid == null) {
+            return;
+        }
         if (ministryId == null || ministryId.equals(Ministry.INVALID_ID)) {
             return;
         }
@@ -577,7 +583,7 @@ public class GmaSyncService extends ThreadedIntentService {
         // fetch the requested measurements from the api
         final List<Measurement> measurements = api.getMeasurements(ministryId, mcc, period);
         if (measurements != null) {
-            saveMeasurements(measurements, true);
+            saveMeasurements(measurements, guid, ministryId, mcc, period, true);
         }
     }
 
@@ -618,7 +624,7 @@ public class GmaSyncService extends ThreadedIntentService {
             if (measurements == null) {
                 return;
             }
-            saveMeasurements(measurements, false);
+            saveMeasurements(measurements, guid, ministryId, mcc, period, false);
 
             // refresh the list of dirty measurements
             dirty = getDirtyMeasurements(assignment, mcc, period);
@@ -652,7 +658,7 @@ public class GmaSyncService extends ThreadedIntentService {
                 // update the measurements one last time
                 measurements = api.getMeasurements(ministryId, mcc, period);
                 if (measurements != null) {
-                    saveMeasurements(measurements, true);
+                    saveMeasurements(measurements, guid, ministryId, mcc, period, true);
                 }
             }
         }
@@ -675,8 +681,11 @@ public class GmaSyncService extends ThreadedIntentService {
         return dirty;
     }
 
-    private void saveMeasurements(@NonNull final List<Measurement> measurements, final boolean sendBroadcasts) {
+    private void saveMeasurements(@NonNull final List<Measurement> measurements, @NonNull final String guid,
+                                  @NonNull final String ministryId, @NonNull final Mcc mcc,
+                                  @NonNull final YearMonth period, final boolean sendBroadcasts) {
         final List<String> updatedTypes = new ArrayList<>();
+        final Set<String> updatedValues = new HashSet<>();
 
         // update measurement data in the database
         for (final Measurement measurement : measurements) {
@@ -693,6 +702,7 @@ public class GmaSyncService extends ThreadedIntentService {
             if (ministryMeasurement != null) {
                 ministryMeasurement.setLastSynced();
                 mDao.updateOrInsert(ministryMeasurement, PROJECTION_SYNC_MEASUREMENTS_MINISTRY_MEASUREMENT);
+                updatedValues.add(ministryMeasurement.getPermLinkStub());
             }
 
             // update personal measurements
@@ -700,6 +710,7 @@ public class GmaSyncService extends ThreadedIntentService {
             if (personalMeasurement != null) {
                 personalMeasurement.setLastSynced();
                 mDao.updateOrInsert(personalMeasurement, PROJECTION_SYNC_MEASUREMENTS_PERSONAL_MEASUREMENT);
+                updatedValues.add(personalMeasurement.getPermLinkStub());
             }
         }
 
@@ -709,7 +720,10 @@ public class GmaSyncService extends ThreadedIntentService {
                         updatedTypes.toArray(new String[updatedTypes.size()])));
             }
 
-            //TODO: broadcasts
+            if (!updatedValues.isEmpty()) {
+                broadcastManager.sendBroadcast(BroadcastUtils.updateMeasurementValuesBroadcast(
+                        ministryId, mcc, period, guid, updatedValues.toArray(new String[updatedValues.size()])));
+            }
         }
     }
 
@@ -744,7 +758,7 @@ public class GmaSyncService extends ThreadedIntentService {
 
             // broadcast the measurement details sync
             broadcastManager.sendBroadcast(
-                    BroadcastUtils.updateMeasurementDetailsBroadcast(guid, ministryId, mcc, period, permLink));
+                    BroadcastUtils.updateMeasurementDetailsBroadcast(ministryId, mcc, period, guid, permLink));
         }
     }
 
