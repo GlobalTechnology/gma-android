@@ -87,7 +87,9 @@ public class GmaSyncService extends ThreadedIntentService {
     private static final long DAY_IN_MS = 24 * HOUR_IN_MS;
     private static final long STALE_DURATION_ASSIGNMENTS = DAY_IN_MS;
     private static final long STALE_DURATION_MINISTRIES = 7 * DAY_IN_MS;
-    private static final long STALE_DURATION_MEASUREMENT_DETAILS = 1 * DAY_IN_MS;
+    private static final long STALE_DURATION_MEASUREMENT_DETAILS_CURRENT = 1 * DAY_IN_MS;
+    private static final long STALE_DURATION_MEASUREMENT_DETAILS_PREVIOUS = 2 * DAY_IN_MS;
+    private static final long STALE_DURATION_MEASUREMENT_DETAILS_OLD = 7 * DAY_IN_MS;
 
     // locks to synchronize various sync types
     private final Object mLockDirtyChurches = new Object();
@@ -748,11 +750,22 @@ public class GmaSyncService extends ThreadedIntentService {
         // is the cached data stale?
         boolean stale = false;
         if (!force) {
+            // calculate the stale duration for the requested period
+            final long staleDuration;
+            final int comparison = period.compareTo(YearMonth.now().minusMonths(1));
+            if (comparison > 0) {
+                staleDuration = STALE_DURATION_MEASUREMENT_DETAILS_CURRENT;
+            } else if (comparison == 0) {
+                staleDuration = STALE_DURATION_MEASUREMENT_DETAILS_PREVIOUS;
+            } else {
+                staleDuration = STALE_DURATION_MEASUREMENT_DETAILS_OLD;
+            }
+
             // check if the currently cached measurement details are stale unless we are already planning on syncing
             final MeasurementDetails details =
                     mDao.find(MeasurementDetails.class, guid, ministryId, mcc, permLink, period);
             stale = details == null || details.getVersion() < GMA_API_VERSION ||
-                    System.currentTimeMillis() - details.getLastSynced() > STALE_DURATION_MEASUREMENT_DETAILS;
+                    System.currentTimeMillis() - details.getLastSynced() > staleDuration;
         }
 
         if (force || stale) {
