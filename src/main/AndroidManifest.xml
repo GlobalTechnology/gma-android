@@ -100,12 +100,6 @@
             android:name="io.fabric.ApiKey"
             android:value="221defd61d27b8bacf5d79b9cd169754ced3fd24"/>
 
-        <receiver android:name=".Sync.ConnectionBroadcastReceiver" >
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHAGE" />
-            </intent-filter>
-        </receiver>
-
         <service android:name=".service.GmaSyncService"
                  android:exported="false"/>
         <service android:name=".service.TrainingService"
