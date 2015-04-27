@@ -3,4 +3,4 @@
     android:id="@+id/fragment_settings"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:name="com.expidev.gcmapp.support.v4.fragment.SettingsFragment"/>
+    android:name="com.expidevapps.android.measurements.support.v4.fragment.SettingsFragment"/>

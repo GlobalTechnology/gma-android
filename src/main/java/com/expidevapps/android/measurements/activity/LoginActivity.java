@@ -1,13 +1,13 @@
 package com.expidevapps.android.measurements.activity;
 
-import static com.expidev.gcmapp.BuildConfig.THEKEY_CLIENTID;
+import static com.expidevapps.android.measurements.BuildConfig.THEKEY_CLIENTID;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
-import com.expidev.gcmapp.R;
+import com.expidevapps.android.measurements.R;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;

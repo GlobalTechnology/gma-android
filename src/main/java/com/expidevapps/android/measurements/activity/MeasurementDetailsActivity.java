@@ -1,11 +1,11 @@
 package com.expidevapps.android.measurements.activity;
 
-import static com.expidev.gcmapp.Constants.EXTRA_GUID;
-import static com.expidev.gcmapp.Constants.EXTRA_MCC;
-import static com.expidev.gcmapp.Constants.EXTRA_MINISTRY_ID;
-import static com.expidev.gcmapp.Constants.EXTRA_PERIOD;
-import static com.expidev.gcmapp.Constants.EXTRA_PERMLINK;
-import static com.expidev.gcmapp.model.measurement.MeasurementValue.TYPE_NONE;
+import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
+import static com.expidevapps.android.measurements.Constants.EXTRA_MCC;
+import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
+import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINK;
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
 
 import android.content.Context;
 import android.content.Intent;
@@ -19,10 +19,9 @@ import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 
-import com.expidev.gcmapp.R;
-import com.expidev.gcmapp.activity.MeasurementsActivity;
-import com.expidev.gcmapp.model.Ministry;
-import com.expidev.gcmapp.support.v4.fragment.measurement.MeasurementDetailsFragment;
+import com.expidevapps.android.measurements.R;
+import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.support.v4.fragment.measurement.MeasurementDetailsFragment;
 
 import org.joda.time.YearMonth;
 

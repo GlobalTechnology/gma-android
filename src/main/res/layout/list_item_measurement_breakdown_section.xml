@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:padding="8dp">
 
-    <com.expidev.gcmapp.view.ExpandableStateImageView
+    <com.expidevapps.android.measurements.view.ExpandableStateImageView
         android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

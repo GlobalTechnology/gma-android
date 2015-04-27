@@ -1,6 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" tools:context="com.expidev.gcmapp.MainActivity">
+    xmlns:tools="http://schemas.android.com/tools" tools:context="com.expidevapps.android.measurements.activity.MainActivity">
 
     <item android:id="@+id/action_join_ministry"
         android:title="@string/action_join_new_ministry"

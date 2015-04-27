@@ -2,8 +2,8 @@ package com.expidev.gcmapp.service;
 
 import static com.expidev.gcmapp.service.Type.SYNC_DIRTY_TRAINING;
 import static com.expidev.gcmapp.service.Type.SYNC_TRAINING;
-import static com.expidev.gcmapp.utils.BroadcastUtils.runningBroadcast;
-import static com.expidev.gcmapp.utils.BroadcastUtils.startBroadcast;
+import static com.expidevapps.android.measurements.service.BroadcastUtils.runningBroadcast;
+import static com.expidevapps.android.measurements.service.BroadcastUtils.startBroadcast;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.app.IntentService;
@@ -15,12 +15,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
 import android.util.Log;
 
-import com.expidev.gcmapp.db.Contract;
-import com.expidev.gcmapp.db.TrainingDao;
-import com.expidev.gcmapp.http.GmaApiClient;
-import com.expidev.gcmapp.model.Ministry;
-import com.expidev.gcmapp.model.Training;
-import com.expidev.gcmapp.utils.BroadcastUtils;
+import com.expidevapps.android.measurements.api.GmaApiClient;
+import com.expidevapps.android.measurements.db.Contract;
+import com.expidevapps.android.measurements.db.TrainingDao;
+import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.model.Training;
+import com.expidevapps.android.measurements.service.BroadcastUtils;
 
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.db.Transaction;
