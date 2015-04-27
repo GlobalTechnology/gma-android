@@ -1,5 +1,6 @@
 package com.expidevapps.android.measurements.service;
 
+import static com.expidevapps.android.measurements.BuildConfig.GMA_API_VERSION;
 import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
 import static com.expidevapps.android.measurements.Constants.EXTRA_MCC;
 import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
@@ -86,6 +87,7 @@ public class GmaSyncService extends ThreadedIntentService {
     private static final long DAY_IN_MS = 24 * HOUR_IN_MS;
     private static final long STALE_DURATION_ASSIGNMENTS = DAY_IN_MS;
     private static final long STALE_DURATION_MINISTRIES = 7 * DAY_IN_MS;
+    private static final long STALE_DURATION_MEASUREMENT_DETAILS = 1 * DAY_IN_MS;
 
     // locks to synchronize various sync types
     private final Object mLockDirtyChurches = new Object();
@@ -171,12 +173,6 @@ public class GmaSyncService extends ThreadedIntentService {
         intent.putExtra(EXTRA_MCC, mcc.toString());
         intent.putExtra(EXTRA_PERIOD, period.toString());
         context.startService(intent);
-    }
-
-    public static void syncMeasurementDetails(@NonNull final Context context, @NonNull final String guid,
-                                              @NonNull final String ministryId, @NonNull final Mcc mcc,
-                                              @NonNull final String permLink, @NonNull final YearMonth period) {
-        syncMeasurementDetails(context, guid, ministryId, mcc, permLink, period, false);
     }
 
     public static void syncMeasurementDetails(@NonNull final Context context, @NonNull final String guid,
@@ -735,6 +731,7 @@ public class GmaSyncService extends ThreadedIntentService {
         final String permLink = intent.getStringExtra(EXTRA_PERMLINK);
         final String rawPeriod = intent.getStringExtra(Constants.ARG_PERIOD);
         final YearMonth period = rawPeriod != null ? YearMonth.parse(rawPeriod) : YearMonth.now();
+        boolean force = intent.getBooleanExtra(EXTRA_FORCE, false);
         if (guid == null) {
             return;
         }
@@ -748,16 +745,28 @@ public class GmaSyncService extends ThreadedIntentService {
             return;
         }
 
-        // fetch details from the API
-        final MeasurementDetails details = api.getMeasurementDetails(ministryId, mcc, permLink, period);
-        if (details != null) {
-            details.setLastSynced();
-            mDao.updateOrInsert(details, new String[] {Contract.MeasurementDetails.COLUMN_JSON,
-                    Contract.MeasurementDetails.COLUMN_LAST_SYNCED});
+        // is the cached data stale?
+        boolean stale = false;
+        if (!force) {
+            // check if the currently cached measurement details are stale unless we are already planning on syncing
+            final MeasurementDetails details =
+                    mDao.find(MeasurementDetails.class, guid, ministryId, mcc, permLink, period);
+            stale = details == null || details.getVersion() < GMA_API_VERSION ||
+                    System.currentTimeMillis() - details.getLastSynced() > STALE_DURATION_MEASUREMENT_DETAILS;
+        }
 
-            // broadcast the measurement details sync
-            broadcastManager.sendBroadcast(
-                    BroadcastUtils.updateMeasurementDetailsBroadcast(ministryId, mcc, period, guid, permLink));
+        if (force || stale) {
+            // fetch details from the API
+            final MeasurementDetails details = api.getMeasurementDetails(ministryId, mcc, permLink, period);
+            if (details != null) {
+                details.setLastSynced();
+                mDao.updateOrInsert(details, new String[] {Contract.MeasurementDetails.COLUMN_JSON,
+                        Contract.MeasurementDetails.COLUMN_LAST_SYNCED});
+
+                // broadcast the measurement details sync
+                broadcastManager.sendBroadcast(
+                        BroadcastUtils.updateMeasurementDetailsBroadcast(ministryId, mcc, period, guid, permLink));
+            }
         }
     }
 
