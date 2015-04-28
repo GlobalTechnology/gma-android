@@ -49,6 +49,22 @@ public class Contract {
         String SQL_COLUMN_LONGITUDE = COLUMN_LONGITUDE + " DECIMAL";
     }
 
+    static final class LastSync {
+        static final String TABLE_NAME = "syncData";
+
+        static final String COLUMN_KEY = "key";
+        static final String COLUMN_LAST_SYNCED = "lastSynced";
+
+        private static final String SQL_COLUMN_KEY = COLUMN_KEY + " TEXT PRIMARY KEY";
+        private static final String SQL_COLUMN_LAST_SYNCED = COLUMN_LAST_SYNCED + " INTEGER";
+
+        public static final String SQL_WHERE_KEY = COLUMN_KEY + " = ?";
+
+        static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+                TextUtils.join(",", new Object[] {SQL_COLUMN_KEY, SQL_COLUMN_LAST_SYNCED}) + ")";
+        static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
+
     public static final class Training extends Base implements MinistryId, Location {
         public static final String TABLE_NAME = "training";
 

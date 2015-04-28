@@ -1,6 +1,8 @@
 package com.expidevapps.android.measurements.db;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.util.Pair;
@@ -13,10 +15,12 @@ import com.expidevapps.android.measurements.model.MeasurementValue;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.MinistryMeasurement;
 import com.expidevapps.android.measurements.model.PersonalMeasurement;
+import com.google.common.base.Joiner;
 
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.Mapper;
 import org.ccci.gto.android.common.db.Transaction;
+import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.util.ArrayUtils;
 
 public class GmaDao extends AbstractDao
@@ -68,6 +72,8 @@ public class GmaDao extends AbstractDao
             return Contract.MeasurementDetails.TABLE_NAME;
         } else if(Church.class.equals(clazz)) {
             return Contract.Church.TABLE_NAME;
+        } else if (Contract.LastSync.class.equals(clazz)) {
+            return Contract.LastSync.TABLE_NAME;
         }
 
         return super.getTable(clazz);
@@ -191,6 +197,25 @@ public class GmaDao extends AbstractDao
         }
 
         return super.getPrimaryKeyWhere(obj);
+    }
+
+    private static final Joiner JOINER_KEY = Joiner.on(':');
+
+    public long getLastSyncTime(@NonNull final Object... key) {
+        final Cursor c = getCursor(Contract.LastSync.class, new String[] {Contract.LastSync.COLUMN_LAST_SYNCED},
+                                   Contract.LastSync.SQL_WHERE_KEY, bindValues(JOINER_KEY.join(key)), null);
+        if (c.moveToFirst()) {
+            return CursorUtils.getLong(c, Contract.LastSync.COLUMN_LAST_SYNCED, 0);
+        }
+        return 0;
+    }
+
+    public void updateLastSyncTime(@NonNull final Object... key) {
+        // update the last sync time, we can replace since this is just a keyed timestamp
+        final ContentValues values = new ContentValues();
+        values.put(Contract.LastSync.COLUMN_KEY, JOINER_KEY.join(key));
+        values.put(Contract.LastSync.COLUMN_LAST_SYNCED, System.currentTimeMillis());
+        getWritableDatabase().replace(getTable(Contract.LastSync.class), null, values);
     }
 
     public void updateMeasurementValueDelta(@NonNull final MeasurementValue value, final int change) {
