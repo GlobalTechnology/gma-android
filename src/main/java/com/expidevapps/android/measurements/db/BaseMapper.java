@@ -12,11 +12,6 @@ import org.ccci.gto.android.common.db.AbstractMapper;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonth;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 public abstract class BaseMapper<T extends Base> extends AbstractMapper<T> {
     @Override
     protected void mapField(@NonNull ContentValues values, @NonNull String field, @NonNull T obj) {
@@ -37,8 +32,6 @@ public abstract class BaseMapper<T extends Base> extends AbstractMapper<T> {
         obj.setLastSynced(this.getLong(c, Contract.Base.COLUMN_LAST_SYNCED, 0));
         return obj;
     }
-
-    private final static SimpleDateFormat FORMAT_DATE = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
     @Nullable
     protected final YearMonth getYearMonth(@NonNull final Cursor c, @NonNull final String field,
@@ -62,21 +55,5 @@ public abstract class BaseMapper<T extends Base> extends AbstractMapper<T> {
     protected final LocalDate getNonNullLocalDate(@NonNull final Cursor c, @NonNull final String field,
                                                   @NonNull final LocalDate defValue) {
         return CursorUtils.getNonNullLocalDate(c, field, defValue);
-    }
-
-    @Nullable
-    protected Date stringToDate(@Nullable final String string) {
-        if (string != null) {
-            try {
-                return FORMAT_DATE.parse(string);
-            } catch (final ParseException ignored) {
-            }
-        }
-        return null;
-    }
-
-    @Nullable
-    protected String dateToString(@Nullable final Date date) {
-        return date != null ? FORMAT_DATE.format(date) : null;
     }
 }
