@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Church;
-import com.expidevapps.android.measurements.service.BroadcastUtils;
+import com.expidevapps.android.measurements.sync.BroadcastUtils;
 
 import org.ccci.gto.android.common.content.IntersectingLongsBroadcastReceiver;
 import org.ccci.gto.android.common.support.v4.content.AsyncTaskBroadcastReceiverLoader;

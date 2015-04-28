@@ -1,4 +1,4 @@
-package com.expidevapps.android.measurements.service;
+package com.expidevapps.android.measurements.sync;
 
 import static com.expidevapps.android.measurements.Constants.EXTRA_CHURCH_IDS;
 import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
@@ -12,26 +12,23 @@ import android.os.PatternMatcher;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.expidev.gcmapp.service.TrainingService;
+import com.expidevapps.android.measurements.model.Ministry.Mcc;
 
 import org.joda.time.YearMonth;
 
 import java.util.Locale;
 
-/**
- * Created by matthewfrederick on 1/23/15.
- */
-public final class BroadcastUtils
-{
+public final class BroadcastUtils {
     private static final Uri URI_ASSIGNMENTS = Uri.parse("gma://assignments/");
     private static final Uri URI_CHURCHES = Uri.parse("gma://churches/");
     private static final Uri URI_MINISTRIES = Uri.parse("gma://ministries/");
     private static final Uri URI_TRAINING = Uri.parse("gma://training/");
     private static final Uri URI_MEASUREMENTS = Uri.parse("gma://measurements/");
 
-    private static final String ACTION_NO_ASSIGNMENTS = GmaSyncService.class.getName() + ".ACTION_NO_ASSIGNMENTS";
-    private static final String ACTION_UPDATE_ASSIGNMENTS = GmaSyncService.class.getName() + ".ACTION_UPDATE_ASSIGNMENTS";
+    private static final String ACTION_NO_ASSIGNMENTS = AssignmentSyncTasks.class.getName() + ".ACTION_NO_ASSIGNMENTS";
+    private static final String ACTION_UPDATE_ASSIGNMENTS =
+            AssignmentSyncTasks.class.getName() + ".ACTION_UPDATE_ASSIGNMENTS";
     private static final String ACTION_UPDATE_CHURCHES = GmaSyncService.class.getName() + ".ACTION_UPDATE_CHURCHES";
     private static final String ACTION_UPDATE_MINISTRIES = GmaSyncService.class.getName() + ".ACTION_UPDATE_MINISTRIES";
     private static final String ACTION_UPDATE_TRAINING = TrainingService.class.getName() + ".ACTION_UPDATE_TRAINING";

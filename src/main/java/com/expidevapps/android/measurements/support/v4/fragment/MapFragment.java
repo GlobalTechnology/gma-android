@@ -43,7 +43,7 @@ import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Task;
 import com.expidevapps.android.measurements.model.Training;
-import com.expidevapps.android.measurements.service.GmaSyncService;
+import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.expidevapps.android.measurements.support.v4.content.ChurchesLoader;
 import com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader;
 import com.expidevapps.android.measurements.support.v4.content.TrainingLoader;

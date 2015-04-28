@@ -1,4 +1,4 @@
-package com.expidevapps.android.measurements.service;
+package com.expidevapps.android.measurements.sync;
 
 import static com.expidevapps.android.measurements.BuildConfig.GMA_API_VERSION;
 import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
@@ -8,18 +8,19 @@ import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
 import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINK;
 import static com.expidevapps.android.measurements.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
 import static com.expidevapps.android.measurements.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
+import static com.expidevapps.android.measurements.sync.AssignmentSyncTasks.EXTRA_ASSIGNMENTS;
+import static com.expidevapps.android.measurements.sync.Constants.DAY_IN_MS;
+import static com.expidevapps.android.measurements.sync.Constants.EXTRA_FORCE;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.SQLException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.LongSparseArray;
-import android.util.Log;
 
 import com.expidevapps.android.measurements.Constants;
 import com.expidevapps.android.measurements.api.GmaApiClient;
@@ -55,21 +56,15 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class GmaSyncService extends ThreadedIntentService {
-    private static final String TAG = GmaSyncService.class.getSimpleName();
-
     private static final String PREFS_SYNC = "gma_sync";
-    private static final String PREF_SYNC_TIME_ASSIGNMENTS = "last_synced.assignments";
     private static final String PREF_SYNC_TIME_MINISTRIES = "last_synced.ministries";
 
     private static final String EXTRA_SYNCTYPE = GmaSyncService.class.getName() + ".EXTRA_SYNCTYPE";
-    private static final String EXTRA_FORCE = GmaSyncService.class.getName() + ".EXTRA_FORCE";
-    private static final String EXTRA_ASSIGNMENTS = GmaSyncService.class.getName() + ".EXTRA_ASSIGNMENTS";
 
     // supported sync types
     private static final int SYNCTYPE_MINISTRIES = 1;
@@ -83,11 +78,8 @@ public class GmaSyncService extends ThreadedIntentService {
     private static final int SYNCTYPE_MEASUREMENT_DETAILS = 9;
 
     // various stale data durations
-    private static final long HOUR_IN_MS = 60 * 60 * 1000;
-    private static final long DAY_IN_MS = 24 * HOUR_IN_MS;
-    private static final long STALE_DURATION_ASSIGNMENTS = DAY_IN_MS;
     private static final long STALE_DURATION_MINISTRIES = 7 * DAY_IN_MS;
-    private static final long STALE_DURATION_MEASUREMENT_DETAILS_CURRENT = 1 * DAY_IN_MS;
+    private static final long STALE_DURATION_MEASUREMENT_DETAILS_CURRENT = DAY_IN_MS;
     private static final long STALE_DURATION_MEASUREMENT_DETAILS_PREVIOUS = 2 * DAY_IN_MS;
     private static final long STALE_DURATION_MEASUREMENT_DETAILS_OLD = 7 * DAY_IN_MS;
 
@@ -212,10 +204,10 @@ public class GmaSyncService extends ThreadedIntentService {
                     syncMinistries(api, intent);
                     break;
                 case SYNCTYPE_SAVE_ASSIGNMENTS:
-                    saveAssignments(intent);
+                    AssignmentSyncTasks.saveAssignments(this, intent.getExtras());
                     break;
                 case SYNCTYPE_ASSIGNMENTS:
-                    syncAssignments(api, intent);
+                    AssignmentSyncTasks.syncAssignments(this, intent.getExtras());
                     break;
                 case SYNCTYPE_CHURCHES:
                     syncChurches(api, intent);
@@ -244,105 +236,6 @@ public class GmaSyncService extends ThreadedIntentService {
     }
 
     /* END lifecycle */
-
-    /* BEGIN Assignment sync */
-
-    private void syncAssignments(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
-        final SharedPreferences prefs = this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE);
-        final String guid = intent.getStringExtra(EXTRA_GUID);
-        final boolean force = intent.getBooleanExtra(EXTRA_FORCE, false);
-        final boolean stale =
-                System.currentTimeMillis() - prefs.getLong(PREF_SYNC_TIME_ASSIGNMENTS, 0) > STALE_DURATION_ASSIGNMENTS;
-
-        if (force || stale) {
-            // fetch raw data from API & parse it
-            final List<Assignment> assignments = api.getAssignments();
-            if (assignments != null) {
-                this.updateAllAssignments(guid, assignments);
-            }
-        }
-    }
-
-    private void saveAssignments(@NonNull final Intent intent) {
-        final String guid = intent.getStringExtra(EXTRA_GUID);
-        final String raw = intent.getStringExtra(EXTRA_ASSIGNMENTS);
-        if (guid != null && raw != null) {
-            try {
-                final List<Assignment> assignments = Assignment.listFromJson(new JSONArray(raw), guid);
-
-                this.updateAllAssignments(guid, assignments);
-            } catch (final JSONException ignored) {
-            }
-        }
-    }
-
-    private void updateAllAssignments(@NonNull final String guid, @NonNull final List<Assignment> assignments) {
-        // wrap entire update in a transaction
-        final Transaction tx = mDao.newTransaction();
-        try {
-            tx.beginTransactionNonExclusive();
-
-            // load pre-existing Assignments (ministry_id => assignment)
-            final Map<String, Assignment> existing = new HashMap<>();
-            for (final Assignment assignment : mDao
-                    .get(Assignment.class, Contract.Assignment.SQL_WHERE_GUID, bindValues(guid))) {
-                existing.put(assignment.getMinistryId(), assignment);
-            }
-
-            // column projections for updates
-            final String[] PROJECTION_ASSIGNMENT = {Contract.Assignment.COLUMN_ROLE, Contract.Assignment.COLUMN_ID,
-                    Contract.Assignment.COLUMN_LAST_SYNCED};
-            final String[] PROJECTION_MINISTRY =
-                    {Contract.Ministry.COLUMN_NAME, Contract.Ministry.COLUMN_MIN_CODE, Contract.Ministry.COLUMN_MCCS,
-                            Contract.Ministry.COLUMN_LATITUDE, Contract.Ministry.COLUMN_LONGITUDE,
-                            Contract.Ministry.COLUMN_LOCATION_ZOOM, Contract.Ministry.COLUMN_PARENT_MINISTRY_ID,
-                            Contract.Ministry.COLUMN_LAST_SYNCED};
-
-            // update assignments in local database
-            final LinkedList<Assignment> toProcess = new LinkedList<>(assignments);
-            while (toProcess.size() > 0) {
-                final Assignment assignment = toProcess.pop();
-
-                // update the ministry
-                final Ministry ministry = assignment.getMinistry();
-                if (ministry != null) {
-                    mDao.updateOrInsert(ministry, PROJECTION_MINISTRY);
-                }
-
-                // now update the actual assignment
-                mDao.updateOrInsert(assignment, PROJECTION_ASSIGNMENT);
-
-                // queue up sub assignments for processing
-                toProcess.addAll(assignment.getSubAssignments());
-
-                // remove it from the list of existing assignments
-                existing.remove(assignment.getMinistryId());
-            }
-
-            // delete any remaining assignments, we don't have them anymore
-            for (final Assignment assignment : existing.values()) {
-                mDao.delete(assignment);
-            }
-
-            tx.setSuccessful();
-
-            // update the sync time
-            this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE).edit()
-                    .putLong(PREF_SYNC_TIME_ASSIGNMENTS, System.currentTimeMillis()).apply();
-
-            // send broadcasts for updated data
-            broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast(guid));
-            if (assignments.isEmpty()) {
-                broadcastManager.sendBroadcast(BroadcastUtils.noAssignmentsBroadcast(guid));
-            }
-        } catch (final SQLException e) {
-            Log.d(TAG, "error updating assignments", e);
-        } finally {
-            tx.end();
-        }
-    }
-
-    /* END Assignment sync */
 
     /* BEGIN Ministry sync */
 

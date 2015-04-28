@@ -3,7 +3,7 @@ package com.expidevapps.android.measurements.support.v4.fragment;
 import static android.view.View.GONE;
 import static com.expidevapps.android.measurements.Constants.ARG_CHURCH_ID;
 import static com.expidevapps.android.measurements.Constants.VISIBILITY;
-import static com.expidevapps.android.measurements.service.BroadcastUtils.updateChurchesBroadcast;
+import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -20,7 +20,7 @@ import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Church.Development;
-import com.expidevapps.android.measurements.service.GmaSyncService;
+import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.expidevapps.android.measurements.support.v4.content.ChurchLoader;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;

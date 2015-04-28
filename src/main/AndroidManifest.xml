@@ -93,7 +93,7 @@
             android:value="221defd61d27b8bacf5d79b9cd169754ced3fd24"/>
 
         <service
-            android:name=".service.GmaSyncService"
+            android:name=".sync.GmaSyncService"
             android:exported="false"/>
         <service
             android:name="com.expidev.gcmapp.service.TrainingService"

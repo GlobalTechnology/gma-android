@@ -22,7 +22,7 @@ import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Ministry;
-import com.expidevapps.android.measurements.service.BroadcastUtils;
+import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader;
 import com.expidevapps.android.measurements.support.v4.content.MinistriesCursorLoader;
 import com.github.machinarius.preferencefragment.PreferenceFragment;

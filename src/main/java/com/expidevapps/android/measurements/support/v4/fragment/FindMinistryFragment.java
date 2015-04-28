@@ -31,7 +31,7 @@ import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Ministry;
-import com.expidevapps.android.measurements.service.BroadcastUtils;
+import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.expidevapps.android.measurements.support.v4.fragment.JoinMinistryDialogFragment.OnJoinMinistryListener;
 import com.expidevapps.android.measurements.support.v7.adapter.MinistryCursorRecyclerViewAdapter;
 

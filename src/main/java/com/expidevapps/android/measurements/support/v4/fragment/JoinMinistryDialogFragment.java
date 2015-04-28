@@ -17,7 +17,7 @@ import android.widget.TextView;
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Ministry;
-import com.expidevapps.android.measurements.service.GmaSyncService;
+import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.expidevapps.android.measurements.support.v4.content.MinistryLoader;
 import com.expidevapps.android.measurements.task.CreateAssignmentTask;
 

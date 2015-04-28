@@ -1,7 +1,7 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.service.BroadcastUtils.updateChurchesBroadcast;
+import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -19,7 +19,7 @@ import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Church.Development;
 import com.expidevapps.android.measurements.model.Ministry;
-import com.expidevapps.android.measurements.service.GmaSyncService;
+import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.ccci.gto.android.common.util.AsyncTaskCompat;

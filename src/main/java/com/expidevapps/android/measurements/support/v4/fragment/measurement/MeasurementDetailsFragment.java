@@ -26,7 +26,7 @@ import android.view.ViewGroup;
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.model.MeasurementDetails;
 import com.expidevapps.android.measurements.model.Ministry;
-import com.expidevapps.android.measurements.service.GmaSyncService;
+import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.expidevapps.android.measurements.support.v4.content.MeasurementDetailsLoader;
 import com.expidevapps.android.measurements.support.v7.adapter.MeasurementBreakdownExpandableViewAdapter;
 import com.github.mikephil.charting.charts.LineChart;

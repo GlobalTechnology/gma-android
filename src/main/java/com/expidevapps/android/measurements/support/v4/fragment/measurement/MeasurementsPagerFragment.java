@@ -37,7 +37,7 @@ import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.MinistryMeasurement;
 import com.expidevapps.android.measurements.model.PersonalMeasurement;
-import com.expidevapps.android.measurements.service.BroadcastUtils;
+import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.expidevapps.android.measurements.support.v4.adapter.MeasurementPagerAdapter;
 import com.viewpagerindicator.CirclePageIndicator;
 

@@ -1,7 +1,7 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
 import static com.expidevapps.android.measurements.Constants.ARG_TRAINING_ID;
-import static com.expidevapps.android.measurements.service.BroadcastUtils.updateTrainingBroadcast;
+import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateTrainingBroadcast;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

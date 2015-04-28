@@ -2,7 +2,7 @@ package com.expidevapps.android.measurements.support.v4.content;
 
 import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.service.BroadcastUtils.updateAssignmentsFilter;
+import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateAssignmentsFilter;
 
 import android.content.Context;
 import android.os.Bundle;
