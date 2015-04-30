@@ -3,7 +3,6 @@ package com.expidevapps.android.measurements.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.expidevapps.android.measurements.model.Base;
 import com.google.common.base.Function;
 
 import org.json.JSONArray;
@@ -129,7 +128,7 @@ public class MeasurementType extends Base {
         } else if (json.has(JSON_ENGLISH)) {
             type.name = json.optString(JSON_ENGLISH, null);
         }
-        type.description = json.getString(JSON_DESCRIPTION);
+        type.description = json.optString(JSON_DESCRIPTION, null);
         type.section = Section.fromRaw(json.getString(JSON_SECTION));
         type.column = Column.fromRaw(json.getString(JSON_COLUMN));
         type.sortOrder = json.optInt(JSON_SORT_ORDER, DEFAULT_SORT_ORDER);
