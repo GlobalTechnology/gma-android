@@ -165,7 +165,7 @@ afterEvaluate { project ->
             type 'txt'
             builtBy proguardRelease
         }
-        archives(file("build/outputs/apk/app-demo.apk")) {
+        archives(file("build/outputs/apk/gma-demo.apk")) {
             classifier 'demo'
             type 'apk'
             builtBy assembleDemo
