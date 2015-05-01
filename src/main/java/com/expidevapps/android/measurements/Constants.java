@@ -32,12 +32,6 @@ public class Constants {
     public static final String EXTRA_TRAINING_IDS = "training_ids";
     public static final String EXTRA_TYPE = "type";
 
-    /* result codes */
-    public static final int BLOCKED_MINISTRY = 1;
-
-    /* request codes */
-    public static final int REQUEST_EXIT = 1;
-
     /* measurements source */
     public static final String MEASUREMENTS_SOURCE = "gma-app";
 
