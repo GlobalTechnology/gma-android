@@ -27,7 +27,6 @@ import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.SyncResult;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -68,18 +67,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class GmaSyncService extends ThreadedIntentService {
-    private static final String PREFS_SYNC = "gma_sync";
-    private static final String PREF_SYNC_TIME_MINISTRIES = "last_synced.ministries";
 
     // various stale data durations
-    private static final long STALE_DURATION_MINISTRIES = 7 * DAY_IN_MS;
     private static final long STALE_DURATION_MEASUREMENT_DETAILS_CURRENT = DAY_IN_MS;
     private static final long STALE_DURATION_MEASUREMENT_DETAILS_PREVIOUS = 2 * DAY_IN_MS;
     private static final long STALE_DURATION_MEASUREMENT_DETAILS_OLD = 7 * DAY_IN_MS;
@@ -91,20 +86,17 @@ public class GmaSyncService extends ThreadedIntentService {
     @NonNull
     private /* final */ GmaDao mDao;
     private LocalBroadcastManager broadcastManager;
+    @NonNull
     private /* final */ GmaSyncAdapter mSyncAdapter;
 
     public GmaSyncService() {
         super("GmaSyncService", 10);
     }
 
-    public static void syncMinistries(final Context context) {
-        syncMinistries(context, false);
-    }
-
-    public static void syncMinistries(final Context context, final boolean force) {
+    public static void syncMinistries(final Context context, @NonNull final String guid, final boolean force) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_MINISTRIES);
-        intent.putExtra(EXTRA_FORCE, force);
+        intent.putExtras(baseExtras(guid, force));
         context.startService(intent);
     }
 
@@ -216,9 +208,6 @@ public class GmaSyncService extends ThreadedIntentService {
         try {
             final int type = intent.getIntExtra(EXTRA_SYNCTYPE, SYNCTYPE_NONE);
             switch (type) {
-                case SYNCTYPE_MINISTRIES:
-                    syncMinistries(api, intent);
-                    break;
                 case SYNCTYPE_CHURCHES:
                     syncChurches(api, intent);
                     break;
@@ -246,53 +235,6 @@ public class GmaSyncService extends ThreadedIntentService {
     }
 
     /* END lifecycle */
-
-    /* BEGIN Ministry sync */
-
-    private void syncMinistries(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
-        final SharedPreferences prefs = this.getSharedPreferences(PREFS_SYNC, MODE_PRIVATE);
-        final boolean force = intent.getBooleanExtra(EXTRA_FORCE, false);
-        final boolean stale =
-                System.currentTimeMillis() - prefs.getLong(PREF_SYNC_TIME_MINISTRIES, 0) > STALE_DURATION_MINISTRIES;
-
-        // only sync if being forced or the data is stale
-        if (force || stale) {
-            // refresh the list of ministries if the load is being forced
-            final List<Ministry> ministries = api.getMinistries();
-
-            // only update the saved ministries if we received any back
-            if (ministries != null) {
-                // load current ministries
-                final Map<String, Ministry> current = new HashMap<>();
-                for (final Ministry ministry : mDao.get(Ministry.class)) {
-                    current.put(ministry.getMinistryId(), ministry);
-                }
-
-                // update all the ministry names
-                for (final Ministry ministry : ministries) {
-                    // this is only a very minimal update, so don't log last synced for new ministries
-                    ministry.setLastSynced(0);
-                    mDao.updateOrInsert(ministry, new String[] {Contract.Ministry.COLUMN_NAME});
-
-                    // remove from the list of current ministries
-                    current.remove(ministry.getMinistryId());
-                }
-
-                // remove any current ministries we didn't see, we can do this because we just retrieved a complete list
-                for (final Ministry ministry : current.values()) {
-                    mDao.delete(ministry);
-                }
-
-                // update the synced time
-                prefs.edit().putLong(PREF_SYNC_TIME_MINISTRIES, System.currentTimeMillis()).apply();
-
-                // send broadcasts that data has been updated in the database
-                broadcastManager.sendBroadcast(BroadcastUtils.updateMinistriesBroadcast());
-            }
-        }
-    }
-
-    /* END Ministry sync */
 
     /* BEGIN Church sync */
 

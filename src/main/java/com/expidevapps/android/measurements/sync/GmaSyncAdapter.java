@@ -5,7 +5,6 @@ import static com.expidevapps.android.measurements.sync.BaseSyncTasks.baseExtras
 import android.accounts.Account;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
@@ -72,6 +71,9 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                       @NonNull final SyncResult result) {
         try {
             switch (type) {
+                case SYNCTYPE_MINISTRIES:
+                    MinistrySyncTasks.syncMinistries(mContext, guid, extras);
+                    break;
                 case SYNCTYPE_ASSIGNMENTS:
                     AssignmentSyncTasks.syncAssignments(mContext, guid, extras);
                     break;
@@ -94,7 +96,7 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void syncAll(@NonNull final String guid, @NonNull final Bundle extras, @NonNull final SyncResult result) {
-        final boolean force = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
+        final boolean force = BaseSyncTasks.isForced(extras);
 
         // sync assignments for this user
         dispatchSync(guid, SYNCTYPE_ASSIGNMENTS, baseExtras(guid, force), result);
