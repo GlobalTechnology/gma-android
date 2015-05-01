@@ -1,5 +1,6 @@
 package com.expidevapps.android.measurements;
 
+import static com.expidevapps.android.measurements.BuildConfig.ACCOUNT_TYPE;
 import static com.expidevapps.android.measurements.BuildConfig.NEW_RELIC_API_KEY;
 import static com.expidevapps.android.measurements.BuildConfig.THEKEY_CLIENTID;
 
@@ -11,11 +12,10 @@ import com.newrelic.agent.android.NewRelic;
 import net.danlew.android.joda.JodaTimeAndroid;
 
 import io.fabric.sdk.android.Fabric;
-import me.thekey.android.TheKey;
-import me.thekey.android.TheKeyContext;
 import me.thekey.android.lib.TheKeyImpl;
+import me.thekey.android.lib.TheKeyImpl.Configuration;
 
-public class GcmApplication extends Application implements TheKeyContext {
+public class GcmApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
@@ -26,10 +26,10 @@ public class GcmApplication extends Application implements TheKeyContext {
 
         // initialize New Relic
         NewRelic.withApplicationToken(NEW_RELIC_API_KEY).start(this);
-    }
 
-    @Override
-    public TheKey getTheKey() {
-        return TheKeyImpl.getInstance(this, THEKEY_CLIENTID);
+        // configure TheKey
+        Configuration config = Configuration.base().clientId(THEKEY_CLIENTID).accountType(ACCOUNT_TYPE);
+        config = config.migrationSource(Configuration.base().clientId(THEKEY_CLIENTID));
+        TheKeyImpl.configure(config);
     }
 }

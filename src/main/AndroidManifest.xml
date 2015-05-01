@@ -8,6 +8,11 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+
     <uses-feature
         android:glEsVersion="0x00020000"
         android:required="true" />
@@ -92,6 +97,16 @@
             android:name="io.fabric.ApiKey"
             android:value="221defd61d27b8bacf5d79b9cd169754ced3fd24"/>
 
+        <service
+            android:name="me.thekey.android.lib.accounts.TheKeyAuthenticatorService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator_gma"/>
+        </service>
         <service
             android:name=".sync.GmaSyncService"
             android:exported="false"/>

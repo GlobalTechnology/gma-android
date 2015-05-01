@@ -16,15 +16,14 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.expidevapps.android.measurements.BuildConfig;
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Ministry;
-import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader;
 import com.expidevapps.android.measurements.support.v4.content.MinistriesCursorLoader;
+import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.github.machinarius.preferencefragment.PreferenceFragment;
 
 import org.ccci.gto.android.common.db.util.CursorUtils;
@@ -61,7 +60,7 @@ public class SettingsFragment extends PreferenceFragment {
     @Override
     public void onCreate(final Bundle savedState) {
         super.onCreate(savedState);
-        mTheKey = TheKeyImpl.getInstance(getActivity(), BuildConfig.THEKEY_CLIENTID);
+        mTheKey = TheKeyImpl.getInstance(getActivity());
 
         getPreferenceManager().setSharedPreferencesName(PREFS_SETTINGS);
         addPreferencesFromResource(R.xml.pref_general);

@@ -106,6 +106,11 @@ android {
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA3128e4005a5f2d68e0d232aebec6e9936950e042\""
         }
     }
+
+    applicationVariants.all {
+        buildConfigField "String", "ACCOUNT_TYPE", '"' + applicationId + '.account"'
+        resValue "string", "account_type", applicationId + ".account"
+    }
 }
 
 repositories {
@@ -136,8 +141,8 @@ dependencies {
 
     compile 'com.jakewharton:butterknife:6.1.0'
 
-    compile 'me.thekey.android:thekey-api:0.7.3'
-    compile 'me.thekey.android:thekey-lib:0.7.3'
+    compile 'me.thekey.android:thekey-api:1.0.0-SNAPSHOT'
+    compile 'me.thekey.android:thekey-lib:1.0.0-SNAPSHOT'
 
     compile 'org.ccci.gto.android:gto-support-api:0.6.0'
     compile 'org.ccci.gto.android:gto-support-core:0.6.0'

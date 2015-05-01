@@ -1,7 +1,5 @@
 package com.expidevapps.android.measurements.activity;
 
-import static com.expidevapps.android.measurements.BuildConfig.THEKEY_CLIENTID;
-
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
@@ -29,7 +27,7 @@ public class LoginActivity extends FragmentActivity implements LoginDialogFragme
     void onShowLogin() {
         final FragmentManager fm = this.getSupportFragmentManager();
         if (fm.findFragmentByTag("loginDialog") == null) {
-            LoginDialogFragment loginDialogFragment = LoginDialogFragment.builder().clientId(THEKEY_CLIENTID).build();
+            LoginDialogFragment loginDialogFragment = LoginDialogFragment.builder().build();
             loginDialogFragment.show(fm.beginTransaction().addToBackStack("loginDialog"), "loginDialog");
         }
     }
