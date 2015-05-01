@@ -97,6 +97,12 @@
             android:name="io.fabric.ApiKey"
             android:value="221defd61d27b8bacf5d79b9cd169754ced3fd24"/>
 
+        <provider
+            android:name=".sync.GmaStubProvider"
+            android:authorities="@string/sync_authority"
+            android:exported="false"
+            android:syncable="true"/>
+
         <service
             android:name="me.thekey.android.lib.accounts.TheKeyAuthenticatorService"
             android:exported="false">

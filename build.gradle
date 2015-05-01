@@ -110,6 +110,8 @@ android {
     applicationVariants.all {
         buildConfigField "String", "ACCOUNT_TYPE", '"' + applicationId + '.account"'
         resValue "string", "account_type", applicationId + ".account"
+        buildConfigField "String", "SYNC_AUTHORITY", '"' + applicationId + '.authority"'
+        resValue "string", "sync_authority", applicationId + ".authority"
     }
 }
 
