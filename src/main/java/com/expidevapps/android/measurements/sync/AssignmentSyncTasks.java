@@ -1,13 +1,12 @@
 package com.expidevapps.android.measurements.sync;
 
-import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
+import android.content.SyncResult;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.expidevapps.android.measurements.api.GmaApiClient;
@@ -28,7 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-class AssignmentSyncTasks {
+class AssignmentSyncTasks extends BaseSyncTasks {
     private static final Logger LOG = LoggerFactory.getLogger(AssignmentSyncTasks.class);
 
     static final String EXTRA_ASSIGNMENTS = AssignmentSyncTasks.class.getName() + ".EXTRA_ASSIGNMENTS";
@@ -37,44 +36,36 @@ class AssignmentSyncTasks {
 
     private static final long STALE_DURATION_ASSIGNMENTS = Constants.DAY_IN_MS;
 
-    static void syncAssignments(@NonNull final Context context, @Nullable final Bundle args) throws ApiException {
-        if (args != null) {
-            final String guid = args.getString(EXTRA_GUID);
-            final boolean force = args.getBoolean(Constants.EXTRA_FORCE, false);
+    static boolean syncAssignments(@NonNull final Context context, @NonNull final String guid,
+                                   @NonNull final Bundle args) throws ApiException {
+        // short-circuit if we aren't forcing a sync and the data isn't stale
+        final boolean force = isForced(args);
+        final GmaDao dao = GmaDao.getInstance(context);
+        if (!force && System.currentTimeMillis() - dao.getLastSyncTime(SYNC_TIME_ASSIGNMENTS, guid) <
+                STALE_DURATION_ASSIGNMENTS) {
+            return true;
+        }
 
-            // only update if we have a valid guid
-            if (guid != null) {
-                final GmaApiClient api = GmaApiClient.getInstance(context, guid);
-                final GmaDao dao = GmaDao.getInstance(context);
+        // fetch raw data from API & process it
+        final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+        final List<Assignment> assignments = api.getAssignments();
+        return assignments != null && AssignmentSyncTasks.updateAllAssignments(context, guid, assignments);
+    }
 
-                // update if we are forcing an update or the assignments are stale
-                if (force || System.currentTimeMillis() - dao.getLastSyncTime(SYNC_TIME_ASSIGNMENTS, guid) >
-                        STALE_DURATION_ASSIGNMENTS) {
-                    // fetch raw data from API & parse it
-                    final List<Assignment> assignments = api.getAssignments();
-                    if (assignments != null) {
-                        AssignmentSyncTasks.updateAllAssignments(context, guid, assignments);
-                    }
-                }
+    static void saveAssignments(@NonNull final Context context, @NonNull final String guid,
+                                @NonNull final Bundle args, @NonNull final SyncResult result) {
+        final String raw = args.getString(EXTRA_ASSIGNMENTS);
+        if (raw != null) {
+            try {
+                updateAllAssignments(context, guid, Assignment.listFromJson(new JSONArray(raw), guid));
+            } catch (final JSONException e) {
+                result.stats.numParseExceptions++;
             }
         }
     }
 
-    static void saveAssignments(@NonNull final Context context, @Nullable final Bundle args) {
-        if (args != null) {
-            final String guid = args.getString(EXTRA_GUID);
-            final String raw = args.getString(EXTRA_ASSIGNMENTS);
-            if (guid != null && raw != null) {
-                try {
-                    updateAllAssignments(context, guid, Assignment.listFromJson(new JSONArray(raw), guid));
-                } catch (final JSONException ignored) {
-                }
-            }
-        }
-    }
-
-    private static void updateAllAssignments(@NonNull final Context context, @NonNull final String guid,
-                                             @NonNull final List<Assignment> assignments) {
+    private static boolean updateAllAssignments(@NonNull final Context context, @NonNull final String guid,
+                                                @NonNull final List<Assignment> assignments) {
         // wrap entire update in a transaction
         final GmaDao dao = GmaDao.getInstance(context);
         final Transaction tx = dao.newTransaction();
@@ -134,8 +125,11 @@ class AssignmentSyncTasks {
             if (assignments.isEmpty()) {
                 broadcastManager.sendBroadcast(BroadcastUtils.noAssignmentsBroadcast(guid));
             }
+
+            return true;
         } catch (final SQLException e) {
             LOG.debug("error updating assignments", e);
+            return false;
         } finally {
             tx.end();
         }

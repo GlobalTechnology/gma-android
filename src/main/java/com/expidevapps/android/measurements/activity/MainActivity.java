@@ -27,10 +27,10 @@ import android.view.MenuItem;
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Ministry;
-import com.expidevapps.android.measurements.sync.BroadcastUtils;
-import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader;
 import com.expidevapps.android.measurements.support.v4.fragment.MapFragment;
+import com.expidevapps.android.measurements.sync.BroadcastUtils;
+import com.expidevapps.android.measurements.sync.GmaSyncService;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.joda.time.YearMonth;
@@ -224,7 +224,7 @@ public class MainActivity extends ActionBarActivity {
             // trigger background syncing of data
             GmaSyncService.syncAssignments(this, mGuid, force);
             GmaSyncService.syncMinistries(this, force);
-            GmaSyncService.syncMeasurementTypes(this);
+            GmaSyncService.syncMeasurementTypes(this, mGuid, force);
             if (mAssignment != null) {
                 GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
                                                 YearMonth.now());

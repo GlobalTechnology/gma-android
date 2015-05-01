@@ -9,13 +9,27 @@ import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINK;
 import static com.expidevapps.android.measurements.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
 import static com.expidevapps.android.measurements.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
 import static com.expidevapps.android.measurements.sync.AssignmentSyncTasks.EXTRA_ASSIGNMENTS;
+import static com.expidevapps.android.measurements.sync.BaseSyncTasks.baseExtras;
 import static com.expidevapps.android.measurements.sync.Constants.DAY_IN_MS;
 import static com.expidevapps.android.measurements.sync.Constants.EXTRA_FORCE;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.EXTRA_SYNCTYPE;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_ASSIGNMENTS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_CHURCHES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_CHURCHES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_MEASUREMENTS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENTS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENT_DETAILS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENT_TYPES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MINISTRIES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_NONE;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_SAVE_ASSIGNMENTS;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SyncResult;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -64,19 +78,6 @@ public class GmaSyncService extends ThreadedIntentService {
     private static final String PREFS_SYNC = "gma_sync";
     private static final String PREF_SYNC_TIME_MINISTRIES = "last_synced.ministries";
 
-    private static final String EXTRA_SYNCTYPE = GmaSyncService.class.getName() + ".EXTRA_SYNCTYPE";
-
-    // supported sync types
-    private static final int SYNCTYPE_MINISTRIES = 1;
-    private static final int SYNCTYPE_ASSIGNMENTS = 2;
-    private static final int SYNCTYPE_SAVE_ASSIGNMENTS = 3;
-    private static final int SYNCTYPE_CHURCHES = 4;
-    private static final int SYNCTYPE_DIRTY_CHURCHES = 5;
-    private static final int SYNCTYPE_MEASUREMENT_TYPES = 6;
-    private static final int SYNCTYPE_MEASUREMENTS = 7;
-    private static final int SYNCTYPE_DIRTY_MEASUREMENTS = 8;
-    private static final int SYNCTYPE_MEASUREMENT_DETAILS = 9;
-
     // various stale data durations
     private static final long STALE_DURATION_MINISTRIES = 7 * DAY_IN_MS;
     private static final long STALE_DURATION_MEASUREMENT_DETAILS_CURRENT = DAY_IN_MS;
@@ -90,6 +91,7 @@ public class GmaSyncService extends ThreadedIntentService {
     @NonNull
     private /* final */ GmaDao mDao;
     private LocalBroadcastManager broadcastManager;
+    private /* final */ GmaSyncAdapter mSyncAdapter;
 
     public GmaSyncService() {
         super("GmaSyncService", 10);
@@ -114,8 +116,7 @@ public class GmaSyncService extends ThreadedIntentService {
                                        final boolean force) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_ASSIGNMENTS);
-        intent.putExtra(EXTRA_GUID, guid);
-        intent.putExtra(EXTRA_FORCE, force);
+        intent.putExtras(baseExtras(guid, force));
         context.startService(intent);
     }
 
@@ -123,7 +124,7 @@ public class GmaSyncService extends ThreadedIntentService {
                                        @Nullable final JSONArray assignments) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_SAVE_ASSIGNMENTS);
-        intent.putExtra(EXTRA_GUID, guid);
+        intent.putExtras(baseExtras(guid, false));
         intent.putExtra(EXTRA_ASSIGNMENTS, assignments != null ? assignments.toString() : null);
         context.startService(intent);
     }
@@ -141,9 +142,11 @@ public class GmaSyncService extends ThreadedIntentService {
         context.startService(intent);
     }
 
-    public static void syncMeasurementTypes(@NonNull final Context context) {
+    public static void syncMeasurementTypes(@NonNull final Context context, @NonNull final String guid,
+                                            final boolean force) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_MEASUREMENT_TYPES);
+        intent.putExtras(baseExtras(guid, force));
         context.startService(intent);
     }
 
@@ -162,7 +165,7 @@ public class GmaSyncService extends ThreadedIntentService {
                                              @NonNull final YearMonth period) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_DIRTY_MEASUREMENTS);
-        intent.putExtra(EXTRA_GUID, guid);
+        intent.putExtras(baseExtras(guid, true));
         intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
         intent.putExtra(EXTRA_MCC, mcc.toString());
         intent.putExtra(EXTRA_PERIOD, period.toString());
@@ -175,48 +178,52 @@ public class GmaSyncService extends ThreadedIntentService {
                                               final boolean force) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_MEASUREMENT_DETAILS);
-        intent.putExtra(EXTRA_GUID, guid);
+        intent.putExtras(baseExtras(guid, force));
         intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
         intent.putExtra(EXTRA_MCC, mcc.toString());
         intent.putExtra(EXTRA_PERMLINK, permLink);
         intent.putExtra(EXTRA_PERIOD, period.toString());
-        intent.putExtra(EXTRA_FORCE, force);
         context.startService(intent);
     }
 
     /* BEGIN lifecycle */
 
     @Override
-    public void onCreate()
-    {
+    public void onCreate() {
         super.onCreate();
         mDao = GmaDao.getInstance(this);
         broadcastManager = LocalBroadcastManager.getInstance(this);
+        mSyncAdapter = GmaSyncAdapter.getInstance(this);
+    }
+
+    @Override
+    public IBinder onBind(@NonNull final Intent intent) {
+        final String action = intent.getAction();
+        if (action != null) {
+            switch (action) {
+                case "android.content.SyncAdapter":
+                    return mSyncAdapter.getSyncAdapterBinder();
+            }
+        }
+        return super.onBind(intent);
     }
 
     @Override
     public void onHandleIntent(@NonNull final Intent intent) {
+        final String guid = intent.getStringExtra(EXTRA_GUID);
         final GmaApiClient api = GmaApiClient.getInstance(this, intent.getStringExtra(EXTRA_GUID));
 
         try {
-            switch (intent.getIntExtra(EXTRA_SYNCTYPE, 0)) {
+            final int type = intent.getIntExtra(EXTRA_SYNCTYPE, SYNCTYPE_NONE);
+            switch (type) {
                 case SYNCTYPE_MINISTRIES:
                     syncMinistries(api, intent);
-                    break;
-                case SYNCTYPE_SAVE_ASSIGNMENTS:
-                    AssignmentSyncTasks.saveAssignments(this, intent.getExtras());
-                    break;
-                case SYNCTYPE_ASSIGNMENTS:
-                    AssignmentSyncTasks.syncAssignments(this, intent.getExtras());
                     break;
                 case SYNCTYPE_CHURCHES:
                     syncChurches(api, intent);
                     break;
                 case SYNCTYPE_DIRTY_CHURCHES:
                     syncDirtyChurches(api);
-                    break;
-                case SYNCTYPE_MEASUREMENT_TYPES:
-                    syncMeasurementTypes(api, intent);
                     break;
                 case SYNCTYPE_MEASUREMENTS:
                     syncMeasurements(api, intent);
@@ -228,6 +235,9 @@ public class GmaSyncService extends ThreadedIntentService {
                     syncMeasurementDetails(api, intent);
                     break;
                 default:
+                    if (guid != null) {
+                        mSyncAdapter.dispatchSync(guid, type, intent.getExtras(), new SyncResult());
+                    }
                     break;
             }
         } catch (final ApiException e) {
@@ -416,31 +426,6 @@ public class GmaSyncService extends ThreadedIntentService {
     /* END Church sync */
 
     /* BEGIN Measurement sync */
-
-    private static final String[] PROJECTION_SYNC_MEASUREMENT_TYPES_TYPE =
-            {Contract.MeasurementType.COLUMN_NAME, Contract.MeasurementType.COLUMN_DESCRIPTION,
-                    Contract.MeasurementType.COLUMN_SECTION, Contract.MeasurementType.COLUMN_COLUMN,
-                    Contract.MeasurementType.COLUMN_SORT_ORDER, Contract.MeasurementType.COLUMN_PERSONAL_ID,
-                    Contract.MeasurementType.COLUMN_LOCAL_ID, Contract.MeasurementType.COLUMN_TOTAL_ID,
-                    Contract.MeasurementType.COLUMN_LAST_SYNCED};
-
-    private void syncMeasurementTypes(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
-        final List<MeasurementType> types = api.getMeasurementTypes();
-        if (types != null) {
-            final List<String> updatedTypes = new ArrayList<>();
-
-            for (final MeasurementType type : types) {
-                mDao.updateOrInsert(type, PROJECTION_SYNC_MEASUREMENT_TYPES_TYPE);
-                updatedTypes.add(type.getPermLinkStub());
-            }
-
-            // send broadcasts
-            if (!updatedTypes.isEmpty()) {
-                broadcastManager.sendBroadcast(BroadcastUtils.updateMeasurementTypesBroadcast(
-                        updatedTypes.toArray(new String[updatedTypes.size()])));
-            }
-        }
-    }
 
     private static final String[] PROJECTION_SYNC_MEASUREMENTS_TYPE =
             {Contract.MeasurementType.COLUMN_NAME, Contract.MeasurementType.COLUMN_PERM_LINK_STUB,

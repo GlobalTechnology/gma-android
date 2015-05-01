@@ -115,7 +115,14 @@
         </service>
         <service
             android:name=".sync.GmaSyncService"
-            android:exported="false"/>
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/sync_adapter_gma"/>
+        </service>
         <service
             android:name="com.expidev.gcmapp.service.TrainingService"
             android:exported="false"/>
