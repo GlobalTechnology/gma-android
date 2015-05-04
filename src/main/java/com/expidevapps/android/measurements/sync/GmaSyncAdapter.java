@@ -18,6 +18,7 @@ import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Assignment;
 
 import org.ccci.gto.android.common.api.ApiException;
+import org.ccci.gto.android.common.api.InvalidSessionApiException;
 
 import java.util.List;
 
@@ -92,6 +93,9 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                 case SYNCTYPE_CHURCHES:
                     ChurchSyncTasks.syncChurches(mContext, guid, extras);
                     break;
+                case SYNCTYPE_DIRTY_CHURCHES:
+                    ChurchSyncTasks.syncDirtyChurches(mContext, guid, extras, result);
+                    break;
                 case SYNCTYPE_MEASUREMENT_TYPES:
                     MeasurementSyncTasks.syncMeasurementTypes(mContext, guid, extras);
                     break;
@@ -102,6 +106,8 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                 default:
                     break;
             }
+        } catch (final InvalidSessionApiException e) {
+            result.stats.numAuthExceptions++;
         } catch (final ApiException e) {
             result.stats.numIoExceptions++;
         }

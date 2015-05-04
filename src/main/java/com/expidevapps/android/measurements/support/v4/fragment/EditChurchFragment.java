@@ -20,8 +20,8 @@ import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Church.Development;
-import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.expidevapps.android.measurements.support.v4.content.ChurchLoader;
+import com.expidevapps.android.measurements.sync.GmaSyncService;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
@@ -52,13 +52,16 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     @InjectViews({R.id.nameRow})
     List<View> mHiddenViews;
 
-    public static EditChurchFragment newInstance(final long churchId) {
-        final EditChurchFragment fragment = new EditChurchFragment();
-
-        final Bundle args = new Bundle();
+    @NonNull
+    public static Bundle buildArgs(@NonNull final String guid, final long churchId) {
+        final Bundle args = buildArgs(guid);
         args.putLong(ARG_CHURCH_ID, churchId);
-        fragment.setArguments(args);
+        return args;
+    }
 
+    public static EditChurchFragment newInstance(@NonNull final String guid, final long churchId) {
+        final EditChurchFragment fragment = new EditChurchFragment();
+        fragment.setArguments(buildArgs(guid, churchId));
         return fragment;
     }
 
@@ -155,7 +158,7 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                         broadcastManager.sendBroadcast(updateChurchesBroadcast(church.getMinistryId(), church.getId()));
 
                         // trigger a sync of dirty churches
-                        GmaSyncService.syncDirtyChurches(context);
+                        GmaSyncService.syncDirtyChurches(context, mGuid);
                     }
                 });
             }

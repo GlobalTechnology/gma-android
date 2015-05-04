@@ -469,7 +469,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         if (mAssignment != null && mAssignment.can(CREATE_CHURCH)) {
             final FragmentManager fm = getChildFragmentManager();
             if (fm.findFragmentByTag("createChurch") == null) {
-                CreateChurchFragment fragment = CreateChurchFragment.newInstance(mAssignment.getMinistryId(), pos);
+                final CreateChurchFragment fragment =
+                        CreateChurchFragment.newInstance(mGuid, mAssignment.getMinistryId(), pos);
                 fragment.show(fm.beginTransaction().addToBackStack("createChurch"), "createChurch");
             }
         }
@@ -479,7 +480,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         if (mAssignment != null && mAssignment.can(EDIT_CHURCH)) {
             final FragmentManager fm = getChildFragmentManager();
             if (fm.findFragmentByTag("editChurch") == null) {
-                EditChurchFragment fragment = EditChurchFragment.newInstance(churchId);
+                EditChurchFragment fragment = EditChurchFragment.newInstance(mGuid, churchId);
                 fragment.show(fm.beginTransaction().addToBackStack("editChurch"), "editChurch");
             }
         }
@@ -512,7 +513,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                     // update church location in the database
                     final LatLng position = marker.getPosition();
                     AsyncTaskCompat.execute(
-                            new ChurchLocationRunnable(getActivity(), ((ChurchItem) item).getChurchId(), position));
+                            new ChurchLocationRunnable(getActivity().getApplicationContext(), mGuid,
+                                                       ((ChurchItem) item).getChurchId(), position));
 
                     // update the currently loaded backing church object
                     church.setLatitude(position.latitude);
@@ -533,12 +535,18 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     }
 
     private static class ChurchLocationRunnable implements Runnable {
-        private Context mContext;
-        private long mId;
-        private LatLng mLocation;
+        @NonNull
+        private final Context mContext;
+        @NonNull
+        private final String mGuid;
+        private final long mId;
+        @NonNull
+        private final LatLng mLocation;
 
-        public ChurchLocationRunnable(@NonNull final Context context, final long id, @NonNull final LatLng location) {
+        ChurchLocationRunnable(@NonNull final Context context, @NonNull final String guid, final long id,
+                               @NonNull final LatLng location) {
             mContext = context.getApplicationContext();
+            mGuid = guid;
             mId = id;
             mLocation = location;
         }
@@ -563,7 +571,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                             Contract.Church.COLUMN_DIRTY});
 
                     // sync the updated church back to the cloud
-                    GmaSyncService.syncDirtyChurches(mContext);
+                    GmaSyncService.syncDirtyChurches(mContext, mGuid);
                 }
 
                 tx.setTransactionSuccessful();

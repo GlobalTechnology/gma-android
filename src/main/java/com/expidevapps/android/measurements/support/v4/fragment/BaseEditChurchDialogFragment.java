@@ -1,5 +1,7 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -58,7 +60,30 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
     @Nullable
     ArrayAdapter<Development> mDevelopmentAdapter;
 
+    @NonNull
+    /* final */ String mGuid;
+
+    @NonNull
+    public static Bundle buildArgs(@NonNull final String guid) {
+        final Bundle args = new Bundle();
+        args.putString(ARG_GUID, guid);
+        return args;
+    }
+
     /* BEGIN lifecycle */
+
+    @Override
+    public void onCreate(@Nullable final Bundle savedState) {
+        super.onCreate(savedState);
+
+        // process arguments
+        final Bundle args = this.getArguments();
+        final String guid = args.getString(ARG_GUID);
+        if (guid == null) {
+            throw new IllegalStateException("cannot create ChurchDialogFragment with invalid guid");
+        }
+        mGuid = guid;
+    }
 
     @NonNull
     @Override

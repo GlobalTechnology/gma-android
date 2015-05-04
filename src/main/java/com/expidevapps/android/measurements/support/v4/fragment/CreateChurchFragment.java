@@ -46,14 +46,18 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     @InjectView(R.id.save)
     TextView mSaveView;
 
-    public static CreateChurchFragment newInstance(@NonNull final String ministryId, @NonNull final LatLng location) {
-        final CreateChurchFragment fragment = new CreateChurchFragment();
-
-        final Bundle args = new Bundle();
+    public static Bundle buildArgs(@NonNull final String guid, @NonNull final String ministryId,
+                                   @NonNull final LatLng location) {
+        final Bundle args = buildArgs(guid);
         args.putString(ARG_MINISTRY_ID, ministryId);
         args.putParcelable(ARG_LOCATION, location);
-        fragment.setArguments(args);
+        return args;
+    }
 
+    public static CreateChurchFragment newInstance(@NonNull final String guid, @NonNull final String ministryId,
+                                                   @NonNull final LatLng location) {
+        final CreateChurchFragment fragment = new CreateChurchFragment();
+        fragment.setArguments(buildArgs(guid, ministryId, location));
         return fragment;
     }
 
@@ -109,38 +113,7 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
         }
 
         // save new church
-        final Context context = getActivity().getApplicationContext();
-        final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
-        final GmaDao dao = GmaDao.getInstance(context);
-
-        AsyncTaskCompat.execute(new Runnable() {
-            @Override
-            public void run() {
-                boolean saved = false;
-                while (!saved) {
-                    // generate a new id
-                    long id = 0;
-                    while (id < Integer.MAX_VALUE) {
-                        id = RAND.nextLong();
-                    }
-                    church.setId(id);
-
-                    // update in the database
-                    try {
-                        dao.insert(church, SQLiteDatabase.CONFLICT_ROLLBACK);
-                        saved = true;
-                    } catch (final SQLException e) {
-                        Log.e("CreateChurch", "insert error", e);
-                    }
-                }
-
-                // broadcast that this church was created
-                broadcastManager.sendBroadcast(updateChurchesBroadcast(church.getMinistryId(), church.getId()));
-
-                // trigger a sync of dirty churches
-                GmaSyncService.syncDirtyChurches(context);
-            }
-        });
+        AsyncTaskCompat.execute(new CreateChurchRunnable(getActivity().getApplicationContext(), mGuid, church));
 
         // dismiss the dialog
         this.dismiss();
@@ -151,6 +124,54 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     private void setupViews() {
         if(mSaveView != null) {
             mSaveView.setText(R.string.button_church_create);
+        }
+    }
+
+    private static class CreateChurchRunnable implements Runnable {
+        @NonNull
+        private final Context mContext;
+        @NonNull
+        private final LocalBroadcastManager mBroadcastManager;
+        @NonNull
+        private final GmaDao mDao;
+        @NonNull
+        private final String mGuid;
+        @NonNull
+        private final Church mChurch;
+
+        CreateChurchRunnable(@NonNull final Context context, @NonNull final String guid, @NonNull final Church church) {
+            mContext = context;
+            mGuid = guid;
+            mChurch = church;
+            mBroadcastManager = LocalBroadcastManager.getInstance(mContext);
+            mDao = GmaDao.getInstance(mContext);
+        }
+
+        @Override
+        public void run() {
+            boolean saved = false;
+            while (!saved) {
+                // generate a new id
+                long id = 0;
+                while (id < Integer.MAX_VALUE) {
+                    id = RAND.nextLong();
+                }
+                mChurch.setId(id);
+
+                // update in the database
+                try {
+                    mDao.insert(mChurch, SQLiteDatabase.CONFLICT_ROLLBACK);
+                    saved = true;
+                } catch (final SQLException e) {
+                    Log.e("CreateChurch", "insert error", e);
+                }
+            }
+
+            // broadcast that this church was created
+            mBroadcastManager.sendBroadcast(updateChurchesBroadcast(mChurch.getMinistryId(), mChurch.getId()));
+
+            // trigger a sync of dirty churches
+            GmaSyncService.syncDirtyChurches(mContext, mGuid);
         }
     }
 }

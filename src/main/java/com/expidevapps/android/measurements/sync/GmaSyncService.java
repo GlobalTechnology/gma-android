@@ -40,7 +40,6 @@ import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Assignment;
-import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Measurement;
 import com.expidevapps.android.measurements.model.MeasurementDetails;
 import com.expidevapps.android.measurements.model.MeasurementType;
@@ -49,10 +48,7 @@ import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.expidevapps.android.measurements.model.MinistryMeasurement;
 import com.expidevapps.android.measurements.model.PersonalMeasurement;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.primitives.Longs;
 
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.app.ThreadedIntentService;
@@ -60,11 +56,8 @@ import org.ccci.gto.android.common.util.ThreadUtils;
 import org.ccci.gto.android.common.util.ThreadUtils.GenericKey;
 import org.joda.time.YearMonth;
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -127,9 +120,10 @@ public class GmaSyncService extends ThreadedIntentService {
         context.startService(intent);
     }
 
-    public static void syncDirtyChurches(@NonNull final Context context) {
+    public static void syncDirtyChurches(@NonNull final Context context, @NonNull final String guid) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_DIRTY_CHURCHES);
+        intent.putExtras(baseExtras(guid, false));
         context.startService(intent);
     }
 
@@ -207,9 +201,6 @@ public class GmaSyncService extends ThreadedIntentService {
         try {
             final int type = intent.getIntExtra(EXTRA_SYNCTYPE, SYNCTYPE_NONE);
             switch (type) {
-                case SYNCTYPE_DIRTY_CHURCHES:
-                    syncDirtyChurches(api);
-                    break;
                 case SYNCTYPE_MEASUREMENTS:
                     syncMeasurements(api, intent);
                     break;
@@ -231,72 +222,6 @@ public class GmaSyncService extends ThreadedIntentService {
     }
 
     /* END lifecycle */
-
-    /* BEGIN Church sync */
-
-    private static String[] PROJECTION_GET_CHURCHES_DATA = {Contract.Church.COLUMN_MINISTRY_ID,
-            Contract.Church.COLUMN_NAME, Contract.Church.COLUMN_CONTACT_NAME,
-            Contract.Church.COLUMN_CONTACT_EMAIL, Contract.Church.COLUMN_LATITUDE,
-            Contract.Church.COLUMN_LONGITUDE, Contract.Church.COLUMN_SIZE,
-            Contract.Church.COLUMN_DEVELOPMENT, Contract.Church.COLUMN_SECURITY,
-            Contract.Church.COLUMN_LAST_SYNCED};
-
-    @SuppressWarnings("AccessToStaticFieldLockedOnInstance")
-    private void syncDirtyChurches(@NonNull final GmaApiClient api) throws ApiException {
-        synchronized (mLockDirtyChurches) {
-            final List<Church> churches = mDao.get(Church.class, Contract.Church.SQL_WHERE_DIRTY, null);
-
-            // ministry_id => church_id
-            final Multimap<String, Long> broadcasts = HashMultimap.create();
-
-            // process all churches that are dirty
-            for (final Church church : churches) {
-                try {
-                    if (church.isNew()) {
-                        // try creating the church
-                        final Church newChurch = api.createChurch(church);
-
-                        // update id of church
-                        if (newChurch != null) {
-                            mDao.delete(church);
-                            newChurch.setLastSynced(new Date());
-                            mDao.updateOrInsert(newChurch, PROJECTION_GET_CHURCHES_DATA);
-
-                            // add church to list of broadcasts
-                            broadcasts.put(church.getMinistryId(), church.getId());
-                            broadcasts.put(church.getMinistryId(), newChurch.getId());
-                        }
-                    } else if (church.isDirty()) {
-                        // generate dirty JSON
-                        final JSONObject json = church.dirtyToJson();
-
-                        // update the church
-                        final boolean success = api.updateChurch(church.getId(), json);
-
-                        // was successful update?
-                        if (success) {
-                            // clear dirty attributes
-                            church.setDirty(null);
-                            mDao.update(church, new String[] {Contract.Church.COLUMN_DIRTY});
-
-                            // add church to list of broadcasts
-                            broadcasts.put(church.getMinistryId(), church.getId());
-                        }
-                    }
-                } catch (final JSONException ignored) {
-                    // this shouldn't happen when generating json
-                }
-            }
-
-            // send broadcasts for each ministryId with churches that were changed
-            for (final String ministryId : broadcasts.keySet()) {
-                broadcastManager.sendBroadcast(
-                        BroadcastUtils.updateChurchesBroadcast(ministryId, Longs.toArray(broadcasts.get(ministryId))));
-            }
-        }
-    }
-
-    /* END Church sync */
 
     /* BEGIN Measurement sync */
 

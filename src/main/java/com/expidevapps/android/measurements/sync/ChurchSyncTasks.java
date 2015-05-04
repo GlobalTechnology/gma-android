@@ -4,6 +4,7 @@ import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
+import android.content.SyncResult;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
@@ -14,9 +15,14 @@ import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Ministry;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.primitives.Longs;
 
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.db.Transaction;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -26,6 +32,8 @@ public class ChurchSyncTasks extends BaseSyncTasks {
     private static final String SYNC_TIME_CHURCHES = "last_synced.churches";
 
     private static final long STALE_DURATION_CHURCHES = Constants.DAY_IN_MS;
+
+    private static final Object LOCK_DIRTY_CHURCHES = new Object();
 
     private static String[] PROJECTION_GET_CHURCHES_DATA = {Contract.Church.COLUMN_MINISTRY_ID,
             Contract.Church.COLUMN_NAME, Contract.Church.COLUMN_CONTACT_NAME,
@@ -117,4 +125,76 @@ public class ChurchSyncTasks extends BaseSyncTasks {
         }
     }
 
+    @SuppressWarnings("AccessToStaticFieldLockedOnInstance")
+    static void syncDirtyChurches(@NonNull final Context context, @NonNull final String guid,
+                                  @NonNull final Bundle args, @NonNull final SyncResult result) throws ApiException {
+        synchronized (LOCK_DIRTY_CHURCHES) {
+            // short-circuit if there aren't any churches to process
+            final GmaDao dao = GmaDao.getInstance(context);
+            final List<Church> churches = dao.get(Church.class, Contract.Church.SQL_WHERE_DIRTY, null);
+            if (churches.isEmpty()) {
+                return;
+            }
+
+            // ministry_id => church_id
+            final Multimap<String, Long> broadcasts = HashMultimap.create();
+
+            // process all churches that are dirty
+            final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+            for (final Church church : churches) {
+                try {
+                    if (church.isNew()) {
+                        // try creating the church
+                        final Church newChurch = api.createChurch(church);
+
+                        // update id of church
+                        if (newChurch != null) {
+                            dao.delete(church);
+                            newChurch.setLastSynced(new Date());
+                            dao.updateOrInsert(newChurch, PROJECTION_GET_CHURCHES_DATA);
+
+                            // add church to list of broadcasts
+                            broadcasts.put(church.getMinistryId(), church.getId());
+                            broadcasts.put(church.getMinistryId(), newChurch.getId());
+
+                            // increment the insert counter
+                            result.stats.numInserts++;
+                        } else {
+                            result.stats.numParseExceptions++;
+                        }
+                    } else if (church.isDirty()) {
+                        // generate dirty JSON
+                        final JSONObject json = church.dirtyToJson();
+
+                        // update the church
+                        final boolean success = api.updateChurch(church.getId(), json);
+
+                        // was successful update?
+                        if (success) {
+                            // clear dirty attributes
+                            church.setDirty(null);
+                            dao.update(church, new String[] {Contract.Church.COLUMN_DIRTY});
+
+                            // add church to list of broadcasts
+                            broadcasts.put(church.getMinistryId(), church.getId());
+
+                            // increment update counter
+                            result.stats.numUpdates++;
+                        } else {
+                            result.stats.numParseExceptions++;
+                        }
+                    }
+                } catch (final JSONException ignored) {
+                    // this shouldn't happen when generating json
+                }
+            }
+
+            // send broadcasts for each ministryId with churches that were changed
+            final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
+            for (final String ministryId : broadcasts.keySet()) {
+                broadcastManager.sendBroadcast(
+                        BroadcastUtils.updateChurchesBroadcast(ministryId, Longs.toArray(broadcasts.get(ministryId))));
+            }
+        }
+    }
 }
