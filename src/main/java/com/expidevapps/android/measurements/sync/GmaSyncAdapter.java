@@ -13,6 +13,8 @@ import android.support.annotation.Nullable;
 
 import org.ccci.gto.android.common.api.ApiException;
 
+import me.thekey.android.lib.accounts.AccountUtils;
+
 public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
     static final String EXTRA_SYNCTYPE = GmaSyncAdapter.class.getName() + ".EXTRA_SYNCTYPE";
 
@@ -55,8 +57,7 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(@NonNull final Account account, @Nullable final Bundle extras,
                               @NonNull final String authority, final ContentProviderClient provider,
                               @NonNull final SyncResult result) {
-        //TODO: this needs to actually be looked up for the account
-        final String guid = account.name;
+        final String guid = AccountUtils.getGuid(mContext, account);
 
         if (guid != null) {
             if (extras != null) {
