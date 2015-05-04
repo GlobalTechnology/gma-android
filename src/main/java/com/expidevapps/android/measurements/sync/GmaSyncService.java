@@ -1,6 +1,8 @@
 package com.expidevapps.android.measurements.sync;
 
+import static com.expidevapps.android.measurements.BuildConfig.ACCOUNT_TYPE;
 import static com.expidevapps.android.measurements.BuildConfig.GMA_API_VERSION;
+import static com.expidevapps.android.measurements.BuildConfig.SYNC_AUTHORITY;
 import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
 import static com.expidevapps.android.measurements.Constants.EXTRA_MCC;
 import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
@@ -26,9 +28,12 @@ import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_
 import static com.expidevapps.android.measurements.sync.MinistrySyncTasks.ministryExtras;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
+import android.accounts.Account;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -62,6 +67,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import me.thekey.android.lib.accounts.AccountUtils;
 
 public class GmaSyncService extends ThreadedIntentService {
 
@@ -212,7 +219,21 @@ public class GmaSyncService extends ThreadedIntentService {
                     break;
                 default:
                     if (guid != null) {
-                        mSyncAdapter.dispatchSync(guid, type, intent.getExtras(), new SyncResult());
+                        final SyncResult result = new SyncResult();
+                        final Bundle extras = intent.getExtras();
+                        mSyncAdapter.dispatchSync(guid, type, extras, result);
+
+                        if (result.hasError()) {
+                            switch (type) {
+                                case SYNCTYPE_DIRTY_CHURCHES:
+                                    // request a sync if we failed to update dirty data
+                                    final Account account = AccountUtils.getAccount(this, ACCOUNT_TYPE, guid);
+                                    if (account != null) {
+                                        ContentResolver.requestSync(account, SYNC_AUTHORITY, extras);
+                                    }
+                                    break;
+                            }
+                        }
                     }
                     break;
             }
