@@ -43,10 +43,10 @@ import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Task;
 import com.expidevapps.android.measurements.model.Training;
-import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.expidevapps.android.measurements.support.v4.content.ChurchesLoader;
 import com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader;
 import com.expidevapps.android.measurements.support.v4.content.TrainingLoader;
+import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -294,7 +294,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         // trigger background syncing of data
         if (mAssignment != null) {
             if (mAssignment.getMcc() == Ministry.Mcc.GCM) {
-                GmaSyncService.syncChurches(getActivity(), mAssignment.getMinistryId());
+                GmaSyncService.syncChurches(getActivity(), mGuid, mAssignment.getMinistryId(), force);
             }
             TrainingService.syncTraining(getActivity(), mAssignment.getMinistryId(), mAssignment.getMcc());
         }

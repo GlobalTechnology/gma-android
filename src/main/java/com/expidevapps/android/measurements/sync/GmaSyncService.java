@@ -23,6 +23,7 @@ import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MINISTRIES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_NONE;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_SAVE_ASSIGNMENTS;
+import static com.expidevapps.android.measurements.sync.MinistrySyncTasks.ministryExtras;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
@@ -33,7 +34,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.ArrayMap;
-import android.support.v4.util.LongSparseArray;
 
 import com.expidevapps.android.measurements.Constants;
 import com.expidevapps.android.measurements.api.GmaApiClient;
@@ -56,7 +56,6 @@ import com.google.common.primitives.Longs;
 
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.app.ThreadedIntentService;
-import org.ccci.gto.android.common.db.Transaction;
 import org.ccci.gto.android.common.util.ThreadUtils;
 import org.ccci.gto.android.common.util.ThreadUtils.GenericKey;
 import org.joda.time.YearMonth;
@@ -65,7 +64,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -121,10 +119,11 @@ public class GmaSyncService extends ThreadedIntentService {
         context.startService(intent);
     }
 
-    public static void syncChurches(@NonNull final Context context, @NonNull final String ministryId) {
+    public static void syncChurches(@NonNull final Context context, @NonNull final String guid,
+                                    @NonNull final String ministryId, final boolean force) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_CHURCHES);
-        intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
+        intent.putExtras(ministryExtras(guid, ministryId, force));
         context.startService(intent);
     }
 
@@ -208,9 +207,6 @@ public class GmaSyncService extends ThreadedIntentService {
         try {
             final int type = intent.getIntExtra(EXTRA_SYNCTYPE, SYNCTYPE_NONE);
             switch (type) {
-                case SYNCTYPE_CHURCHES:
-                    syncChurches(api, intent);
-                    break;
                 case SYNCTYPE_DIRTY_CHURCHES:
                     syncDirtyChurches(api);
                     break;
@@ -244,71 +240,6 @@ public class GmaSyncService extends ThreadedIntentService {
             Contract.Church.COLUMN_LONGITUDE, Contract.Church.COLUMN_SIZE,
             Contract.Church.COLUMN_DEVELOPMENT, Contract.Church.COLUMN_SECURITY,
             Contract.Church.COLUMN_LAST_SYNCED};
-
-    private void syncChurches(@NonNull final GmaApiClient api, final Intent intent) throws ApiException {
-        final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
-        if (ministryId == null) {
-            return;
-        }
-
-        final List<Church> churches = api.getChurches(ministryId);
-
-        // only update churches if we get data back
-        if (churches != null) {
-            final Transaction tx = mDao.newTransaction();
-            try {
-                tx.beginTransactionNonExclusive();
-
-                // load current churches
-                final LongSparseArray<Church> current = new LongSparseArray<>();
-                for (final Church church : mDao
-                        .get(Church.class, Contract.Church.SQL_WHERE_MINISTRY, bindValues(ministryId))) {
-                    current.put(church.getId(), church);
-                }
-
-                // process all fetched churches
-                long[] ids = new long[current.size() + churches.size()];
-                int j = 0;
-                for (final Church church : churches) {
-                    final long id = church.getId();
-                    final Church existing = current.get(id);
-
-                    // persist church in database (if it doesn't exist or (isn't new and isn't dirty))
-                    if (existing == null || (!existing.isNew() && !existing.isDirty())) {
-                        church.setLastSynced(new Date());
-                        mDao.updateOrInsert(church, PROJECTION_GET_CHURCHES_DATA);
-
-                        // mark this id as having been changed
-                        ids[j++] = id;
-                    }
-
-                    // remove this church from the list of churches
-                    current.remove(id);
-                }
-
-                // delete any remaining churches that weren't returned from the API
-                for (int i = 0; i < current.size(); i++) {
-                    final Church church = current.valueAt(i);
-                    // only delete the church if it isn't new
-                    if (!church.isNew()) {
-                        mDao.delete(church);
-
-                        // mark these ids as being updated as well
-                        ids[j++] = church.getId();
-                    }
-                }
-
-                // mark transaction successful
-                tx.setSuccessful();
-
-                // send broadcasts that data has been updated
-                broadcastManager.sendBroadcast(
-                        BroadcastUtils.updateChurchesBroadcast(ministryId, Arrays.copyOf(ids, j)));
-            } finally {
-                tx.end();
-            }
-        }
-    }
 
     @SuppressWarnings("AccessToStaticFieldLockedOnInstance")
     private void syncDirtyChurches(@NonNull final GmaApiClient api) throws ApiException {

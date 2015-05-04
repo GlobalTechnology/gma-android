@@ -1,6 +1,8 @@
 package com.expidevapps.android.measurements.sync;
 
 import static com.expidevapps.android.measurements.sync.BaseSyncTasks.baseExtras;
+import static com.expidevapps.android.measurements.sync.MinistrySyncTasks.ministryExtras;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.accounts.Account;
 import android.content.AbstractThreadedSyncAdapter;
@@ -11,7 +13,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.expidevapps.android.measurements.db.Contract;
+import com.expidevapps.android.measurements.db.GmaDao;
+import com.expidevapps.android.measurements.model.Assignment;
+
 import org.ccci.gto.android.common.api.ApiException;
+
+import java.util.List;
 
 import me.thekey.android.lib.accounts.AccountUtils;
 
@@ -81,6 +89,9 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                 case SYNCTYPE_SAVE_ASSIGNMENTS:
                     AssignmentSyncTasks.saveAssignments(mContext, guid, extras, result);
                     break;
+                case SYNCTYPE_CHURCHES:
+                    ChurchSyncTasks.syncChurches(mContext, guid, extras);
+                    break;
                 case SYNCTYPE_MEASUREMENT_TYPES:
                     MeasurementSyncTasks.syncMeasurementTypes(mContext, guid, extras);
                     break;
@@ -104,5 +115,14 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
 
         // sync measurement types
         dispatchSync(guid, SYNCTYPE_MEASUREMENT_TYPES, baseExtras(guid, force), result);
+
+        // process all assignments for this user
+        final GmaDao dao = GmaDao.getInstance(mContext);
+        final List<Assignment> assignments =
+                dao.get(Assignment.class, Contract.Assignment.SQL_WHERE_GUID, bindValues(guid));
+        for (final Assignment assignment : assignments) {
+            // sync churches for this assignment
+            dispatchSync(guid, SYNCTYPE_CHURCHES, ministryExtras(guid, assignment.getMinistryId(), force), result);
+        }
     }
 }
