@@ -4,6 +4,7 @@ import static android.content.ContentResolver.SYNC_EXTRAS_MANUAL;
 import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
 import static com.expidevapps.android.measurements.Constants.EXTRA_MCC;
 import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINK;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -31,6 +32,14 @@ class BaseSyncTasks {
                                  final boolean force) {
         final Bundle extras = ministryExtras(guid, ministryId, force);
         extras.putString(EXTRA_MCC, mcc.toString());
+        return extras;
+    }
+
+    @NonNull
+    static Bundle measurementExtras(@NonNull final String guid, @NonNull final String ministryId,
+                                    @NonNull final Mcc mcc, @NonNull final String permLink, final boolean force) {
+        final Bundle extras = ministryExtras(guid, ministryId, mcc, force);
+        extras.putString(EXTRA_PERMLINK, permLink);
         return extras;
     }
 

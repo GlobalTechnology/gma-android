@@ -104,6 +104,9 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                 case SYNCTYPE_MEASUREMENTS:
                     MeasurementSyncTasks.syncMeasurements(mContext, guid, extras);
                     break;
+                case SYNCTYPE_MEASUREMENT_DETAILS:
+                    MeasurementSyncTasks.syncMeasurementDetails(mContext, guid, extras);
+                    break;
                 case SYNCTYPE_ALL:
                     syncAll(guid, extras, result);
                     break;
