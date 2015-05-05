@@ -34,7 +34,7 @@ class AssignmentSyncTasks extends BaseSyncTasks {
 
     private static final String SYNC_TIME_ASSIGNMENTS = "last_synced.assignments";
 
-    private static final long STALE_DURATION_ASSIGNMENTS = Constants.DAY_IN_MS;
+    private static final long STALE_DURATION_ASSIGNMENTS = DAY_IN_MS;
 
     static boolean syncAssignments(@NonNull final Context context, @NonNull final String guid,
                                    @NonNull final Bundle args) throws ApiException {

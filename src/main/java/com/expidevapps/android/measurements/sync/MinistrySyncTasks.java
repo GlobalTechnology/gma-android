@@ -19,7 +19,7 @@ import java.util.Map;
 class MinistrySyncTasks extends BaseSyncTasks {
     private static final String SYNC_TIME_MINISTRIES = "last_synced.ministries";
 
-    private static final long STALE_DURATION_MINISTRIES = 7 * Constants.DAY_IN_MS;
+    private static final long STALE_DURATION_MINISTRIES = 7 * DAY_IN_MS;
 
     static void syncMinistries(@NonNull final Context context, @NonNull final String guid, @NonNull final Bundle args)
             throws ApiException {

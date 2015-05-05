@@ -31,7 +31,7 @@ import java.util.List;
 public class ChurchSyncTasks extends BaseSyncTasks {
     private static final String SYNC_TIME_CHURCHES = "last_synced.churches";
 
-    private static final long STALE_DURATION_CHURCHES = Constants.DAY_IN_MS;
+    private static final long STALE_DURATION_CHURCHES = DAY_IN_MS;
 
     private static final Object LOCK_DIRTY_CHURCHES = new Object();
 

@@ -7,9 +7,6 @@ import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINK;
 import static com.expidevapps.android.measurements.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
 import static com.expidevapps.android.measurements.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
-import static com.expidevapps.android.measurements.sync.Constants.DAY_IN_MS;
-import static com.expidevapps.android.measurements.sync.Constants.HOUR_IN_MS;
-import static com.expidevapps.android.measurements.sync.Constants.WEEK_IN_MS;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
