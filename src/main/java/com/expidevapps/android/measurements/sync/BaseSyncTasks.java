@@ -2,9 +2,13 @@ package com.expidevapps.android.measurements.sync;
 
 import static android.content.ContentResolver.SYNC_EXTRAS_MANUAL;
 import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
+import static com.expidevapps.android.measurements.Constants.EXTRA_MCC;
+import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+
+import com.expidevapps.android.measurements.model.Ministry.Mcc;
 
 class BaseSyncTasks {
     @NonNull
@@ -12,6 +16,21 @@ class BaseSyncTasks {
         final Bundle extras = new Bundle(2);
         extras.putString(EXTRA_GUID, guid);
         extras.putBoolean(SYNC_EXTRAS_MANUAL, force);
+        return extras;
+    }
+
+    @NonNull
+    static Bundle ministryExtras(@NonNull final String guid, @NonNull final String ministryId, final boolean force) {
+        final Bundle extras = baseExtras(guid, force);
+        extras.putString(EXTRA_MINISTRY_ID, ministryId);
+        return extras;
+    }
+
+    @NonNull
+    static Bundle ministryExtras(@NonNull final String guid, @NonNull final String ministryId, @NonNull final Mcc mcc,
+                                 final boolean force) {
+        final Bundle extras = ministryExtras(guid, ministryId, force);
+        extras.putString(EXTRA_MCC, mcc.toString());
         return extras;
     }
 

@@ -1,7 +1,7 @@
 package com.expidevapps.android.measurements.sync;
 
 import static com.expidevapps.android.measurements.sync.BaseSyncTasks.baseExtras;
-import static com.expidevapps.android.measurements.sync.MinistrySyncTasks.ministryExtras;
+import static com.expidevapps.android.measurements.sync.BaseSyncTasks.ministryExtras;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.accounts.Account;
@@ -16,6 +16,8 @@ import android.support.annotation.Nullable;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Assignment;
+import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.model.Ministry.Mcc;
 
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.api.InvalidSessionApiException;
@@ -99,6 +101,9 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                 case SYNCTYPE_MEASUREMENT_TYPES:
                     MeasurementSyncTasks.syncMeasurementTypes(mContext, guid, extras);
                     break;
+                case SYNCTYPE_MEASUREMENTS:
+                    MeasurementSyncTasks.syncMeasurements(mContext, guid, extras);
+                    break;
                 case SYNCTYPE_ALL:
                     syncAll(guid, extras, result);
                     break;
@@ -129,6 +134,18 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
         for (final Assignment assignment : assignments) {
             // sync churches for this assignment
             dispatchSync(guid, SYNCTYPE_CHURCHES, ministryExtras(guid, assignment.getMinistryId(), force), result);
+
+            // retrieve the actual ministry object
+            final Ministry ministry = dao.find(Ministry.class, assignment.getMinistryId());
+            if (ministry == null) {
+                continue;
+            }
+
+            // sync measurements data for the current period of all mccs in this ministry
+            for (final Mcc mcc : ministry.getMccs()) {
+                dispatchSync(guid, SYNCTYPE_MEASUREMENTS, ministryExtras(guid, ministry.getMinistryId(), mcc, force),
+                             result);
+            }
         }
     }
 }

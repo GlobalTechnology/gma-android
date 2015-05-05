@@ -33,7 +33,6 @@ import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
-import org.joda.time.YearMonth;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
@@ -225,10 +224,6 @@ public class MainActivity extends ActionBarActivity {
             GmaSyncService.syncAssignments(this, mGuid, force);
             GmaSyncService.syncMinistries(this, mGuid, force);
             GmaSyncService.syncMeasurementTypes(this, mGuid, force);
-            if (mAssignment != null) {
-                GmaSyncService.syncMeasurements(this, mAssignment.getMinistryId(), mAssignment.getMcc(),
-                                                YearMonth.now());
-            }
         }
     }
 

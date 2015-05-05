@@ -30,9 +30,9 @@ import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
-import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.expidevapps.android.measurements.support.v4.content.AssignmentLoader;
 import com.expidevapps.android.measurements.support.v4.fragment.measurement.ColumnsListFragment;
+import com.expidevapps.android.measurements.sync.GmaSyncService;
 
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.joda.time.YearMonth;
@@ -119,7 +119,7 @@ public class MeasurementsActivity extends ActionBarActivity {
             }
         }
 
-        syncAdjacentPeriods();
+        syncAdjacentPeriods(false);
         startLoaders();
         updateViews();
     }
@@ -188,7 +188,7 @@ public class MeasurementsActivity extends ActionBarActivity {
 
         if (changing) {
             // start a data sync
-            syncAdjacentPeriods();
+            syncAdjacentPeriods(false);
 
             // update Period views
             updateViews();
@@ -229,11 +229,11 @@ public class MeasurementsActivity extends ActionBarActivity {
         manager.initLoader(LOADER_ASSIGNMENT, args, mLoaderCallbacksAssignment);
     }
 
-    private void syncAdjacentPeriods() {
-        GmaSyncService.syncMeasurements(this, mMinistryId, mMcc, mPeriod);
-        GmaSyncService.syncMeasurements(this, mMinistryId, mMcc, mPeriod.minusMonths(1));
+    private void syncAdjacentPeriods(final boolean force) {
+        GmaSyncService.syncMeasurements(this, mGuid, mMinistryId, mMcc, mPeriod, force);
+        GmaSyncService.syncMeasurements(this, mGuid, mMinistryId, mMcc, mPeriod.minusMonths(1), false);
         if (mPeriod.isBefore(NOW)) {
-            GmaSyncService.syncMeasurements(this, mMinistryId, mMcc, mPeriod.plusMonths(1));
+            GmaSyncService.syncMeasurements(this, mGuid, mMinistryId, mMcc, mPeriod.plusMonths(1), false);
         }
     }
 

@@ -1,7 +1,5 @@
 package com.expidevapps.android.measurements.sync;
 
-import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,13 +20,6 @@ class MinistrySyncTasks extends BaseSyncTasks {
     private static final String SYNC_TIME_MINISTRIES = "last_synced.ministries";
 
     private static final long STALE_DURATION_MINISTRIES = 7 * Constants.DAY_IN_MS;
-
-    @NonNull
-    static Bundle ministryExtras(@NonNull final String guid, @NonNull final String ministryId, final boolean force) {
-        final Bundle extras = baseExtras(guid, force);
-        extras.putString(EXTRA_MINISTRY_ID, ministryId);
-        return extras;
-    }
 
     static void syncMinistries(@NonNull final Context context, @NonNull final String guid, @NonNull final Bundle args)
             throws ApiException {
