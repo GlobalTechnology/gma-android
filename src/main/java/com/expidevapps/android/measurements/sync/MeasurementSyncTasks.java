@@ -13,6 +13,7 @@ import static com.expidevapps.android.measurements.sync.Constants.WEEK_IN_MS;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
+import android.content.SyncResult;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
@@ -155,7 +156,8 @@ class MeasurementSyncTasks extends BaseSyncTasks {
     }
 
     static void syncDirtyMeasurements(@NonNull final Context context, @NonNull final String guid,
-                                      @NonNull final Bundle args) throws ApiException {
+                                      @NonNull final Bundle args, @NonNull final SyncResult result)
+            throws ApiException {
         // short-circuit if this request is for an invalid ministry
         final String ministryId = args.getString(EXTRA_MINISTRY_ID);
         if (ministryId == null || ministryId.equals(Ministry.INVALID_ID)) {
@@ -191,6 +193,8 @@ class MeasurementSyncTasks extends BaseSyncTasks {
             // update measurements from server before submitting updates
             List<Measurement> measurements = api.getMeasurements(ministryId, mcc, period);
             if (measurements == null) {
+                // unable to retrieve measurements, probably an I/O exception
+                result.stats.numIoExceptions++;
                 return;
             }
             saveMeasurements(context, guid, ministryId, mcc, period, measurements, false);
@@ -211,25 +215,27 @@ class MeasurementSyncTasks extends BaseSyncTasks {
                 }
             }
 
-            // sync the measurements
+            // attempt to sync the measurements, short-circuit and log an error if this fails
             final boolean synced = api.updateMeasurements(dirty.toArray(new MeasurementValue[dirty.size()]));
+            if (!synced) {
+                result.stats.numIoExceptions++;
+                return;
+            }
 
             // update database for any synced measurements
-            if (synced) {
-                // clear dirty values for the measurements updated
-                for (final MeasurementValue value : dirty) {
-                    dao.updateMeasurementValueDelta(value, 0 - value.getDelta());
+            // clear dirty values for the measurements updated
+            for (final MeasurementValue value : dirty) {
+                dao.updateMeasurementValueDelta(value, 0 - value.getDelta());
 
-                    // trigger a background details sync for this updated measurement
-                    GmaSyncService.syncMeasurementDetails(context, guid, ministryId, mcc, value.getPermLinkStub(),
-                                                          period, true);
-                }
+                // trigger a background details sync for this updated measurement
+                GmaSyncService.syncMeasurementDetails(context, guid, ministryId, mcc, value.getPermLinkStub(), period,
+                                                      true);
+            }
 
-                // update the measurements one last time
-                measurements = api.getMeasurements(ministryId, mcc, period);
-                if (measurements != null) {
-                    saveMeasurements(context, guid, ministryId, mcc, period, measurements, true);
-                }
+            // update the measurements one last time
+            measurements = api.getMeasurements(ministryId, mcc, period);
+            if (measurements != null) {
+                saveMeasurements(context, guid, ministryId, mcc, period, measurements, true);
             }
         }
     }

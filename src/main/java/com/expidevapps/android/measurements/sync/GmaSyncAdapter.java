@@ -108,7 +108,7 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                     MeasurementSyncTasks.syncMeasurementDetails(mContext, guid, extras);
                     break;
                 case SYNCTYPE_DIRTY_MEASUREMENTS:
-                    MeasurementSyncTasks.syncDirtyMeasurements(mContext, guid, extras);
+                    MeasurementSyncTasks.syncDirtyMeasurements(mContext, guid, extras, result);
                     break;
                 case SYNCTYPE_ALL:
                     syncAll(guid, extras, result);
