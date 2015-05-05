@@ -3,11 +3,7 @@ package com.expidevapps.android.measurements.sync;
 import static com.expidevapps.android.measurements.BuildConfig.ACCOUNT_TYPE;
 import static com.expidevapps.android.measurements.BuildConfig.SYNC_AUTHORITY;
 import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
-import static com.expidevapps.android.measurements.Constants.EXTRA_MCC;
-import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
-import static com.expidevapps.android.measurements.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
-import static com.expidevapps.android.measurements.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
 import static com.expidevapps.android.measurements.sync.AssignmentSyncTasks.EXTRA_ASSIGNMENTS;
 import static com.expidevapps.android.measurements.sync.BaseSyncTasks.baseExtras;
 import static com.expidevapps.android.measurements.sync.BaseSyncTasks.measurementExtras;
@@ -23,7 +19,6 @@ import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MINISTRIES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_NONE;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_SAVE_ASSIGNMENTS;
-import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
@@ -34,41 +29,16 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.util.ArrayMap;
 
-import com.expidevapps.android.measurements.Constants;
-import com.expidevapps.android.measurements.api.GmaApiClient;
-import com.expidevapps.android.measurements.db.Contract;
-import com.expidevapps.android.measurements.db.GmaDao;
-import com.expidevapps.android.measurements.model.Assignment;
-import com.expidevapps.android.measurements.model.Measurement;
-import com.expidevapps.android.measurements.model.MeasurementType;
-import com.expidevapps.android.measurements.model.MeasurementValue;
-import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
-import com.expidevapps.android.measurements.model.MinistryMeasurement;
-import com.expidevapps.android.measurements.model.PersonalMeasurement;
-import com.google.common.collect.Maps;
 
-import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.app.ThreadedIntentService;
-import org.ccci.gto.android.common.util.ThreadUtils;
-import org.ccci.gto.android.common.util.ThreadUtils.GenericKey;
 import org.joda.time.YearMonth;
 import org.json.JSONArray;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import me.thekey.android.lib.accounts.AccountUtils;
 
 public class GmaSyncService extends ThreadedIntentService {
-    // locks to synchronize various sync types
-    private final Map<GenericKey, Object> mLocksDirtyMeasurements = new ArrayMap<>();
-
-    @NonNull
-    private /* final */ GmaDao mDao;
     @NonNull
     private /* final */ GmaSyncAdapter mSyncAdapter;
 
@@ -142,9 +112,7 @@ public class GmaSyncService extends ThreadedIntentService {
                                              @NonNull final YearMonth period) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_DIRTY_MEASUREMENTS);
-        intent.putExtras(baseExtras(guid, true));
-        intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
-        intent.putExtra(EXTRA_MCC, mcc.toString());
+        intent.putExtras(ministryExtras(guid, ministryId, mcc, false));
         intent.putExtra(EXTRA_PERIOD, period.toString());
         context.startService(intent);
     }
@@ -165,7 +133,6 @@ public class GmaSyncService extends ThreadedIntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        mDao = GmaDao.getInstance(this);
         mSyncAdapter = GmaSyncAdapter.getInstance(this);
     }
 
@@ -183,137 +150,26 @@ public class GmaSyncService extends ThreadedIntentService {
 
     @Override
     public void onHandleIntent(@NonNull final Intent intent) {
+        // short-circuit if we don't have a valid guid
         final String guid = intent.getStringExtra(EXTRA_GUID);
-        final GmaApiClient api = GmaApiClient.getInstance(this, intent.getStringExtra(EXTRA_GUID));
+        if (guid == null) {
+            return;
+        }
 
-        try {
-            final int type = intent.getIntExtra(EXTRA_SYNCTYPE, SYNCTYPE_NONE);
-            switch (type) {
-                case SYNCTYPE_DIRTY_MEASUREMENTS:
-                    syncDirtyMeasurements(api, intent);
-                    break;
-                default:
-                    if (guid != null) {
-                        final SyncResult result = new SyncResult();
-                        final Bundle extras = intent.getExtras();
-                        mSyncAdapter.dispatchSync(guid, type, extras, result);
+        // dispatch sync request
+        final int type = intent.getIntExtra(EXTRA_SYNCTYPE, SYNCTYPE_NONE);
+        final Bundle extras = intent.getExtras();
+        final SyncResult result = new SyncResult();
+        mSyncAdapter.dispatchSync(guid, type, extras, result);
 
-                        if (result.hasError()) {
-                            switch (type) {
-                                case SYNCTYPE_DIRTY_CHURCHES:
-                                    // request a sync next time we are online if we failed to update dirty data
-                                    final Account account = AccountUtils.getAccount(this, ACCOUNT_TYPE, guid);
-                                    if (account != null) {
-                                        ContentResolver.requestSync(account, SYNC_AUTHORITY, extras);
-                                    }
-                                    break;
-                            }
-                        }
-                    }
-                    break;
+        // request a sync next time we are online if we had errors syncing
+        if (result.hasError()) {
+            final Account account = AccountUtils.getAccount(this, ACCOUNT_TYPE, guid);
+            if (account != null) {
+                ContentResolver.requestSync(account, SYNC_AUTHORITY, extras);
             }
-        } catch (final ApiException e) {
-            // XXX: ignore for now, maybe eventually broadcast something on specific ApiExceptions
         }
     }
 
     /* END lifecycle */
-
-    /* BEGIN Measurement sync */
-
-    private void syncDirtyMeasurements(@NonNull final GmaApiClient api, @NonNull final Intent intent)
-            throws ApiException {
-        // get parameters for sync from the intent & sanitize
-        final String guid = intent.getStringExtra(EXTRA_GUID);
-        final String ministryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
-        final Mcc mcc = Mcc.fromRaw(intent.getStringExtra(Constants.ARG_MCC));
-        final String rawPeriod = intent.getStringExtra(Constants.ARG_PERIOD);
-        final YearMonth period = rawPeriod != null ? YearMonth.parse(rawPeriod) : YearMonth.now();
-        if (guid == null) {
-            return;
-        }
-        if (ministryId == null || ministryId.equals(Ministry.INVALID_ID)) {
-            return;
-        }
-        if (mcc == Mcc.UNKNOWN) {
-            return;
-        }
-
-        // synchronize on updating this ministry, mcc & period
-        synchronized (ThreadUtils.getLock(mLocksDirtyMeasurements, new GenericKey(guid, ministryId, mcc, period))) {
-            // get the current assignment
-            final Assignment assignment = mDao.find(Assignment.class, guid, ministryId);
-            if (assignment == null) {
-                return;
-            }
-
-            // check for dirty measurements to update
-            List<MeasurementValue> dirty = getDirtyMeasurements(assignment, mcc, period);
-            if (dirty.isEmpty()) {
-                return;
-            }
-
-            // update measurements from server before submitting updates
-            List<Measurement> measurements = api.getMeasurements(ministryId, mcc, period);
-            if (measurements == null) {
-                return;
-            }
-            MeasurementSyncTasks.saveMeasurements(this, guid, ministryId, mcc, period, measurements, false);
-
-            // refresh the list of dirty measurements
-            dirty = getDirtyMeasurements(assignment, mcc, period);
-            if (dirty.isEmpty()) {
-                return;
-            }
-
-            // populate dirty measurement objects with the MeasurementType and Assignment
-            final Map<String, MeasurementType> types =
-                    Maps.uniqueIndex(mDao.get(MeasurementType.class), MeasurementType.FUNCTION_PERMLINK);
-            for (final MeasurementValue value : dirty) {
-                value.setType(types.get(value.getPermLinkStub()));
-                if (value instanceof PersonalMeasurement) {
-                    ((PersonalMeasurement) value).setAssignment(assignment);
-                }
-            }
-
-            // sync the measurements
-            final boolean synced = api.updateMeasurements(dirty.toArray(new MeasurementValue[dirty.size()]));
-
-            // update database for any synced measurements
-            if (synced) {
-                // clear dirty values for the measurements updated
-                for (final MeasurementValue value : dirty) {
-                    mDao.updateMeasurementValueDelta(value, 0 - value.getDelta());
-
-                    // Force a details sync for this updated measurement
-                    syncMeasurementDetails(this, guid, ministryId, mcc, value.getPermLinkStub(), period, true);
-                }
-
-                // update the measurements one last time
-                measurements = api.getMeasurements(ministryId, mcc, period);
-                if (measurements != null) {
-                    MeasurementSyncTasks.saveMeasurements(this, guid, ministryId, mcc, period, measurements, true);
-                }
-            }
-        }
-    }
-
-    @NonNull
-    private List<MeasurementValue> getDirtyMeasurements(@NonNull final Assignment assignment, @NonNull final Mcc mcc,
-                                                        @NonNull final YearMonth period) {
-        final List<MeasurementValue> dirty = new ArrayList<>();
-        if (assignment.can(UPDATE_PERSONAL_MEASUREMENTS)) {
-            dirty.addAll(mDao.get(PersonalMeasurement.class, Contract.PersonalMeasurement.SQL_WHERE_DIRTY + " AND " +
-                                          Contract.PersonalMeasurement.SQL_WHERE_GUID_MINISTRY_MCC_PERIOD,
-                                  bindValues(assignment.getGuid(), assignment.getMinistryId(), mcc, period)));
-        }
-        if (assignment.can(UPDATE_MINISTRY_MEASUREMENTS)) {
-            dirty.addAll(mDao.get(MinistryMeasurement.class, Contract.MinistryMeasurement.SQL_WHERE_DIRTY + " AND " +
-                                          Contract.MinistryMeasurement.SQL_WHERE_MINISTRY_MCC_PERIOD,
-                                  bindValues(assignment.getMinistryId(), mcc, period)));
-        }
-        return dirty;
-    }
-
-    /* END Measurements sync */
 }
