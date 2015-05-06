@@ -20,7 +20,7 @@ import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.Contract;
-import com.expidevapps.android.measurements.db.TrainingDao;
+import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.support.v4.content.SingleTrainingLoader;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
@@ -166,7 +166,7 @@ public class EditTrainingFragment extends AbstractDialogFragment {
             {
                 final Context context = getActivity().getApplicationContext();
                 final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
-                final TrainingDao dao = TrainingDao.getInstance(context);
+                final GmaDao dao = GmaDao.getInstance(context);
 
                 AsyncTaskCompat.execute(new Runnable() {
                     @Override
