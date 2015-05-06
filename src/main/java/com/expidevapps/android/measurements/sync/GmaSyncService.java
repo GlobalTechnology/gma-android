@@ -19,6 +19,7 @@ import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MINISTRIES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_NONE;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_SAVE_ASSIGNMENTS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_TRAININGS;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
@@ -53,10 +54,6 @@ public class GmaSyncService extends ThreadedIntentService {
         context.startService(intent);
     }
 
-    public static void syncAssignments(@NonNull final Context context, @NonNull final String guid) {
-        syncAssignments(context, guid, false);
-    }
-
     public static void syncAssignments(@NonNull final Context context, @NonNull final String guid,
                                        final boolean force) {
         final Intent intent = new Intent(context, GmaSyncService.class);
@@ -86,6 +83,14 @@ public class GmaSyncService extends ThreadedIntentService {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_DIRTY_CHURCHES);
         intent.putExtras(baseExtras(guid, false));
+        context.startService(intent);
+    }
+
+    public static void syncTrainings(@NonNull final Context context, @NonNull final String guid,
+                                     @NonNull final String ministryId, @NonNull final Mcc mcc, final boolean force) {
+        final Intent intent = new Intent(context, GmaSyncService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_TRAININGS);
+        intent.putExtras(ministryExtras(guid, ministryId, mcc, force));
         context.startService(intent);
     }
 

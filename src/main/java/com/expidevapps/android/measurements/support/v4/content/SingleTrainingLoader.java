@@ -3,7 +3,7 @@ package com.expidevapps.android.measurements.support.v4.content;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.expidevapps.android.measurements.db.TrainingDao;
+import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Training;
 
 import org.ccci.gto.android.common.support.v4.content.AsyncTaskBroadcastReceiverLoader;
@@ -13,14 +13,14 @@ import org.ccci.gto.android.common.support.v4.content.AsyncTaskBroadcastReceiver
  */
 public class SingleTrainingLoader extends AsyncTaskBroadcastReceiverLoader<Training>
 {
-    private final TrainingDao mDao;
+    private final GmaDao mDao;
     private final long mId;
     
     public SingleTrainingLoader(@NonNull final Context context, final long trainingId)
     {
         super(context);
         setBroadcastReceiver(new TrainingLoaderBroadcastReceiver(this, trainingId));
-        mDao = TrainingDao.getInstance(context);
+        mDao = GmaDao.getInstance(context);
         mId = trainingId;
     }
 

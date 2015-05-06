@@ -65,14 +65,13 @@ public class Contract {
         static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
-    public static final class Training extends Base implements MinistryId, Location {
+    public static final class Training extends Base implements MinistryId, Mcc, Location {
         public static final String TABLE_NAME = "training";
 
         static final String COLUMN_ID = _ID;
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_DATE = "date";
         public static final String COLUMN_TYPE = "type";
-        static final String COLUMN_MCC = "mcc";
         public static final String COLUMN_DIRTY = "dirtyData";
 
         static final String[] PROJECTION_ALL =
@@ -80,7 +79,6 @@ public class Contract {
                         COLUMN_LONGITUDE, COLUMN_DIRTY, COLUMN_LAST_SYNCED};
 
         private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
-        private static final String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT";
         private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_DATE = COLUMN_DATE + " TEXT";
         private static final String SQL_COLUMN_TYPE = COLUMN_TYPE + " TEXT";
@@ -88,7 +86,7 @@ public class Contract {
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
-        public static final String SQL_WHERE_MINISTRY_ID_MCC = SQL_WHERE_MINISTRY + " AND " + COLUMN_MCC + " = ?";
+        public static final String SQL_WHERE_MINISTRY_MCC = SQL_WHERE_MINISTRY + " AND " + SQL_WHERE_MCC;
         public static final String SQL_WHERE_DIRTY = COLUMN_DIRTY + " != ''";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + TextUtils

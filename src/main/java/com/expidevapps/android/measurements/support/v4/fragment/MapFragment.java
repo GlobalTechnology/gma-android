@@ -29,7 +29,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.expidev.gcmapp.service.TrainingService;
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.activity.MapSettingsActivity;
 import com.expidevapps.android.measurements.db.Contract;
@@ -45,7 +44,7 @@ import com.expidevapps.android.measurements.model.Task;
 import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.support.v4.content.ChurchesLoader;
 import com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader;
-import com.expidevapps.android.measurements.support.v4.content.TrainingLoader;
+import com.expidevapps.android.measurements.support.v4.content.TrainingsLoader;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -296,7 +295,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             if (mAssignment.getMcc() == Ministry.Mcc.GCM) {
                 GmaSyncService.syncChurches(getActivity(), mGuid, mAssignment.getMinistryId(), force);
             }
-            TrainingService.syncTraining(getActivity(), mAssignment.getMinistryId(), mAssignment.getMcc());
+            GmaSyncService
+                    .syncTrainings(getActivity(), mGuid, mAssignment.getMinistryId(), mAssignment.getMcc(), force);
         }
     }
 
@@ -639,7 +639,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         public Loader<List<Training>> onCreateLoader(int id, @Nullable Bundle bundle) {
             switch (id) {
                 case LOADER_TRAININGS:
-                    return new TrainingLoader(getActivity(), bundle);
+                    return new TrainingsLoader(getActivity(), bundle);
                 default:
                     return null;
             }

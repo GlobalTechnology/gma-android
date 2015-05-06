@@ -139,24 +139,4 @@ public class TrainingDao extends AbstractDao
         }
     }
 
-    public void deleteAllData()
-    {
-        final SQLiteDatabase database = getWritableDatabase();
-
-        database.beginTransaction();
-
-        try
-        {
-            database.delete(getTable(Training.class), null, null);
-            database.setTransactionSuccessful();
-        } catch (Exception e)
-        {
-            Log.e(TAG, e.getMessage());
-        } finally
-        {
-            database.endTransaction();
-
-            if (database.isDbLockedByCurrentThread()) Log.w(TAG, "Database Locked by thread (deleteAllData)");
-        }
-    }
 }

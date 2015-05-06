@@ -15,6 +15,7 @@ import com.expidevapps.android.measurements.model.MeasurementValue;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.MinistryMeasurement;
 import com.expidevapps.android.measurements.model.PersonalMeasurement;
+import com.expidevapps.android.measurements.model.Training;
 import com.google.common.base.Joiner;
 
 import org.ccci.gto.android.common.db.AbstractDao;
@@ -35,6 +36,7 @@ public class GmaDao extends AbstractDao
     private static final Mapper<PersonalMeasurement> PERSONAL_MEASUREMENT_MAPPER = new PersonalMeasurementMapper();
     private static final Mapper<MeasurementDetails> MEASUREMENT_DETAILS_MAPPER = new MeasurementDetailsMapper();
     private static final Mapper<Church> CHURCH_MAPPER = new ChurchMapper();
+    private static final Mapper<Training> TRAINING_MAPPER = new TrainingMapper();
 
     private GmaDao(final Context context)
     {
@@ -72,6 +74,8 @@ public class GmaDao extends AbstractDao
             return Contract.MeasurementDetails.TABLE_NAME;
         } else if(Church.class.equals(clazz)) {
             return Contract.Church.TABLE_NAME;
+        } else if (Training.class.equals(clazz)) {
+            return Contract.Training.TABLE_NAME;
         } else if (Contract.LastSync.class.equals(clazz)) {
             return Contract.LastSync.TABLE_NAME;
         }
@@ -96,6 +100,8 @@ public class GmaDao extends AbstractDao
             return Contract.MeasurementDetails.PROJECTION_ALL;
         } else if (Church.class.equals(clazz)) {
             return Contract.Church.PROJECTION_ALL;
+        } else if (Training.class.equals(clazz)) {
+            return Contract.Training.PROJECTION_ALL;
         }
 
         return super.getFullProjection(clazz);
@@ -120,6 +126,8 @@ public class GmaDao extends AbstractDao
             return (Mapper<T>) MEASUREMENT_DETAILS_MAPPER;
         } else if(Church.class.equals(clazz)) {
             return (Mapper<T>) CHURCH_MAPPER;
+        } else if (Training.class.equals(clazz)) {
+            return (Mapper<T>) TRAINING_MAPPER;
         }
 
         return super.getMapper(clazz);
@@ -141,6 +149,9 @@ public class GmaDao extends AbstractDao
         } else if(Church.class.equals(clazz)) {
             keyLength = 1;
             where = Contract.Church.SQL_WHERE_PRIMARY_KEY;
+        } else if (Training.class.equals(clazz)) {
+            keyLength = 1;
+            where = Contract.Training.SQL_WHERE_PRIMARY_KEY;
         } else if (MeasurementType.class.equals(clazz)) {
             keyLength = 1;
             where = Contract.MeasurementType.SQL_WHERE_PRIMARY_KEY;
@@ -194,6 +205,8 @@ public class GmaDao extends AbstractDao
                                       details.getMcc(), details.getPermLink(), details.getPeriod());
         } else if (obj instanceof Church) {
             return getPrimaryKeyWhere(Church.class, ((Church) obj).getId());
+        } else if (obj instanceof Training) {
+            return getPrimaryKeyWhere(Training.class, ((Training) obj).getId());
         }
 
         return super.getPrimaryKeyWhere(obj);

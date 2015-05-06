@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class ChurchSyncTasks extends BaseSyncTasks {
+class ChurchSyncTasks extends BaseSyncTasks {
     private static final String SYNC_TIME_CHURCHES = "last_synced.churches";
 
     private static final long STALE_DURATION_CHURCHES = DAY_IN_MS;

@@ -41,6 +41,7 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
     static final int SYNCTYPE_MEASUREMENTS = 8;
     static final int SYNCTYPE_DIRTY_MEASUREMENTS = 9;
     static final int SYNCTYPE_MEASUREMENT_DETAILS = 10;
+    static final int SYNCTYPE_TRAININGS = 11;
 
     private static final Object INSTANCE_LOCK = new Object();
     private static GmaSyncAdapter INSTANCE = null;
@@ -98,6 +99,9 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                 case SYNCTYPE_DIRTY_CHURCHES:
                     ChurchSyncTasks.syncDirtyChurches(mContext, guid, extras, result);
                     break;
+                case SYNCTYPE_TRAININGS:
+                    TrainingSyncTasks.syncTrainings(mContext, guid, extras);
+                    break;
                 case SYNCTYPE_MEASUREMENT_TYPES:
                     MeasurementSyncTasks.syncMeasurementTypes(mContext, guid, extras);
                     break;
@@ -147,8 +151,13 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                 continue;
             }
 
-            // sync measurements data for the current period of all mccs in this ministry
+            // sync mcc specific data for this ministry
             for (final Mcc mcc : ministry.getMccs()) {
+                // sync trainings for this mcc
+                dispatchSync(guid, SYNCTYPE_TRAININGS, ministryExtras(guid, ministry.getMinistryId(), mcc, force),
+                             result);
+
+                // sync measurements for the current period
                 dispatchSync(guid, SYNCTYPE_MEASUREMENTS, ministryExtras(guid, ministry.getMinistryId(), mcc, force),
                              result);
             }
