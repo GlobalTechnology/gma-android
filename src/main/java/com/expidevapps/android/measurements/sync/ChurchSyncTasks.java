@@ -125,7 +125,6 @@ class ChurchSyncTasks extends BaseSyncTasks {
         }
     }
 
-    @SuppressWarnings("AccessToStaticFieldLockedOnInstance")
     static void syncDirtyChurches(@NonNull final Context context, @NonNull final String guid,
                                   @NonNull final Bundle args, @NonNull final SyncResult result) throws ApiException {
         synchronized (LOCK_DIRTY_CHURCHES) {

@@ -5,6 +5,7 @@ import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
+import android.content.SyncResult;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
@@ -15,18 +16,29 @@ import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Training;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.primitives.Longs;
 
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.db.Transaction;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 class TrainingSyncTasks extends BaseSyncTasks {
     private static final String SYNC_TIME_TRAININGS = "last_synced.trainings";
 
     private static final long STALE_DURATION_TRAININGS = DAY_IN_MS;
+
+    private static final Object LOCK_DIRTY_TRAININGS = new Object();
+
+    private static String[] PROJECTION_GET_TRAININGS =
+            {Contract.Training.COLUMN_MINISTRY_ID, Contract.Training.COLUMN_MCC, Contract.Training.COLUMN_NAME,
+                    Contract.Training.COLUMN_DATE, Contract.Training.COLUMN_TYPE, Contract.Training.COLUMN_LATITUDE,
+                    Contract.Training.COLUMN_LONGITUDE};
 
     static void syncTrainings(@NonNull final Context context, @NonNull final String guid, @NonNull final Bundle args)
             throws ApiException {
@@ -77,8 +89,7 @@ class TrainingSyncTasks extends BaseSyncTasks {
 
                 // persist training in database (if it doesn't exist or isn't dirty)
                 if (existing == null || !existing.isDirty()) {
-                    training.setLastSynced(new Date());
-                    dao.updateOrInsert(training);
+                    dao.updateOrInsert(training, PROJECTION_GET_TRAININGS);
 
                     // mark this id as having been changed
                     ids[j++] = id;
@@ -104,6 +115,59 @@ class TrainingSyncTasks extends BaseSyncTasks {
             broadcastManager.sendBroadcast(BroadcastUtils.updateTrainingBroadcast(ministryId, Arrays.copyOf(ids, j)));
         } finally {
             tx.end();
+        }
+    }
+
+    static void syncDirtyTrainings(@NonNull final Context context, @NonNull final String guid,
+                                   @NonNull final Bundle args, @NonNull final SyncResult result) throws ApiException {
+        synchronized (LOCK_DIRTY_TRAININGS) {
+            // short-circuit if there aren't any trainings to process
+            final GmaDao dao = GmaDao.getInstance(context);
+            final List<Training> trainings = dao.get(Training.class, Contract.Training.SQL_WHERE_DIRTY, null);
+            if (trainings.isEmpty()) {
+                return;
+            }
+
+            // ministry_id => training_id
+            final Multimap<String, Long> broadcasts = HashMultimap.create();
+
+            // process all trainings that are dirty
+            final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+            for (final Training training : trainings) {
+                try {
+                    if (training.isDirty()) {
+                        // generate dirty JSON
+                        final JSONObject json = training.dirtyToJson();
+
+                        // update the church
+                        final boolean success = api.updateTraining(training.getId(), json);
+
+                        // was successful update?
+                        if (success) {
+                            // clear dirty attributes
+                            training.setDirty(null);
+                            dao.update(training, new String[] {Contract.Training.COLUMN_DIRTY});
+
+                            // add training to list of broadcasts
+                            broadcasts.put(training.getMinistryId(), training.getId());
+
+                            // increment update counter
+                            result.stats.numUpdates++;
+                        } else {
+                            result.stats.numParseExceptions++;
+                        }
+                    }
+                } catch (final JSONException ignored) {
+                    // this shouldn't happen when generating json
+                }
+            }
+
+            // send broadcasts for each ministryId with trainings that were updated
+            final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
+            for (final String ministryId : broadcasts.keySet()) {
+                broadcastManager.sendBroadcast(BroadcastUtils.updateTrainingBroadcast(ministryId, Longs.toArray(
+                        broadcasts.get(ministryId))));
+            }
         }
     }
 }

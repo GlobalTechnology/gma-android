@@ -1,5 +1,6 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.ARG_TRAINING_ID;
 import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateTrainingBroadcast;
 
@@ -17,12 +18,12 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.expidev.gcmapp.service.TrainingService;
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.TrainingDao;
 import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.support.v4.content.SingleTrainingLoader;
+import com.expidevapps.android.measurements.sync.GmaSyncService;
 
 import org.ccci.gto.android.common.app.AlertDialogCompat;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
@@ -37,20 +38,18 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import butterknife.Optional;
 
-/**
- * Created by matthewfrederick on 2/24/15.
- */
-public class EditTrainingFragment extends AbstractDialogFragment
-{
+public class EditTrainingFragment extends AbstractDialogFragment {
     private static final int LOADER_TRAINING = 1;
     
     private static final int CHANGED_NAME = 0;
     private static final int CHANGED_TYPE = 1;
     private static final int CHANGED_DATE = 2;
-    
+
+    @NonNull
+    /* final */ String mGuid;
     private long mTrainingId = Training.INVALID_ID;
     @NonNull
-    private boolean[] mChanged = new boolean[3];
+    private final boolean[] mChanged = new boolean[3];
     @Nullable
     private Training mTraining;
 
@@ -70,12 +69,12 @@ public class EditTrainingFragment extends AbstractDialogFragment
     @Nullable
     @InjectView(R.id.icon)
     ImageView mIconView;
-    
-    public static EditTrainingFragment newInstance(final long trainingId)
-    {
+
+    public static EditTrainingFragment newInstance(@NonNull final String guid, final long trainingId) {
         final EditTrainingFragment fragment = new EditTrainingFragment();
         
         final Bundle bundle = new Bundle();
+        bundle.putString(ARG_GUID, guid);
         bundle.putLong(ARG_TRAINING_ID, trainingId);
         fragment.setArguments(bundle);
         
@@ -86,9 +85,14 @@ public class EditTrainingFragment extends AbstractDialogFragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        
-        final Bundle bundle = this.getArguments();
-        mTrainingId = bundle.getLong(ARG_TRAINING_ID, Training.INVALID_ID);
+
+        final Bundle args = this.getArguments();
+        final String guid = args.getString(ARG_GUID);
+        if (guid == null) {
+            throw new IllegalStateException("cannot create EditTrainingFragment with invalid guid");
+        }
+        mGuid = guid;
+        mTrainingId = args.getLong(ARG_TRAINING_ID, Training.INVALID_ID);
     }
     
     @NonNull
@@ -174,7 +178,7 @@ public class EditTrainingFragment extends AbstractDialogFragment
                         broadcastManager
                                 .sendBroadcast(updateTrainingBroadcast(training.getMinistryId(), training.getId()));
 
-                        TrainingService.syncDirtyTraining(context);
+                        GmaSyncService.syncDirtyTrainings(context, mGuid);
                     }
                 });
             }

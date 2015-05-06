@@ -42,6 +42,7 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
     static final int SYNCTYPE_DIRTY_MEASUREMENTS = 9;
     static final int SYNCTYPE_MEASUREMENT_DETAILS = 10;
     static final int SYNCTYPE_TRAININGS = 11;
+    static final int SYNCTYPE_DIRTY_TRAININGS = 12;
 
     private static final Object INSTANCE_LOCK = new Object();
     private static GmaSyncAdapter INSTANCE = null;
@@ -101,6 +102,9 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                     break;
                 case SYNCTYPE_TRAININGS:
                     TrainingSyncTasks.syncTrainings(mContext, guid, extras);
+                    break;
+                case SYNCTYPE_DIRTY_TRAININGS:
+                    TrainingSyncTasks.syncDirtyTrainings(mContext, guid, extras, result);
                     break;
                 case SYNCTYPE_MEASUREMENT_TYPES:
                     MeasurementSyncTasks.syncMeasurementTypes(mContext, guid, extras);

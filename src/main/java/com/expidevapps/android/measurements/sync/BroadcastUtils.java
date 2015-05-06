@@ -12,7 +12,6 @@ import android.os.PatternMatcher;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.expidev.gcmapp.service.TrainingService;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
 
 import org.joda.time.YearMonth;
@@ -31,7 +30,7 @@ public final class BroadcastUtils {
             AssignmentSyncTasks.class.getName() + ".ACTION_UPDATE_ASSIGNMENTS";
     private static final String ACTION_UPDATE_CHURCHES = GmaSyncService.class.getName() + ".ACTION_UPDATE_CHURCHES";
     private static final String ACTION_UPDATE_MINISTRIES = GmaSyncService.class.getName() + ".ACTION_UPDATE_MINISTRIES";
-    private static final String ACTION_UPDATE_TRAINING = TrainingService.class.getName() + ".ACTION_UPDATE_TRAINING";
+    private static final String ACTION_UPDATE_TRAINING = GmaSyncService.class.getName() + ".ACTION_UPDATE_TRAINING";
     private static final String ACTION_UPDATE_MEASUREMENT_TYPES =
             GmaSyncService.class.getName() + ".ACTION_UPDATE_MEASUREMENT_TYPES";
     private static final String ACTION_UPDATE_MEASUREMENT_VALUES =

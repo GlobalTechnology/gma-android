@@ -123,8 +123,5 @@
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/sync_adapter_gma"/>
         </service>
-        <service
-            android:name="com.expidev.gcmapp.service.TrainingService"
-            android:exported="false"/>
     </application>
 </manifest>

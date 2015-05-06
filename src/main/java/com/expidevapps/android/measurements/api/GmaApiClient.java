@@ -599,27 +599,24 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
         return null;
     }
-    
-    public boolean updateTraining(final long id, @NonNull final JSONObject training) throws ApiException
-    {
-        if (id == Training.INVALID_ID) return false;
-        
+
+    public boolean updateTraining(final long id, @NonNull final JSONObject training) throws ApiException {
+        if (id == Training.INVALID_ID) {
+            return false;
+        }
+
         final Request<Session> request = new Request<>(TRAINING + "/" + id);
         request.method = Method.PUT;
         request.setContent(training);
 
-        HttpURLConnection connn = null;
-        try
-        {
-            connn = this.sendRequest(request);
-            return connn.getResponseCode() == HttpURLConnection.HTTP_CREATED;
-        } catch (final IOException e)
-        {
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+            return conn.getResponseCode() == HttpURLConnection.HTTP_CREATED;
+        } catch (final IOException e) {
             throw new ApiSocketException(e);
-        }
-        finally
-        {
-            IOUtils.closeQuietly(connn);
+        } finally {
+            IOUtils.closeQuietly(conn);
         }
     }
 

@@ -480,7 +480,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         if (mAssignment != null && mAssignment.can(EDIT_CHURCH)) {
             final FragmentManager fm = getChildFragmentManager();
             if (fm.findFragmentByTag("editChurch") == null) {
-                EditChurchFragment fragment = EditChurchFragment.newInstance(mGuid, churchId);
+                final EditChurchFragment fragment = EditChurchFragment.newInstance(mGuid, churchId);
                 fragment.show(fm.beginTransaction().addToBackStack("editChurch"), "editChurch");
             }
         }
@@ -490,7 +490,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         if (mAssignment != null && mAssignment.can(EDIT_TRAINING)) {
             final FragmentManager fm = getChildFragmentManager();
             if (fm.findFragmentByTag("editTraining") == null) {
-                EditTrainingFragment fragment = EditTrainingFragment.newInstance(trainingId);
+                final EditTrainingFragment fragment = EditTrainingFragment.newInstance(mGuid, trainingId);
                 fragment.show(fm.beginTransaction().addToBackStack("editTraining"), "editTraining");
             }
         }
