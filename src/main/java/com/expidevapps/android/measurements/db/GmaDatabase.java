@@ -11,7 +11,6 @@ import com.expidevapps.android.measurements.BuildConfig;
 import com.google.common.base.Throwables;
 
 import org.ccci.gto.android.common.db.WalSQLiteOpenHelper;
-import org.ccci.gto.android.common.newrelic.CrashReporterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,7 +166,6 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
                 throw Throwables.propagate(e);
             } else {
                 Crashlytics.logException(e);
-                CrashReporterUtils.reportException(mContext, e);
             }
 
             // let's try resetting the database instead

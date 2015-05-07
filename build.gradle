@@ -149,7 +149,6 @@ dependencies {
     compile 'org.ccci.gto.android:gto-support-api:0.6.0'
     compile 'org.ccci.gto.android:gto-support-core:0.6.0'
     compile 'org.ccci.gto.android:gto-support-db:0.6.0'
-    compile 'org.ccci.gto.android:gto-support-newrelic:0.6.0'
     compile 'org.ccci.gto.android:gto-support-recyclerview:0.6.0'
 
     compile 'org.slf4j:slf4j-api:1.7.10'
