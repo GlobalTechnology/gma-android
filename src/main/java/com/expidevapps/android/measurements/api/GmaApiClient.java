@@ -106,35 +106,35 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     protected Session establishSession(@NonNull final Request<Session> request) throws ApiException {
         HttpURLConnection conn = null;
         try {
-            final String service = getService();
-            if (service != null) {
-                // issue request only if we get a ticket for the user making this request
-                final TheKey.TicketAttributesPair ticket = mTheKey.getTicketAndAttributes(service);
-                assert request.guid != null;
-                if (ticket != null && request.guid.equals(ticket.attributes.getGuid())) {
-                    // issue getToken request
-                    conn = this.getToken(ticket.ticket, false);
+            if (request.guid != null) {
+                final String service = getService();
+                if (service != null) {
+                    // get a ticket for this user
+                    final String ticket = mTheKey.getTicket(request.guid, service);
+                    if (ticket != null) {
+                        // issue getToken request
+                        conn = this.getToken(ticket, false);
 
-                    // parse valid responses
-                    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                        // extract cookies
-                        // XXX: this won't be needed once Jon removes the cookie requirement from the API
-                        final Set<String> cookies = this.extractCookies(conn);
+                        // parse valid responses
+                        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                            // extract cookies
+                            // XXX: this won't be needed once Jon removes the cookie requirement from the API
+                            final Set<String> cookies = this.extractCookies(conn);
 
-                        // parse response JSON
-                        final JSONObject json = new JSONObject(IOUtils.readString(conn.getInputStream()));
+                            // parse response JSON
+                            final JSONObject json = new JSONObject(IOUtils.readString(conn.getInputStream()));
 
-                        // save the returned associated ministries
-                        // XXX: this isn't ideal and crosses logical components, but I can't think of a cleaner way to do it currently -DF
-                        GmaSyncService.saveAssignments(mContext, request.guid, json.optJSONArray("assignments"));
+                            // save the returned associated ministries
+                            // XXX: this isn't ideal and crosses logical components, but I can't think of a cleaner way to do it currently -DF
+                            GmaSyncService.saveAssignments(mContext, request.guid, json.optJSONArray("assignments"));
 
-                        // create session object
-                        return new Session(json.optString("session_ticket", null), cookies,
-                                           ticket.attributes.getGuid());
-                    } else {
-                        // authentication with the ticket failed, let's clear the cached service in case that caused the issue
-                        if (service.equals(getCachedService())) {
-                            setCachedService(null);
+                            // create session object
+                            return new Session(json.optString("session_ticket", null), cookies, request.guid);
+                        } else {
+                            // authentication with the ticket failed, let's clear the cached service in case that caused the issue
+                            if (service.equals(getCachedService())) {
+                                setCachedService(null);
+                            }
                         }
                     }
                 }

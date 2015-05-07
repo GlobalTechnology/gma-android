@@ -147,7 +147,7 @@ dependencies {
     compile 'me.thekey.android:thekey-lib:1.0.0-SNAPSHOT'
 
     compile 'org.ccci.gto.android:gto-support-api:0.6.0'
-    compile 'org.ccci.gto.android:gto-support-core:0.6.0'
+    compile 'org.ccci.gto.android:gto-support-core:0.6.1-SNAPSHOT'
     compile 'org.ccci.gto.android:gto-support-db:0.6.0'
     compile 'org.ccci.gto.android:gto-support-recyclerview:0.6.0'
 

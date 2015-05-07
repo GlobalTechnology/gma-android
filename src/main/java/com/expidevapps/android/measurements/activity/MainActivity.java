@@ -85,7 +85,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
         setupBroadcastReceivers();
-        onUpdateGuid(mTheKey.getGuid());
+        onUpdateGuid(mTheKey.getDefaultSessionGuid());
     }
 
     void onUpdateGuid(@Nullable final String guid) {
@@ -296,9 +296,14 @@ public class MainActivity extends ActionBarActivity {
         }
 
         @Override
+        protected void onChangeDefaultSession(@NonNull final String guid) {
+            onUpdateGuid(guid);
+        }
+
+        @Override
         protected void onLogout(final String guid, final boolean changingUser) {
             if (!changingUser) {
-                onUpdateGuid(null);
+                onUpdateGuid(mTheKey.getDefaultSessionGuid());
             }
         }
     }

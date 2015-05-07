@@ -90,7 +90,7 @@ public class SettingsFragment extends PreferenceFragment {
 
         // build the args used for various loaders
         final Bundle args = new Bundle(2);
-        args.putString(ARG_GUID, mTheKey.getGuid());
+        args.putString(ARG_GUID, mTheKey.getDefaultSessionGuid());
         args.putBoolean(ARG_LOAD_MINISTRY, true);
 
         manager.initLoader(LOADER_MINISTRIES, args, mLoaderCallbacksCursor);
