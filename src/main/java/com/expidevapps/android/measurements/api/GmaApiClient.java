@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import me.thekey.android.TheKey;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.TheKeyImpl;
 
@@ -74,13 +73,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
               BuildConfig.GMA_API_BASE_URI + "v" + BuildConfig.GMA_API_VERSION + "/", "gma_api_sessions", guid);
     }
 
-    @Deprecated
-    public static GmaApiClient getInstance(@NonNull final Context context) {
-        return getInstance(context, null);
-    }
-
     @NonNull
-    public static GmaApiClient getInstance(@NonNull final Context context, @Nullable final String guid) {
+    public static GmaApiClient getInstance(@NonNull final Context context, @NonNull final String guid) {
         synchronized (INSTANCES) {
             if (!INSTANCES.containsKey(guid)) {
                 INSTANCES.put(guid, new GmaApiClient(context.getApplicationContext(), guid));

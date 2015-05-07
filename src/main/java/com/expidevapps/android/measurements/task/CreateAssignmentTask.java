@@ -4,9 +4,9 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
+import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
-import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Ministry;
 
@@ -25,7 +25,7 @@ public class CreateAssignmentTask extends AsyncTask<Void, Void, Assignment> {
 
     public CreateAssignmentTask(@NonNull final Context context, @NonNull final String ministryId,
                                 @NonNull final Assignment.Role role, @NonNull final String guid) {
-        mApi = GmaApiClient.getInstance(context);
+        mApi = GmaApiClient.getInstance(context, guid);
         mDao = GmaDao.getInstance(context);
         mMinistryId = ministryId;
         mRole = role;
