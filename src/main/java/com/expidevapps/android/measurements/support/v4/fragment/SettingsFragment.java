@@ -2,6 +2,7 @@ package com.expidevapps.android.measurements.support.v4.fragment;
 
 import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.PREFS_SETTINGS;
+import static com.expidevapps.android.measurements.Constants.PREF_ACTIVE_MCC;
 import static com.expidevapps.android.measurements.Constants.PREF_CURRENT_MINISTRY;
 import static com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
 
@@ -10,6 +11,8 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceGroup;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
@@ -27,6 +30,7 @@ import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.github.machinarius.preferencefragment.PreferenceFragment;
 
 import org.ccci.gto.android.common.db.util.CursorUtils;
+import org.ccci.gto.android.common.preference.PreferenceUtils;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
 
@@ -71,15 +75,17 @@ public class SettingsFragment extends PreferenceFragment {
         final Bundle args = this.getArguments();
         mGuid = args.getString(ARG_GUID);
 
-        getPreferenceManager().setSharedPreferencesName(PREFS_SETTINGS);
-        addPreferencesFromResource(R.xml.pref_general);
+        setupPreferences();
     }
 
     @Override
     public void onStart() {
         super.onStart();
         startLoaders();
-        setupPreferences();
+
+        // init preferences data
+        updateMinistriesPreference();
+        updateMccsPreference();
     }
 
     public void onLoadCurrentAssignment(@Nullable final Assignment assignment) {
@@ -107,18 +113,27 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     private void setupPreferences() {
+        // load base preferences
+        final PreferenceManager manager = getPreferenceManager();
+        manager.setSharedPreferencesName(PREFS_SETTINGS);
+        addPreferencesFromResource(R.xml.pref_general);
+
+        // get preferences to modify them
         mPrefMinistry = (ListPreference) findPreference(PREF_CURRENT_MINISTRY);
         if (mPrefMinistry != null) {
+            final PreferenceGroup parent = PreferenceUtils.findParent(getPreferenceScreen(), mPrefMinistry);
+            if (parent != null) {
+                parent.removePreference(mPrefMinistry);
+                mPrefMinistry.setKey(PREF_CURRENT_MINISTRY(mGuid));
+                parent.addPreference(mPrefMinistry);
+            }
             mPrefMinistry.setOnPreferenceChangeListener(new MinistryChangeListener());
         }
-        mPrefMcc = (ListPreference) findPreference("mcc_list");
+        mPrefMcc = (ListPreference) findPreference(PREF_ACTIVE_MCC);
         if (mPrefMcc != null) {
+            mPrefMcc.setDependency(PREF_CURRENT_MINISTRY(mGuid));
             mPrefMcc.setOnPreferenceChangeListener(new MccChangeListener());
         }
-
-        // init preferences data
-        updateMinistriesPreference();
-        updateMccsPreference();
     }
 
     private void updateMinistriesPreference() {

@@ -6,16 +6,16 @@
         android:key="currentMinistry"
         android:title="@string/pref_title_ministry_team_text"
         android:summary="@string/pref_summary_ministry"
-        android:defaultValue="0"
+        android:defaultValue=""
         android:negativeButtonText="@null"
         android:positiveButtonText="@null" />
 
     <!-- MCC = Mission Critical Component -->
     <org.ccci.gto.android.common.preference.ListPreferenceCompat
-        android:key="mcc_list"
+        android:key="mcc"
         android:title="@string/pref_title_mcc"
         android:summary="@string/pref_summary_mcc"
-        android:defaultValue="0"
+        android:defaultValue=""
         android:persistent="false"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null" />

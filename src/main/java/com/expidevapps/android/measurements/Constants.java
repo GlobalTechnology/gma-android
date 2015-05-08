@@ -6,10 +6,16 @@ import android.view.View;
 
 import butterknife.ButterKnife;
 
-public class Constants {
+public final class Constants {
     /* SharedPreference constants */
     public static final String PREFS_SETTINGS = "gcm_prefs";
     public static final String PREF_CURRENT_MINISTRY = "currentMinistry";
+    public static final String PREF_ACTIVE_MCC = "mcc";
+
+    @NonNull
+    public static String PREF_CURRENT_MINISTRY(@NonNull final String guid) {
+        return PREF_CURRENT_MINISTRY + ":" + guid;
+    }
 
     /* common args */
     public static final String ARG_GUID = "guid";

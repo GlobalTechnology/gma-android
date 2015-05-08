@@ -38,7 +38,7 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
 
         // setup listeners for events
         if(mGuid != null) {
-            addPreferenceKey(PREF_CURRENT_MINISTRY);
+            addPreferenceKey(PREF_CURRENT_MINISTRY(mGuid));
             addIntentFilter(BroadcastUtils.updateAssignmentsFilter(mGuid));
         }
     }
@@ -51,7 +51,7 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
         }
 
         // load the current active assignment
-        final String ministryId = mPrefs.getString(PREF_CURRENT_MINISTRY, Ministry.INVALID_ID);
+        final String ministryId = mPrefs.getString(PREF_CURRENT_MINISTRY(mGuid), Ministry.INVALID_ID);
         Assignment assignment = mDao.find(Assignment.class, mGuid, ministryId);
 
         // reset to default assignment if a current current assignment isn't found
@@ -75,6 +75,8 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
     }
 
     private Assignment initActiveAssignment() {
+        assert mGuid != null : "initActiveAssignment should only be called when we have a valid GUID";
+
         final List<Assignment> assignments =
                 mDao.get(Assignment.class, Contract.Assignment.SQL_WHERE_GUID, bindValues(mGuid));
 
@@ -98,7 +100,7 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
             updateMcc(assignment);
         }
 
-        mPrefs.edit().putString(PREF_CURRENT_MINISTRY, assignment.getMinistryId()).apply();
+        mPrefs.edit().putString(PREF_CURRENT_MINISTRY(mGuid), assignment.getMinistryId()).apply();
 
         // return the found assignment
         return assignment;
