@@ -178,6 +178,11 @@ public class Training extends Location implements Cloneable {
         this.mcc = mcc;
     }
 
+    @Override
+    public boolean canEdit(@Nullable final Assignment assignment) {
+        return assignment != null && assignment.can(Task.EDIT_TRAINING);
+    }
+
     @NonNull
     public List<Completion> getCompletions() {
         return Collections.unmodifiableList(completions);

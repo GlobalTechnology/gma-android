@@ -2,13 +2,15 @@ package com.expidevapps.android.measurements.map;
 
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.expidevapps.android.measurements.R;
+import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Training;
 
 public class TrainingItem extends GmaItem<Training> {
-    public TrainingItem(@NonNull final Training obj) {
-        super(obj);
+    public TrainingItem(@Nullable final Assignment assignment, @NonNull final Training obj) {
+        super(assignment, obj);
     }
     
     public long getTrainingId()

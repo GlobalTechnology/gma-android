@@ -16,6 +16,9 @@ public abstract class BaseMapper<T extends Base> extends AbstractMapper<T> {
     @Override
     protected void mapField(@NonNull ContentValues values, @NonNull String field, @NonNull T obj) {
         switch (field) {
+            case Contract.Base.COLUMN_DIRTY:
+                values.put(field, obj.getDirty());
+                break;
             case Contract.Base.COLUMN_LAST_SYNCED:
                 values.put(field, obj.getLastSynced());
                 break;
@@ -29,6 +32,7 @@ public abstract class BaseMapper<T extends Base> extends AbstractMapper<T> {
     @Override
     public T toObject(@NonNull Cursor c) {
         final T obj = super.toObject(c);
+        obj.setDirty(getString(c, Contract.Base.COLUMN_DIRTY, null));
         obj.setLastSynced(this.getLong(c, Contract.Base.COLUMN_LAST_SYNCED, 0));
         return obj;
     }

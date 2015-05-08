@@ -130,7 +130,7 @@ class ChurchSyncTasks extends BaseSyncTasks {
         synchronized (LOCK_DIRTY_CHURCHES) {
             // short-circuit if there aren't any churches to process
             final GmaDao dao = GmaDao.getInstance(context);
-            final List<Church> churches = dao.get(Church.class, Contract.Church.SQL_WHERE_DIRTY, null);
+            final List<Church> churches = dao.get(Church.class, Contract.Church.SQL_WHERE_NEW_OR_DIRTY, null);
             if (churches.isEmpty()) {
                 return;
             }

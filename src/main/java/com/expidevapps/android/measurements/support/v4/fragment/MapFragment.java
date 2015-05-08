@@ -39,8 +39,8 @@ import com.expidevapps.android.measurements.map.MarkerRender;
 import com.expidevapps.android.measurements.map.TrainingItem;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Church;
+import com.expidevapps.android.measurements.model.Location;
 import com.expidevapps.android.measurements.model.Ministry;
-import com.expidevapps.android.measurements.model.Task;
 import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.support.v4.content.ChurchesLoader;
 import com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader;
@@ -440,7 +440,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                     }
 
                     if (render) {
-                        mClusterManager.addItem(new ChurchItem(church));
+                        mClusterManager.addItem(new ChurchItem(mAssignment, church));
                     }
                 }
             }
@@ -454,7 +454,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 mTrainings != null) {
             for (final Training training : mTrainings) {
                 if (training.hasLocation()) {
-                    mClusterManager.addItem(new TrainingItem(training));
+                    mClusterManager.addItem(new TrainingItem(mAssignment, training));
                 }
             }
         }
@@ -508,26 +508,20 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
         @Override
         public void onMarkerDragEnd(@NonNull final GmaItem item, @NonNull final Marker marker) {
-            if (item instanceof ChurchItem) {
-                final Church church = ((ChurchItem) item).getObject();
-                if (mAssignment != null && mAssignment.can(Task.EDIT_CHURCH, church)) {
-                    // update church location in the database
-                    final LatLng position = marker.getPosition();
-                    AsyncTaskCompat.execute(
-                            new ChurchLocationRunnable(getActivity().getApplicationContext(), mGuid,
-                                                       ((ChurchItem) item).getChurchId(), position));
+            final Location obj = item.getObject();
+            if (obj.canEdit(mAssignment)) {
+                // update location in the database
+                final LatLng position = marker.getPosition();
+                AsyncTaskCompat.execute(
+                        new UpdateLocationRunnable(getActivity().getApplicationContext(), mGuid, obj, position));
 
-                    // update the currently loaded backing church object
-                    church.setLatitude(position.latitude);
-                    church.setLongitude(position.longitude);
+                // update the currently loaded backing object
+                obj.setLatitude(position.latitude);
+                obj.setLongitude(position.longitude);
 
-                    // update map markers to their new state
-                    // XXX: this currently recreates all map markers, which is incredibly heavy to update a single node
-                    updateMapMarkers();
-                } else {
-                    // reset position because you weren't actually allowed to move the item
-                    marker.setPosition(item.getPosition());
-                }
+                // update map markers to their new state
+                // XXX: this currently recreates all map markers, which is incredibly heavy to update a single node
+                updateMapMarkers();
             } else {
                 // reset position because you weren't actually allowed to move the item
                 marker.setPosition(item.getPosition());
@@ -535,20 +529,21 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         }
     }
 
-    private static class ChurchLocationRunnable implements Runnable {
+    private static class UpdateLocationRunnable implements Runnable {
         @NonNull
         private final Context mContext;
         @NonNull
         private final String mGuid;
-        private final long mId;
+        @NonNull
+        private final Location mObj;
         @NonNull
         private final LatLng mLocation;
 
-        ChurchLocationRunnable(@NonNull final Context context, @NonNull final String guid, final long id,
+        UpdateLocationRunnable(@NonNull final Context context, @NonNull final String guid, @NonNull final Location obj,
                                @NonNull final LatLng location) {
             mContext = context.getApplicationContext();
             mGuid = guid;
-            mId = id;
+            mObj = obj;
             mLocation = location;
         }
 
@@ -559,25 +554,30 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             try {
                 tx.beginTransactionNonExclusive();
 
-                final Church church = dao.find(Church.class, mId);
-                if (church != null) {
+                final Location fresh = dao.refresh(mObj);
+                if (fresh != null) {
                     // update the location of this church
-                    church.trackingChanges(true);
-                    church.setLatitude(mLocation.latitude);
-                    church.setLongitude(mLocation.longitude);
-                    church.trackingChanges(false);
+                    fresh.trackingChanges(true);
+                    fresh.setLatitude(mLocation.latitude);
+                    fresh.setLongitude(mLocation.longitude);
+                    fresh.trackingChanges(false);
 
                     // store the update
-                    dao.update(church, new String[] {Contract.Church.COLUMN_LATITUDE, Contract.Church.COLUMN_LONGITUDE,
-                            Contract.Church.COLUMN_DIRTY});
-
-                    // sync the updated church back to the cloud
-                    GmaSyncService.syncDirtyChurches(mContext, mGuid);
+                    dao.update(fresh, new String[] {
+                            Contract.Location.COLUMN_LATITUDE, Contract.Location.COLUMN_LONGITUDE,
+                            Contract.Base.COLUMN_DIRTY});
                 }
 
                 tx.setTransactionSuccessful();
             } finally {
                 tx.endTransaction();
+            }
+
+            // sync the updated object back to the cloud
+            if (mObj instanceof Church) {
+                GmaSyncService.syncDirtyChurches(mContext, mGuid);
+            } else if (mObj instanceof Training) {
+                GmaSyncService.syncDirtyTrainings(mContext, mGuid);
             }
         }
     }

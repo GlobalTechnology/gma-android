@@ -24,6 +24,10 @@ public abstract class Location extends Base {
         this.longitude = location.longitude;
     }
 
+    public boolean canEdit(@Nullable final Assignment assignment) {
+        return false;
+    }
+
     public final boolean hasLocation() {
         return latitude != Double.NaN && longitude != Double.NaN;
     }

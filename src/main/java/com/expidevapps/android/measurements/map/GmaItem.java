@@ -2,18 +2,23 @@ package com.expidevapps.android.measurements.map;
 
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Location;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
 public abstract class GmaItem<T extends Location> implements ClusterItem {
+    @Nullable
+    private final Assignment mAssignment;
     @NonNull
     protected final T mObj;
     @NonNull
     private final LatLng mPosition;
 
-    protected GmaItem(@NonNull final T obj) {
+    protected GmaItem(@Nullable final Assignment assignment, @NonNull final T obj) {
+        mAssignment = null;
         mObj = obj;
         if (!obj.hasLocation()) {
             throw new IllegalArgumentException("Location object needs to have a location to be rendered");
@@ -41,6 +46,6 @@ public abstract class GmaItem<T extends Location> implements ClusterItem {
     }
 
     public boolean isDraggable() {
-        return false;
+        return mObj.canEdit(mAssignment);
     }
 }

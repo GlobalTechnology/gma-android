@@ -2,12 +2,14 @@ package com.expidevapps.android.measurements.map;
 
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Church;
 
 public class ChurchItem extends GmaItem<Church> {
-    public ChurchItem(@NonNull final Church obj) {
-        super(obj);
+    public ChurchItem(@Nullable final Assignment assignment, @NonNull final Church obj) {
+        super(assignment, obj);
     }
 
     public long getChurchId() {
@@ -28,10 +30,5 @@ public class ChurchItem extends GmaItem<Church> {
     @Override
     public int getItemImage() {
         return mObj.getDevelopment().image;
-    }
-
-    @Override
-    public boolean isDraggable() {
-        return true;
     }
 }

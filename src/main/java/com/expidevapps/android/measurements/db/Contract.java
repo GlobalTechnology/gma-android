@@ -11,10 +11,14 @@ public class Contract {
 
     public static abstract class Base implements BaseColumns {
         public static final String COLUMN_ROWID = _ID;
+        public static final String COLUMN_DIRTY = "dirtyData";
         public static final String COLUMN_LAST_SYNCED = "lastSynced";
 
         static final String SQL_COLUMN_ROWID = COLUMN_ROWID + " INTEGER PRIMARY KEY";
+        static final String SQL_COLUMN_DIRTY = COLUMN_DIRTY + " TEXT";
         static final String SQL_COLUMN_LAST_SYNCED = COLUMN_LAST_SYNCED + " INTEGER";
+
+        public static final String SQL_WHERE_DIRTY = COLUMN_DIRTY + " != ''";
     }
 
     private interface Guid {
@@ -72,7 +76,6 @@ public class Contract {
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_DATE = "date";
         public static final String COLUMN_TYPE = "type";
-        public static final String COLUMN_DIRTY = "dirtyData";
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_ID, COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_DATE, COLUMN_TYPE, COLUMN_MCC, COLUMN_LATITUDE,
@@ -82,12 +85,10 @@ public class Contract {
         private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_DATE = COLUMN_DATE + " TEXT";
         private static final String SQL_COLUMN_TYPE = COLUMN_TYPE + " TEXT";
-        private static final String SQL_COLUMN_DIRTY = COLUMN_DIRTY + " TEXT";
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
         public static final String SQL_WHERE_MINISTRY_MCC = SQL_WHERE_MINISTRY + " AND " + SQL_WHERE_MCC;
-        public static final String SQL_WHERE_DIRTY = COLUMN_DIRTY + " != ''";
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME, SQL_COLUMN_DATE,
@@ -220,7 +221,6 @@ public class Contract {
         public static final String COLUMN_SIZE = "size";
         public static final String COLUMN_SECURITY = "security";
         static final String COLUMN_NEW = "new";
-        public static final String COLUMN_DIRTY = "dirtyData";
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_ID, COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_CONTACT_NAME, COLUMN_CONTACT_EMAIL, COLUMN_LATITUDE,
@@ -235,11 +235,10 @@ public class Contract {
         private static final String SQL_COLUMN_SIZE = COLUMN_SIZE + " INTEGER";
         private static final String SQL_COLUMN_SECURITY = COLUMN_SECURITY + " INTEGER";
         private static final String SQL_COLUMN_NEW = COLUMN_NEW + " INTEGER";
-        private static final String SQL_COLUMN_DIRTY = COLUMN_DIRTY + " TEXT";
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
-        public static final String SQL_WHERE_DIRTY = COLUMN_DIRTY + " != '' OR " + COLUMN_NEW + " = 1";
+        public static final String SQL_WHERE_NEW_OR_DIRTY = COLUMN_NEW + " = 1 OR " + SQL_WHERE_DIRTY;
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME,
