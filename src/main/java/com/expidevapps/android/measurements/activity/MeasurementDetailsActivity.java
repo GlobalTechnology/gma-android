@@ -16,7 +16,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.expidevapps.android.measurements.R;
@@ -25,7 +25,7 @@ import com.expidevapps.android.measurements.support.v4.fragment.measurement.Meas
 
 import org.joda.time.YearMonth;
 
-public class MeasurementDetailsActivity extends ActionBarActivity {
+public class MeasurementDetailsActivity extends AppCompatActivity {
     private static final String TAG_DETAILS = "measurementDetails";
 
     @NonNull

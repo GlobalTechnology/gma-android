@@ -304,10 +304,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         return null;
     }
 
-    public boolean updateChurch(@NonNull final Church church) throws ApiException, JSONException {
-        return this.updateChurch(church.getId(), church.toJson());
-    }
-
     public boolean updateChurch(final long id, @NonNull final JSONObject church) throws ApiException {
         // short-circuit if we are trying to update an invalid church
         if (id == Church.INVALID_ID) {

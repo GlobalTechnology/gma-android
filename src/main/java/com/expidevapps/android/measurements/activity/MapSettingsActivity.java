@@ -4,13 +4,13 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import com.expidevapps.android.measurements.R;
 
-public class MapSettingsActivity extends ActionBarActivity implements CheckBox.OnCheckedChangeListener
+public class MapSettingsActivity extends AppCompatActivity implements CheckBox.OnCheckedChangeListener
 {
     private final String TAG = getClass().getSimpleName();
 

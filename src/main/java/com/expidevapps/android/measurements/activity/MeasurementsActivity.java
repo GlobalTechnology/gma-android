@@ -22,7 +22,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
@@ -44,7 +44,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.Optional;
 
-public class MeasurementsActivity extends ActionBarActivity {
+public class MeasurementsActivity extends AppCompatActivity {
     private static final String TAG_FRAGMENT_MEASUREMENT_COLUMNS = "measurementColumns";
     private static final YearMonth NOW = YearMonth.now();
 

@@ -8,18 +8,18 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.support.v4.fragment.FindMinistryFragment;
 import com.expidevapps.android.measurements.support.v4.fragment.JoinMinistryDialogFragment;
 
-public class JoinMinistryActivity extends ActionBarActivity
+public class JoinMinistryActivity extends AppCompatActivity
         implements JoinMinistryDialogFragment.OnJoinMinistryListener {
     private static final String TAG_FIND_MINISTRY = "findMinistry";
 
     @NonNull
-    private String mGuid = "";
+    private /* final */ String mGuid;
 
     public static void start(@NonNull final Context context, @NonNull final String guid) {
         final Intent intent = new Intent(context, JoinMinistryActivity.class);
