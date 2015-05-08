@@ -6,9 +6,9 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.2'
-        classpath 'com.newrelic.agent.android:agent-gradle-plugin:4.273.4'
-        classpath 'io.fabric.tools:gradle:1.18.0'
+        classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'com.newrelic.agent.android:agent-gradle-plugin:5.0.1'
+        classpath 'io.fabric.tools:gradle:1.19.0'
     }
 }
 
@@ -138,24 +138,24 @@ dependencies {
     compile 'com.google.guava:guava:18.0'
     compile 'com.google.maps.android:android-maps-utils:0.3.4'
 
-    compile 'com.crashlytics.sdk.android:crashlytics:2.2.3'
-    compile 'com.newrelic.agent.android:android-agent:4.273.4'
+    compile 'com.crashlytics.sdk.android:crashlytics:2.2.4'
+    compile 'com.newrelic.agent.android:android-agent:5.0.1'
 
     compile 'com.jakewharton:butterknife:6.1.0'
 
-    compile 'me.thekey.android:thekey-api:1.0.0-SNAPSHOT'
-    compile 'me.thekey.android:thekey-lib:1.0.0-SNAPSHOT'
+    compile 'me.thekey.android:thekey-api:1.0.0'
+    compile 'me.thekey.android:thekey-lib:1.0.0'
 
-    compile 'org.ccci.gto.android:gto-support-api:0.6.1-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-core:0.6.1-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-db:0.6.1-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-recyclerview:0.6.1-SNAPSHOT'
+    compile 'org.ccci.gto.android:gto-support-api:0.6.1'
+    compile 'org.ccci.gto.android:gto-support-core:0.6.1'
+    compile 'org.ccci.gto.android:gto-support-db:0.6.1'
+    compile 'org.ccci.gto.android:gto-support-recyclerview:0.6.1'
 
-    compile 'org.slf4j:slf4j-api:1.7.10'
-    compile 'org.slf4j:slf4j-android:1.7.10'
+    compile 'org.slf4j:slf4j-api:1.7.12'
+    compile 'org.slf4j:slf4j-android:1.7.12'
 
     compile 'com.github.machinarius:preferencefragment:0.1.1'
-    compile 'com.github.PhilJay:MPAndroidChart:v2.0.9'
+    compile 'com.github.PhilJay:MPAndroidChart:v2.1.0'
     compile 'com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.6.2'
     compile 'com.viewpagerindicator:library:2.4.2-SNAPSHOT'
     compile 'net.danlew:android.joda:2.7.2'
