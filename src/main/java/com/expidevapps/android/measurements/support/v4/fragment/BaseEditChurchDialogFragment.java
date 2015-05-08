@@ -2,12 +2,12 @@ package com.expidevapps.android.measurements.support.v4.fragment;
 
 import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -15,8 +15,6 @@ import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.model.Church.Development;
-
-import org.ccci.gto.android.common.app.AlertDialogCompat;
 
 import java.util.EnumSet;
 
@@ -89,7 +87,7 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(final Bundle savedState) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        AlertDialogCompat.setView(builder,getActivity(),R.layout.fragment_edit_church);
+        builder.setView(R.layout.fragment_edit_church);
         return builder.create();
     }
 

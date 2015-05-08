@@ -4,7 +4,6 @@ import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.ARG_TRAINING_ID;
 import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateTrainingBroadcast;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -13,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.view.View;
 import android.widget.ImageView;
@@ -25,7 +25,6 @@ import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.support.v4.content.SingleTrainingLoader;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 
-import org.ccci.gto.android.common.app.AlertDialogCompat;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.support.v4.fragment.AbstractDialogFragment;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
@@ -100,7 +99,7 @@ public class EditTrainingFragment extends AbstractDialogFragment {
     public Dialog onCreateDialog(final Bundle savedState)
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        AlertDialogCompat.setView(builder, getActivity(), R.layout.fragment_edit_training);
+        builder.setView(R.layout.fragment_edit_training);
         return builder.create();
     }
 

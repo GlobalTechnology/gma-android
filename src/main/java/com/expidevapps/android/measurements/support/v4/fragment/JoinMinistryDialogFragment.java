@@ -3,13 +3,13 @@ package com.expidevapps.android.measurements.support.v4.fragment;
 import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,11 +17,10 @@ import android.widget.TextView;
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Ministry;
-import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.expidevapps.android.measurements.support.v4.content.MinistryLoader;
+import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.expidevapps.android.measurements.task.CreateAssignmentTask;
 
-import org.ccci.gto.android.common.app.AlertDialogCompat;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.support.v4.fragment.AbstractDialogFragment;
 import org.ccci.gto.android.common.support.v4.util.FragmentUtils;
@@ -84,7 +83,7 @@ public class JoinMinistryDialogFragment extends AbstractDialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable final Bundle savedState) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        AlertDialogCompat.setView(builder, getActivity(), R.layout.fragment_dialog_join_ministry);
+        builder.setView(R.layout.fragment_dialog_join_ministry);
         return builder.create();
     }
 
