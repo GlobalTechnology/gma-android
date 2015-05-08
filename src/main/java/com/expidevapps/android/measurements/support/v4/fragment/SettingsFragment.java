@@ -33,14 +33,9 @@ import org.ccci.gto.android.common.util.AsyncTaskCompat;
 import java.util.Collections;
 import java.util.Set;
 
-import me.thekey.android.TheKey;
-import me.thekey.android.lib.TheKeyImpl;
-
 public class SettingsFragment extends PreferenceFragment {
     private static final int LOADER_MINISTRIES = 1;
     private static final int LOADER_CURRENT_ASSIGNMENT = 2;
-
-    private TheKey mTheKey;
 
     private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
     private final CursorLoaderCallbacks mLoaderCallbacksCursor = new CursorLoaderCallbacks();
@@ -50,17 +45,31 @@ public class SettingsFragment extends PreferenceFragment {
     @Nullable
     private ListPreference mPrefMcc;
 
+    @NonNull
+    private /* final */ String mGuid;
     @Nullable
     private Assignment mCurrentAssignment = null;
     @Nullable
     private Cursor mMinistries = null;
+
+    public static SettingsFragment newInstance(@NonNull final String guid) {
+        final SettingsFragment fragment = new SettingsFragment();
+
+        final Bundle args = new Bundle(1);
+        args.putString(ARG_GUID, guid);
+        fragment.setArguments(args);
+
+        return fragment;
+    }
 
     /* BEGIN lifecycle */
 
     @Override
     public void onCreate(final Bundle savedState) {
         super.onCreate(savedState);
-        mTheKey = TheKeyImpl.getInstance(getActivity());
+
+        final Bundle args = this.getArguments();
+        mGuid = args.getString(ARG_GUID);
 
         getPreferenceManager().setSharedPreferencesName(PREFS_SETTINGS);
         addPreferencesFromResource(R.xml.pref_general);
@@ -90,7 +99,7 @@ public class SettingsFragment extends PreferenceFragment {
 
         // build the args used for various loaders
         final Bundle args = new Bundle(2);
-        args.putString(ARG_GUID, mTheKey.getDefaultSessionGuid());
+        args.putString(ARG_GUID, mGuid);
         args.putBoolean(ARG_LOAD_MINISTRY, true);
 
         manager.initLoader(LOADER_MINISTRIES, args, mLoaderCallbacksCursor);
