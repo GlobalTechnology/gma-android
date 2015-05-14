@@ -21,12 +21,16 @@ import android.view.MenuItem;
 
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.fragment.measurement.MeasurementDetailsFragment;
 
 import org.joda.time.YearMonth;
 
 public class MeasurementDetailsActivity extends AppCompatActivity {
     private static final String TAG_DETAILS = "measurementDetails";
+
+    @NonNull
+    private /* final */ GoogleAnalyticsManager mGoogleAnalytics;
 
     @NonNull
     private /* final */ String mGuid;
@@ -64,6 +68,8 @@ public class MeasurementDetailsActivity extends AppCompatActivity {
         super.onCreate(savedState);
         setContentView(R.layout.activity_measurement_details);
 
+        mGoogleAnalytics = GoogleAnalyticsManager.getInstance(this);
+
         final Intent intent = this.getIntent();
         mGuid = intent.getStringExtra(EXTRA_GUID);
         mMinistryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
@@ -72,6 +78,13 @@ public class MeasurementDetailsActivity extends AppCompatActivity {
         mPeriod = YearMonth.parse(intent.getStringExtra(EXTRA_PERIOD));
 
         createDetailsFragmentsIfNeeded();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        mGoogleAnalytics.sendMeasurementDetailsScreen(mGuid, mMinistryId, mMcc, mPermLink, mPeriod);
     }
 
     @Override

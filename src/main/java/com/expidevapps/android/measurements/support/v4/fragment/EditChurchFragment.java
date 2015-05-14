@@ -20,6 +20,7 @@ import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Church.Development;
+import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.content.ChurchLoader;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 
@@ -153,6 +154,10 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                         dao.update(church, new String[] {Contract.Church.COLUMN_CONTACT_NAME,
                                 Contract.Church.COLUMN_CONTACT_EMAIL, Contract.Church.COLUMN_SIZE,
                                 Contract.Church.COLUMN_DIRTY});
+
+                        // track this update in GA
+                        GoogleAnalyticsManager.getInstance(context)
+                                .sendUpdateChurchEvent(mGuid, church.getMinistryId(), church.getId());
 
                         // broadcast that this church was updated
                         broadcastManager.sendBroadcast(updateChurchesBroadcast(church.getMinistryId(), church.getId()));

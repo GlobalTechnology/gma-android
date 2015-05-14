@@ -42,6 +42,7 @@ import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Location;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Training;
+import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.content.ChurchesLoader;
 import com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader;
 import com.expidevapps.android.measurements.support.v4.content.TrainingsLoader;
@@ -533,6 +534,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         @NonNull
         private final Context mContext;
         @NonNull
+        private final GoogleAnalyticsManager mGoogleAnalytics;
+        @NonNull
         private final String mGuid;
         @NonNull
         private final Location mObj;
@@ -542,6 +545,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         UpdateLocationRunnable(@NonNull final Context context, @NonNull final String guid, @NonNull final Location obj,
                                @NonNull final LatLng location) {
             mContext = context.getApplicationContext();
+            mGoogleAnalytics = GoogleAnalyticsManager.getInstance(mContext);
             mGuid = guid;
             mObj = obj;
             mLocation = location;
@@ -573,10 +577,13 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 tx.endTransaction();
             }
 
-            // sync the updated object back to the cloud
+            // track movement and sync the updated object back to the cloud
             if (mObj instanceof Church) {
+                mGoogleAnalytics.sendMoveChurchEvent(mGuid, ((Church) mObj).getMinistryId(), ((Church) mObj).getId());
                 GmaSyncService.syncDirtyChurches(mContext, mGuid);
             } else if (mObj instanceof Training) {
+                mGoogleAnalytics.sendMoveTrainingEvent(mGuid, ((Training) mObj).getMinistryId(),
+                                                       ((Training) mObj).getMcc(), ((Training) mObj).getId());
                 GmaSyncService.syncDirtyTrainings(mContext, mGuid);
             }
         }

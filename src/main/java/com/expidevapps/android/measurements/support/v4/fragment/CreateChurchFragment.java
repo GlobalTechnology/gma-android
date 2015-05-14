@@ -19,6 +19,7 @@ import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Church.Development;
 import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -166,6 +167,9 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
                     Log.e("CreateChurch", "insert error", e);
                 }
             }
+
+            // trigger GA event
+            GoogleAnalyticsManager.getInstance(mContext).sendCreateChurchEvent(mGuid, mChurch.getMinistryId());
 
             // broadcast that this church was created
             mBroadcastManager.sendBroadcast(updateChurchesBroadcast(mChurch.getMinistryId(), mChurch.getId()));

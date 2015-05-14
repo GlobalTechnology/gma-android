@@ -18,12 +18,16 @@ public class GoogleAnalyticsManager {
     private static final int DIMEN_MINISTRY_ID = 2;
     private static final int DIMEN_MCC = 3;
     private static final int DIMEN_PERIOD = 4;
+    private static final int DIMEN_PERM_LINK = 5;
+    private static final int DIMEN_CHURCH_ID = 6;
+    private static final int DIMEN_TRAINING_ID = 7;
 
     private static final String SCREEN_NAME_LOGIN = "Login";
     private static final String SCREEN_NAME_MAP = "Map";
     private static final String SCREEN_NAME_JOIN_MINISTRY = "Join Ministry";
     private static final String SCREEN_NAME_SETTINGS = "Settings";
     private static final String SCREEN_NAME_MEASUREMENTS = "Measurements";
+    private static final String SCREEN_NAME_MEASUREMENT_DETAILS = "Measurement Details";
 
     /* Auth events */
     private static final String CATEGORY_AUTH = "auth";
@@ -33,6 +37,13 @@ public class GoogleAnalyticsManager {
     /* Assignment events */
     private static final String CATEGORY_ASSIGNMENT = "assignments";
     private static final String ACTION_JOIN_MINISTRY = "join ministry";
+
+    /* Church & Training events */
+    private static final String CATEGORY_CHURCH = "church";
+    private static final String CATEGORY_TRAINING = "training";
+    private static final String ACTION_CREATE = "create";
+    private static final String ACTION_UPDATE = "update";
+    private static final String ACTION_MOVE = "move";
 
     private final Tracker mTracker;
 
@@ -54,48 +65,116 @@ public class GoogleAnalyticsManager {
         return INSTANCE;
     }
 
+    @NonNull
+    private HitBuilders.ScreenViewBuilder screen() {
+        return new HitBuilders.ScreenViewBuilder();
+    }
+
+    @NonNull
+    private HitBuilders.ScreenViewBuilder screen(@Nullable final String guid) {
+        return screen().setCustomDimension(DIMEN_GUID, guid);
+    }
+
+    @NonNull
+    private HitBuilders.ScreenViewBuilder screen(@Nullable final String guid, @NonNull final String ministryId,
+                                                 @NonNull final Mcc mcc) {
+        return screen(guid).setCustomDimension(DIMEN_MINISTRY_ID, ministryId)
+                .setCustomDimension(DIMEN_MCC, mcc.toString());
+    }
+
     public void sendLoginScreen() {
         mTracker.setScreenName(SCREEN_NAME_LOGIN);
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+        mTracker.send(screen().build());
     }
 
     public void sendMapScreen(@Nullable final String guid) {
         mTracker.setScreenName(SCREEN_NAME_MAP);
-        mTracker.send(new HitBuilders.ScreenViewBuilder().setCustomDimension(DIMEN_GUID, guid).build());
+        mTracker.send(screen(guid).build());
     }
 
     public void sendJoinMinistryScreen(@NonNull final String guid) {
         mTracker.setScreenName(SCREEN_NAME_JOIN_MINISTRY);
-        mTracker.send(new HitBuilders.ScreenViewBuilder().setCustomDimension(DIMEN_GUID, guid).build());
+        mTracker.send(screen(guid).build());
     }
 
     public void sendSettingsScreen(@NonNull final String guid) {
         mTracker.setScreenName(SCREEN_NAME_SETTINGS);
-        mTracker.send(new HitBuilders.ScreenViewBuilder().setCustomDimension(DIMEN_GUID, guid).build());
+        mTracker.send(screen(guid).build());
     }
 
     public void sendMeasurementsScreen(@NonNull final String guid, @NonNull final String ministryId,
                                        @NonNull final Mcc mcc, @NonNull final YearMonth period) {
         mTracker.setScreenName(SCREEN_NAME_MEASUREMENTS);
-        mTracker.send(new HitBuilders.ScreenViewBuilder().setCustomDimension(DIMEN_GUID, guid)
-                              .setCustomDimension(DIMEN_MINISTRY_ID, ministryId)
-                              .setCustomDimension(DIMEN_MCC, mcc.toString())
+        mTracker.send(screen(guid, ministryId, mcc).setCustomDimension(DIMEN_PERIOD, period.toString()).build());
+    }
+
+    public void sendMeasurementDetailsScreen(@NonNull final String guid, @NonNull final String ministryId,
+                                             @NonNull final Mcc mcc, @NonNull final String permLink,
+                                             @NonNull final YearMonth period) {
+        mTracker.setScreenName(SCREEN_NAME_MEASUREMENT_DETAILS);
+        mTracker.send(screen(guid, ministryId, mcc).setCustomDimension(DIMEN_PERM_LINK, permLink)
                               .setCustomDimension(DIMEN_PERIOD, period.toString()).build());
     }
 
+    @NonNull
+    private HitBuilders.EventBuilder event(@NonNull final String category, @NonNull final String action,
+                                           @NonNull final String guid) {
+        return new HitBuilders.EventBuilder(category, action).setCustomDimension(DIMEN_GUID, guid);
+    }
+
+    @NonNull
+    private HitBuilders.EventBuilder event(@NonNull final String category, @NonNull final String action,
+                                           @NonNull final String guid, @NonNull final String ministryId) {
+        return event(category, action, guid).setCustomDimension(DIMEN_MINISTRY_ID, ministryId);
+    }
+
+    @NonNull
+    private HitBuilders.EventBuilder event(@NonNull final String category, @NonNull final String action,
+                                           @NonNull final String guid, @NonNull final String ministryId,
+                                           @NonNull final Mcc mcc) {
+        return event(category, action, guid, ministryId).setCustomDimension(DIMEN_MCC, mcc.toString());
+    }
+
     public void sendLoginEvent(@NonNull final String guid) {
-        mTracker.send(new HitBuilders.EventBuilder(CATEGORY_AUTH, ACTION_LOGIN).setCustomDimension(DIMEN_GUID, guid)
-                              .build());
+        mTracker.send(event(CATEGORY_AUTH, ACTION_LOGIN, guid).build());
     }
 
     public void sendLogoutEvent(@NonNull final String guid) {
-        mTracker.send(new HitBuilders.EventBuilder(CATEGORY_AUTH, ACTION_LOGOUT).setCustomDimension(DIMEN_GUID, guid)
-                              .build());
+        mTracker.send(event(CATEGORY_AUTH, ACTION_LOGOUT, guid).build());
     }
 
     public void sendJoinMinistryEvent(@NonNull final String guid, @NonNull final String ministryId) {
-        mTracker.send(new HitBuilders.EventBuilder(CATEGORY_ASSIGNMENT, ACTION_JOIN_MINISTRY)
-                              .setCustomDimension(DIMEN_GUID, guid).setCustomDimension(DIMEN_MINISTRY_ID, ministryId)
-                              .build());
+        mTracker.send(event(CATEGORY_ASSIGNMENT, ACTION_JOIN_MINISTRY, guid, ministryId).build());
+    }
+
+    @NonNull
+    private HitBuilders.EventBuilder churchEvent(@NonNull final String action, @NonNull final String guid,
+                                                 @NonNull final String ministryId) {
+        return event(CATEGORY_CHURCH, action, guid, ministryId);
+    }
+
+    @NonNull
+    private HitBuilders.EventBuilder churchEvent(@NonNull final String action, @NonNull final String guid,
+                                                 @NonNull final String ministryId, final long churchId) {
+        return churchEvent(action, guid, ministryId).setCustomDimension(DIMEN_CHURCH_ID, Long.toString(churchId));
+    }
+
+    public void sendCreateChurchEvent(@NonNull final String guid, @NonNull final String ministryId) {
+        mTracker.send(churchEvent(ACTION_CREATE, guid, ministryId).build());
+    }
+
+    public void sendMoveChurchEvent(@NonNull final String guid, @NonNull final String ministryId, final long churchId) {
+        mTracker.send(churchEvent(ACTION_MOVE, guid, ministryId, churchId).build());
+    }
+
+    public void sendUpdateChurchEvent(@NonNull final String guid, @NonNull final String ministryId,
+                                      final long churchId) {
+        mTracker.send(churchEvent(ACTION_UPDATE, guid, ministryId, churchId).build());
+    }
+
+    public void sendMoveTrainingEvent(@NonNull final String guid, @NonNull final String ministryId,
+                                      @NonNull final Mcc mcc, final long trainingId) {
+        mTracker.send(event(CATEGORY_TRAINING, ACTION_MOVE, guid, ministryId, mcc)
+                              .setCustomDimension(DIMEN_TRAINING_ID, Long.toString(trainingId)).build());
     }
 }
