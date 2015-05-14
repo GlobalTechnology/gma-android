@@ -22,6 +22,7 @@ import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Training;
+import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.content.SingleTrainingLoader;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 
@@ -173,6 +174,10 @@ public class EditTrainingFragment extends AbstractDialogFragment {
                         dao.update(training, new String[] {Contract.Training.COLUMN_NAME,
                                 Contract.Training.COLUMN_TYPE, Contract.Training.COLUMN_DATE,
                                 Contract.Training.COLUMN_DIRTY});
+
+                        GoogleAnalyticsManager.getInstance(context)
+                                .sendUpdateTrainingEvent(mGuid, training.getMinistryId(), training.getMcc(),
+                                                         training.getId());
 
                         broadcastManager
                                 .sendBroadcast(updateTrainingBroadcast(training.getMinistryId(), training.getId()));

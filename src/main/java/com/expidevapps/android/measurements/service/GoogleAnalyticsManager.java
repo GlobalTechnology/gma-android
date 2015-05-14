@@ -172,9 +172,21 @@ public class GoogleAnalyticsManager {
         mTracker.send(churchEvent(ACTION_UPDATE, guid, ministryId, churchId).build());
     }
 
+    @NonNull
+    private HitBuilders.EventBuilder trainingEvent(@NonNull final String action, @NonNull final String guid,
+                                                   @NonNull final String ministryId, @NonNull final Mcc mcc,
+                                                   final long trainingId) {
+        return event(CATEGORY_TRAINING, action, guid, ministryId, mcc)
+                .setCustomDimension(DIMEN_TRAINING_ID, Long.toString(trainingId));
+    }
+
     public void sendMoveTrainingEvent(@NonNull final String guid, @NonNull final String ministryId,
                                       @NonNull final Mcc mcc, final long trainingId) {
-        mTracker.send(event(CATEGORY_TRAINING, ACTION_MOVE, guid, ministryId, mcc)
-                              .setCustomDimension(DIMEN_TRAINING_ID, Long.toString(trainingId)).build());
+        mTracker.send(trainingEvent(ACTION_MOVE, guid, ministryId, mcc, trainingId).build());
+    }
+
+    public void sendUpdateTrainingEvent(@NonNull final String guid, @NonNull final String ministryId,
+                                        @NonNull final Mcc mcc, final long trainingId) {
+        mTracker.send(trainingEvent(ACTION_UPDATE, guid, ministryId, mcc, trainingId).build());
     }
 }
