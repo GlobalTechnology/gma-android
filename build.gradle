@@ -42,6 +42,7 @@ android {
 
         buildConfigField "long", "THEKEY_CLIENTID", "7439283632057308L"
         buildConfigField "int", "GMA_API_VERSION", "4"
+        buildConfigField "String", "GOOGLE_ANALYTICS_CLIENT_ID", "\"UA-29919940-7\""
 
         resValue "string", "google_maps_api_key", "AIzaSyAATaK4l6LRKP5KA61KI2NkHAXd4ilS7NM"
     }
@@ -134,6 +135,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.android.support:recyclerview-v7:22.1.1'
     compile 'com.android.support:support-v4:22.1.1'
+    compile 'com.google.android.gms:play-services-analytics:7.3.0'
     compile 'com.google.android.gms:play-services-maps:7.3.0'
     compile 'com.google.guava:guava:18.0'
     compile 'com.google.maps.android:android-maps-utils:0.3.4'

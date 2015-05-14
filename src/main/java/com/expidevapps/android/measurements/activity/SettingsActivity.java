@@ -10,10 +10,14 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.expidevapps.android.measurements.R;
+import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.fragment.SettingsFragment;
 
 public class SettingsActivity extends AppCompatActivity {
     private static final String TAG_SETTINGS = "settings";
+
+    @NonNull
+    private /* final */ GoogleAnalyticsManager mGoogleAnalytics;
 
     @NonNull
     private /* final */ String mGuid;
@@ -31,10 +35,18 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+        mGoogleAnalytics = GoogleAnalyticsManager.getInstance(this);
+
         final Intent intent = this.getIntent();
         mGuid = intent.getStringExtra(EXTRA_GUID);
 
         loadSettingsFragment(false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mGoogleAnalytics.sendSettingsScreen(mGuid);
     }
 
     /* END lifecycle */

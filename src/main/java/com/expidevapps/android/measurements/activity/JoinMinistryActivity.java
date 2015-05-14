@@ -11,12 +11,16 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.expidevapps.android.measurements.R;
+import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.fragment.FindMinistryFragment;
 import com.expidevapps.android.measurements.support.v4.fragment.JoinMinistryDialogFragment;
 
 public class JoinMinistryActivity extends AppCompatActivity
         implements JoinMinistryDialogFragment.OnJoinMinistryListener {
     private static final String TAG_FIND_MINISTRY = "findMinistry";
+
+    @NonNull
+    private /* final */ GoogleAnalyticsManager mGoogleAnalytics;
 
     @NonNull
     private /* final */ String mGuid;
@@ -34,6 +38,8 @@ public class JoinMinistryActivity extends AppCompatActivity
         super.onCreate(savedState);
         setContentView(R.layout.activity_join_ministry);
 
+        mGoogleAnalytics = GoogleAnalyticsManager.getInstance(this);
+
         final Intent intent = this.getIntent();
         mGuid = intent.getStringExtra(EXTRA_GUID);
 
@@ -41,7 +47,14 @@ public class JoinMinistryActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        mGoogleAnalytics.sendJoinMinistryScreen(mGuid);
+    }
+
+    @Override
     public void onJoinedMinistry(@NonNull final String ministryId) {
+        mGoogleAnalytics.sendJoinMinistryEvent(mGuid, ministryId);
         finish();
     }
 

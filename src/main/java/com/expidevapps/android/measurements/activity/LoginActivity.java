@@ -1,11 +1,13 @@
 package com.expidevapps.android.measurements.activity;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
 import com.expidevapps.android.measurements.R;
+import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -13,13 +15,25 @@ import butterknife.Optional;
 import me.thekey.android.lib.support.v4.dialog.LoginDialogFragment;
 
 public class LoginActivity extends FragmentActivity implements LoginDialogFragment.Listener {
+    @NonNull
+    private /* final */ GoogleAnalyticsManager mGoogleAnalytics;
+
     /* BEGIN lifecycle */
 
     @Override
     protected void onCreate(@Nullable final Bundle savedState) {
         super.onCreate(savedState);
         setContentView(R.layout.activity_login);
+
+        mGoogleAnalytics = GoogleAnalyticsManager.getInstance(this);
+
         ButterKnife.inject(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mGoogleAnalytics.sendLoginScreen();
     }
 
     @Optional
@@ -34,6 +48,7 @@ public class LoginActivity extends FragmentActivity implements LoginDialogFragme
 
     @Override
     public void onLoginSuccess(final LoginDialogFragment dialog, final String guid) {
+        mGoogleAnalytics.sendLoginEvent(guid);
         setResult(RESULT_OK);
         finish();
     }

@@ -27,6 +27,7 @@ import android.view.MenuItem;
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader;
 import com.expidevapps.android.measurements.support.v4.fragment.MapFragment;
 import com.expidevapps.android.measurements.sync.BroadcastUtils;
@@ -47,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_LOGIN_ACTIVITY = 0;
 
+    @NonNull
+    /* final */ GoogleAnalyticsManager mGoogleAnalytics;
     TheKey mTheKey;
 
     /* BroadcastReceivers */
@@ -70,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mGoogleAnalytics = GoogleAnalyticsManager.getInstance(this);
         mTheKey = TheKeyImpl.getInstance(this);
     }
 
@@ -86,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         setupBroadcastReceivers();
         onUpdateGuid(mTheKey.getDefaultSessionGuid());
+        mGoogleAnalytics.sendMapScreen(mGuid);
     }
 
     void onUpdateGuid(@Nullable final String guid) {
@@ -259,28 +264,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void logout() {
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle(R.string.logout)
-                .setMessage(R.string.logout_message)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        mTheKey.logout();
-                        dialog.dismiss();
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        dialog.dismiss();
-                    }
-                })
-                .create();
-
-        alertDialog.show();  
+        if (mGuid != null) {
+            new AlertDialog.Builder(this).setTitle(R.string.logout).setMessage(
+                    R.string.logout_message).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    mGoogleAnalytics.sendLogoutEvent(mGuid);
+                    mTheKey.logout(mGuid);
+                    dialog.dismiss();
+                }
+            }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            }).show();
+        }
     }
 
     private void showLogin() {

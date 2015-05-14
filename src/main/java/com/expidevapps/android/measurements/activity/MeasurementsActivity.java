@@ -30,6 +30,7 @@ import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
+import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.content.AssignmentLoader;
 import com.expidevapps.android.measurements.support.v4.fragment.measurement.ColumnsListFragment;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
@@ -51,6 +52,9 @@ public class MeasurementsActivity extends AppCompatActivity {
     private static final int LOADER_ASSIGNMENT = 1;
 
     private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
+
+    @NonNull
+    private /* final */ GoogleAnalyticsManager mGoogleAnalytics;
 
     @NonNull
     private /* final */ String mGuid;
@@ -102,6 +106,9 @@ public class MeasurementsActivity extends AppCompatActivity {
     protected void onCreate(@Nullable final Bundle savedState) {
         super.onCreate(savedState);
         setContentView(R.layout.activity_measurements_frags);
+
+        mGoogleAnalytics = GoogleAnalyticsManager.getInstance(this);
+
         ButterKnife.inject(this);
 
         final Intent intent = this.getIntent();
@@ -273,6 +280,9 @@ public class MeasurementsActivity extends AppCompatActivity {
             // fragment state will be updated the next time we resume
             return;
         }
+
+        // update the current screen to reflect the current period
+        mGoogleAnalytics.sendMeasurementsScreen(mGuid, mMinistryId, mMcc, mPeriod);
 
         // check for the current fragment
         final FragmentManager fm = getSupportFragmentManager();
