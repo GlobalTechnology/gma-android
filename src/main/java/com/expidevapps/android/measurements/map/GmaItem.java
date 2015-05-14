@@ -18,7 +18,7 @@ public abstract class GmaItem<T extends Location> implements ClusterItem {
     private final LatLng mPosition;
 
     protected GmaItem(@Nullable final Assignment assignment, @NonNull final T obj) {
-        mAssignment = null;
+        mAssignment = assignment;
         mObj = obj;
         if (!obj.hasLocation()) {
             throw new IllegalArgumentException("Location object needs to have a location to be rendered");
