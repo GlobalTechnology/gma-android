@@ -24,6 +24,8 @@ import org.ccci.gto.android.common.db.Transaction;
 import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.util.ArrayUtils;
 
+import java.util.Collection;
+
 public class GmaDao extends AbstractDao
 {
     private static final Object instanceLock = new Object();
@@ -66,6 +68,8 @@ public class GmaDao extends AbstractDao
             return Contract.Assignment.TABLE_NAME;
         } else if (MeasurementType.class.equals(clazz)) {
             return Contract.MeasurementType.TABLE_NAME;
+        } else if (Contract.MeasurementVisibility.class.equals(clazz)) {
+            return Contract.MeasurementVisibility.TABLE_NAME;
         } else if (MinistryMeasurement.class.equals(clazz)) {
             return Contract.MinistryMeasurement.TABLE_NAME;
         } else if (PersonalMeasurement.class.equals(clazz)) {
@@ -264,6 +268,41 @@ public class GmaDao extends AbstractDao
             tx.setTransactionSuccessful();
         } finally {
             tx.endTransaction();
+        }
+    }
+
+    public void setMeasurementVisibility(@NonNull final String ministryId, @NonNull final Collection<String> show,
+                                         @NonNull final Collection<String> hide) {
+        final String table = getTable(Contract.MeasurementVisibility.class);
+        final SQLiteDatabase db = getWritableDatabase();
+        final Transaction tx = new Transaction(db);
+        try {
+            tx.beginTransactionNonExclusive();
+
+            // clear out pre-existing visibility
+            db.delete(table, Contract.MeasurementVisibility.SQL_WHERE_MINISTRY, bindValues(ministryId));
+
+            // create base ContentValues
+            final ContentValues values = new ContentValues();
+            values.put(Contract.MeasurementVisibility.COLUMN_MINISTRY_ID, ministryId);
+
+            // add all explicitly shown measurements
+            values.put(Contract.MeasurementVisibility.COLUMN_VISIBLE, 1);
+            for (final String permLink : show) {
+                values.put(Contract.MeasurementVisibility.COLUMN_PERM_LINK_STUB, permLink);
+                db.replaceOrThrow(table, null, values);
+            }
+
+            // add all explicitly hidden measurements
+            values.put(Contract.MeasurementVisibility.COLUMN_VISIBLE, 0);
+            for (final String permLink : hide) {
+                values.put(Contract.MeasurementVisibility.COLUMN_PERM_LINK_STUB, permLink);
+                db.replaceOrThrow(table, null, values);
+            }
+
+            tx.setSuccessful();
+        } finally {
+            tx.end();
         }
     }
 }

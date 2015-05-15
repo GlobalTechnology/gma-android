@@ -22,6 +22,7 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -97,6 +98,13 @@ class AssignmentSyncTasks extends BaseSyncTasks {
                 final Ministry ministry = assignment.getMinistry();
                 if (ministry != null) {
                     dao.updateOrInsert(ministry, PROJECTION_MINISTRY);
+
+                    // update lmi visibility
+                    final Collection<String> show = ministry.getLmiShow();
+                    final Collection<String> hide = ministry.getLmiHide();
+                    if (show != null && hide != null) {
+                        dao.setMeasurementVisibility(ministry.getMinistryId(), show, hide);
+                    }
                 }
 
                 // now update the actual assignment

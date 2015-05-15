@@ -338,6 +338,25 @@ public class Contract {
                 SQL_V27_UPDATE_PERMLINKSTUB_BASE;
     }
 
+    public static final class MeasurementVisibility extends Base implements MinistryId, MeasurementPermLink {
+        static final String TABLE_NAME = "measurementVisibility";
+
+        public static final String COLUMN_VISIBLE = "visible";
+
+        static final String SQL_COLUMN_VISIBLE = COLUMN_VISIBLE + " INTEGER";
+        private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils
+                .join(",", new Object[] {COLUMN_MINISTRY_ID, COLUMN_PERM_LINK_STUB}) + ")";
+
+        public static final String SQL_PREFIX = TABLE_NAME + ".";
+
+        static final String SQL_WHERE_MINISTRY = SQL_PREFIX + MinistryId.SQL_WHERE_MINISTRY;
+
+        public static final String SQL_CREATE_TABLE =
+                "CREATE TABLE " + TABLE_NAME + " (" + TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID,
+                        SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_VISIBLE, SQL_PRIMARY_KEY}) + ");";
+        public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
+
     public static abstract class MeasurementValue extends Base implements MinistryId, Mcc, MeasurementPermLink, Period {
         public static final String COLUMN_VALUE = "value";
         public static final String COLUMN_DELTA = "delta";

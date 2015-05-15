@@ -38,18 +38,18 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
      * 29: 2015-04-21
      * v0.8.5
      * 30: 2015-04-27
+     * v0.8.6
+     * v0.8.7
+     * 31: 2015-05-14
      */
     private static final String DATABASE_NAME = "gcm_data.db";
-    private static final int DATABASE_VERSION = 30;
+    private static final int DATABASE_VERSION = 31;
 
     private static final Object LOCK_INSTANCE = new Object();
     private static GmaDatabase INSTANCE;
 
-    private final Context mContext;
-
     private GmaDatabase(@NonNull final Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        mContext = context;
     }
 
     @NonNull
@@ -150,6 +150,9 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
                     case 30:
                         db.execSQL(Contract.LastSync.SQL_CREATE_TABLE);
                         break;
+                    case 31:
+                        db.execSQL(Contract.MeasurementVisibility.SQL_CREATE_TABLE);
+                        break;
                     default:
                         // unrecognized version
                         throw new SQLiteException("Unrecognized database version");
@@ -186,6 +189,7 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
             db.execSQL(Contract.LastSync.SQL_DELETE_TABLE);
             db.execSQL(Contract.Church.SQL_DELETE_TABLE);
             db.execSQL(Contract.MeasurementType.SQL_DELETE_TABLE);
+            db.execSQL(Contract.MeasurementVisibility.SQL_DELETE_TABLE);
             db.execSQL(Contract.MinistryMeasurement.SQL_DELETE_TABLE);
             db.execSQL(Contract.PersonalMeasurement.SQL_DELETE_TABLE);
             db.execSQL(Contract.MeasurementDetails.SQL_DELETE_TABLE);

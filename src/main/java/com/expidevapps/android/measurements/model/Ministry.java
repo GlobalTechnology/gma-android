@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -23,6 +24,8 @@ public class Ministry extends Location implements Serializable {
     public static final String JSON_NAME = "name";
     public static final String JSON_CODE = "min_code";
     public static final String JSON_MCCS = "mccs";
+    public static final String JSON_LMI_SHOW = "lmi_show";
+    public static final String JSON_LMI_HIDE = "lmi_hide";
     public static final String JSON_LOCATION = "location";
     public static final String JSON_LOCATION_ZOOM = "location_zoom";
 
@@ -73,6 +76,10 @@ public class Ministry extends Location implements Serializable {
     @NonNull
     private final EnumSet<Mcc> mccs = EnumSet.noneOf(Mcc.class);
     private int locationZoom;
+    @Nullable
+    private Collection<String> lmiShow;
+    @Nullable
+    private Collection<String> lmiHide;
 
     @NonNull
     public static List<Ministry> listFromJson(@NonNull final JSONArray json) throws JSONException {
@@ -121,6 +128,28 @@ public class Ministry extends Location implements Serializable {
             ministry.setLongitude(location.optDouble(JSON_LONGITUDE));
         }
         ministry.setLocationZoom(json.optInt(JSON_LOCATION_ZOOM));
+
+        // parse lmi visibility
+        final JSONArray show = json.optJSONArray(JSON_LMI_SHOW);
+        if (show != null) {
+            ministry.lmiShow = new HashSet<>();
+            for (int i = 0; i < show.length(); i++) {
+                final String lmi = show.optString(i);
+                if (lmi != null) {
+                    ministry.lmiShow.add(lmi);
+                }
+            }
+        }
+        final JSONArray hide = json.optJSONArray(JSON_LMI_HIDE);
+        if (hide != null) {
+            ministry.lmiHide = new HashSet<>();
+            for (int i = 0; i < hide.length(); i++) {
+                final String lmi = hide.optString(i);
+                if (lmi != null) {
+                    ministry.lmiHide.add(lmi);
+                }
+            }
+        }
 
         return ministry;
     }
@@ -193,6 +222,16 @@ public class Ministry extends Location implements Serializable {
 
     public void setLocationZoom(final int locationZoom) {
         this.locationZoom = locationZoom;
+    }
+
+    @Nullable
+    public Collection<String> getLmiShow() {
+        return lmiShow;
+    }
+
+    @Nullable
+    public Collection<String> getLmiHide() {
+        return lmiHide;
     }
 
     @Override
