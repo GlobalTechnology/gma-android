@@ -31,14 +31,15 @@ import android.view.ViewGroup;
 
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.Contract;
+import com.expidevapps.android.measurements.db.Contract.MeasurementVisibility;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.MeasurementType;
 import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.MinistryMeasurement;
 import com.expidevapps.android.measurements.model.PersonalMeasurement;
-import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.expidevapps.android.measurements.support.v4.adapter.MeasurementPagerAdapter;
+import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.viewpagerindicator.CirclePageIndicator;
 
 import org.ccci.gto.android.common.db.Join;
@@ -179,6 +180,9 @@ public class MeasurementsPagerFragment extends Fragment {
     private static final Join<MeasurementType, MinistryMeasurement> JOIN_MINISTRY_MEASUREMENT =
             Contract.MeasurementType.JOIN_MINISTRY_MEASUREMENT.type("LEFT").andOn(
                     Contract.MinistryMeasurement.SQL_WHERE_MINISTRY_MCC_PERIOD);
+    private static final Join<MeasurementType, MeasurementVisibility> JOIN_MEASUREMENT_VISIBILITY =
+            Contract.MeasurementType.JOIN_MEASUREMENT_VISIBILITY.type("LEFT")
+                    .andOn(MeasurementVisibility.SQL_WHERE_MINISTRY);
 
     @NonNull
     private Bundle getLoaderArgsMeasurements() {
@@ -187,15 +191,15 @@ public class MeasurementsPagerFragment extends Fragment {
         // generate joins & projections based on measurement type
         switch (mType) {
             case TYPE_LOCAL:
-                args.putParcelableArray(ARG_JOINS,
-                                        new Join[] {JOIN_MINISTRY_MEASUREMENT.args(mMinistryId, mMcc, mPeriod)});
+                args.putParcelableArray(ARG_JOINS, new Join[] {JOIN_MEASUREMENT_VISIBILITY.args(mMinistryId),
+                        JOIN_MINISTRY_MEASUREMENT.args(mMinistryId, mMcc, mPeriod)});
                 args.putStringArray(ARG_PROJECTION, ArrayUtils.merge(String.class, PROJECTION_BASE, new String[] {
                         Contract.MinistryMeasurement.SQL_PREFIX + Contract.MinistryMeasurement.COLUMN_VALUE,
                         Contract.MinistryMeasurement.SQL_PREFIX + Contract.MinistryMeasurement.COLUMN_DELTA}));
                 break;
             case TYPE_PERSONAL:
-                args.putParcelableArray(ARG_JOINS,
-                                        new Join[] {JOIN_PERSONAL_MEASUREMENT.args(mGuid, mMinistryId, mMcc, mPeriod)});
+                args.putParcelableArray(ARG_JOINS, new Join[] {JOIN_MEASUREMENT_VISIBILITY.args(mMinistryId),
+                        JOIN_PERSONAL_MEASUREMENT.args(mGuid, mMinistryId, mMcc, mPeriod)});
                 args.putStringArray(ARG_PROJECTION, ArrayUtils.merge(String.class, PROJECTION_BASE, new String[] {
                         Contract.PersonalMeasurement.SQL_PREFIX + Contract.PersonalMeasurement.COLUMN_VALUE,
                         Contract.PersonalMeasurement.SQL_PREFIX + Contract.PersonalMeasurement.COLUMN_DELTA}));
@@ -207,8 +211,11 @@ public class MeasurementsPagerFragment extends Fragment {
 
         // set WHERE and ORDER BY clauses
         if (mColumn != null) {
-            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_COLUMN);
+            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE + " AND " +
+                    Contract.MeasurementType.SQL_WHERE_COLUMN);
             args.putStringArray(ARG_WHERE_ARGS, bindValues(mColumn));
+        } else {
+            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE);
         }
         args.putString(ARG_ORDER_BY, Contract.MeasurementType.COLUMN_SORT_ORDER);
 

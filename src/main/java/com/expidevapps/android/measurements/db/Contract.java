@@ -299,7 +299,7 @@ public class Contract {
         private static final String SQL_COLUMN_DESCRIPTION = COLUMN_DESCRIPTION + " TEXT";
         private static final String SQL_COLUMN_SECTION = COLUMN_SECTION + " TEXT";
         private static final String SQL_COLUMN_COLUMN = COLUMN_COLUMN + " TEXT";
-        private static final String SQL_COLUMN_CUSTOM = COLUMN_CUSTOM + " INTEGER";
+        private static final String SQL_COLUMN_CUSTOM = COLUMN_CUSTOM + " INTEGER NOT NULL DEFAULT 0";
         private static final String SQL_COLUMN_SORT_ORDER = COLUMN_SORT_ORDER + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_PERM_LINK_STUB + ")";
 
@@ -307,6 +307,10 @@ public class Contract {
 
         static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_PERM_LINK_STUB;
         public static final String SQL_WHERE_COLUMN = SQL_PREFIX + COLUMN_COLUMN + " = ?";
+        public static final String SQL_WHERE_VISIBLE =
+                "(" + MeasurementVisibility.SQL_PREFIX + MeasurementVisibility.COLUMN_VISIBLE + " = 1 OR (" +
+                        SQL_PREFIX + COLUMN_CUSTOM + " = 0 AND " + MeasurementVisibility.SQL_PREFIX +
+                        MeasurementVisibility.COLUMN_VISIBLE + " IS NULL))";
 
         public static final String SQL_JOIN_ON_MINISTRY_MEASUREMENT =
                 SQL_PREFIX + COLUMN_PERM_LINK_STUB + " = " + MinistryMeasurement.SQL_PREFIX +
@@ -314,6 +318,9 @@ public class Contract {
         public static final String SQL_JOIN_ON_PERSONAL_MEASUREMENT =
                 SQL_PREFIX + COLUMN_PERM_LINK_STUB + " = " + PersonalMeasurement.SQL_PREFIX +
                         PersonalMeasurement.COLUMN_PERM_LINK_STUB;
+        public static final String SQL_JOIN_ON_MEASUREMENT_VISIBILITY =
+                SQL_PREFIX + COLUMN_PERM_LINK_STUB + " = " + MeasurementVisibility.SQL_PREFIX +
+                        MeasurementVisibility.COLUMN_PERM_LINK_STUB;
         public static final Join<com.expidevapps.android.measurements.model.MeasurementType, com.expidevapps.android.measurements.model.MinistryMeasurement>
                 JOIN_MINISTRY_MEASUREMENT =
                 Join.create(com.expidevapps.android.measurements.model.MeasurementType.class,
@@ -324,6 +331,10 @@ public class Contract {
                 Join.create(com.expidevapps.android.measurements.model.MeasurementType.class,
                             com.expidevapps.android.measurements.model.PersonalMeasurement.class).on(
                         SQL_JOIN_ON_PERSONAL_MEASUREMENT);
+        public static final Join<com.expidevapps.android.measurements.model.MeasurementType, MeasurementVisibility>
+                JOIN_MEASUREMENT_VISIBILITY =
+                Join.create(com.expidevapps.android.measurements.model.MeasurementType.class,
+                            MeasurementVisibility.class).on(SQL_JOIN_ON_MEASUREMENT_VISIBILITY);
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_PERSONAL_ID, SQL_COLUMN_LOCAL_ID,
@@ -360,12 +371,12 @@ public class Contract {
 
         public static final String SQL_PREFIX = TABLE_NAME + ".";
 
-        static final String SQL_WHERE_MINISTRY = SQL_PREFIX + MinistryId.SQL_WHERE_MINISTRY;
+        public static final String SQL_WHERE_MINISTRY = SQL_PREFIX + MinistryId.SQL_WHERE_MINISTRY;
 
-        public static final String SQL_CREATE_TABLE =
-                "CREATE TABLE " + TABLE_NAME + " (" + TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID,
-                        SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_VISIBLE, SQL_PRIMARY_KEY}) + ");";
-        public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+        static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils.join(",", new Object[] {
+                SQL_COLUMN_ROWID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_VISIBLE,
+                SQL_PRIMARY_KEY}) + ");";
+        static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
     public static abstract class MeasurementValue extends Base implements MinistryId, Mcc, MeasurementPermLink, Period {
