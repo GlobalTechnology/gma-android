@@ -4,8 +4,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.expidevapps.android.measurements.model.Base;
-import com.expidevapps.android.measurements.model.Ministry;
+import com.google.common.base.Function;
 
 import org.joda.time.YearMonth;
 import org.json.JSONException;
@@ -28,6 +27,15 @@ public abstract class MeasurementValue extends Base {
     private static final String JSON_MCC = "mcc";
     private static final String JSON_SOURCE = "source";
     private static final String JSON_VALUE = "value";
+
+    public static final Function<MeasurementValue, String> FUNCTION_PERMLINK =
+            new Function<MeasurementValue, String>() {
+                @NonNull
+                @Override
+                public String apply(@NonNull final MeasurementValue value) {
+                    return value.getPermLinkStub();
+                }
+            };
 
     @Nullable
     private MeasurementType type;

@@ -27,6 +27,8 @@ import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.expidevapps.android.measurements.model.MinistryMeasurement;
 import com.expidevapps.android.measurements.model.PersonalMeasurement;
+import com.google.common.base.Predicates;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
 
 import org.ccci.gto.android.common.api.ApiException;
@@ -196,8 +198,20 @@ class MeasurementSyncTasks extends BaseSyncTasks {
             }
             saveMeasurements(context, guid, ministryId, mcc, period, measurements, false);
 
-            // refresh the list of dirty measurements
-            dirty = getDirtyMeasurements(dao, assignment, mcc, period);
+            // get the perm_links that were just updated
+            final Set<String> permLinks = new HashSet<>();
+            for (final Measurement measurement : measurements) {
+                final MeasurementType type = measurement.getType();
+                if (type != null) {
+                    permLinks.add(type.getPermLinkStub());
+                }
+            }
+
+            // refresh the list of dirty measurements (filtered on the fetched permLinks)
+            dirty = FluentIterable
+                    .from(getDirtyMeasurements(dao, assignment, mcc, period))
+                    .filter(Predicates.compose(Predicates.in(permLinks), MeasurementValue.FUNCTION_PERMLINK))
+                    .toList();
             if (dirty.isEmpty()) {
                 return;
             }
