@@ -1,5 +1,7 @@
 package com.expidevapps.android.measurements.db;
 
+import static com.expidevapps.android.measurements.db.Contract.MeasurementType.COLUMN_CUSTOM;
+import static com.expidevapps.android.measurements.model.MeasurementType.DEFAULT_CUSTOM;
 import static com.expidevapps.android.measurements.model.MeasurementType.DEFAULT_SORT_ORDER;
 
 import android.content.ContentValues;
@@ -37,6 +39,9 @@ public class MeasurementTypeMapper extends BaseMapper<MeasurementType> {
             case Contract.MeasurementType.COLUMN_COLUMN:
                 values.put(field, type.getColumn().name());
                 break;
+            case COLUMN_CUSTOM:
+                values.put(field, type.isCustom());
+                break;
             case Contract.MeasurementType.COLUMN_SORT_ORDER:
                 values.put(field, type.getSortOrder());
                 break;
@@ -65,7 +70,9 @@ public class MeasurementTypeMapper extends BaseMapper<MeasurementType> {
         type.setDescription(getString(c, Contract.MeasurementType.COLUMN_DESCRIPTION, null));
         type.setSection(MeasurementType.Section.valueOf(getString(c, Contract.MeasurementType.COLUMN_SECTION, null)));
         type.setColumn(MeasurementType.Column.fromRaw(getString(c, Contract.MeasurementType.COLUMN_COLUMN, null)));
+        type.setCustom(getBool(c, COLUMN_CUSTOM, DEFAULT_CUSTOM));
         type.setSortOrder(getInt(c, Contract.MeasurementType.COLUMN_SORT_ORDER, DEFAULT_SORT_ORDER));
+
         return type;
     }
 }

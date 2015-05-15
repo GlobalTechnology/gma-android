@@ -59,13 +59,13 @@ class MeasurementSyncTasks extends BaseSyncTasks {
                     Contract.MeasurementType.COLUMN_SECTION, Contract.MeasurementType.COLUMN_COLUMN,
                     Contract.MeasurementType.COLUMN_SORT_ORDER, Contract.MeasurementType.COLUMN_PERSONAL_ID,
                     Contract.MeasurementType.COLUMN_LOCAL_ID, Contract.MeasurementType.COLUMN_TOTAL_ID,
-                    Contract.MeasurementType.COLUMN_LAST_SYNCED};
+                    Contract.MeasurementType.COLUMN_CUSTOM, Contract.MeasurementType.COLUMN_LAST_SYNCED};
     private static final String[] PROJECTION_SYNC_MEASUREMENTS_TYPE =
             {Contract.MeasurementType.COLUMN_NAME, Contract.MeasurementType.COLUMN_DESCRIPTION,
                     Contract.MeasurementType.COLUMN_SECTION, Contract.MeasurementType.COLUMN_COLUMN,
                     Contract.MeasurementType.COLUMN_SORT_ORDER, Contract.MeasurementType.COLUMN_LOCAL_ID,
                     Contract.MeasurementType.COLUMN_PERSONAL_ID, Contract.MeasurementType.COLUMN_TOTAL_ID,
-                    Contract.MeasurementType.COLUMN_LAST_SYNCED};
+                    Contract.MeasurementType.COLUMN_CUSTOM, Contract.MeasurementType.COLUMN_LAST_SYNCED};
     private static final String[] PROJECTION_SYNC_MEASUREMENTS_MINISTRY_MEASUREMENT =
             {Contract.MinistryMeasurement.COLUMN_VALUE, Contract.MinistryMeasurement.COLUMN_LAST_SYNCED};
     private static final String[] PROJECTION_SYNC_MEASUREMENTS_PERSONAL_MEASUREMENT =

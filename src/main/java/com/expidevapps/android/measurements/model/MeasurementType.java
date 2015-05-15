@@ -17,6 +17,7 @@ public class MeasurementType extends Base {
     public static final String INVALID_ID = "";
     public static final String INVALID_PERM_LINK_STUB = "";
     public static final int DEFAULT_SORT_ORDER = -1;
+    public static final boolean DEFAULT_CUSTOM = true;
 
     public static final String ARG_COLUMN = MeasurementType.class.getName() + ".ARG_COLUMN";
 
@@ -27,6 +28,7 @@ public class MeasurementType extends Base {
     private static final String JSON_DESCRIPTION = "description";
     private static final String JSON_SECTION = "section";
     private static final String JSON_COLUMN = "column";
+    private static final String JSON_CUSTOM = "is_custom";
     private static final String JSON_SORT_ORDER = "sort_order";
 
     private static final String JSON_TYPE_IDS = "measurement_type_ids";
@@ -104,6 +106,7 @@ public class MeasurementType extends Base {
     private Section section = Section.UNKNOWN;
     @NonNull
     private Column column = Column.UNKNOWN;
+    private boolean custom = DEFAULT_CUSTOM;
     private int sortOrder = DEFAULT_SORT_ORDER;
 
     public MeasurementType(@NonNull final String permLinkStub) {
@@ -131,6 +134,7 @@ public class MeasurementType extends Base {
         type.description = json.optString(JSON_DESCRIPTION, null);
         type.section = Section.fromRaw(json.getString(JSON_SECTION));
         type.column = Column.fromRaw(json.getString(JSON_COLUMN));
+        type.custom = json.optBoolean(JSON_CUSTOM, DEFAULT_CUSTOM);
         type.sortOrder = json.optInt(JSON_SORT_ORDER, DEFAULT_SORT_ORDER);
 
         final JSONObject typeIds = json.optJSONObject(JSON_TYPE_IDS);
@@ -213,6 +217,14 @@ public class MeasurementType extends Base {
 
     public void setColumn(@NonNull final Column column) {
         this.column = column;
+    }
+
+    public boolean isCustom() {
+        return custom;
+    }
+
+    public void setCustom(final boolean custom) {
+        this.custom = custom;
     }
 
     public int getSortOrder() {
