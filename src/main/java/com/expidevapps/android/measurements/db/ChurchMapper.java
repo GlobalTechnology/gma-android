@@ -1,5 +1,14 @@
 package com.expidevapps.android.measurements.db;
 
+import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_CONTACT_EMAIL;
+import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_CONTACT_NAME;
+import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_DEVELOPMENT;
+import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_ID;
+import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_MINISTRY_ID;
+import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_NAME;
+import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_NEW;
+import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_SECURITY;
+import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_SIZE;
 import static com.expidevapps.android.measurements.model.Church.SECURITY_DEFAULT;
 
 import android.content.ContentValues;
@@ -14,31 +23,31 @@ public class ChurchMapper extends LocationMapper<Church> {
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
                             @NonNull final Church church) {
         switch (field) {
-            case Contract.Church.COLUMN_ID:
+            case COLUMN_ID:
                 values.put(field, church.getId());
                 break;
-            case Contract.Church.COLUMN_MINISTRY_ID:
+            case COLUMN_MINISTRY_ID:
                 values.put(field, church.getMinistryId());
                 break;
-            case Contract.Church.COLUMN_NAME:
+            case COLUMN_NAME:
                 values.put(field, church.getName());
                 break;
-            case Contract.Church.COLUMN_CONTACT_NAME:
+            case COLUMN_CONTACT_NAME:
                 values.put(field, church.getContactName());
                 break;
-            case Contract.Church.COLUMN_CONTACT_EMAIL:
+            case COLUMN_CONTACT_EMAIL:
                 values.put(field, church.getContactEmail());
                 break;
-            case Contract.Church.COLUMN_DEVELOPMENT:
+            case COLUMN_DEVELOPMENT:
                 values.put(field, church.getDevelopment().id);
                 break;
-            case Contract.Church.COLUMN_SIZE:
+            case COLUMN_SIZE:
                 values.put(field, church.getSize());
                 break;
-            case Contract.Church.COLUMN_SECURITY:
+            case COLUMN_SECURITY:
                 values.put(field, church.getSecurity().id);
                 break;
-            case Contract.Church.COLUMN_NEW:
+            case COLUMN_NEW:
                 values.put(field, church.isNew() ? 1 : 0);
                 break;
             default:
@@ -57,16 +66,17 @@ public class ChurchMapper extends LocationMapper<Church> {
     @Override
     public Church toObject(@NonNull final Cursor c) {
         final Church church = super.toObject(c);
-        church.setMinistryId(getNonNullString(c, Contract.Church.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
-        church.setId(getLong(c, Contract.Church.COLUMN_ID, Church.INVALID_ID));
-        church.setName(getString(c, Contract.Church.COLUMN_NAME, null));
-        church.setContactName(getString(c, Contract.Church.COLUMN_CONTACT_NAME, null));
-        church.setContactEmail(getString(c, Contract.Church.COLUMN_CONTACT_EMAIL, null));
-        church.setDevelopment(Church.Development.fromRaw(
-                getInt(c, Contract.Church.COLUMN_DEVELOPMENT, Church.Development.UNKNOWN.id)));
-        church.setSize(getInt(c, Contract.Church.COLUMN_SIZE, 0));
-        church.setSecurity(Church.Security.fromRaw(getInt(c, Contract.Church.COLUMN_SECURITY, SECURITY_DEFAULT)));
-        church.setNew(getBool(c, Contract.Church.COLUMN_NEW, false));
+
+        church.setMinistryId(getNonNullString(c, COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
+        church.setId(getLong(c, COLUMN_ID, Church.INVALID_ID));
+        church.setName(getString(c, COLUMN_NAME, null));
+        church.setContactName(getString(c, COLUMN_CONTACT_NAME, null));
+        church.setContactEmail(getString(c, COLUMN_CONTACT_EMAIL, null));
+        church.setDevelopment(Church.Development.fromRaw(getInt(c, COLUMN_DEVELOPMENT, Church.Development.UNKNOWN.id)));
+        church.setSize(getInt(c, COLUMN_SIZE, 0));
+        church.setSecurity(Church.Security.fromRaw(getInt(c, COLUMN_SECURITY, SECURITY_DEFAULT)));
+        church.setNew(getBool(c, COLUMN_NEW, false));
+
         return church;
     }
 }
