@@ -150,7 +150,7 @@ dependencies {
 
     compile 'org.ccci.gto.android:gto-support-api:0.6.1'
     compile 'org.ccci.gto.android:gto-support-core:0.6.1'
-    compile 'org.ccci.gto.android:gto-support-db:0.6.1'
+    compile 'org.ccci.gto.android:gto-support-db:0.6.2-SNAPSHOT'
     compile 'org.ccci.gto.android:gto-support-recyclerview:0.6.1'
 
     compile 'org.slf4j:slf4j-api:1.7.12'

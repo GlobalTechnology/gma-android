@@ -6,12 +6,20 @@ import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
 import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_DISTINCT;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_JOINS;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_PROJECTION;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE;
 
+import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,24 +27,41 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
+import com.expidevapps.android.measurements.db.Contract;
+import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.MeasurementType;
+import com.expidevapps.android.measurements.model.MeasurementType.Column;
 import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
+import com.expidevapps.android.measurements.sync.BroadcastUtils;
 
+import org.ccci.gto.android.common.db.Join;
+import org.ccci.gto.android.common.db.support.v4.content.DaoCursorBroadcastReceiverLoader;
+import org.ccci.gto.android.common.db.util.CursorUtils;
+import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.util.ViewCompat;
 import org.ccci.gto.android.common.widget.AccordionView;
 import org.joda.time.YearMonth;
+
+import java.util.EnumSet;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.Optional;
 
 public class ColumnsListFragment extends Fragment {
+    static final int LOADER_COLUMNS = 1;
+
+    private final CursorLoaderCallbacks mLoaderCallbacksCursor = new CursorLoaderCallbacks();
+
     @Nullable
     @Optional
     @InjectView(R.id.accordion)
     AccordionView mAccordion;
+    @Nullable
+    private AccordionAdapter mAccordionAdapter;
 
     @ValueType
     private /* final */ int mType = TYPE_NONE;
@@ -105,6 +130,29 @@ public class ColumnsListFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        startLoaders();
+    }
+
+    void onLoadColumns(@Nullable final Cursor cursor) {
+        if (mAccordionAdapter != null) {
+            // convert Cursor to Columns EnumSet
+            final EnumSet<Column> columns = EnumSet.noneOf(Column.class);
+            if (cursor != null) {
+                cursor.moveToPosition(-1);
+                while (cursor.moveToNext()) {
+                    columns.add(Column.fromRaw(CursorUtils.getString(cursor, Contract.MeasurementType.COLUMN_COLUMN)));
+                }
+            }
+            columns.remove(Column.UNKNOWN);
+
+            // set Columns on the Accordion
+            mAccordionAdapter.setColumns(columns.toArray(new Column[columns.size()]));
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.reset(this);
@@ -114,7 +162,55 @@ public class ColumnsListFragment extends Fragment {
 
     private void setupAccordion() {
         if (mAccordion != null) {
-            mAccordion.setAdapter(new AccordionAdapter());
+            mAccordionAdapter = new AccordionAdapter();
+            mAccordion.setAdapter(mAccordionAdapter);
+        }
+    }
+
+    private void startLoaders() {
+        final LoaderManager manager = this.getLoaderManager();
+
+        // start the Columns Cursor loader
+        manager.initLoader(LOADER_COLUMNS, getLoaderArgsColumns(), mLoaderCallbacksCursor);
+    }
+
+    private static final Join<MeasurementType, Contract.MeasurementVisibility> JOIN_MEASUREMENT_VISIBILITY =
+            Contract.MeasurementType.JOIN_MEASUREMENT_VISIBILITY.type("LEFT")
+                    .andOn(Contract.MeasurementVisibility.SQL_WHERE_MINISTRY);
+
+    @NonNull
+    private Bundle getLoaderArgsColumns() {
+        final Bundle args = new Bundle(4);
+        args.putBoolean(ARG_DISTINCT, true);
+        args.putParcelableArray(ARG_JOINS, new Join[] {JOIN_MEASUREMENT_VISIBILITY.args(mMinistryId)});
+        args.putStringArray(ARG_PROJECTION, new String[] {Contract.MeasurementType.COLUMN_COLUMN});
+        args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE);
+        return args;
+    }
+
+    private class CursorLoaderCallbacks extends SimpleLoaderCallbacks<Cursor> {
+        @Nullable
+        @Override
+        public Loader<Cursor> onCreateLoader(final int id, @Nullable final Bundle args) {
+            switch (id) {
+                case LOADER_COLUMNS:
+                    final Context context = getActivity();
+                    final CursorBroadcastReceiverLoader loader =
+                            new DaoCursorBroadcastReceiverLoader<>(context, GmaDao.getInstance(context),
+                                                                   MeasurementType.class, args);
+                    loader.addIntentFilter(BroadcastUtils.updateMeasurementTypesFilter());
+                    return loader;
+                default:
+                    return null;
+            }
+        }
+
+        public void onLoadFinished(@NonNull final Loader<Cursor> loader, @Nullable final Cursor cursor) {
+            switch (loader.getId()) {
+                case LOADER_COLUMNS:
+                    onLoadColumns(cursor);
+                    break;
+            }
         }
     }
 
@@ -136,9 +232,11 @@ public class ColumnsListFragment extends Fragment {
         @InjectView(R.id.pagerFragment)
         View mPagerFrame;
 
+        @NonNull
+        Column mColumn = Column.UNKNOWN;
         final int mPagerId;
 
-        public ViewHolder(@NonNull final View header, @NonNull final View content) {
+        ViewHolder(@NonNull final View header, @NonNull final View content) {
             super();
             mPagerId = ViewCompat.generateViewId();
             ButterKnife.inject(this, content);
@@ -155,12 +253,27 @@ public class ColumnsListFragment extends Fragment {
     }
 
     private class AccordionAdapter extends AccordionView.Adapter<ViewHolder> {
-        private MeasurementType.Column[] mColumns = {MeasurementType.Column.FAITH, MeasurementType.Column.FRUIT,
-                MeasurementType.Column.OUTCOME};
+        @NonNull
+        private Column[] mColumns = new Column[0];
+
+        void setColumns(@Nullable final Column[] columns) {
+            mColumns = columns != null ? columns : new Column[0];
+            notifyDataSetChanged();
+        }
 
         @Override
         public int getCount() {
             return mColumns.length;
+        }
+
+        @Override
+        public int getPosition(@NonNull final ViewHolder holder) {
+            for (int i = 0; i < mColumns.length; i++) {
+                if (holder.mColumn == mColumns[i]) {
+                    return i;
+                }
+            }
+            return POSITION_NONE;
         }
 
         @NonNull
@@ -175,11 +288,15 @@ public class ColumnsListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+            // update mColumn
+            final Column oldColumn = holder.mColumn;
+            holder.mColumn = mColumns[position];
+
             // update label and logo based on column
             final int label;
             final int logoTop;
             final int logoBottom;
-            switch (mColumns[position]) {
+            switch (holder.mColumn) {
                 case FRUIT:
                     label = R.string.label_measurements_column_fruit;
                     logoTop = R.drawable.ic_header_measurements_fruit;
@@ -199,8 +316,8 @@ public class ColumnsListFragment extends Fragment {
                 default:
                     label = R.string.label_measurements_column_other;
                     //TODO get separate header graphics for Other measurements
-                    logoTop = R.drawable.ic_header_measurements_faith;
-                    logoBottom = R.drawable.ic_header_measurements_faith_under;
+                    logoTop = R.drawable.ic_header_measurements_outcomes;
+                    logoBottom = R.drawable.ic_header_measurements_outcomes_under;
                     break;
             }
 
@@ -218,9 +335,9 @@ public class ColumnsListFragment extends Fragment {
             if (holder.mPagerFrame != null) {
                 final FragmentManager fm = getChildFragmentManager();
                 final Fragment fragment = fm.findFragmentById(holder.mPagerId);
-                if (fragment == null) {
+                if (fragment == null || oldColumn != holder.mColumn) {
                     fm.beginTransaction().replace(holder.mPagerId, MeasurementsPagerFragment
-                            .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, mColumns[position])).commit();
+                            .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, holder.mColumn)).commit();
                 }
             }
         }
