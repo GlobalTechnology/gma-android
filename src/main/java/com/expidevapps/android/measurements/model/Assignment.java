@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Locale;
 
 public class Assignment extends Base implements Cloneable {
-    public static final String JSON_ID = "id";
-    public static final String JSON_MINISTRY_ID = "ministry_id";
-    public static final String JSON_ROLE = "team_role";
-    public static final String JSON_SUB_ASSIGNMENTS = "sub_ministries";
+    private static final String JSON_ID = "id";
+    private static final String JSON_MINISTRY_ID = "ministry_id";
+    private static final String JSON_ROLE = "team_role";
+    private static final String JSON_SUB_ASSIGNMENTS = "sub_ministries";
 
     private static final String ROLE_LEADER = "leader";
     private static final String ROLE_INHERITED_LEADER = "inherited_leader";
