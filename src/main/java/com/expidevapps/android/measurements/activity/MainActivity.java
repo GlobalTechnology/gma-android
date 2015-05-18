@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity {
         public Loader<TheKey.Attributes> onCreateLoader(final int id, final Bundle args) {
             switch (id) {
                 case LOADER_THEKEY_ATTRIBUTES:
-                    return new AttributesLoader(MainActivity.this, mTheKey);
+                    return new AttributesLoader(MainActivity.this, mTheKey, null);
                 default:
                     return null;
             }
