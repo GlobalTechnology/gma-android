@@ -1,7 +1,6 @@
 package com.expidevapps.android.measurements.support.v4.content;
 
 import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -14,6 +13,7 @@ import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.sync.BroadcastUtils;
 
+import org.ccci.gto.android.common.db.Query;
 import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
 
 public class MinistriesCursorLoader extends CursorBroadcastReceiverLoader {
@@ -43,7 +43,8 @@ public class MinistriesCursorLoader extends CursorBroadcastReceiverLoader {
             return null;
         }
 
-        return mDao.getCursor(Ministry.class, Contract.Ministry.JOIN_ASSIGNMENT, PROJECTION,
-                              Contract.Assignment.SQL_WHERE_GUID, bindValues(mGuid), Contract.Ministry.COLUMN_NAME);
+        return mDao.getCursor(
+                Query.select(Ministry.class).projection(PROJECTION).join(Contract.Ministry.JOIN_ASSIGNMENT)
+                        .where(Contract.Assignment.SQL_WHERE_GUID, mGuid).orderBy(Contract.Ministry.COLUMN_NAME));
     }
 }

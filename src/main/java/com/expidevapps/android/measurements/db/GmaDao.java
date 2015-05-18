@@ -20,6 +20,7 @@ import com.google.common.base.Joiner;
 
 import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.Mapper;
+import org.ccci.gto.android.common.db.Query;
 import org.ccci.gto.android.common.db.Transaction;
 import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.util.ArrayUtils;
@@ -219,8 +220,9 @@ public class GmaDao extends AbstractDao
     private static final Joiner JOINER_KEY = Joiner.on(':');
 
     public long getLastSyncTime(@NonNull final Object... key) {
-        final Cursor c = getCursor(Contract.LastSync.class, new String[] {Contract.LastSync.COLUMN_LAST_SYNCED},
-                                   Contract.LastSync.SQL_WHERE_KEY, bindValues(JOINER_KEY.join(key)), null);
+        final Cursor c =
+                getCursor(Query.select(Contract.LastSync.class).projection(Contract.LastSync.COLUMN_LAST_SYNCED).where(
+                        Contract.LastSync.SQL_WHERE_KEY, JOINER_KEY.join(key)));
         if (c.moveToFirst()) {
             return CursorUtils.getLong(c, Contract.LastSync.COLUMN_LAST_SYNCED, 0);
         }

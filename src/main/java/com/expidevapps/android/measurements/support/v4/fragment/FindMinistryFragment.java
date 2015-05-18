@@ -2,7 +2,6 @@ package com.expidevapps.android.measurements.support.v4.fragment;
 
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,10 +30,11 @@ import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Ministry;
-import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.expidevapps.android.measurements.support.v4.fragment.JoinMinistryDialogFragment.OnJoinMinistryListener;
 import com.expidevapps.android.measurements.support.v7.adapter.MinistryCursorRecyclerViewAdapter;
+import com.expidevapps.android.measurements.sync.BroadcastUtils;
 
+import org.ccci.gto.android.common.db.Query;
 import org.ccci.gto.android.common.recyclerview.adapter.CursorAdapter;
 import org.ccci.gto.android.common.recyclerview.decorator.DividerItemDecoration;
 import org.ccci.gto.android.common.recyclerview.listener.ItemClickListener;
@@ -311,22 +311,20 @@ public class FindMinistryFragment extends Fragment implements OnJoinMinistryList
         }
     }
 
-    private static final String[] PROJECTION_FIELDS =
-            new String[] {Contract.Ministry.COLUMN_ROWID, Contract.Ministry.COLUMN_MINISTRY_ID,
-                    Contract.Ministry.COLUMN_NAME};
-    private static final String ORDER_BY_NAME = Contract.Ministry.COLUMN_NAME;
+    private static final Query<Ministry> QUERY = Query.select(Ministry.class)
+            .projection(Contract.Ministry.COLUMN_ROWID, Contract.Ministry.COLUMN_MINISTRY_ID,
+                        Contract.Ministry.COLUMN_NAME).orderBy(Contract.Ministry.COLUMN_NAME);
     private static final String WHERE_NAME_LIKE = Contract.Ministry.COLUMN_NAME + " LIKE ?";
 
     private final class LoadMinistriesTask extends AsyncTask<String, Void, Cursor> {
         @NonNull
         @Override
         protected Cursor doInBackground(@NonNull final String... params) {
+            Query<Ministry> query = QUERY;
             if (params.length == 1 && !TextUtils.isEmpty(params[0])) {
-                return mDao.getCursor(Ministry.class, PROJECTION_FIELDS, WHERE_NAME_LIKE,
-                                      bindValues("%" + params[0] + "%"), ORDER_BY_NAME);
-            } else {
-                return mDao.getCursor(Ministry.class, PROJECTION_FIELDS, null, null, ORDER_BY_NAME);
+                query = query.where(WHERE_NAME_LIKE, "%" + params[0] + "%");
             }
+            return mDao.getCursor(query);
         }
 
         @Override
