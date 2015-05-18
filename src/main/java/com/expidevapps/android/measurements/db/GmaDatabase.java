@@ -96,10 +96,10 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
                         db.execSQL(Contract.MeasurementType.SQL_V20_CREATE_TABLE);
                         break;
                     case 18:
-                        db.execSQL(Contract.MinistryMeasurement.SQL_CREATE_TABLE);
+                        db.execSQL(Contract.MinistryMeasurement.SQL_V21_CREATE_TABLE);
                         break;
                     case 19:
-                        db.execSQL(Contract.PersonalMeasurement.SQL_CREATE_TABLE);
+                        db.execSQL(Contract.PersonalMeasurement.SQL_V21_CREATE_TABLE);
                         break;
                     case 20:
                         // XXX: let's just recreate the table instead of altering the existing table

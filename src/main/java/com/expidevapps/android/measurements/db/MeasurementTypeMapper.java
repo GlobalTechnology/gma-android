@@ -3,6 +3,7 @@ package com.expidevapps.android.measurements.db;
 import static com.expidevapps.android.measurements.db.Contract.MeasurementType.COLUMN_CUSTOM;
 import static com.expidevapps.android.measurements.model.MeasurementType.DEFAULT_CUSTOM;
 import static com.expidevapps.android.measurements.model.MeasurementType.DEFAULT_SORT_ORDER;
+import static com.expidevapps.android.measurements.model.MeasurementType.INVALID_PERM_LINK_STUB;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -54,14 +55,15 @@ public class MeasurementTypeMapper extends BaseMapper<MeasurementType> {
     @NonNull
     @Override
     protected MeasurementType newObject(@NonNull final Cursor c) {
-        return new MeasurementType(getNonNullString(c, Contract.MeasurementType.COLUMN_PERM_LINK_STUB,
-                                                    MeasurementType.INVALID_PERM_LINK_STUB));
+        return new MeasurementType(
+                getNonNullString(c, Contract.MeasurementType.COLUMN_PERM_LINK_STUB, INVALID_PERM_LINK_STUB));
     }
 
     @NonNull
     @Override
     public MeasurementType toObject(@NonNull final Cursor c) {
         final MeasurementType type = super.toObject(c);
+
         type.setPersonalId(
                 getNonNullString(c, Contract.MeasurementType.COLUMN_PERSONAL_ID, MeasurementType.INVALID_ID));
         type.setLocalId(getNonNullString(c, Contract.MeasurementType.COLUMN_LOCAL_ID, MeasurementType.INVALID_ID));
