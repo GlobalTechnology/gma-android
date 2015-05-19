@@ -3,7 +3,7 @@ package com.expidevapps.android.measurements.support.v4.fragment;
 import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.PREFS_SETTINGS;
 import static com.expidevapps.android.measurements.Constants.PREF_ACTIVE_MCC;
-import static com.expidevapps.android.measurements.Constants.PREF_CURRENT_MINISTRY;
+import static com.expidevapps.android.measurements.Constants.PREF_ACTIVE_MINISTRY;
 import static com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
 
 import android.content.Context;
@@ -117,7 +117,7 @@ public class SettingsFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.pref_general);
 
         // get preferences to modify them
-        mPrefMinistry = (ListPreference) findPreference(PREF_CURRENT_MINISTRY);
+        mPrefMinistry = (ListPreference) findPreference(PREF_ACTIVE_MINISTRY);
         if (mPrefMinistry != null) {
             mPrefMinistry.setOnPreferenceChangeListener(new MinistryChangeListener());
         }

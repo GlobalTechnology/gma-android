@@ -9,8 +9,8 @@ import butterknife.ButterKnife;
 public final class Constants {
     /* SharedPreference constants */
     private static final String PREFS_SETTINGS = "prefs";
-    public static final String PREF_CURRENT_MINISTRY = "currentMinistry";
-    public static final String PREF_ACTIVE_MCC = "mcc";
+    public static final String PREF_ACTIVE_MINISTRY = "ministry.active";
+    public static final String PREF_ACTIVE_MCC = "ministry.active.mcc";
 
     @NonNull
     public static String PREFS_SETTINGS(@NonNull final String guid) {

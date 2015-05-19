@@ -1,7 +1,7 @@
 package com.expidevapps.android.measurements.support.v4.content;
 
 import static com.expidevapps.android.measurements.Constants.PREFS_SETTINGS;
-import static com.expidevapps.android.measurements.Constants.PREF_CURRENT_MINISTRY;
+import static com.expidevapps.android.measurements.Constants.PREF_ACTIVE_MINISTRY;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
@@ -37,14 +37,14 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
         mLoadMinistry = args != null && args.getBoolean(ARG_LOAD_MINISTRY, false);
 
         // setup listeners for events
-        addPreferenceKey(PREF_CURRENT_MINISTRY);
+        addPreferenceKey(PREF_ACTIVE_MINISTRY);
         addIntentFilter(BroadcastUtils.updateAssignmentsFilter(mGuid));
     }
 
     @Override
     public Assignment loadInBackground() {
         // load the current active assignment
-        final String ministryId = mPrefs.getString(PREF_CURRENT_MINISTRY, Ministry.INVALID_ID);
+        final String ministryId = mPrefs.getString(PREF_ACTIVE_MINISTRY, Ministry.INVALID_ID);
         Assignment assignment = mDao.find(Assignment.class, mGuid, ministryId);
 
         // reset to default assignment if a current current assignment isn't found
@@ -91,7 +91,7 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
             updateMcc(assignment);
         }
 
-        mPrefs.edit().putString(PREF_CURRENT_MINISTRY, assignment.getMinistryId()).apply();
+        mPrefs.edit().putString(PREF_ACTIVE_MINISTRY, assignment.getMinistryId()).apply();
 
         // return the found assignment
         return assignment;

@@ -3,7 +3,7 @@
     <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
          dismiss it. -->
     <org.ccci.gto.android.common.preference.ListPreferenceCompat
-        android:key="currentMinistry"
+        android:key="ministry.active"
         android:title="@string/pref_title_ministry_team_text"
         android:summary="@string/pref_summary_ministry"
         android:defaultValue=""
@@ -12,8 +12,8 @@
 
     <!-- MCC = Mission Critical Component -->
     <org.ccci.gto.android.common.preference.ListPreferenceCompat
-        android:key="mcc"
-        android:dependency="currentMinistry"
+        android:key="ministry.active.mcc"
+        android:dependency="ministry.active"
         android:title="@string/pref_title_mcc"
         android:summary="@string/pref_summary_mcc"
         android:defaultValue=""
