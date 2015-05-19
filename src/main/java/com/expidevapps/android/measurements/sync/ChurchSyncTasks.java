@@ -35,11 +35,11 @@ class ChurchSyncTasks extends BaseSyncTasks {
 
     private static final Object LOCK_DIRTY_CHURCHES = new Object();
 
-    private static String[] PROJECTION_GET_CHURCHES_DATA = {Contract.Church.COLUMN_MINISTRY_ID,
-            Contract.Church.COLUMN_NAME, Contract.Church.COLUMN_CONTACT_NAME,
-            Contract.Church.COLUMN_CONTACT_EMAIL, Contract.Church.COLUMN_LATITUDE,
-            Contract.Church.COLUMN_LONGITUDE, Contract.Church.COLUMN_SIZE,
-            Contract.Church.COLUMN_DEVELOPMENT, Contract.Church.COLUMN_SECURITY};
+    private static String[] PROJECTION_GET_CHURCHES_DATA =
+            {Contract.Church.COLUMN_PARENT, Contract.Church.COLUMN_MINISTRY_ID, Contract.Church.COLUMN_NAME,
+                    Contract.Church.COLUMN_CONTACT_NAME, Contract.Church.COLUMN_CONTACT_EMAIL,
+                    Contract.Church.COLUMN_LATITUDE, Contract.Church.COLUMN_LONGITUDE, Contract.Church.COLUMN_SIZE,
+                    Contract.Church.COLUMN_DEVELOPMENT, Contract.Church.COLUMN_SECURITY};
 
     static boolean syncChurches(@NonNull final Context context, @NonNull final String guid, @NonNull final Bundle args)
             throws ApiException {

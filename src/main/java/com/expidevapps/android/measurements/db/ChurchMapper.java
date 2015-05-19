@@ -7,6 +7,7 @@ import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_ID;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_MINISTRY_ID;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_NAME;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_NEW;
+import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_PARENT;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_SECURITY;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_SIZE;
 import static com.expidevapps.android.measurements.model.Church.SECURITY_DEFAULT;
@@ -16,6 +17,8 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.expidevapps.android.measurements.model.Church;
+import com.expidevapps.android.measurements.model.Church.Development;
+import com.expidevapps.android.measurements.model.Church.Security;
 import com.expidevapps.android.measurements.model.Ministry;
 
 public class ChurchMapper extends LocationMapper<Church> {
@@ -25,6 +28,9 @@ public class ChurchMapper extends LocationMapper<Church> {
         switch (field) {
             case COLUMN_ID:
                 values.put(field, church.getId());
+                break;
+            case COLUMN_PARENT:
+                values.put(field, church.hasParent() ? church.getParentId() : null);
                 break;
             case COLUMN_MINISTRY_ID:
                 values.put(field, church.getMinistryId());
@@ -48,7 +54,7 @@ public class ChurchMapper extends LocationMapper<Church> {
                 values.put(field, church.getSecurity().id);
                 break;
             case COLUMN_NEW:
-                values.put(field, church.isNew() ? 1 : 0);
+                values.put(field, church.isNew());
                 break;
             default:
                 super.mapField(values, field, church);
@@ -69,12 +75,13 @@ public class ChurchMapper extends LocationMapper<Church> {
 
         church.setMinistryId(getNonNullString(c, COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
         church.setId(getLong(c, COLUMN_ID, Church.INVALID_ID));
+        church.setParentId(getLong(c, COLUMN_PARENT, Church.INVALID_ID));
         church.setName(getString(c, COLUMN_NAME, null));
         church.setContactName(getString(c, COLUMN_CONTACT_NAME, null));
         church.setContactEmail(getString(c, COLUMN_CONTACT_EMAIL, null));
-        church.setDevelopment(Church.Development.fromRaw(getInt(c, COLUMN_DEVELOPMENT, Church.Development.UNKNOWN.id)));
+        church.setDevelopment(Development.fromRaw(getInt(c, COLUMN_DEVELOPMENT, Development.UNKNOWN.id)));
         church.setSize(getInt(c, COLUMN_SIZE, 0));
-        church.setSecurity(Church.Security.fromRaw(getInt(c, COLUMN_SECURITY, SECURITY_DEFAULT)));
+        church.setSecurity(Security.fromRaw(getInt(c, COLUMN_SECURITY, SECURITY_DEFAULT)));
         church.setNew(getBool(c, COLUMN_NEW, false));
 
         return church;

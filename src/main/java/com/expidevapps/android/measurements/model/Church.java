@@ -84,6 +84,8 @@ public class Church extends Location implements Cloneable {
     }
 
     public static final String JSON_ID = "id";
+    private static final String JSON_PARENT = "parent_id";
+    private static final String JSON_PARENTS = "parents";
     public static final String JSON_MINISTRY_ID = "ministry_id";
     public static final String JSON_NAME = "name";
     public static final String JSON_CONTACT_EMAIL = "contact_email";
@@ -93,6 +95,7 @@ public class Church extends Location implements Cloneable {
     public static final String JSON_SECURITY = "security";
 
     private long id = INVALID_ID;
+    private long mParentId = INVALID_ID;
     @NonNull
     private String ministryId = Ministry.INVALID_ID;
     @Nullable
@@ -122,6 +125,13 @@ public class Church extends Location implements Cloneable {
     public static Church fromJson(@NonNull final JSONObject json) throws JSONException {
         final Church church = new Church();
         church.id = json.getLong(JSON_ID);
+
+        final JSONArray parents = json.optJSONArray(JSON_PARENTS);
+        if (parents != null) {
+            church.mParentId = parents.optLong(0, church.mParentId);
+        }
+        church.mParentId = json.optLong(JSON_PARENT, church.mParentId);
+
         church.ministryId = json.getString(JSON_MINISTRY_ID);
         church.name = json.optString(JSON_NAME, null);
         church.contactEmail = json.optString(JSON_CONTACT_EMAIL, null);
@@ -140,6 +150,7 @@ public class Church extends Location implements Cloneable {
     private Church(@NonNull final Church church) {
         super(church);
         this.id = church.id;
+        mParentId = church.mParentId;
         this.ministryId = church.ministryId;
         this.name = church.name;
         this.contactEmail = church.contactEmail;
@@ -158,6 +169,18 @@ public class Church extends Location implements Cloneable {
 
     public void setId(final long id) {
         this.id = id;
+    }
+
+    public long getParentId() {
+        return mParentId;
+    }
+
+    public void setParentId(final long parent) {
+        mParentId = parent;
+    }
+
+    public boolean hasParent() {
+        return mParentId != INVALID_ID;
     }
 
     @NonNull
@@ -260,6 +283,9 @@ public class Church extends Location implements Cloneable {
     @Override
     public JSONObject toJson() throws JSONException {
         final JSONObject json = super.toJson();
+        if (mParentId != INVALID_ID) {
+            json.put(JSON_PARENT, mParentId);
+        }
         json.put(JSON_MINISTRY_ID, this.ministryId);
         json.put(JSON_NAME, this.name);
         json.put(JSON_CONTACT_NAME, this.contactName);

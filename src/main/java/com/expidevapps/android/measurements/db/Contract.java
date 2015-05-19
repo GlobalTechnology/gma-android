@@ -214,6 +214,7 @@ public class Contract {
         public static final String TABLE_NAME = "churches";
 
         static final String COLUMN_ID = _ID;
+        public static final String COLUMN_PARENT = "parent";
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_CONTACT_NAME = "contact_name";
         public static final String COLUMN_CONTACT_EMAIL = "contact_email";
@@ -223,11 +224,12 @@ public class Contract {
         static final String COLUMN_NEW = "new";
 
         static final String[] PROJECTION_ALL =
-                {COLUMN_ID, COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_CONTACT_NAME, COLUMN_CONTACT_EMAIL, COLUMN_LATITUDE,
-                        COLUMN_LONGITUDE, COLUMN_DEVELOPMENT, COLUMN_SIZE, COLUMN_SECURITY, COLUMN_NEW, COLUMN_DIRTY,
-                        COLUMN_LAST_SYNCED};
+                {COLUMN_ID, COLUMN_PARENT, COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_CONTACT_NAME, COLUMN_CONTACT_EMAIL,
+                        COLUMN_LATITUDE, COLUMN_LONGITUDE, COLUMN_DEVELOPMENT, COLUMN_SIZE, COLUMN_SECURITY, COLUMN_NEW,
+                        COLUMN_DIRTY, COLUMN_LAST_SYNCED};
 
         private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
+        private static final String SQL_COLUMN_PARENT = COLUMN_PARENT + " INTEGER";
         private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_CONTACT_NAME = COLUMN_CONTACT_NAME + " TEXT";
         private static final String SQL_COLUMN_CONTACT_EMAIL = COLUMN_CONTACT_EMAIL + " TEXT";
@@ -241,7 +243,7 @@ public class Contract {
         public static final String SQL_WHERE_NEW_OR_DIRTY = COLUMN_NEW + " = 1 OR " + SQL_WHERE_DIRTY;
 
         static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
-                .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME,
+                .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_PARENT, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME,
                         SQL_COLUMN_CONTACT_NAME, SQL_COLUMN_CONTACT_EMAIL, SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE,
                         SQL_COLUMN_DEVELOPMENT, SQL_COLUMN_SIZE, SQL_COLUMN_SECURITY, SQL_COLUMN_NEW, SQL_COLUMN_DIRTY,
                         SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
@@ -249,6 +251,8 @@ public class Contract {
 
         @Deprecated
         static final String SQL_v22_ALTER_NEW = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_NEW;
+        @Deprecated
+        static final String SQL_v33_ALTER_PARENT = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_PARENT;
     }
 
     ///////////////////////////////////////////////////////////////
