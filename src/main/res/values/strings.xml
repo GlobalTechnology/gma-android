@@ -54,12 +54,6 @@
     <!-- Map Settings -->
     <string name="map_settings">Map Settings</string>
     <string name="info">Show/Hide Icons</string>
-    <string name="targets">Targets</string>
-    <string name="groups">Groups</string>
-    <string name="churches">Churches</string>
-    <string name="multiplying_churches">Multiplying Churches</string>
-    <string name="training_activities">Training Activities</string>
-    <string name="campuses">Campuses</string>
 
     <!-- Measurement Details Graph -->
     <string name="action_measurement_details">Measurement Details</string>

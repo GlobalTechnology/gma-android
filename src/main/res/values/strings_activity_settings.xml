@@ -1,7 +1,8 @@
 <resources>
 
     <!-- Strings related to Settings -->
-    <string name="pref_header_general">General</string>
+    <string name="pref_category_active_ministry">Active Ministry</string>
+    <string name="pref_category_map_layer">Map Layers</string>
 
     <!-- Ministry preference strings -->
     <string name="pref_title_ministry_team_text">Ministry/Team</string>
@@ -14,4 +15,11 @@
     <string name="pref_summary_mcc">%s</string>
     <string name="pref_summary_mcc_none_set">No MCC Selected</string>
     <string name="pref_summary_mcc_none_available">No MCCs available</string>
+
+    <!-- Map preferences -->
+    <string name="pref_title_map_layer_church_target">Targets</string>
+    <string name="pref_title_map_layer_church_group">Groups</string>
+    <string name="pref_title_map_layer_church_church">Churches</string>
+    <string name="pref_title_map_layer_church_multiplying">Multiplying Churches</string>
+    <string name="pref_title_map_layer_training">Training Activities</string>
 </resources>

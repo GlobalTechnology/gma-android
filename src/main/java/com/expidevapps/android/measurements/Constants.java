@@ -11,6 +11,11 @@ public final class Constants {
     private static final String PREFS_SETTINGS = "prefs";
     public static final String PREF_ACTIVE_MINISTRY = "ministry.active";
     public static final String PREF_ACTIVE_MCC = "ministry.active.mcc";
+    public static final String PREF_MAP_LAYER_TRAINING = "map.layer.training";
+    public static final String PREF_MAP_LAYER_CHURCH_TARGET = "map.layer.church.target";
+    public static final String PREF_MAP_LAYER_CHURCH_GROUP = "map.layer.church.group";
+    public static final String PREF_MAP_LAYER_CHURCH_CHURCH = "map.layer.church.church";
+    public static final String PREF_MAP_LAYER_CHURCH_MULTIPLYING = "map.layer.church.multiplying";
 
     @NonNull
     public static String PREFS_SETTINGS(@NonNull final String guid) {

@@ -1,24 +1,46 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/pref_category_active_ministry">
+        <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
+             dismiss it. -->
+        <org.ccci.gto.android.common.preference.ListPreferenceCompat
+            android:key="ministry.active"
+            android:title="@string/pref_title_ministry_team_text"
+            android:summary="@string/pref_summary_ministry"
+            android:defaultValue=""
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"/>
+        <!-- MCC = Mission Critical Component -->
+        <org.ccci.gto.android.common.preference.ListPreferenceCompat
+            android:key="ministry.active.mcc"
+            android:dependency="ministry.active"
+            android:title="@string/pref_title_mcc"
+            android:summary="@string/pref_summary_mcc"
+            android:defaultValue=""
+            android:persistent="false"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"/>
+    </PreferenceCategory>
 
-    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
-         dismiss it. -->
-    <org.ccci.gto.android.common.preference.ListPreferenceCompat
-        android:key="ministry.active"
-        android:title="@string/pref_title_ministry_team_text"
-        android:summary="@string/pref_summary_ministry"
-        android:defaultValue=""
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null" />
-
-    <!-- MCC = Mission Critical Component -->
-    <org.ccci.gto.android.common.preference.ListPreferenceCompat
-        android:key="ministry.active.mcc"
-        android:dependency="ministry.active"
-        android:title="@string/pref_title_mcc"
-        android:summary="@string/pref_summary_mcc"
-        android:defaultValue=""
-        android:persistent="false"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null" />
-
+    <PreferenceCategory android:title="@string/pref_category_map_layer">
+        <CheckBoxPreference
+            android:key="map.layer.church.target"
+            android:title="@string/pref_title_map_layer_church_target"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:key="map.layer.church.group"
+            android:title="@string/pref_title_map_layer_church_group"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:key="map.layer.church.church"
+            android:title="@string/pref_title_map_layer_church_church"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:key="map.layer.church.multiplying"
+            android:title="@string/pref_title_map_layer_church_multiplying"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:key="map.layer.training"
+            android:title="@string/pref_title_map_layer_training"
+            android:defaultValue="true"/>
+    </PreferenceCategory>
 </PreferenceScreen>

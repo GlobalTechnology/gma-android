@@ -4,6 +4,11 @@ import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.ARG_MCC;
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.PREFS_SETTINGS;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_CHURCH;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_GROUP;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_MULTIPLYING;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_TARGET;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_TRAINING;
 import static com.expidevapps.android.measurements.model.Task.CREATE_CHURCH;
 import static com.expidevapps.android.measurements.model.Task.EDIT_CHURCH;
 import static com.expidevapps.android.measurements.model.Task.EDIT_TRAINING;
@@ -13,7 +18,6 @@ import static com.expidevapps.android.measurements.support.v4.content.CurrentAss
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -30,7 +34,6 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
-import com.expidevapps.android.measurements.activity.MapSettingsActivity;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.map.ChurchItem;
@@ -66,7 +69,6 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnClick;
 import butterknife.Optional;
 
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback {
@@ -79,7 +81,6 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private static final int MAP_LAYER_GROUP = 2;
     private static final int MAP_LAYER_CHURCH = 3;
     private static final int MAP_LAYER_MULTIPLYING_CHURCH = 4;
-    private static final int MAP_LAYER_CAMPUSES = 5;
 
     private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
     private final ChurchesLoaderCallbacks mLoaderCallbacksChurches = new ChurchesLoaderCallbacks();
@@ -99,7 +100,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private boolean mMapInitialized = false;
     @Nullable
     private ClusterManager<GmaItem> mClusterManager;
-    private final boolean[] mMapLayers = new boolean[6];
+    private final boolean[] mMapLayers = new boolean[5];
 
     @NonNull
     private /* final */ String mGuid;
@@ -387,12 +388,11 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
     private void loadVisibleMapLayers() {
         final SharedPreferences prefs = getActivity().getSharedPreferences(PREFS_SETTINGS(mGuid), Context.MODE_PRIVATE);
-        mMapLayers[MAP_LAYER_TRAINING] = prefs.getBoolean("trainingActivities", true);
-        mMapLayers[MAP_LAYER_TARGET] = prefs.getBoolean("targets", true);
-        mMapLayers[MAP_LAYER_GROUP] = prefs.getBoolean("groups", true);
-        mMapLayers[MAP_LAYER_CHURCH] = prefs.getBoolean("churches", true);
-        mMapLayers[MAP_LAYER_MULTIPLYING_CHURCH] = prefs.getBoolean("multiplyingChurches", true);
-        mMapLayers[MAP_LAYER_CAMPUSES] = prefs.getBoolean("campuses", true);
+        mMapLayers[MAP_LAYER_TRAINING] = prefs.getBoolean(PREF_MAP_LAYER_TRAINING, true);
+        mMapLayers[MAP_LAYER_TARGET] = prefs.getBoolean(PREF_MAP_LAYER_CHURCH_TARGET, true);
+        mMapLayers[MAP_LAYER_GROUP] = prefs.getBoolean(PREF_MAP_LAYER_CHURCH_GROUP, true);
+        mMapLayers[MAP_LAYER_CHURCH] = prefs.getBoolean(PREF_MAP_LAYER_CHURCH_CHURCH, true);
+        mMapLayers[MAP_LAYER_MULTIPLYING_CHURCH] = prefs.getBoolean(PREF_MAP_LAYER_CHURCH_MULTIPLYING, true);
     }
 
     private void updateMapLocation() {
@@ -459,12 +459,6 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 }
             }
         }
-    }
-
-    @Optional
-    @OnClick(R.id.map_settings)
-    void showMapSettings() {
-        startActivity(new Intent(getActivity(), MapSettingsActivity.class));
     }
 
     void showCreateChurch(@NonNull final LatLng pos) {
