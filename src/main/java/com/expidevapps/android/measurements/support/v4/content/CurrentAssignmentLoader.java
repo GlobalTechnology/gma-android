@@ -1,6 +1,5 @@
 package com.expidevapps.android.measurements.support.v4.content;
 
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.PREFS_SETTINGS;
 import static com.expidevapps.android.measurements.Constants.PREF_CURRENT_MINISTRY;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
@@ -26,32 +25,26 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
 
     private final GmaDao mDao;
 
-    @Nullable
+    @NonNull
     private final String mGuid;
     private final boolean mLoadMinistry;
 
-    public CurrentAssignmentLoader(@NonNull final Context context, @Nullable final Bundle args) {
-        super(context, context.getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE));
+    public CurrentAssignmentLoader(@NonNull final Context context, @NonNull final String guid,
+                                   @Nullable final Bundle args) {
+        super(context, context.getSharedPreferences(PREFS_SETTINGS(guid), Context.MODE_PRIVATE));
         mDao = GmaDao.getInstance(context);
-        mGuid = args != null ? args.getString(ARG_GUID) : null;
+        mGuid = guid;
         mLoadMinistry = args != null && args.getBoolean(ARG_LOAD_MINISTRY, false);
 
         // setup listeners for events
-        if(mGuid != null) {
-            addPreferenceKey(PREF_CURRENT_MINISTRY(mGuid));
-            addIntentFilter(BroadcastUtils.updateAssignmentsFilter(mGuid));
-        }
+        addPreferenceKey(PREF_CURRENT_MINISTRY);
+        addIntentFilter(BroadcastUtils.updateAssignmentsFilter(mGuid));
     }
 
     @Override
     public Assignment loadInBackground() {
-        // short-circuit if we don't have a valid guid
-        if (mGuid == null) {
-            return null;
-        }
-
         // load the current active assignment
-        final String ministryId = mPrefs.getString(PREF_CURRENT_MINISTRY(mGuid), Ministry.INVALID_ID);
+        final String ministryId = mPrefs.getString(PREF_CURRENT_MINISTRY, Ministry.INVALID_ID);
         Assignment assignment = mDao.find(Assignment.class, mGuid, ministryId);
 
         // reset to default assignment if a current current assignment isn't found
@@ -75,8 +68,6 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
     }
 
     private Assignment initActiveAssignment() {
-        assert mGuid != null : "initActiveAssignment should only be called when we have a valid GUID";
-
         final List<Assignment> assignments =
                 mDao.get(Assignment.class, Contract.Assignment.SQL_WHERE_GUID, bindValues(mGuid));
 
@@ -100,14 +91,13 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
             updateMcc(assignment);
         }
 
-        mPrefs.edit().putString(PREF_CURRENT_MINISTRY(mGuid), assignment.getMinistryId()).apply();
+        mPrefs.edit().putString(PREF_CURRENT_MINISTRY, assignment.getMinistryId()).apply();
 
         // return the found assignment
         return assignment;
     }
 
     private void updateMcc(@NonNull final Assignment assignment) {
-        assert mGuid != null;
         loadMinistry(assignment);
 
         // set the MCC based off of what is available for the ministry

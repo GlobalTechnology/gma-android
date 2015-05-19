@@ -8,13 +8,13 @@ import butterknife.ButterKnife;
 
 public final class Constants {
     /* SharedPreference constants */
-    public static final String PREFS_SETTINGS = "gcm_prefs";
+    private static final String PREFS_SETTINGS = "prefs";
     public static final String PREF_CURRENT_MINISTRY = "currentMinistry";
     public static final String PREF_ACTIVE_MCC = "mcc";
 
     @NonNull
-    public static String PREF_CURRENT_MINISTRY(@NonNull final String guid) {
-        return PREF_CURRENT_MINISTRY + ":" + guid;
+    public static String PREFS_SETTINGS(@NonNull final String guid) {
+        return PREFS_SETTINGS + "_" + guid;
     }
 
     /* common args */

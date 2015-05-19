@@ -1,6 +1,5 @@
 package com.expidevapps.android.measurements.activity;
 
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
 import static com.expidevapps.android.measurements.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
@@ -217,8 +216,7 @@ public class MainActivity extends AppCompatActivity {
         final LoaderManager manager = this.getSupportLoaderManager();
 
         // build the args used for various loaders
-        final Bundle args = new Bundle(2);
-        args.putString(ARG_GUID, mGuid);
+        final Bundle args = new Bundle(1);
         args.putBoolean(ARG_LOAD_MINISTRY, false);
 
         manager.initLoader(LOADER_THEKEY_ATTRIBUTES, null, mLoaderCallbacksAttributes);
@@ -321,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
         public Loader<Assignment> onCreateLoader(final int id, @Nullable final Bundle bundle) {
             switch (id) {
                 case LOADER_CURRENT_ASSIGNMENT:
-                    return new CurrentAssignmentLoader(MainActivity.this, bundle);
+                    return mGuid != null ? new CurrentAssignmentLoader(MainActivity.this, mGuid, bundle) : null;
                 default:
                     return null;
             }

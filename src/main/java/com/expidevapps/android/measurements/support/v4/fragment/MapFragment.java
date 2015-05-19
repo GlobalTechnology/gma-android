@@ -102,7 +102,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private final boolean[] mMapLayers = new boolean[6];
 
     @NonNull
-    private String mGuid = "";
+    private /* final */ String mGuid;
     @Nullable
     private Assignment mAssignment;
     @Nullable
@@ -303,8 +303,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
     private void startLoaders() {
         // build the args used for various loaders
-        final Bundle args = new Bundle(2);
-        args.putString(ARG_GUID, mGuid);
+        final Bundle args = new Bundle(1);
         args.putBoolean(ARG_LOAD_MINISTRY, true);
 
         // start loader
@@ -387,7 +386,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     }
 
     private void loadVisibleMapLayers() {
-        final SharedPreferences prefs = getActivity().getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE);
+        final SharedPreferences prefs = getActivity().getSharedPreferences(PREFS_SETTINGS(mGuid), Context.MODE_PRIVATE);
         mMapLayers[MAP_LAYER_TRAINING] = prefs.getBoolean("trainingActivities", true);
         mMapLayers[MAP_LAYER_TARGET] = prefs.getBoolean("targets", true);
         mMapLayers[MAP_LAYER_GROUP] = prefs.getBoolean("groups", true);
@@ -607,7 +606,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         public Loader<Assignment> onCreateLoader(final int id, @Nullable final Bundle bundle) {
             switch (id) {
                 case LOADER_CURRENT_ASSIGNMENT:
-                    return new CurrentAssignmentLoader(getActivity(), bundle);
+                    return new CurrentAssignmentLoader(getActivity(), mGuid, bundle);
                 default:
                     return null;
             }

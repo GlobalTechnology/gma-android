@@ -13,6 +13,7 @@
     <!-- MCC = Mission Critical Component -->
     <org.ccci.gto.android.common.preference.ListPreferenceCompat
         android:key="mcc"
+        android:dependency="currentMinistry"
         android:title="@string/pref_title_mcc"
         android:summary="@string/pref_summary_mcc"
         android:defaultValue=""
