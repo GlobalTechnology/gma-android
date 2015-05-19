@@ -25,6 +25,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.util.LongSparseArray;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -112,6 +113,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private List<Training> mTrainings;
     @Nullable
     private List<Church> mChurches;
+    @NonNull
+    private final LongSparseArray<Church> mVisibleChurches = new LongSparseArray<>();
 
     public static MapFragment newInstance(@NonNull final String guid) {
         final MapFragment fragment = new MapFragment();
@@ -263,6 +266,9 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     void onLoadChurches(@Nullable final List<Church> churches) {
         mChurches = churches;
 
+        // update the visible churches
+        updateVisibleChurches();
+
         // update the map markers
         updateMapMarkers();
     }
@@ -393,6 +399,40 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         mMapLayers[MAP_LAYER_GROUP] = prefs.getBoolean(PREF_MAP_LAYER_CHURCH_GROUP, true);
         mMapLayers[MAP_LAYER_CHURCH] = prefs.getBoolean(PREF_MAP_LAYER_CHURCH_CHURCH, true);
         mMapLayers[MAP_LAYER_MULTIPLYING_CHURCH] = prefs.getBoolean(PREF_MAP_LAYER_CHURCH_MULTIPLYING, true);
+
+        updateVisibleChurches();
+    }
+
+    private void updateVisibleChurches() {
+        mVisibleChurches.clear();
+        if (mAssignment != null && mChurches != null) {
+            for (final Church church : mChurches) {
+                if (mAssignment.can(VIEW_CHURCH, church) && church.hasLocation()) {
+                    final boolean visible;
+                    switch (church.getDevelopment()) {
+                        case TARGET:
+                            visible = mMapLayers[MAP_LAYER_TARGET];
+                            break;
+                        case GROUP:
+                            visible = mMapLayers[MAP_LAYER_GROUP];
+                            break;
+                        case CHURCH:
+                            visible = mMapLayers[MAP_LAYER_CHURCH];
+                            break;
+                        case MULTIPLYING_CHURCH:
+                            visible = mMapLayers[MAP_LAYER_MULTIPLYING_CHURCH];
+                            break;
+                        default:
+                            visible = false;
+                            break;
+                    }
+
+                    if (visible) {
+                        mVisibleChurches.put(church.getId(), church);
+                    }
+                }
+            }
+        }
     }
 
     private void updateMapLocation() {
@@ -418,33 +458,10 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
     private void addChurchMarkersToMap() {
         assert mClusterManager != null : "mClusterManager should be set before calling addChurchMarkersToMap";
-        if (mAssignment != null && mChurches != null) {
-            for (final Church church : mChurches) {
-                if (mAssignment.can(VIEW_CHURCH, church) && church.hasLocation()) {
-                    final boolean render;
-                    switch (church.getDevelopment()) {
-                        case TARGET:
-                            render = mMapLayers[MAP_LAYER_TARGET];
-                            break;
-                        case GROUP:
-                            render = mMapLayers[MAP_LAYER_GROUP];
-                            break;
-                        case CHURCH:
-                            render = mMapLayers[MAP_LAYER_CHURCH];
-                            break;
-                        case MULTIPLYING_CHURCH:
-                            render = mMapLayers[MAP_LAYER_MULTIPLYING_CHURCH];
-                            break;
-                        default:
-                            render = false;
-                            break;
-                    }
+        for (int i = 0; i < mVisibleChurches.size(); i++) {
+            final Church church = mVisibleChurches.valueAt(i);
+            mClusterManager.addItem(new ChurchItem(mAssignment, church));
 
-                    if (render) {
-                        mClusterManager.addItem(new ChurchItem(mAssignment, church));
-                    }
-                }
-            }
         }
     }
 
