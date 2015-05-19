@@ -59,7 +59,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
 import com.google.maps.android.clustering.ClusterManager;
 
 import org.ccci.gto.android.common.db.Transaction;
@@ -115,6 +118,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private List<Church> mChurches;
     @NonNull
     private final LongSparseArray<Church> mVisibleChurches = new LongSparseArray<>();
+    @NonNull
+    private final LongSparseArray<Polyline> mChurchParentPolylines = new LongSparseArray<>();
 
     public static MapFragment newInstance(@NonNull final String guid) {
         final MapFragment fragment = new MapFragment();
@@ -451,6 +456,9 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             addChurchMarkersToMap();
             addTrainingMarkersToMap();
 
+            // update the parent polylines
+            updateChurchParentPolylines();
+
             // force a recluster
             mClusterManager.cluster();
         }
@@ -461,7 +469,45 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         for (int i = 0; i < mVisibleChurches.size(); i++) {
             final Church church = mVisibleChurches.valueAt(i);
             mClusterManager.addItem(new ChurchItem(mAssignment, church));
+        }
+    }
 
+    private void updateChurchParentPolylines() {
+        // remove any polylines for churches that no longer exist
+        //TODO: issue all removeAt at once for efficiency
+        for (int i = 0; i < mChurchParentPolylines.size(); i++) {
+            if (mVisibleChurches.indexOfKey(mChurchParentPolylines.keyAt(i)) < 0) {
+                mChurchParentPolylines.valueAt(i).remove();
+                mChurchParentPolylines.removeAt(i);
+                i--;
+            }
+        }
+
+        // create/update polylines for all visible churches (only if we have the map)
+        if (mMap != null) {
+            final int size = mVisibleChurches.size();
+            for (int i = 0; i < size; i++) {
+                final long id = mVisibleChurches.keyAt(i);
+                final Church church = mVisibleChurches.valueAt(i);
+                final Church parent = church.hasParent() ? mVisibleChurches.get(church.getParentId()) : null;
+
+                // get the parent polyline for this church
+                Polyline line = mChurchParentPolylines.get(id);
+                if (line == null) {
+                    line = mMap.addPolyline(new PolylineOptions().visible(false).width(5));
+                    mChurchParentPolylines.put(id, line);
+                }
+
+                // update the polyline
+                if (parent != null && church.hasParent() && parent.hasParent()) {
+                    assert parent.getLocation() != null && church.getLocation() != null :
+                            "All churches in mVisibleChurches have locations";
+                    line.setVisible(true);
+                    line.setPoints(ImmutableList.of(parent.getLocation(), church.getLocation()));
+                } else {
+                    line.setVisible(false);
+                }
+            }
         }
     }
 
