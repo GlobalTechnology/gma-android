@@ -370,6 +370,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             mMap.setOnMarkerDragListener(mClusterManager.getMarkerManager());
             mMap.setOnMapLongClickListener(new MapLongClickListener());
             mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setMapToolbarEnabled(false);
 
             loadVisibleMapLayers();
             updateMapLocation();
