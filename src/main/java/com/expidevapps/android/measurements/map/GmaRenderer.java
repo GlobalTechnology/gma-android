@@ -13,15 +13,15 @@ import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 
-public class MarkerRender extends DefaultClusterRenderer<GmaItem> {
+public class GmaRenderer extends DefaultClusterRenderer<GmaItem> {
     @NonNull
     private final ClusterManager<GmaItem> mClusterManager;
 
     @Nullable
     private OnMarkerDragListener<GmaItem> mMarkerDragListener;
 
-    public MarkerRender(@NonNull final Context context, @NonNull final GoogleMap map,
-                        @NonNull final ClusterManager<GmaItem> clusterManager) {
+    public GmaRenderer(@NonNull final Context context, @NonNull final GoogleMap map,
+                       @NonNull final ClusterManager<GmaItem> clusterManager) {
         super(context, map, clusterManager);
         mClusterManager = clusterManager;
     }

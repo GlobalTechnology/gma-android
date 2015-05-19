@@ -39,7 +39,7 @@ import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.map.ChurchItem;
 import com.expidevapps.android.measurements.map.GmaItem;
-import com.expidevapps.android.measurements.map.MarkerRender;
+import com.expidevapps.android.measurements.map.GmaRenderer;
 import com.expidevapps.android.measurements.map.TrainingItem;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Church;
@@ -104,6 +104,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private boolean mMapInitialized = false;
     @Nullable
     private ClusterManager<GmaItem> mClusterManager;
+    @Nullable
+    private GmaRenderer mRenderer;
     private final boolean[] mMapLayers = new boolean[5];
 
     @NonNull
@@ -361,9 +363,9 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         final Context context = getActivity();
         if (!mMapInitialized && context != null && mMap != null) {
             mClusterManager = new ClusterManager<>(context, mMap);
-            final MarkerRender renderer = new MarkerRender(context, mMap, mClusterManager);
-            renderer.setMarkerDragListener(new MarkerDragListener());
-            mClusterManager.setRenderer(renderer);
+            mRenderer = new GmaRenderer(context, mMap, mClusterManager);
+            mRenderer.setMarkerDragListener(new MarkerDragListener());
+            mClusterManager.setRenderer(mRenderer);
             mClusterManager.setOnClusterItemInfoWindowClickListener(
                     new ClusterManager.OnClusterItemInfoWindowClickListener<GmaItem>() {
                         @Override
@@ -555,7 +557,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         }
     }
 
-    private class MarkerDragListener implements MarkerRender.OnMarkerDragListener<GmaItem> {
+    private class MarkerDragListener implements GmaRenderer.OnMarkerDragListener<GmaItem> {
         @Override
         public void onMarkerDragStart(@NonNull GmaItem item, @NonNull Marker marker) {
             // perform haptic feedback to let user know something is happening
