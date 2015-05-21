@@ -11,10 +11,12 @@ public abstract class LocationMapper<T extends Location> extends BaseMapper<T> {
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field, @NonNull final T obj) {
         switch (field) {
             case Contract.Location.COLUMN_LATITUDE:
-                values.put(field, obj.getLatitude());
+                final double latitude = obj.getLatitude();
+                values.put(field, Double.isNaN(latitude) ? null : latitude);
                 break;
             case Contract.Location.COLUMN_LONGITUDE:
-                values.put(field, obj.getLongitude());
+                final double longitude = obj.getLongitude();
+                values.put(field, Double.isNaN(longitude) ? null : longitude);
                 break;
             default:
                 super.mapField(values, field, obj);

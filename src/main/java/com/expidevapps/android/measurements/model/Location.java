@@ -29,7 +29,7 @@ public abstract class Location extends Base {
     }
 
     public final boolean hasLocation() {
-        return latitude != Double.NaN && longitude != Double.NaN;
+        return !Double.isNaN(latitude) && !Double.isNaN(longitude);
     }
 
     public final double getLatitude() {
@@ -64,10 +64,10 @@ public abstract class Location extends Base {
     @NonNull
     public JSONObject toJson() throws JSONException {
         final JSONObject json = super.toJson();
-        if (this.latitude != Double.NaN) {
+        if (!Double.isNaN(latitude)) {
             json.put(JSON_LATITUDE, this.latitude);
         }
-        if (this.longitude != Double.NaN) {
+        if (!Double.isNaN(this.longitude)) {
             json.put(JSON_LONGITUDE, this.longitude);
         }
         return json;
