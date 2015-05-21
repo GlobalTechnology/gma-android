@@ -66,6 +66,7 @@ public class GmaRenderer extends DefaultClusterRenderer<GmaItem> {
     @Override
     protected void onBeforeClusterItemRendered(final GmaItem item, final MarkerOptions markerOptions) {
         super.onBeforeClusterItemRendered(item, markerOptions);
+        markerOptions.anchor(0.5F, 0.5F);
         markerOptions.icon(BitmapDescriptorFactory.fromResource(item.getItemImage()));
         markerOptions.title(item.getName());
         markerOptions.snippet(item.getSnippet());
@@ -73,8 +74,9 @@ public class GmaRenderer extends DefaultClusterRenderer<GmaItem> {
     }
 
     @Override
-    protected void onBeforeClusterRendered(Cluster<GmaItem> cluster, MarkerOptions markerOptions) {
+    protected void onBeforeClusterRendered(final Cluster<GmaItem> cluster, final MarkerOptions markerOptions) {
         super.onBeforeClusterRendered(cluster, markerOptions);
+        markerOptions.anchor(0.5F, 0.5F);
         int churches = 0;
         int trainings = 0;
         for (final GmaItem item : cluster.getItems()) {
