@@ -321,7 +321,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             conn = this.sendRequest(request);
 
             // is this a successful response?
-            return conn.getResponseCode() == HttpURLConnection.HTTP_CREATED;
+            return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
         } catch (final IOException e) {
             throw new ApiSocketException(e);
         } finally {
