@@ -11,28 +11,28 @@ import com.google.maps.android.clustering.ClusterItem;
 
 public abstract class GmaItem<T extends Location> implements ClusterItem {
     @Nullable
-    private Assignment mAssignment;
+    private final Assignment mAssignment;
     @NonNull
-    protected T mObj;
+    protected final T mObj;
     @Nullable
     private GmaItem<?> mParent;
+    @NonNull
+    private final LatLng mPosition;
 
     protected GmaItem(@Nullable final Assignment assignment, @NonNull final T obj) {
         mAssignment = assignment;
         mObj = obj;
-    }
 
-    public final void setAssignment(@Nullable final Assignment assignment) {
-        mAssignment = assignment;
+        final LatLng location = mObj.getLocation();
+        if (location == null) {
+            throw new IllegalStateException("Location object needs to have a location to be rendered");
+        }
+        mPosition = location;
     }
 
     @NonNull
     public final T getObject() {
         return mObj;
-    }
-
-    public final void setObject(@NonNull final T obj) {
-        mObj = obj;
     }
 
     @Nullable
@@ -54,12 +54,7 @@ public abstract class GmaItem<T extends Location> implements ClusterItem {
     @NonNull
     @Override
     public final LatLng getPosition() {
-        final LatLng location = mObj.getLocation();
-        if (location == null) {
-            throw new IllegalStateException("Location object needs to have a location to be rendered");
-        }
-
-        return location;
+        return mPosition;
     }
 
     public boolean isDraggable() {

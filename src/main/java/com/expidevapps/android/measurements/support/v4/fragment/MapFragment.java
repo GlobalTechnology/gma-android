@@ -434,14 +434,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
                     // create/update the church item if visible
                     if (visible) {
-                        ChurchItem item = mVisibleChurches.get(church.getId());
-                        if (item != null) {
-                            item.setAssignment(mAssignment);
-                            item.setObject(church);
-                        } else {
-                            item = new ChurchItem(mAssignment, church);
-                        }
-                        visibleChurches.put(church.getId(), item);
+                        visibleChurches.put(church.getId(), new ChurchItem(mAssignment, church));
                     }
                 }
             }
