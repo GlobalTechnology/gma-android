@@ -23,10 +23,13 @@ import com.expidevapps.android.measurements.model.Church.Development;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.content.ChurchLoader;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
+import com.google.common.collect.Lists;
 
+import org.ccci.gto.android.common.db.Transaction;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -118,59 +121,34 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     @OnClick(R.id.save)
     void onSaveChanges() {
         if (mChurch != null) {
-            // update church object
-            // we clone mChurch to prevent corrupting the object in the ContentLoader
-            final Church church = mChurch.clone();
-            church.trackingChanges(true);
+            // capture updates
+            final ChurchUpdates updates = new ChurchUpdates();
             if (mContactNameView != null && mChanged[CHANGED_CONTACT_NAME]) {
-                church.setContactName(mContactNameView.getText().toString());
+                updates.mContactName = mContactNameView.getText().toString();
             }
             if (mContactEmailView != null && mChanged[CHANGED_CONTACT_EMAIL]) {
-                church.setContactEmail(mContactEmailView.getText().toString());
+                updates.mContactEmail = mContactEmailView.getText().toString();
             }
             if (mDevelopmentSpinner != null && mChanged[CHANGED_DEVELOPMENT]) {
                 final Object development = mDevelopmentSpinner.getSelectedItem();
-                church.setDevelopment(
-                        development instanceof Development ? (Development) development : Development.UNKNOWN);
+                updates.mDevelopment =
+                        development instanceof Development ? (Development) development : Development.UNKNOWN;
             }
             if (mSizeView != null && mChanged[CHANGED_SIZE]) {
                 try {
-                    church.setSize(Integer.parseInt(mSizeView.getText().toString()));
+                    updates.mSize = Integer.valueOf(mSizeView.getText().toString());
                 } catch (final NumberFormatException ignored) {
                 }
             }
-            church.trackingChanges(false);
 
             // persist changes in the database (if there are any)
-            if (church.isDirty()) {
-                final Context context = getActivity().getApplicationContext();
-                final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
-                final GmaDao dao = GmaDao.getInstance(context);
-
-                AsyncTaskCompat.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        // update in the database
-                        dao.update(church, new String[] {Contract.Church.COLUMN_CONTACT_NAME,
-                                Contract.Church.COLUMN_CONTACT_EMAIL, Contract.Church.COLUMN_SIZE,
-                                Contract.Church.COLUMN_DIRTY});
-
-                        // track this update in GA
-                        GoogleAnalyticsManager.getInstance(context)
-                                .sendUpdateChurchEvent(mGuid, church.getMinistryId(), church.getId());
-
-                        // broadcast that this church was updated
-                        broadcastManager.sendBroadcast(updateChurchesBroadcast(church.getMinistryId(), church.getId()));
-
-                        // trigger a sync of dirty churches
-                        GmaSyncService.syncDirtyChurches(context, mGuid);
-                    }
-                });
+            if (updates.hasUpdates()) {
+                AsyncTaskCompat.execute(new UpdateChurchRunnable(getActivity(), mGuid, mChurch, updates));
             }
         }
 
         // dismiss the dialog
-        this.dismiss();
+        dismiss();
     }
 
     /* END lifecycle */
@@ -240,6 +218,94 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                 case LOADER_CHURCH:
                     onLoadChurch(church);
             }
+        }
+    }
+
+    private static class ChurchUpdates {
+        @Nullable
+        String mContactName;
+        @Nullable
+        String mContactEmail;
+        @Nullable
+        Integer mSize;
+        @Nullable
+        Development mDevelopment;
+
+        boolean hasUpdates() {
+            return mContactName != null || mContactEmail != null || mSize != null || mDevelopment != null;
+        }
+    }
+
+    private static class UpdateChurchRunnable implements Runnable {
+        private final Context mContext;
+        private final String mGuid;
+        private final Church mChurch;
+        private final ChurchUpdates mUpdates;
+
+        public UpdateChurchRunnable(@NonNull final Context context, @NonNull final String guid,
+                                    @NonNull final Church church, @NonNull final ChurchUpdates updates) {
+            mContext = context.getApplicationContext();
+            mGuid = guid;
+            mChurch = church;
+            mUpdates = updates;
+        }
+
+        @Override
+        public void run() {
+            // short-circuit if there aren't any actual updates
+            if (!mUpdates.hasUpdates()) {
+                return;
+            }
+
+            final GmaDao dao = GmaDao.getInstance(mContext);
+            final Transaction tx = dao.newTransaction();
+            try {
+                tx.beginTransactionNonExclusive();
+
+                // short-circuit if we can't get a fresh copy of this church
+                final Church church = dao.refresh(mChurch);
+                if (church == null) {
+                    return;
+                }
+
+                // perform requested updates
+                final ArrayList<String> projection = Lists.newArrayList(Contract.Church.COLUMN_DIRTY);
+                church.trackingChanges(true);
+                if (mUpdates.mContactName != null) {
+                    church.setContactName(mUpdates.mContactName);
+                    projection.add(Contract.Church.COLUMN_CONTACT_NAME);
+                }
+                if (mUpdates.mContactEmail != null) {
+                    church.setContactEmail(mUpdates.mContactEmail);
+                    projection.add(Contract.Church.COLUMN_CONTACT_EMAIL);
+                }
+                if (mUpdates.mSize != null) {
+                    church.setSize(mUpdates.mSize);
+                    projection.add(Contract.Church.COLUMN_SIZE);
+                }
+                if (mUpdates.mDevelopment != null) {
+                    church.setDevelopment(mUpdates.mDevelopment);
+                    projection.add(Contract.Church.COLUMN_DEVELOPMENT);
+                }
+                church.trackingChanges(false);
+
+                // save changes
+                dao.update(church, projection.toArray(new String[projection.size()]));
+                tx.setSuccessful();
+            } finally {
+                tx.end();
+            }
+
+            // track this update in GA
+            GoogleAnalyticsManager.getInstance(mContext)
+                    .sendUpdateChurchEvent(mGuid, mChurch.getMinistryId(), mChurch.getId());
+
+            // broadcast that this church was updated
+            final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(mContext);
+            broadcastManager.sendBroadcast(updateChurchesBroadcast(mChurch.getMinistryId(), mChurch.getId()));
+
+            // trigger a sync of dirty churches
+            GmaSyncService.syncDirtyChurches(mContext, mGuid);
         }
     }
 }
