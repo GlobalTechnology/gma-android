@@ -13,6 +13,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
@@ -32,6 +34,8 @@ public class GmaRenderer extends DefaultClusterRenderer<GmaItem> {
 
     @NonNull
     private Map<GmaItem, LatLng> mMarkerLocations = new ArrayMap<>();
+    @NonNull
+    private Multimap<GmaItem, GmaItem> mChildren = ImmutableListMultimap.of();
     @NonNull
     private Map<GmaItem, Polyline> mParentLines = new ArrayMap<>();
 
@@ -63,8 +67,26 @@ public class GmaRenderer extends DefaultClusterRenderer<GmaItem> {
             }
 
             @Override
-            public void onMarkerDrag(Marker marker) {
-                // do nothing
+            public void onMarkerDrag(@NonNull final Marker marker) {
+                final GmaItem item = getClusterItem(marker);
+                if (item != null) {
+                    // update the parent line
+                    final GmaItem parent = item.getParent();
+                    if (parent != null && mMarkerLocations.containsKey(parent)) {
+                        final Polyline line = mParentLines.get(item);
+                        if (line != null) {
+                            line.setPoints(ImmutableList.of(mMarkerLocations.get(parent), marker.getPosition()));
+                        }
+                    }
+
+                    // update any children lines
+                    for (final GmaItem child : mChildren.get(item)) {
+                        final Polyline line = mParentLines.get(child);
+                        if (line != null) {
+                            line.setPoints(ImmutableList.of(marker.getPosition(), mMarkerLocations.get(child)));
+                        }
+                    }
+                }
             }
 
             @Override
@@ -93,8 +115,9 @@ public class GmaRenderer extends DefaultClusterRenderer<GmaItem> {
         }
         mMarkerLocations = locations;
 
-        // update parent polylines
+        // update parent polylines & children lookup
         final Map<GmaItem, Polyline> parentLines = new ArrayMap<>();
+        final ImmutableListMultimap.Builder<GmaItem, GmaItem> children = ImmutableListMultimap.builder();
         for (final GmaItem item : mMarkerLocations.keySet()) {
             final GmaItem parent = item.getParent();
             if (parent != null && mMarkerLocations.containsKey(parent)) {
@@ -107,6 +130,9 @@ public class GmaRenderer extends DefaultClusterRenderer<GmaItem> {
 
                 // store polyline
                 parentLines.put(item, line);
+
+                // store as child of parent
+                children.put(parent, item);
             }
         }
 
@@ -115,6 +141,7 @@ public class GmaRenderer extends DefaultClusterRenderer<GmaItem> {
             line.remove();
         }
         mParentLines = parentLines;
+        mChildren = children.build();
     }
 
     @Override
