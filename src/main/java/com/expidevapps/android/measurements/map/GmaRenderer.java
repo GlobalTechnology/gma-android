@@ -3,26 +3,42 @@ package com.expidevapps.android.measurements.map;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.util.ArrayMap;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.common.collect.ImmutableList;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 
+import java.util.Map;
+import java.util.Set;
+
 public class GmaRenderer extends DefaultClusterRenderer<GmaItem> {
+    @NonNull
+    private final GoogleMap mMap;
     @NonNull
     private final ClusterManager<GmaItem> mClusterManager;
 
     @Nullable
     private OnMarkerDragListener<GmaItem> mMarkerDragListener;
 
+    @NonNull
+    private Map<GmaItem, LatLng> mMarkerLocations = new ArrayMap<>();
+    @NonNull
+    private Map<GmaItem, Polyline> mParentLines = new ArrayMap<>();
+
     public GmaRenderer(@NonNull final Context context, @NonNull final GoogleMap map,
                        @NonNull final ClusterManager<GmaItem> clusterManager) {
         super(context, map, clusterManager);
+        mMap = map;
         mClusterManager = clusterManager;
     }
 
@@ -61,6 +77,44 @@ public class GmaRenderer extends DefaultClusterRenderer<GmaItem> {
                 }
             }
         });
+    }
+
+    @Override
+    public void onClustersChanged(final Set<? extends Cluster<GmaItem>> clusters) {
+        super.onClustersChanged(clusters);
+
+        // update marker locations for all items
+        final Map<GmaItem, LatLng> locations = new ArrayMap<>();
+        for (final Cluster<GmaItem> cluster : clusters) {
+            final boolean renderAsCluster = shouldRenderAsCluster(cluster);
+            for (final GmaItem item : cluster.getItems()) {
+                locations.put(item, renderAsCluster ? cluster.getPosition() : item.getPosition());
+            }
+        }
+        mMarkerLocations = locations;
+
+        // update parent polylines
+        final Map<GmaItem, Polyline> parentLines = new ArrayMap<>();
+        for (final GmaItem item : mMarkerLocations.keySet()) {
+            final GmaItem parent = item.getParent();
+            if (parent != null && mMarkerLocations.containsKey(parent)) {
+                // update/create polyline
+                Polyline line = mParentLines.remove(item);
+                if (line == null) {
+                    line = mMap.addPolyline(new PolylineOptions().width(5));
+                }
+                line.setPoints(ImmutableList.of(mMarkerLocations.get(parent), mMarkerLocations.get(item)));
+
+                // store polyline
+                parentLines.put(item, line);
+            }
+        }
+
+        // remove old parent lines
+        for (final Polyline line : mParentLines.values()) {
+            line.remove();
+        }
+        mParentLines = parentLines;
     }
 
     @Override

@@ -8,6 +8,8 @@ import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Training;
 
+import java.util.Arrays;
+
 public class TrainingItem extends GmaItem<Training> {
     public TrainingItem(@Nullable final Assignment assignment, @NonNull final Training obj) {
         super(assignment, obj);
@@ -32,5 +34,22 @@ public class TrainingItem extends GmaItem<Training> {
     @Override
     public int getItemImage() {
         return R.drawable.ic_training;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final TrainingItem that = (TrainingItem) o;
+        return this.mObj.getId() == that.mObj.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(new long[] {mObj.getId()});
     }
 }
