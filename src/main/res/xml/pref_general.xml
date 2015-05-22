@@ -39,6 +39,10 @@
             android:title="@string/pref_title_map_layer_church_multiplying"
             android:defaultValue="true"/>
         <CheckBoxPreference
+            android:key="map.layer.church.parents"
+            android:title="@string/pref_title_map_layer_church_parents"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
             android:key="map.layer.training"
             android:title="@string/pref_title_map_layer_training"
             android:defaultValue="true"/>

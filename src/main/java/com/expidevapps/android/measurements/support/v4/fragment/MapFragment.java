@@ -7,6 +7,7 @@ import static com.expidevapps.android.measurements.Constants.PREFS_SETTINGS;
 import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_CHURCH;
 import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_GROUP;
 import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_MULTIPLYING;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_PARENTS;
 import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_TARGET;
 import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_TRAINING;
 import static com.expidevapps.android.measurements.model.Task.CREATE_CHURCH;
@@ -82,6 +83,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private static final int MAP_LAYER_GROUP = 2;
     private static final int MAP_LAYER_CHURCH = 3;
     private static final int MAP_LAYER_MULTIPLYING_CHURCH = 4;
+    private static final int MAP_LAYER_CHURCH_PARENTS = 5;
 
     private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
     private final ChurchesLoaderCallbacks mLoaderCallbacksChurches = new ChurchesLoaderCallbacks();
@@ -103,7 +105,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private ClusterManager<GmaItem> mClusterManager;
     @Nullable
     private GmaRenderer mRenderer;
-    private final boolean[] mMapLayers = new boolean[5];
+    private final boolean[] mMapLayers = new boolean[6];
 
     @NonNull
     private /* final */ String mGuid;
@@ -401,6 +403,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         mMapLayers[MAP_LAYER_GROUP] = prefs.getBoolean(PREF_MAP_LAYER_CHURCH_GROUP, true);
         mMapLayers[MAP_LAYER_CHURCH] = prefs.getBoolean(PREF_MAP_LAYER_CHURCH_CHURCH, true);
         mMapLayers[MAP_LAYER_MULTIPLYING_CHURCH] = prefs.getBoolean(PREF_MAP_LAYER_CHURCH_MULTIPLYING, true);
+        mMapLayers[MAP_LAYER_CHURCH_PARENTS] = prefs.getBoolean(PREF_MAP_LAYER_CHURCH_PARENTS, true);
 
         updateVisibleChurches();
     }
@@ -447,7 +450,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             for (int i = 0; i < visibleChurches.size(); i++) {
                 final ChurchItem item = visibleChurches.valueAt(i);
                 final Church church = item.getObject();
-                item.setParent(church.hasParent() ? visibleChurches.get(church.getParentId()) : null);
+                item.setParent(mMapLayers[MAP_LAYER_CHURCH_PARENTS] && church.hasParent() ?
+                                       visibleChurches.get(church.getParentId()) : null);
             }
         }
 

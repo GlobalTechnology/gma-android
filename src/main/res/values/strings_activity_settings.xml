@@ -17,6 +17,7 @@
     <string name="pref_summary_mcc_none_available">No MCCs available</string>
 
     <!-- Map preferences -->
+    <string name="pref_title_map_layer_church_parents">Church Parents</string>
     <string name="pref_title_map_layer_church_target">Targets</string>
     <string name="pref_title_map_layer_church_group">Groups</string>
     <string name="pref_title_map_layer_church_church">Churches</string>

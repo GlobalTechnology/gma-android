@@ -16,6 +16,7 @@ public final class Constants {
     public static final String PREF_MAP_LAYER_CHURCH_GROUP = "map.layer.church.group";
     public static final String PREF_MAP_LAYER_CHURCH_CHURCH = "map.layer.church.church";
     public static final String PREF_MAP_LAYER_CHURCH_MULTIPLYING = "map.layer.church.multiplying";
+    public static final String PREF_MAP_LAYER_CHURCH_PARENTS = "map.layer.church.parents";
 
     @NonNull
     public static String PREFS_SETTINGS(@NonNull final String guid) {
