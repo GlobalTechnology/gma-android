@@ -36,6 +36,7 @@ public class MeasurementBreakdownExpandableViewAdapter extends AbstractExpandabl
     private final int GROUP_TEAM = 3;
     private final int GROUP_SUBMINISTRIES = 4;
     private final int GROUP_SELFASSIGNED = 5;
+    private final int GROUP_SPLITMEASUREMENTS = 6;
 
     @Nullable
     private MeasurementDetails mDetails;
@@ -75,6 +76,8 @@ public class MeasurementBreakdownExpandableViewAdapter extends AbstractExpandabl
                 return mDetails.getSelfAssignedBreakdown().length;
             case GROUP_SUBMINISTRIES:
                 return mDetails.getSubMinistriesBreakdown().length;
+            case GROUP_SPLITMEASUREMENTS:
+                return mDetails.getSplitMeasurementsBreakdown().length;
             default:
                 return 0;
         }
@@ -96,6 +99,9 @@ public class MeasurementBreakdownExpandableViewAdapter extends AbstractExpandabl
                 break;
             case GROUP_SUBMINISTRIES:
                 rawId = mDetails.getSubMinistriesBreakdown()[childPosition].getId();
+                break;
+            case GROUP_SPLITMEASUREMENTS:
+                rawId = mDetails.getSplitMeasurementsBreakdown()[childPosition].getId();
                 break;
             default:
                 return RecyclerView.NO_ID;
@@ -124,6 +130,9 @@ public class MeasurementBreakdownExpandableViewAdapter extends AbstractExpandabl
             }
             if (mDetails.getSelfAssignedBreakdown().length > 0) {
                 groups.add(GROUP_SELFASSIGNED);
+            }
+            if (mDetails.getSplitMeasurementsBreakdown().length > 0) {
+                groups.add(GROUP_SPLITMEASUREMENTS);
             }
             mGroups = Ints.toArray(groups);
         } else {
@@ -169,6 +178,10 @@ public class MeasurementBreakdownExpandableViewAdapter extends AbstractExpandabl
                 label = "Sub-Ministries / Teams";
                 value = Integer.toString(mDetails != null ? mDetails.getSubMinistriesBreakdownTotal() : 0);
                 break;
+            case GROUP_SPLITMEASUREMENTS:
+                label = "Split Measurements";
+                value = Integer.toString(mDetails != null ? mDetails.getmSplitMeasurementsBreakdownTotal() : 0);
+                break;
         }
 
         if (holder.mLabel != null) {
@@ -198,6 +211,9 @@ public class MeasurementBreakdownExpandableViewAdapter extends AbstractExpandabl
                 break;
             case GROUP_SUBMINISTRIES:
                 breakdown = mDetails.getSubMinistriesBreakdown()[childPosition];
+                break;
+            case GROUP_SPLITMEASUREMENTS:
+                breakdown = mDetails.getSplitMeasurementsBreakdown()[childPosition];
                 break;
             default:
                 breakdown = null;

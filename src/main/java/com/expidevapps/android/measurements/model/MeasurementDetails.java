@@ -37,6 +37,7 @@ public class MeasurementDetails extends Base {
     private static final String JSON_BREAKDOWN_TEAM = "team";
     private static final String JSON_BREAKDOWN_SELF_ASSIGNED = "self_assigned";
     private static final String JSON_BREAKDOWN_SUB_MINISTRIES = "sub_ministries";
+    private static final String JSON_BREAKDOWN_SPLIT_MEASUREMENTS = "split_measurements";
 
     @NonNull
     private final String guid;
@@ -70,6 +71,9 @@ public class MeasurementDetails extends Base {
     @Nullable
     private transient Breakdown[] subMinistries;
     private transient int subMinistriesTotal = 0;
+    @Nullable
+    private transient Breakdown[] mSplitMeasurements;
+    private transient int mSplitMeasurementsTotal = 0;
 
     public MeasurementDetails(@NonNull final String guid, @NonNull final String ministryId, @NonNull final Mcc mcc,
                               @NonNull final String permLink, @NonNull final YearMonth period) {
@@ -227,6 +231,23 @@ public class MeasurementDetails extends Base {
         }
 
         return this.selfAssignedTotal;
+    }
+
+    @NonNull
+    public Breakdown[] getSplitMeasurementsBreakdown() {
+        if (mSplitMeasurements == null) {
+            parseSplitMeasurementsBreakdown();
+        }
+
+        return mSplitMeasurements;
+    }
+
+    public int getmSplitMeasurementsBreakdownTotal() {
+        if (mSplitMeasurements == null) {
+            parseSplitMeasurementsBreakdown();
+        }
+
+        return mSplitMeasurementsTotal;
     }
 
     private void resetTransients() {
@@ -400,6 +421,28 @@ public class MeasurementDetails extends Base {
         this.subMinistriesTotal = 0;
     }
 
+    private void parseSplitMeasurementsBreakdown() {
+        final JSONObject json = getJson();
+        if (json != null) {
+            final JSONObject splitJson = json.optJSONObject(JSON_BREAKDOWN_SPLIT_MEASUREMENTS);
+            if (splitJson != null) {
+                final ArrayList<SplitMeasurementBreakdown> breakdowns = new ArrayList<>(splitJson.length());
+                final Iterator<String> keys = splitJson.keys();
+                while (keys.hasNext()) {
+                    final String key = keys.next();
+                    breakdowns.add(new SplitMeasurementBreakdown(key, splitJson.optInt(key, 0)));
+                }
+
+                mSplitMeasurements = breakdowns.toArray(new Breakdown[breakdowns.size()]);
+                mSplitMeasurementsTotal = sumBreakdowns(mSplitMeasurements);
+                return;
+            }
+        }
+
+        mSplitMeasurements = new Breakdown[0];
+        mSplitMeasurementsTotal = 0;
+    }
+
     private int sumBreakdowns(@Nullable final Breakdown[] breakdowns) {
         int total = 0;
         if (breakdowns != null) {
@@ -534,6 +577,34 @@ public class MeasurementDetails extends Base {
         @Override
         public int getValue() {
             return value;
+        }
+    }
+
+    static final class SplitMeasurementBreakdown implements Breakdown {
+        @NonNull
+        private final String mPermLink;
+        private final int mValue;
+
+        public SplitMeasurementBreakdown(@NonNull final String permLink, final int value) {
+            mPermLink = permLink;
+            mValue = value;
+        }
+
+        @Nullable
+        @Override
+        public Object getId() {
+            return mPermLink;
+        }
+
+        @Nullable
+        @Override
+        public String getName() {
+            return mPermLink;
+        }
+
+        @Override
+        public int getValue() {
+            return mValue;
         }
     }
 
