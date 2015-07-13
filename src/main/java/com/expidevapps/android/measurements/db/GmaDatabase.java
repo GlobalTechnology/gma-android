@@ -44,9 +44,11 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
      * 32: 2015-05-15
      * v0.8.8
      * 33: 2015-05-19
+     * v0.8.9
+     * 34: 2015-07-13
      */
     private static final String DATABASE_NAME = "gcm_data.db";
-    private static final int DATABASE_VERSION = 33;
+    private static final int DATABASE_VERSION = 34;
 
     private static final Object LOCK_INSTANCE = new Object();
     private static GmaDatabase INSTANCE;
@@ -79,6 +81,7 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
             db.execSQL(Contract.MinistryMeasurement.SQL_CREATE_TABLE);
             db.execSQL(Contract.PersonalMeasurement.SQL_CREATE_TABLE);
             db.execSQL(Contract.MeasurementDetails.SQL_CREATE_TABLE);
+            db.execSQL(Contract.MeasurementVisibility.SQL_CREATE_TABLE);
             db.execSQL(Contract.LastSync.SQL_CREATE_TABLE);
 
             db.setTransactionSuccessful();
@@ -154,13 +157,15 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
                         db.execSQL(Contract.LastSync.SQL_CREATE_TABLE);
                         break;
                     case 31:
-                        db.execSQL(Contract.MeasurementVisibility.SQL_CREATE_TABLE);
                         break;
                     case 32:
                         db.execSQL(Contract.MeasurementType.SQL_V32_ALTER_CUSTOM);
                         break;
                     case 33:
                         db.execSQL(Contract.Church.SQL_v33_ALTER_PARENT);
+                        break;
+                    case 34:
+                        db.execSQL(Contract.MeasurementVisibility.SQL_CREATE_TABLE);
                         break;
                     default:
                         // unrecognized version
