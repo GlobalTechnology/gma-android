@@ -7,8 +7,8 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:1.2.3'
-        classpath 'com.newrelic.agent.android:agent-gradle-plugin:5.0.1'
-        classpath 'io.fabric.tools:gradle:1.19.0'
+        classpath 'com.newrelic.agent.android:agent-gradle-plugin:5.1.2'
+        classpath 'io.fabric.tools:gradle:1.19.2'
     }
 }
 
@@ -132,16 +132,16 @@ repositories {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:22.1.1'
-    compile 'com.android.support:recyclerview-v7:22.1.1'
-    compile 'com.android.support:support-v4:22.1.1'
-    compile 'com.google.android.gms:play-services-analytics:7.3.0'
-    compile 'com.google.android.gms:play-services-maps:7.3.0'
+    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:recyclerview-v7:22.2.0'
+    compile 'com.android.support:support-v4:22.2.0'
+    compile 'com.google.android.gms:play-services-analytics:7.5.0'
+    compile 'com.google.android.gms:play-services-maps:7.5.0'
     compile 'com.google.guava:guava:18.0'
     compile 'com.google.maps.android:android-maps-utils:0.3.4'
 
-    compile 'com.crashlytics.sdk.android:crashlytics:2.2.4'
-    compile 'com.newrelic.agent.android:android-agent:5.0.1'
+    compile 'com.crashlytics.sdk.android:crashlytics:2.4.0'
+    compile 'com.newrelic.agent.android:android-agent:5.1.2'
 
     compile 'com.jakewharton:butterknife:6.1.0'
 
