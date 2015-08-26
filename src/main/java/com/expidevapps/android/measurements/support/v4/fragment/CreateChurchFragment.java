@@ -1,8 +1,5 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.SQLException;
@@ -30,6 +27,9 @@ import java.security.SecureRandom;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.Optional;
+
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
 
 public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     private static String ARG_LOCATION = CreateChurchFragment.class.getName() + ".ARG_LOCATION";
@@ -99,6 +99,9 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
         }
         if (mContactEmailView != null) {
             church.setContactEmail(mContactEmailView.getText().toString());
+        }
+        if (mContactMobileView != null) {
+            church.setContactMobile(mContactMobileView.getText().toString());
         }
         if (mDevelopmentSpinner != null) {
             final Object development = mDevelopmentSpinner.getSelectedItem();

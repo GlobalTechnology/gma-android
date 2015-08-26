@@ -1,7 +1,5 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,6 +21,8 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
 import butterknife.Optional;
+
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 
 public abstract class BaseEditChurchDialogFragment extends DialogFragment {
     @Optional
@@ -46,6 +46,10 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
     @Nullable
     @InjectView(R.id.contactEmail)
     TextView mContactEmailView;
+    @Optional
+    @Nullable
+    @InjectView(R.id.contactMobile)
+    TextView mContactMobileView;
     @Optional
     @Nullable
     @InjectView(R.id.development)

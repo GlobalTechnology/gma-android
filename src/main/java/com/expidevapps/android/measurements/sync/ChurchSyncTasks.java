@@ -1,8 +1,5 @@
 package com.expidevapps.android.measurements.sync;
 
-import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
-import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
-
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
@@ -28,6 +25,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
+
 class ChurchSyncTasks extends BaseSyncTasks {
     private static final String SYNC_TIME_CHURCHES = "last_synced.churches";
 
@@ -37,7 +37,7 @@ class ChurchSyncTasks extends BaseSyncTasks {
 
     private static String[] PROJECTION_GET_CHURCHES_DATA =
             {Contract.Church.COLUMN_PARENT, Contract.Church.COLUMN_MINISTRY_ID, Contract.Church.COLUMN_NAME,
-                    Contract.Church.COLUMN_CONTACT_NAME, Contract.Church.COLUMN_CONTACT_EMAIL,
+                    Contract.Church.COLUMN_CONTACT_NAME, Contract.Church.COLUMN_CONTACT_EMAIL, Contract.Church.COLUMN_CONTACT_MOBILE,
                     Contract.Church.COLUMN_LATITUDE, Contract.Church.COLUMN_LONGITUDE, Contract.Church.COLUMN_SIZE,
                     Contract.Church.COLUMN_DEVELOPMENT, Contract.Church.COLUMN_SECURITY};
 

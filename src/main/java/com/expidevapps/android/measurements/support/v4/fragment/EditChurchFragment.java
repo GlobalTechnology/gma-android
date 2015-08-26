@@ -1,10 +1,5 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
-import static android.view.View.GONE;
-import static com.expidevapps.android.measurements.Constants.ARG_CHURCH_ID;
-import static com.expidevapps.android.measurements.Constants.VISIBILITY;
-import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -38,6 +33,11 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import butterknife.Optional;
 
+import static android.view.View.GONE;
+import static com.expidevapps.android.measurements.Constants.ARG_CHURCH_ID;
+import static com.expidevapps.android.measurements.Constants.VISIBILITY;
+import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
+
 public class EditChurchFragment extends BaseEditChurchDialogFragment {
     private static final int LOADER_CHURCH = 1;
 
@@ -45,10 +45,11 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     private static final int CHANGED_CONTACT_EMAIL = 1;
     private static final int CHANGED_DEVELOPMENT = 2;
     private static final int CHANGED_SIZE = 3;
+    private static final int CHANGED_CONTACT_MOBILE = 4;
 
     private long mChurchId = Church.INVALID_ID;
     @NonNull
-    private boolean[] mChanged = new boolean[4];
+    private boolean[] mChanged = new boolean[5];
     @Nullable
     private Church mChurch;
 
@@ -110,6 +111,10 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                 mChanged[CHANGED_CONTACT_EMAIL] =
                         !(mChurch != null ? text.equals(mChurch.getContactEmail()) : text.isEmpty());
                 break;
+            case R.id.contactMobile:
+                mChanged[CHANGED_CONTACT_MOBILE] =
+                        !(mChurch != null ? text.equals(mChurch.getContactMobile()) : text.isEmpty());
+                break;
             case R.id.size:
                 mChanged[CHANGED_SIZE] =
                         !(mChurch != null ? text.equals(Integer.toString(mChurch.getSize())) : text.isEmpty());
@@ -128,6 +133,9 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
             }
             if (mContactEmailView != null && mChanged[CHANGED_CONTACT_EMAIL]) {
                 updates.mContactEmail = mContactEmailView.getText().toString();
+            }
+            if (mContactMobileView != null && mChanged[CHANGED_CONTACT_MOBILE]) {
+                updates.mContactMobile = mContactMobileView.getText().toString();
             }
             if (mDevelopmentSpinner != null && mChanged[CHANGED_DEVELOPMENT]) {
                 final Object development = mDevelopmentSpinner.getSelectedItem();
@@ -168,6 +176,9 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         if (mContactEmailView != null && !mChanged[CHANGED_CONTACT_EMAIL]) {
             mContactEmailView.setText(mChurch != null ? mChurch.getContactEmail() : null);
         }
+        if (mContactMobileView != null && !mChanged[CHANGED_CONTACT_MOBILE]) {
+            mContactMobileView.setText(mChurch != null ? mChurch.getContactMobile() : null);
+        }
         if (mSizeView != null && !mChanged[CHANGED_SIZE]) {
             mSizeView.setText(mChurch != null ? Integer.toString(mChurch.getSize()) : null);
         }
@@ -190,6 +201,14 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     void updateContactEmail(@Nullable final Editable text) {
         if (mContactEmailView != null) {
             onTextUpdated(mContactEmailView, text != null ? text.toString() : "");
+        }
+    }
+
+    @Optional
+    @OnTextChanged(value = R.id.contactMobile, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    void updateContactMobile(@Nullable final Editable text) {
+        if (mContactMobileView != null) {
+            onTextUpdated(mContactMobileView, text != null ? text.toString() : "");
         }
     }
 
@@ -227,12 +246,14 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         @Nullable
         String mContactEmail;
         @Nullable
+        String mContactMobile;
+        @Nullable
         Integer mSize;
         @Nullable
         Development mDevelopment;
 
         boolean hasUpdates() {
-            return mContactName != null || mContactEmail != null || mSize != null || mDevelopment != null;
+            return mContactName != null || mContactEmail != null || mContactMobile != null || mSize != null || mDevelopment != null;
         }
     }
 
@@ -278,6 +299,10 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                 if (mUpdates.mContactEmail != null) {
                     church.setContactEmail(mUpdates.mContactEmail);
                     projection.add(Contract.Church.COLUMN_CONTACT_EMAIL);
+                }
+                if (mUpdates.mContactMobile != null) {
+                    church.setContactMobile(mUpdates.mContactMobile);
+                    projection.add(Contract.Church.COLUMN_CONTACT_MOBILE);
                 }
                 if (mUpdates.mSize != null) {
                     church.setSize(mUpdates.mSize);

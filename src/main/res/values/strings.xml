@@ -30,6 +30,7 @@
     <string name="label_church_name">Name</string>
     <string name="label_church_contact_name">Contact Name</string>
     <string name="label_church_contact_email">Contact Email</string>
+    <string name="label_church_contact_mobile">Contact Mobile</string>
     <string name="label_church_development">Type</string>
     <string name="label_church_size">Size</string>
     <string name="button_church_create">Create</string>
@@ -38,6 +39,8 @@
     <string name="label_training_name">Name</string>
     <string name="label_training_type">Training Type</string>
     <string name="label_training_date">Date</string>
+    <string name="label_training_participants">Participants</string>
+    <string name="label_training_mcc">MCC</string>
 
     <!-- Buttons -->
     <string name="ok">OK</string>

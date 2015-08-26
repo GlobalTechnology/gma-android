@@ -99,6 +99,26 @@
                 tools:text="contact@email.com"/>
         </TableRow>
 
+        <TableRow>
+
+            <TextView
+                android:id="@+id/contactMobileLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:gravity="center_vertical|start"
+                android:text="@string/label_church_contact_mobile"
+                android:layout_gravity="center_vertical"/>
+
+            <EditText
+                android:id="@+id/contactMobile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="phone" />
+        </TableRow>
+
         <TableRow android:id="@+id/developmentRow">
 
             <TextView
