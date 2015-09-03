@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_join_ministry">Join new ministry</string>
+    <string name="title_activity_join_ministry">Join Ministry</string>
+
+    <string name="label_join_ministry_ministry">Ministry/Team</string>
+    <string name="btn_join_ministry_join">Join</string>
+</resources>

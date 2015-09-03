@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:textAppearance="@style/TextAppearance.GMA.Large"
-            android:text="Ministry/Team"/>
+            android:text="@string/label_join_ministry_ministry"/>
 
         <TextView
             android:id="@+id/name"
@@ -55,7 +55,7 @@
             android:id="@+id/cancel"
             android:layout_width="wrap_content"
             style="@style/Widget.GMA.Button"
-            android:text="Cancel"/>
+            android:text="@string/btn_cancel"/>
 
         <View
             android:layout_width="0dp"
@@ -67,6 +67,6 @@
             android:id="@+id/join"
             android:layout_width="wrap_content"
             style="@style/Widget.GMA.Button"
-            android:text="Join"/>
+            android:text="@string/btn_join_ministry_join"/>
     </LinearLayout>
 </RelativeLayout>

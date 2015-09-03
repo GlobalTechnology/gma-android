@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context="com.expidevapps.android.measurements.activity.MainActivity">
 
     <item android:id="@+id/action_join_ministry"
-        android:title="@string/action_join_new_ministry"
+        android:title="@string/menu_join_ministry"
         android:orderInCategory="1"
         app:showAsAction="never"/>
     <item android:id="@+id/action_measurements"

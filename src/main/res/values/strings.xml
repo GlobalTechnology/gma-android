@@ -3,14 +3,10 @@
     <!-- Titles -->
     <string name="app_name">GMA</string>
     <string name="title_activity_main">GMA</string>
-    <string name="title_activity_join_ministry">Join Ministry</string>
     <string name="title_dialog_blocked">Blocked</string>
 
     <!-- Common Menu items -->
     <string name="menu_refresh">Refresh</string>
-
-    <!-- Main Activity -->
-    <string name="action_join_new_ministry">Join new ministry</string>
 
     <!-- Common Buttons -->
     <string name="btn_ok">OK</string>
