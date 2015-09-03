@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class Training extends Location implements Cloneable {
     public static final long INVALID_ID = -1;
@@ -147,7 +148,7 @@ public class Training extends Location implements Cloneable {
     @Deprecated
     public void setDate(String date) throws ParseException
     {
-        DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+        DateFormat format = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
         setDate(new LocalDate(format.parse(date)));
     }
 
