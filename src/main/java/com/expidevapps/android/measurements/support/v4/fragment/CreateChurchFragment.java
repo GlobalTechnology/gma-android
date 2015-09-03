@@ -124,7 +124,7 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
 
     private void setupViews() {
         if(mSaveView != null) {
-            mSaveView.setText(R.string.button_church_create);
+            mSaveView.setText(R.string.btn_church_create);
         }
     }
 

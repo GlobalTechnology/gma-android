@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label_church_name">Name</string>
+    <string name="label_church_contact_name">Contact Name</string>
+    <string name="label_church_contact_email">Contact Email</string>
+    <string name="label_church_development">Type</string>
+    <string name="label_church_size">Size</string>
+    <string name="btn_church_create">Create</string>
+</resources>
