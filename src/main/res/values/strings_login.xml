@@ -2,4 +2,8 @@
 <resources>
     <string name="text_login_welcome">Welcome to GMA, click Sign In to get started.</string>
     <string name="btn_login">Sign In</string>
+
+    <string name="menu_logout">Logout</string>
+    <string name="title_dialog_logout">Logout</string>
+    <string name="text_logout_message">Are you sure you want to logout?</string>
 </resources>

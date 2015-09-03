@@ -19,7 +19,7 @@
         app:showAsAction="never"
         android:title="@string/menu_refresh"/>
     <item android:id="@+id/action_logout"
-        android:title="@string/logout"
+        android:title="@string/menu_logout"
         android:orderInCategory="102"
         app:showAsAction="never"/>
 

@@ -263,8 +263,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void logout() {
         if (mGuid != null) {
-            new AlertDialog.Builder(this).setTitle(R.string.logout).setMessage(
-                    R.string.logout_message).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            new AlertDialog.Builder(this).setTitle(R.string.title_dialog_logout).setMessage(
+                    R.string.text_logout_message).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     mGoogleAnalytics.sendLogoutEvent(mGuid);
                     mTheKey.logout(mGuid);
