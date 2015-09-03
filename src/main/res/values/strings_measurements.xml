@@ -3,6 +3,11 @@
     <string name="title_activity_measurements">Measurements</string>
     <string name="title_activity_measurement_details">Measurement Details</string>
 
+    <!-- Measurements Not Authorized dialog -->
+    <string name="title_dialog_measurements_unauthorized">Blocked</string>
+    <string name="text_dialog_measurements_unauthorized">You are not allowed to view measurements for this ministry</string>
+
+    <!-- Measurement accordion sections -->
     <string name="label_measurements_column_faith">Faith Actions</string>
     <string name="label_measurements_column_fruit">Fruit</string>
     <string name="label_measurements_column_outcomes">Outcomes</string>

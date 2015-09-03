@@ -247,8 +247,8 @@ public class MainActivity extends AppCompatActivity {
                                mAssignment.can(UPDATE_PERSONAL_MEASUREMENTS) ? TYPE_PERSONAL : TYPE_LOCAL);
             } else {
                 AlertDialog alertDialog = new AlertDialog.Builder(this)
-                        .setTitle(getString(R.string.title_dialog_blocked))
-                        .setMessage(getString(R.string.disallowed_measurements))
+                        .setTitle(getString(R.string.title_dialog_measurements_unauthorized))
+                        .setMessage(getString(R.string.text_dialog_measurements_unauthorized))
                         .setNeutralButton(getString(R.string.btn_ok), new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();

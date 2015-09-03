@@ -3,7 +3,6 @@
     <!-- Titles -->
     <string name="app_name">GMA</string>
     <string name="title_activity_main">GMA</string>
-    <string name="title_dialog_blocked">Blocked</string>
 
     <!-- Common Menu items -->
     <string name="menu_refresh">Refresh</string>
@@ -12,7 +11,4 @@
     <string name="btn_ok">OK</string>
     <string name="btn_update">Update</string>
     <string name="btn_cancel">Cancel</string>
-
-    <!-- Messages -->
-    <string name="disallowed_measurements">You are not allowed to view measurements for this ministry</string>
 </resources>
