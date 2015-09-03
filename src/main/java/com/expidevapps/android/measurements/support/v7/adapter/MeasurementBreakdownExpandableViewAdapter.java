@@ -155,31 +155,31 @@ public class MeasurementBreakdownExpandableViewAdapter extends AbstractExpandabl
 
     @Override
     public void onBindGroupViewHolder(@NonNull final ViewHolder holder, final int groupPosition, final int layout) {
-        String label = null;
+        int label = 0;
         String value = null;
         switch (mGroups[groupPosition]) {
             case GROUP_TOTAL:
-                label = "Total";
+                label = R.string.label_measurement_details_breakdown_total;
                 value = Integer.toString(mDetails != null ? mDetails.getTotal() : 0);
                 break;
             case GROUP_LOCAL:
-                label = "Local Team";
+                label = R.string.label_measurement_details_breakdown_local;
                 value = Integer.toString(mDetails != null ? mDetails.getLocalBreakdownTotal() : 0);
                 break;
             case GROUP_SELFASSIGNED:
-                label = "Self Assigned Members";
+                label = R.string.label_measurement_details_breakdown_selfassigned;
                 value = Integer.toString(mDetails != null ? mDetails.getSelfAssignedBreakdownTotal() : 0);
                 break;
             case GROUP_TEAM:
-                label = "Team Members";
+                label = R.string.label_measurement_details_breakdown_team;
                 value = Integer.toString(mDetails != null ? mDetails.getTeamBreakdownTotal() : 0);
                 break;
             case GROUP_SUBMINISTRIES:
-                label = "Sub-Ministries / Teams";
+                label = R.string.label_measurement_details_breakdown_subministries;
                 value = Integer.toString(mDetails != null ? mDetails.getSubMinistriesBreakdownTotal() : 0);
                 break;
             case GROUP_SPLITMEASUREMENTS:
-                label = "Split Measurements";
+                label = R.string.label_measurement_details_breakdown_split;
                 value = Integer.toString(mDetails != null ? mDetails.getmSplitMeasurementsBreakdownTotal() : 0);
                 break;
         }

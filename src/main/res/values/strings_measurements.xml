@@ -4,4 +4,12 @@
     <string name="label_measurements_column_fruit">Fruit</string>
     <string name="label_measurements_column_outcomes">Outcomes</string>
     <string name="label_measurements_column_other">Other</string>
+
+    <!-- Measurement details breakdown sections -->
+    <string name="label_measurement_details_breakdown_total">Total</string>
+    <string name="label_measurement_details_breakdown_local">Local Team</string>
+    <string name="label_measurement_details_breakdown_team">Team Members</string>
+    <string name="label_measurement_details_breakdown_subministries">Sub-Ministries / Teams</string>
+    <string name="label_measurement_details_breakdown_selfassigned">Self Assigned Members</string>
+    <string name="label_measurement_details_breakdown_split">Split Measurements</string>
 </resources>
