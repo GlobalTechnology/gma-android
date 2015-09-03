@@ -55,6 +55,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
     public static final int V2 = 2;
     public static final int V4 = 4;
+    public static final int V5 = 5;
 
     private static final String PREF_COOKIES = "cookies";
 
