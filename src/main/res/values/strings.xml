@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- Titles -->
     <string name="app_name">GMA</string>
     <string name="title_activity_main">GMA</string>
@@ -33,14 +32,11 @@
     <string name="label_training_type">Training Type</string>
     <string name="label_training_date">Date</string>
 
-    <!-- Buttons -->
-    <string name="ok">OK</string>
-    <string name="update_button">Update</string>
-    <string name="cancel">Cancel</string>
-    <string name="save">Save</string>
-    <string name="move">Move</string>
+    <!-- Common Buttons -->
+    <string name="btn_ok">OK</string>
+    <string name="btn_update">Update</string>
+    <string name="btn_cancel">Cancel</string>
 
     <!-- Messages -->
     <string name="disallowed_measurements">You are not allowed to view measurements for this ministry</string>
-
 </resources>

@@ -108,7 +108,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginTop="10dp"
         style="@style/Widget.GMA.Button"
-        android:text="@string/update_button"/>
+        android:text="@string/btn_update"/>
 
     <Button
         android:id="@+id/training_cancel"
