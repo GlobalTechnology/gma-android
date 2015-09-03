@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="custom_training_image">50dp</dimen>
-    <dimen name="custom_training_padding">2dp</dimen>
-</resources>
