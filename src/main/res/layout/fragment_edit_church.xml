@@ -153,5 +153,5 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         style="@style/Widget.GMA.Button"
-        android:text="@string/btn_cancel"/>
+        android:text="@android:string/cancel"/>
 </RelativeLayout>

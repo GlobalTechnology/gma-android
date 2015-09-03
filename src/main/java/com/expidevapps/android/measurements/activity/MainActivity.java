@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
                 AlertDialog alertDialog = new AlertDialog.Builder(this)
                         .setTitle(getString(R.string.title_dialog_measurements_unauthorized))
                         .setMessage(getString(R.string.text_dialog_measurements_unauthorized))
-                        .setNeutralButton(getString(R.string.btn_ok), new DialogInterface.OnClickListener() {
+                        .setNeutralButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
                             }
@@ -264,13 +264,13 @@ public class MainActivity extends AppCompatActivity {
     public void logout() {
         if (mGuid != null) {
             new AlertDialog.Builder(this).setTitle(R.string.title_dialog_logout).setMessage(
-                    R.string.text_logout_message).setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
+                    R.string.text_logout_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     mGoogleAnalytics.sendLogoutEvent(mGuid);
                     mTheKey.logout(mGuid);
                     dialog.dismiss();
                 }
-            }).setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
+            }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();

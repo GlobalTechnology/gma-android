@@ -8,7 +8,5 @@
     <string name="menu_refresh">Refresh</string>
 
     <!-- Common Buttons -->
-    <string name="btn_ok">OK</string>
     <string name="btn_update">Update</string>
-    <string name="btn_cancel">Cancel</string>
 </resources>
