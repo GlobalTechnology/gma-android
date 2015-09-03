@@ -1,6 +1,8 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -8,9 +10,11 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
+import android.util.Log;
 import android.view.View;
 
 import com.expidevapps.android.measurements.R;
+import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Church;
@@ -20,9 +24,12 @@ import com.expidevapps.android.measurements.support.v4.content.ChurchLoader;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.common.collect.Lists;
 
+import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.db.Transaction;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -157,6 +164,35 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
 
         // dismiss the dialog
         dismiss();
+    }
+
+    @Optional
+    @OnClick(R.id.delete)
+    void onDeleteChurch() {
+        Log.d("ITH", "onDeleteChurch called.");
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        dialog.setMessage("Are you sure you want to delete ?")
+                .setTitle("Confirm?")
+                .setCancelable(true)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                        //dismiss the dialog
+                        dismiss();
+
+                        if(mChurch != null) {
+                            AsyncTaskCompat.execute(new DeleteChurcuRunnable(getActivity(), mGuid, mChurch));
+                        }
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = dialog.create();
+        alert.show();
     }
 
     /* END lifecycle */
@@ -333,4 +369,55 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
             GmaSyncService.syncDirtyChurches(mContext, mGuid);
         }
     }
+
+    private static class DeleteChurcuRunnable implements Runnable {
+        private final Context mContext;
+        private final String mGuid;
+        private final Church mChurch;
+
+        public DeleteChurcuRunnable(@NonNull final Context context, @NonNull final String guid,
+                                      @NonNull final Church church) {
+            mContext = context.getApplicationContext();
+            mGuid = guid;
+            mChurch = church;
+        }
+
+        @Override
+        public void run() {
+            final GmaDao dao = GmaDao.getInstance(mContext);
+            final GmaApiClient api = GmaApiClient.getInstance(mContext, mGuid);
+
+            dao.delete(mChurch);
+
+            try {
+                try {
+                    final JSONObject json = mChurch.toJson();
+
+                    String endDate = Church.getChurchEndDate();
+                    json.put("end_date", endDate);
+
+                    final boolean success = api.deleteChurch(mChurch.getId(), json);
+                }
+                catch (JSONException e) {
+                    Log.e("JSONException", "JSONException occured");
+                }
+            }
+            catch(ApiException e) {
+                Log.e("DeleteChurch", "ApiException occured.");
+            }
+
+            /*// track this update in GA
+            GoogleAnalyticsManager.getInstance(mContext)
+                    .sendUpdateTrainingEvent(mGuid, mTraining.getMinistryId(), mTraining.getMcc(), mTraining.getId());
+*/
+            // broadcast that this training was updated
+            final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(mContext);
+            broadcastManager.sendBroadcast(updateChurchesBroadcast(mChurch.getMinistryId(), mChurch.getId()));
+
+            // trigger a sync of dirty churches
+            GmaSyncService.syncDirtyChurches(mContext, mGuid);
+        }
+    }
+
+
 }

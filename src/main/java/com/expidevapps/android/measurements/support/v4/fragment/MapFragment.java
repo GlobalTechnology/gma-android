@@ -1,24 +1,9 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-import static com.expidevapps.android.measurements.Constants.ARG_MCC;
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.PREFS_SETTINGS;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_CHURCH;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_GROUP;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_MULTIPLYING;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_PARENTS;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_TARGET;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_TRAINING;
-import static com.expidevapps.android.measurements.model.Task.CREATE_CHURCH;
-import static com.expidevapps.android.measurements.model.Task.EDIT_CHURCH;
-import static com.expidevapps.android.measurements.model.Task.EDIT_TRAINING;
-import static com.expidevapps.android.measurements.model.Task.VIEW_CHURCH;
-import static com.expidevapps.android.measurements.model.Task.VIEW_TRAINING;
-import static com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
-
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -72,6 +57,24 @@ import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.Optional;
+
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_MCC;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.PREFS_SETTINGS;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_CHURCH;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_GROUP;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_MULTIPLYING;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_PARENTS;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_TARGET;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_TRAINING;
+import static com.expidevapps.android.measurements.model.Task.CREATE_CHURCH;
+import static com.expidevapps.android.measurements.model.Task.CREATE_TRAINING;
+import static com.expidevapps.android.measurements.model.Task.EDIT_CHURCH;
+import static com.expidevapps.android.measurements.model.Task.EDIT_TRAINING;
+import static com.expidevapps.android.measurements.model.Task.VIEW_CHURCH;
+import static com.expidevapps.android.measurements.model.Task.VIEW_TRAINING;
+import static com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
 
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback {
     private static final int LOADER_CURRENT_ASSIGNMENT = 1;
@@ -511,6 +514,17 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         }
     }
 
+    void showCreateTraining(@NonNull final LatLng pos) {
+        if (mAssignment != null && mAssignment.can(CREATE_TRAINING)) {
+            final FragmentManager fm = getChildFragmentManager();
+            if (fm.findFragmentByTag("createTraining") == null) {
+                final CreateTrainingFragment fragment =
+                        CreateTrainingFragment.newInstance(mGuid, mAssignment.getMinistryId(), mAssignment.getMcc().raw, pos);
+                fragment.show(fm.beginTransaction().addToBackStack("createTraining"), "createTraining");
+            }
+        }
+    }
+
     void showEditTraining(final long trainingId) {
         if (mAssignment != null && mAssignment.can(EDIT_TRAINING)) {
             final FragmentManager fm = getChildFragmentManager();
@@ -619,7 +633,24 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 mMapFrame.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
             }
 
-            showCreateChurch(pos);
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+            dialog.setMessage("Create New?").setCancelable(true)
+                    .setPositiveButton("Training", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+
+                            showCreateTraining(pos);
+                        }
+                    })
+                    .setNegativeButton("Church", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+
+                            showCreateChurch(pos);
+                        }
+                    });
+            AlertDialog alert = dialog.create();
+            alert.show();
         }
     }
 

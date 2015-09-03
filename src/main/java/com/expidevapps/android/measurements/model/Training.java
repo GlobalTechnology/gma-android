@@ -30,6 +30,11 @@ public class Training extends Location implements Cloneable {
     private static final String JSON_MCC = "mcc";
     private static final String JSON_COMPLETIONS = "gcm_training_completions";
 
+    public static final String TRAINING_TYPE_MC2 = "MC2";
+    public static final String TRAINING_TYPE_T4T = "T4T";
+    public static final String TRAINING_TYPE_CPMI = "CPMI";
+    public static final String TRAINING_TYPE_OTHER = "Other";
+
     private long id;
     @NonNull
     private String ministryId = Ministry.INVALID_ID;
@@ -41,6 +46,8 @@ public class Training extends Location implements Cloneable {
     private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
     @NonNull
     private final List<Completion> completions = new ArrayList<>();
+
+    private boolean mNew = false;
 
     public Training()
     {       
@@ -195,6 +202,15 @@ public class Training extends Location implements Cloneable {
         }
     }
 
+
+    public void setNew(final boolean state) {
+        mNew = state;
+    }
+
+    public boolean isNew() {
+        return mNew;
+    }
+
     public void addCompletion(@NonNull final Completion completion) {
         this.completions.add(completion);
     }
@@ -253,7 +269,7 @@ public class Training extends Location implements Cloneable {
                 completion.id = json.getLong(JSON_ID);
             }
 
-            completion.trainingId = json.getLong(JSON_TRAINING_ID);
+            //completion.trainingId = json.getLong(JSON_TRAINING_ID);//NOT available on API resonse.
             completion.phase = json.getInt(JSON_PHASE);
             completion.numberCompleted = json.getInt(JSON_NUMBER_COMPLETED);
             completion.date = LocalDate.parse(json.getString(JSON_DATE));

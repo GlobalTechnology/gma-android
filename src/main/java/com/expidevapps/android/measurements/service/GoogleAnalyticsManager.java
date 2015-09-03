@@ -1,7 +1,5 @@
 package com.expidevapps.android.measurements.service;
 
-import static com.expidevapps.android.measurements.BuildConfig.GOOGLE_ANALYTICS_CLIENT_ID;
-
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,6 +10,8 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
 import org.joda.time.YearMonth;
+
+import static com.expidevapps.android.measurements.BuildConfig.GOOGLE_ANALYTICS_CLIENT_ID;
 
 public class GoogleAnalyticsManager {
     private static final int DIMEN_GUID = 1;
@@ -174,6 +174,12 @@ public class GoogleAnalyticsManager {
 
     @NonNull
     private HitBuilders.EventBuilder trainingEvent(@NonNull final String action, @NonNull final String guid,
+                                                 @NonNull final String ministryId) {
+        return event(CATEGORY_TRAINING, action, guid, ministryId);
+    }
+
+    @NonNull
+    private HitBuilders.EventBuilder trainingEvent(@NonNull final String action, @NonNull final String guid,
                                                    @NonNull final String ministryId, @NonNull final Mcc mcc,
                                                    final long trainingId) {
         return event(CATEGORY_TRAINING, action, guid, ministryId, mcc)
@@ -183,6 +189,10 @@ public class GoogleAnalyticsManager {
     public void sendMoveTrainingEvent(@NonNull final String guid, @NonNull final String ministryId,
                                       @NonNull final Mcc mcc, final long trainingId) {
         mTracker.send(trainingEvent(ACTION_MOVE, guid, ministryId, mcc, trainingId).build());
+    }
+
+    public void sendCreateTrainingEvent(@NonNull final String guid, @NonNull final String ministryId) {
+        mTracker.send(trainingEvent(ACTION_CREATE, guid, ministryId).build());
     }
 
     public void sendUpdateTrainingEvent(@NonNull final String guid, @NonNull final String ministryId,

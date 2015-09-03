@@ -228,6 +228,7 @@ public class Assignment extends Base implements Cloneable {
             case VIEW_CHURCH:
                 throw new UnsupportedOperationException(
                         "You need to specify a church to check VIEW_CHURCH permissions");
+            case CREATE_TRAINING:
             case EDIT_TRAINING:
             case VIEW_TRAINING:
                 return !isBlocked();

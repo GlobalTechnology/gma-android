@@ -1,7 +1,5 @@
 package com.expidevapps.android.measurements.api;
 
-import static com.expidevapps.android.measurements.Constants.MEASUREMENTS_SOURCE;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
@@ -48,6 +46,8 @@ import java.util.Set;
 
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.TheKeyImpl;
+
+import static com.expidevapps.android.measurements.Constants.MEASUREMENTS_SOURCE;
 
 public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Session>, Session> {
     private static final Logger LOG = LoggerFactory.getLogger(GmaApiClient.class);
@@ -329,6 +329,29 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
     }
 
+    public boolean deleteChurch(final long id, @NonNull final JSONObject church) throws ApiException {
+        Log.d("ITH", "delete Church id: " + id);
+        Log.d("ITH", "delete Church Param: " + church.toString());
+        if (id == Church.INVALID_ID) {
+            return false;
+        }
+        final Request<Session> request = new Request<>(CHURCHES + "/" + id);
+        request.method = Method.PUT;
+        request.setContent(church);
+
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+            Log.d("ITH", "delete Church Response: " + conn.getResponseCode());
+            return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
+        } catch (final IOException e) {
+            Log.d("ITH", "delete Church IOException: " + e.getMessage());
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+    }
+
     /* END church methods */
 
     /* BEGIN measurements methods */
@@ -590,6 +613,38 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         return null;
     }
 
+    @Nullable
+    public Training createTraining(@NonNull final Training training) throws ApiException, JSONException {
+        return this.createTraining(training.toJson());
+    }
+
+    @Nullable
+    public Training createTraining(@NonNull final JSONObject training) throws ApiException {
+        // build request
+        final Request<Session> request = new Request<>(TRAINING);
+        request.method = Method.POST;
+        request.setContent(training);
+
+        // process request
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+
+            // is this a successful response?
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
+                return Training.fromJson(new JSONObject(IOUtils.readString(conn.getInputStream())));
+            }
+        } catch (final JSONException e) {
+            LOG.error("error parsing createTraining response", e);
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+
+        return null;
+    }
+
     public boolean updateTraining(final long id, @NonNull final JSONObject training) throws ApiException {
         if (id == Training.INVALID_ID) {
             return false;
@@ -604,6 +659,26 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             conn = this.sendRequest(request);
             return conn.getResponseCode() == HttpURLConnection.HTTP_CREATED;
         } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+    }
+
+    public boolean deleteTraining(final long id) throws ApiException {
+        if (id == Training.INVALID_ID) {
+            return false;
+        }
+
+        final Request<Session> request = new Request<>(TRAINING + "/" + id);
+        request.method = Method.DELETE;
+
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+            return conn.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT;
+        } catch (final IOException e) {
+            Log.d("Exception", "delete Training IOException: " + e.getMessage());
             throw new ApiSocketException(e);
         } finally {
             IOUtils.closeQuietly(conn);

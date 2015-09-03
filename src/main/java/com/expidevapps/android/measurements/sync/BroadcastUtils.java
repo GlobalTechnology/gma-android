@@ -1,10 +1,5 @@
 package com.expidevapps.android.measurements.sync;
 
-import static com.expidevapps.android.measurements.Constants.EXTRA_CHURCH_IDS;
-import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINKS;
-import static com.expidevapps.android.measurements.Constants.EXTRA_TRAINING_IDS;
-
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
@@ -17,6 +12,11 @@ import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import org.joda.time.YearMonth;
 
 import java.util.Locale;
+
+import static com.expidevapps.android.measurements.Constants.EXTRA_CHURCH_IDS;
+import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINKS;
+import static com.expidevapps.android.measurements.Constants.EXTRA_TRAINING_IDS;
 
 public final class BroadcastUtils {
     private static final Uri URI_ASSIGNMENTS = Uri.parse("gma://assignments/");
@@ -72,6 +72,14 @@ public final class BroadcastUtils {
     private static Uri trainingUri()
     {
         return URI_TRAINING;
+    }
+
+    private static Uri.Builder trainingUriBuilder() {
+        return URI_TRAINING.buildUpon();
+    }
+
+    private static Uri trainingUri(@NonNull final String ministryId) {
+        return trainingUriBuilder().appendPath(ministryId.toUpperCase(Locale.US)).build();
     }
 
     private static Uri measurementsUri()
@@ -175,7 +183,7 @@ public final class BroadcastUtils {
     
     public static Intent updateTrainingBroadcast(@NonNull final String ministryId, @NonNull final long... ids)
     {
-        final Intent intent = new Intent(ACTION_UPDATE_TRAINING);
+        final Intent intent = new Intent(ACTION_UPDATE_TRAINING, ministryId != null ? trainingUri(ministryId) : trainingUri());
         intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
         intent.putExtra(EXTRA_TRAINING_IDS, ids);
         return intent;
@@ -254,7 +262,17 @@ public final class BroadcastUtils {
     
     public static IntentFilter updateTrainingFilter()
     {
-        return new IntentFilter(ACTION_UPDATE_TRAINING);
+        return updateTrainingFilter(null);
+    }
+
+    public static IntentFilter updateTrainingFilter(@Nullable final String ministryId) {
+        final IntentFilter filter = new IntentFilter(ACTION_UPDATE_TRAINING);
+        if (ministryId == null) {
+            addDataUri(filter, trainingUri(), PatternMatcher.PATTERN_PREFIX);
+        } else {
+            addDataUri(filter, trainingUri(ministryId), PatternMatcher.PATTERN_LITERAL);
+        }
+        return filter;
     }
 
     /* BEGIN Measurement filters */

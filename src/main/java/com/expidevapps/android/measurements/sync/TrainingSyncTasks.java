@@ -1,9 +1,5 @@
 package com.expidevapps.android.measurements.sync;
 
-import static com.expidevapps.android.measurements.Constants.ARG_MCC;
-import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
-import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
-
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
@@ -26,7 +22,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+
+import static com.expidevapps.android.measurements.Constants.ARG_MCC;
+import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 class TrainingSyncTasks extends BaseSyncTasks {
     private static final String SYNC_TIME_TRAININGS = "last_synced.trainings";
@@ -53,7 +54,6 @@ class TrainingSyncTasks extends BaseSyncTasks {
         if (mcc == Ministry.Mcc.UNKNOWN) {
             return;
         }
-
         // short-circuit if we aren't forcing a sync and the data isn't stale
         final GmaDao dao = GmaDao.getInstance(context);
         if (!isForced(args)) {
@@ -62,7 +62,6 @@ class TrainingSyncTasks extends BaseSyncTasks {
                 return;
             }
         }
-
         // short-circuit if we fail to fetch trainings from the api
         final GmaApiClient api = GmaApiClient.getInstance(context, guid);
         final List<Training> trainings = api.getTrainings(ministryId, mcc);
@@ -123,7 +122,7 @@ class TrainingSyncTasks extends BaseSyncTasks {
         synchronized (LOCK_DIRTY_TRAININGS) {
             // short-circuit if there aren't any trainings to process
             final GmaDao dao = GmaDao.getInstance(context);
-            final List<Training> trainings = dao.get(Training.class, Contract.Training.SQL_WHERE_DIRTY, null);
+            final List<Training> trainings = dao.get(Training.class, Contract.Training.SQL_WHERE_NEW_OR_DIRTY, null);
             if (trainings.isEmpty()) {
                 return;
             }
@@ -135,7 +134,27 @@ class TrainingSyncTasks extends BaseSyncTasks {
             final GmaApiClient api = GmaApiClient.getInstance(context, guid);
             for (final Training training : trainings) {
                 try {
-                    if (training.isDirty()) {
+                    if (training.isNew()) {
+                        // try creating the training
+                        final Training newTraining = api.createTraining(training);
+
+                        // update id of training
+                        if (newTraining != null) {
+                            dao.delete(training);
+                            newTraining.setLastSynced(new Date());
+                            dao.updateOrInsert(newTraining, PROJECTION_GET_TRAININGS);
+
+                            // add training to list of broadcasts
+                            broadcasts.put(training.getMinistryId(), training.getId());
+                            broadcasts.put(training.getMinistryId(), newTraining.getId());
+
+                            // increment the insert counter
+                            result.stats.numInserts++;
+                        } else {
+                            result.stats.numParseExceptions++;
+                        }
+                    }
+                    else if (training.isDirty()) {
                         // generate dirty JSON
                         final JSONObject json = training.dirtyToJson();
 
