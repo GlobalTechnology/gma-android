@@ -16,11 +16,6 @@
     <!-- Join Ministry Activity -->
     <string name="cancel_button">Cancel</string>
 
-    <!-- Training Details Fragment-->
-    <string name="label_training_name">Name</string>
-    <string name="label_training_type">Training Type</string>
-    <string name="label_training_date">Date</string>
-
     <!-- Common Buttons -->
     <string name="btn_ok">OK</string>
     <string name="btn_update">Update</string>
