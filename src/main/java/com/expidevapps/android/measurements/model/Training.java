@@ -90,7 +90,7 @@ public class Training extends Location implements Cloneable {
 
         final JSONArray completions = json.optJSONArray(JSON_COMPLETIONS);
         if (completions != null) {
-            training.setCompletions(Completion.listFromJson(completions));
+            training.setCompletions(Completion.listFromJson(training.id, completions));
         }
 
         return training;
@@ -222,29 +222,29 @@ public class Training extends Location implements Cloneable {
         @Deprecated
         private static final String JSON_ID_V2 = "Id";
         private static final String JSON_ID = "id";
-        private static final String JSON_TRAINING_ID = "training_id";
         private static final String JSON_PHASE = "phase";
         private static final String JSON_NUMBER_COMPLETED = "number_completed";
         private static final String JSON_DATE = "date";
 
         private long id;
-        private long trainingId;
+        private long trainingId = Training.INVALID_ID;
         private int phase;
         private int numberCompleted;
         @Nullable
         private LocalDate date = LocalDate.now();
 
         @NonNull
-        public static List<Completion> listFromJson(@NonNull final JSONArray json) throws JSONException {
+        public static List<Completion> listFromJson(final long trainingId, @NonNull final JSONArray json)
+                throws JSONException {
             final List<Completion> completions = new ArrayList<>();
             for (int i = 0; i < json.length(); i++) {
-                completions.add(fromJson(json.getJSONObject(i)));
+                completions.add(fromJson(trainingId, json.getJSONObject(i)));
             }
             return completions;
         }
 
         @NonNull
-        public static Completion fromJson(@NonNull final JSONObject json) throws JSONException {
+        public static Completion fromJson(final long trainingId, @NonNull final JSONObject json) throws JSONException {
             final Completion completion = new Completion();
 
             if (BuildConfig.GMA_API_VERSION < 4) {
@@ -253,7 +253,7 @@ public class Training extends Location implements Cloneable {
                 completion.id = json.getLong(JSON_ID);
             }
 
-            completion.trainingId = json.getLong(JSON_TRAINING_ID);
+            completion.trainingId = trainingId;
             completion.phase = json.getInt(JSON_PHASE);
             completion.numberCompleted = json.getInt(JSON_NUMBER_COMPLETED);
             completion.date = LocalDate.parse(json.getString(JSON_DATE));
