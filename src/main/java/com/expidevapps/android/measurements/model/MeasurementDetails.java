@@ -1,5 +1,6 @@
 package com.expidevapps.android.measurements.model;
 
+import static com.expidevapps.android.measurements.Constants.INVALID_STRING_RES;
 import static com.expidevapps.android.measurements.Constants.MEASUREMENTS_SOURCE;
 import static com.expidevapps.android.measurements.api.GmaApiClient.V4;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
@@ -8,7 +9,9 @@ import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_T
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 
+import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableTable;
@@ -329,7 +332,7 @@ public class MeasurementDetails extends Base {
                     final int value = localJson.optInt(key, 0);
                     switch (key) {
                         case MEASUREMENTS_SOURCE:
-                            data.add(new SimpleBreakdown("Local", value));
+                            data.add(new SimpleBreakdown(R.string.label_measurement_details_breakdown_local, value));
                             break;
                         case "total":
 //                            this.localTotal = value;
@@ -368,7 +371,7 @@ public class MeasurementDetails extends Base {
         }
 
         final Breakdown[] team = new Breakdown[raw.length + 1];
-        team[0] = new SimpleBreakdown("You", me);
+        team[0] = new SimpleBreakdown(R.string.label_measurement_details_breakdown_you, me);
         System.arraycopy(raw, 0, team, 1, raw.length);
         this.team = team;
         this.teamTotal = sumBreakdowns(this.team);
@@ -460,10 +463,21 @@ public class MeasurementDetails extends Base {
         @Nullable
         String getName();
 
+        @StringRes
+        int getNameRes();
+
         int getValue();
     }
 
-    static final class AssignmentBreakdown implements Breakdown {
+    private static abstract class BaseBreakdown implements Breakdown {
+        @Override
+        @StringRes
+        public int getNameRes() {
+            return INVALID_STRING_RES;
+        }
+    }
+
+    static final class AssignmentBreakdown extends BaseBreakdown {
         private static final Joiner JOINER_NAME = Joiner.on(", ").skipNulls();
 
         private static final String JSON_LAST_NAME = "last_name";
@@ -511,7 +525,7 @@ public class MeasurementDetails extends Base {
         }
     }
 
-    static final class MinistryBreakdown implements Breakdown {
+    static final class MinistryBreakdown extends BaseBreakdown {
         private static final String JSON_NAME = "name";
         private static final String JSON_ID = "ministry_id";
         private static final String JSON_VALUE = "total";
@@ -552,26 +566,40 @@ public class MeasurementDetails extends Base {
         }
     }
 
-    static final class SimpleBreakdown implements Breakdown {
-        @NonNull
+    static final class SimpleBreakdown extends BaseBreakdown {
+        @Nullable
         private final String name;
+        private final int nameRes;
         private final int value;
 
         public SimpleBreakdown(@NonNull final String name, final int value) {
+            this.nameRes = INVALID_STRING_RES;
             this.name = name;
+            this.value = value;
+        }
+
+        public SimpleBreakdown(@StringRes final int name, final int value) {
+            this.name = null;
+            this.nameRes = name;
             this.value = value;
         }
 
         @NonNull
         @Override
         public Object getId() {
-            return name;
+            return name != null ? name : nameRes;
         }
 
-        @NonNull
+        @Nullable
         @Override
         public String getName() {
             return name;
+        }
+
+        @Override
+        @StringRes
+        public int getNameRes() {
+            return nameRes;
         }
 
         @Override
@@ -580,7 +608,7 @@ public class MeasurementDetails extends Base {
         }
     }
 
-    static final class SplitMeasurementBreakdown implements Breakdown {
+    static final class SplitMeasurementBreakdown extends BaseBreakdown {
         @NonNull
         private final String mPermLink;
         private final int mValue;

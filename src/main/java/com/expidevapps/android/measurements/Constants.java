@@ -2,6 +2,7 @@ package com.expidevapps.android.measurements;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.view.View;
 
 import butterknife.ButterKnife;
@@ -56,4 +57,7 @@ public final class Constants {
             }
         }
     };
+
+    @StringRes
+    public static final int INVALID_STRING_RES = 0;
 }

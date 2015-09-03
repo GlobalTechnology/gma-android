@@ -2,6 +2,7 @@ package com.expidevapps.android.measurements.support.v7.adapter;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static com.expidevapps.android.measurements.Constants.INVALID_STRING_RES;
 import static com.expidevapps.android.measurements.Constants.VISIBILITY;
 
 import android.support.annotation.LayoutRes;
@@ -159,27 +160,27 @@ public class MeasurementBreakdownExpandableViewAdapter extends AbstractExpandabl
         String value = null;
         switch (mGroups[groupPosition]) {
             case GROUP_TOTAL:
-                label = R.string.label_measurement_details_breakdown_total;
+                label = R.string.label_measurement_details_breakdown_section_total;
                 value = Integer.toString(mDetails != null ? mDetails.getTotal() : 0);
                 break;
             case GROUP_LOCAL:
-                label = R.string.label_measurement_details_breakdown_local;
+                label = R.string.label_measurement_details_breakdown_section_local;
                 value = Integer.toString(mDetails != null ? mDetails.getLocalBreakdownTotal() : 0);
                 break;
             case GROUP_SELFASSIGNED:
-                label = R.string.label_measurement_details_breakdown_selfassigned;
+                label = R.string.label_measurement_details_breakdown_section_selfassigned;
                 value = Integer.toString(mDetails != null ? mDetails.getSelfAssignedBreakdownTotal() : 0);
                 break;
             case GROUP_TEAM:
-                label = R.string.label_measurement_details_breakdown_team;
+                label = R.string.label_measurement_details_breakdown_section_team;
                 value = Integer.toString(mDetails != null ? mDetails.getTeamBreakdownTotal() : 0);
                 break;
             case GROUP_SUBMINISTRIES:
-                label = R.string.label_measurement_details_breakdown_subministries;
+                label = R.string.label_measurement_details_breakdown_section_subministries;
                 value = Integer.toString(mDetails != null ? mDetails.getSubMinistriesBreakdownTotal() : 0);
                 break;
             case GROUP_SPLITMEASUREMENTS:
-                label = R.string.label_measurement_details_breakdown_split;
+                label = R.string.label_measurement_details_breakdown_section_split;
                 value = Integer.toString(mDetails != null ? mDetails.getmSplitMeasurementsBreakdownTotal() : 0);
                 break;
         }
@@ -220,7 +221,15 @@ public class MeasurementBreakdownExpandableViewAdapter extends AbstractExpandabl
         }
 
         if (holder.mLabel != null) {
-            holder.mLabel.setText(breakdown != null ? breakdown.getName() : null);
+            if (breakdown != null) {
+                if (breakdown.getNameRes() != INVALID_STRING_RES) {
+                    holder.mLabel.setText(breakdown.getNameRes());
+                } else {
+                    holder.mLabel.setText(breakdown.getName());
+                }
+            } else {
+                holder.mLabel.setText(null);
+            }
         }
         if (holder.mValue != null) {
             holder.mValue.setText(Integer.toString(breakdown != null ? breakdown.getValue() : 0));
