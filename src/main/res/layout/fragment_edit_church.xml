@@ -207,7 +207,7 @@
             android:id="@+id/delete"
             android:layout_width="wrap_content"
             style="@style/Widget.GMA.Button"
-            android:text="@string/delete_button"/>
+            android:text="@string/btn_delete"/>
 
         <Button
             android:id="@+id/cancel"

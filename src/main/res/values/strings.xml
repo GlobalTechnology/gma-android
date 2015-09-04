@@ -8,6 +8,6 @@
     <string name="menu_refresh">Refresh</string>
 
     <!-- Common Buttons -->
+    <string name="btn_delete">Delete</string>
     <string name="btn_update">Update</string>
-    <string name="delete_button">Delete</string>
 </resources>
