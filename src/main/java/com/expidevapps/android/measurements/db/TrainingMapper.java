@@ -35,6 +35,7 @@ public class TrainingMapper extends LocationMapper<Training> {
                 break;
             case Contract.Training.COLUMN_NEW:
                 values.put(field, training.isNew());
+                break;
             default:
                 super.mapField(values, field, training);
                 break;
