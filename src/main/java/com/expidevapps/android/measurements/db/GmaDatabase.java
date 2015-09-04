@@ -168,8 +168,8 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
                         db.execSQL(Contract.MeasurementVisibility.SQL_CREATE_TABLE);
                         break;
                     case 35:
-                        db.execSQL(Contract.Church.SQL_CREATE_TABLE);
-                        db.execSQL(Contract.Training.SQL_CREATE_TABLE);
+                        db.execSQL(Contract.Church.SQL_v35_ALTER_MOBILE);
+                        db.execSQL(Contract.Training.SQL_v35_ALTER_NEW);
                         break;
                     default:
                         // unrecognized version
