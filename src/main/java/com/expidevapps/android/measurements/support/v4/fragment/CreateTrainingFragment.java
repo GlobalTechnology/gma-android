@@ -27,6 +27,7 @@ import org.joda.time.LocalDate;
 import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import butterknife.InjectView;
 import butterknife.OnClick;
@@ -121,7 +122,7 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
         }
         if (mTrainingDate != null) {
             try {
-                DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+                DateFormat format = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 training.setDate(new LocalDate(format.parse(mTrainingDate.getText().toString())));
             } catch (final Exception ignored) {
                 Log.e("Exception", "error Parsing Date string to LocalDate.");
