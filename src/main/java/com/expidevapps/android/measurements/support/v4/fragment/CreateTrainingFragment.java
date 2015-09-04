@@ -148,7 +148,7 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
             mTrainingMcc.setText(mMcc);
         }
         if(mSaveView != null) {
-            mSaveView.setText(R.string.button_church_create);
+            mSaveView.setText(R.string.btn_training_create);
         }
 
         if(mDeleteTraining != null) {

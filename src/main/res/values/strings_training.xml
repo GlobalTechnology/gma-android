@@ -6,4 +6,6 @@
     <string name="label_training_date">Date</string>
     <string name="label_training_participants">Participants</string>
     <string name="label_training_mcc">MCC</string>
+
+    <string name="btn_training_create">Create</string>
 </resources>
