@@ -1,8 +1,5 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.SQLException;
@@ -12,6 +9,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
@@ -31,6 +30,9 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.Optional;
 
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
+
 public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     private static String ARG_LOCATION = CreateChurchFragment.class.getName() + ".ARG_LOCATION";
 
@@ -46,6 +48,11 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     @Nullable
     @InjectView(R.id.save)
     TextView mSaveView;
+
+    @Optional
+    @Nullable
+    @InjectView(R.id.delete)
+    Button mDeleteChurch;
 
     public static Bundle buildArgs(@NonNull final String guid, @NonNull final String ministryId,
                                    @NonNull final LatLng location) {
@@ -100,6 +107,9 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
         if (mContactEmailView != null) {
             church.setContactEmail(mContactEmailView.getText().toString());
         }
+        if (mContactMobileView != null) {
+            church.setContactMobile(mContactMobileView.getText().toString());
+        }
         if (mDevelopmentSpinner != null) {
             final Object development = mDevelopmentSpinner.getSelectedItem();
             if (development instanceof Development) {
@@ -125,6 +135,10 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     private void setupViews() {
         if(mSaveView != null) {
             mSaveView.setText(R.string.btn_church_create);
+        }
+
+        if(mDeleteChurch != null) {
+            mDeleteChurch.setVisibility(View.INVISIBLE);
         }
     }
 

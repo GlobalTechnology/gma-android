@@ -4,4 +4,6 @@
     <string name="label_training_name">Name</string>
     <string name="label_training_type">Training Type</string>
     <string name="label_training_date">Date</string>
+    <string name="label_training_participants">Participants</string>
+    <string name="label_training_mcc">MCC</string>
 </resources>

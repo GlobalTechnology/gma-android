@@ -1,6 +1,16 @@
 package com.expidevapps.android.measurements.db;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.support.annotation.NonNull;
+
+import com.expidevapps.android.measurements.model.Church;
+import com.expidevapps.android.measurements.model.Church.Development;
+import com.expidevapps.android.measurements.model.Church.Security;
+import com.expidevapps.android.measurements.model.Ministry;
+
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_CONTACT_EMAIL;
+import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_CONTACT_MOBILE;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_CONTACT_NAME;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_DEVELOPMENT;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_ID;
@@ -12,15 +22,6 @@ import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_SEC
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_SIZE;
 import static com.expidevapps.android.measurements.model.Church.SECURITY_DEFAULT;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.support.annotation.NonNull;
-
-import com.expidevapps.android.measurements.model.Church;
-import com.expidevapps.android.measurements.model.Church.Development;
-import com.expidevapps.android.measurements.model.Church.Security;
-import com.expidevapps.android.measurements.model.Ministry;
-
 public class ChurchMapper extends LocationMapper<Church> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
@@ -30,7 +31,9 @@ public class ChurchMapper extends LocationMapper<Church> {
                 values.put(field, church.getId());
                 break;
             case COLUMN_PARENT:
-                values.put(field, church.hasParent() ? church.getParentId() : null);
+                //values.put(field, church.hasParent() ? church.getParentId() : null);
+                //ParentId should be Church.INVALID_ID if NOT defined already
+                values.put(field, church.hasParent() ? church.getParentId() : Church.INVALID_ID);
                 break;
             case COLUMN_MINISTRY_ID:
                 values.put(field, church.getMinistryId());
@@ -43,6 +46,9 @@ public class ChurchMapper extends LocationMapper<Church> {
                 break;
             case COLUMN_CONTACT_EMAIL:
                 values.put(field, church.getContactEmail());
+                break;
+            case COLUMN_CONTACT_MOBILE:
+                values.put(field, church.getContactMobile());
                 break;
             case COLUMN_DEVELOPMENT:
                 values.put(field, church.getDevelopment().id);
@@ -79,6 +85,7 @@ public class ChurchMapper extends LocationMapper<Church> {
         church.setName(getString(c, COLUMN_NAME, null));
         church.setContactName(getString(c, COLUMN_CONTACT_NAME, null));
         church.setContactEmail(getString(c, COLUMN_CONTACT_EMAIL, null));
+        church.setContactMobile(getString(c, COLUMN_CONTACT_MOBILE, null));
         church.setDevelopment(Development.fromRaw(getInt(c, COLUMN_DEVELOPMENT, Development.UNKNOWN.id)));
         church.setSize(getInt(c, COLUMN_SIZE, 0));
         church.setSecurity(Security.fromRaw(getInt(c, COLUMN_SECURITY, SECURITY_DEFAULT)));

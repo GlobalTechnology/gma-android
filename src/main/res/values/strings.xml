@@ -9,4 +9,5 @@
 
     <!-- Common Buttons -->
     <string name="btn_update">Update</string>
+    <string name="delete_button">Delete</string>
 </resources>

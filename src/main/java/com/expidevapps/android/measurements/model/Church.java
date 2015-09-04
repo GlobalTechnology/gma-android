@@ -11,7 +11,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class Church extends Location implements Cloneable {
@@ -89,6 +93,7 @@ public class Church extends Location implements Cloneable {
     public static final String JSON_MINISTRY_ID = "ministry_id";
     public static final String JSON_NAME = "name";
     public static final String JSON_CONTACT_EMAIL = "contact_email";
+    public static final String JSON_CONTACT_MOBILE = "contact_mobile";
     public static final String JSON_CONTACT_NAME = "contact_name";
     public static final String JSON_DEVELOPMENT = "development";
     public static final String JSON_SIZE = "size";
@@ -102,6 +107,8 @@ public class Church extends Location implements Cloneable {
     private String name;
     @Nullable
     private String contactEmail;
+    @Nullable
+    private String contactMobile;
     @Nullable
     private String contactName;
     @NonNull
@@ -135,6 +142,7 @@ public class Church extends Location implements Cloneable {
         church.ministryId = json.getString(JSON_MINISTRY_ID);
         church.name = json.optString(JSON_NAME, null);
         church.contactEmail = json.optString(JSON_CONTACT_EMAIL, null);
+        church.contactMobile = json.optString(JSON_CONTACT_MOBILE, null);
         church.contactName = json.optString(JSON_CONTACT_NAME, null);
         church.setLatitude(json.optDouble(JSON_LATITUDE, Double.NaN));
         church.setLongitude(json.optDouble(JSON_LONGITUDE, Double.NaN));
@@ -154,6 +162,7 @@ public class Church extends Location implements Cloneable {
         this.ministryId = church.ministryId;
         this.name = church.name;
         this.contactEmail = church.contactEmail;
+        this.contactMobile = church.contactMobile;
         this.contactName = church.contactName;
         this.development = church.development;
         this.size = church.size;
@@ -214,6 +223,18 @@ public class Church extends Location implements Cloneable {
             mDirty.add(JSON_CONTACT_EMAIL);
         }
         this.contactEmail = email;
+    }
+
+    @Nullable
+    public String getContactMobile() {
+        return contactMobile;
+    }
+
+    public void setContactMobile(@Nullable final String mobile) {
+        if (mTrackingChanges && !TextUtils.equals(this.contactMobile, mobile)) {
+            mDirty.add(JSON_CONTACT_MOBILE);
+        }
+        this.contactMobile = mobile;
     }
 
     @Nullable
@@ -290,11 +311,28 @@ public class Church extends Location implements Cloneable {
         json.put(JSON_NAME, this.name);
         json.put(JSON_CONTACT_NAME, this.contactName);
         json.put(JSON_CONTACT_EMAIL, this.contactEmail);
+        json.put(JSON_CONTACT_MOBILE, this.contactMobile);
         if (this.development != Development.UNKNOWN) {
             json.put(JSON_DEVELOPMENT, this.development.id);
         }
         json.put(JSON_SIZE, this.size);
         json.put(JSON_SECURITY, this.security.id);
         return json;
+    }
+
+    public static String getChurchEndDate() {
+        Date today = new Date();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today);
+
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.add(Calendar.DATE, -1);
+
+        Date firstDayOfMonth = calendar.getTime();
+
+        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        return sdf.format(firstDayOfMonth).toString();
     }
 }

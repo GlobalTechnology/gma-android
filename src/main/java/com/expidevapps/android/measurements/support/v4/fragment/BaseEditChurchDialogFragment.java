@@ -1,7 +1,5 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,6 +12,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
+import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Church.Development;
 
 import java.util.EnumSet;
@@ -23,6 +22,8 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
 import butterknife.Optional;
+
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 
 public abstract class BaseEditChurchDialogFragment extends DialogFragment {
     @Optional
@@ -48,15 +49,26 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
     TextView mContactEmailView;
     @Optional
     @Nullable
+    @InjectView(R.id.contactMobile)
+    TextView mContactMobileView;
+    @Optional
+    @Nullable
     @InjectView(R.id.development)
     Spinner mDevelopmentSpinner;
     @Optional
     @Nullable
     @InjectView(R.id.size)
     TextView mSizeView;
+    @Optional
+    @Nullable
+    @InjectView(R.id.security)
+    Spinner mSecuritySpinner;
 
     @Nullable
     ArrayAdapter<Development> mDevelopmentAdapter;
+
+    @Nullable
+    ArrayAdapter<Church.Security> mSecurityAdapter;
 
     @NonNull
     /* final */ String mGuid;
@@ -130,6 +142,19 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
 
             // attach adapter
             mDevelopmentSpinner.setAdapter(mDevelopmentAdapter);
+        }
+
+        if (mSecuritySpinner != null) {
+            // generate set of options
+            final EnumSet<Church.Security> types = EnumSet.allOf(Church.Security.class);
+
+            // generate Adapter for church types
+            mSecurityAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item,
+                    types.toArray(new Church.Security[types.size()]));
+            mSecurityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+            // attach adapter
+            mSecuritySpinner.setAdapter(mSecurityAdapter);
         }
     }
 

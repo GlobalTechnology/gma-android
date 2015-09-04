@@ -68,14 +68,18 @@
                 android:gravity="center_vertical|start"
                 android:text="@string/label_training_type"/>
 
-            <EditText
+            <Spinner
+                android:id="@+id/et_training_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <!--<EditText
                 android:id="@+id/et_training_type"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:inputType="textEmailAddress"
-                android:ems="10"
-                tools:text="Training Type"/>
+                android:ems="10" />-->
         </TableRow>
 
         <TableRow>
@@ -94,13 +98,57 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
-                android:inputType="date"
+                android:editable="false"
+                android:focusable="false"
+                android:ems="10"/>
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:id="@+id/trainingParticipantsLabel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:gravity="center_vertical|start"
+                android:text="@string/label_training_participants"/>
+
+            <EditText
+                android:id="@+id/et_training_participants"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:inputType="number"
                 android:ems="10"/>
 
         </TableRow>
+
+        <TableRow>
+            <TextView
+                android:id="@+id/trainingMCCLabel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:gravity="center_vertical|start"
+                android:text="@string/label_training_mcc"/>
+
+            <TextView
+                android:id="@+id/et_training_mcc"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="5dp"
+                android:textAllCaps="true"
+                android:layout_gravity="center_vertical"/>
+
+        </TableRow>
+
         </TableLayout>
 
-    <Button
+    <!--<Button
         android:id="@+id/training_update"
         android:layout_width="wrap_content"
         android:layout_below="@id/data"
@@ -117,5 +165,30 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         style="@style/Widget.GMA.Button"
-        android:text="@android:string/cancel"/>
+        android:text="@string/cancel_button"/>-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/data">
+        <Button
+            android:id="@+id/training_update"
+            android:layout_width="wrap_content"
+            style="@style/Widget.GMA.Button"
+            android:text="@string/btn_update"/>
+
+        <Button
+            android:id="@+id/training_delete"
+            android:layout_width="wrap_content"
+            style="@style/Widget.GMA.Button"
+            android:text="@string/delete_button"/>
+
+        <Button
+            android:id="@+id/training_cancel"
+            android:layout_width="wrap_content"
+            style="@style/Widget.GMA.Button"
+            android:text="@android:string/cancel"/>
+    </LinearLayout>
 </RelativeLayout>

@@ -1,11 +1,8 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
-import static android.view.View.GONE;
-import static com.expidevapps.android.measurements.Constants.ARG_CHURCH_ID;
-import static com.expidevapps.android.measurements.Constants.VISIBILITY;
-import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
-
+import android.support.v7.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,9 +10,11 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
+import android.util.Log;
 import android.view.View;
 
 import com.expidevapps.android.measurements.R;
+import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Church;
@@ -25,9 +24,12 @@ import com.expidevapps.android.measurements.support.v4.content.ChurchLoader;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.common.collect.Lists;
 
+import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.db.Transaction;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +40,11 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import butterknife.Optional;
 
+import static android.view.View.GONE;
+import static com.expidevapps.android.measurements.Constants.ARG_CHURCH_ID;
+import static com.expidevapps.android.measurements.Constants.VISIBILITY;
+import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
+
 public class EditChurchFragment extends BaseEditChurchDialogFragment {
     private static final int LOADER_CHURCH = 1;
 
@@ -45,10 +52,11 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     private static final int CHANGED_CONTACT_EMAIL = 1;
     private static final int CHANGED_DEVELOPMENT = 2;
     private static final int CHANGED_SIZE = 3;
+    private static final int CHANGED_CONTACT_MOBILE = 4;
 
     private long mChurchId = Church.INVALID_ID;
     @NonNull
-    private boolean[] mChanged = new boolean[4];
+    private boolean[] mChanged = new boolean[5];
     @Nullable
     private Church mChurch;
 
@@ -110,6 +118,10 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                 mChanged[CHANGED_CONTACT_EMAIL] =
                         !(mChurch != null ? text.equals(mChurch.getContactEmail()) : text.isEmpty());
                 break;
+            case R.id.contactMobile:
+                mChanged[CHANGED_CONTACT_MOBILE] =
+                        !(mChurch != null ? text.equals(mChurch.getContactMobile()) : text.isEmpty());
+                break;
             case R.id.size:
                 mChanged[CHANGED_SIZE] =
                         !(mChurch != null ? text.equals(Integer.toString(mChurch.getSize())) : text.isEmpty());
@@ -128,6 +140,9 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
             }
             if (mContactEmailView != null && mChanged[CHANGED_CONTACT_EMAIL]) {
                 updates.mContactEmail = mContactEmailView.getText().toString();
+            }
+            if (mContactMobileView != null && mChanged[CHANGED_CONTACT_MOBILE]) {
+                updates.mContactMobile = mContactMobileView.getText().toString();
             }
             if (mDevelopmentSpinner != null && mChanged[CHANGED_DEVELOPMENT]) {
                 final Object development = mDevelopmentSpinner.getSelectedItem();
@@ -151,6 +166,35 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         dismiss();
     }
 
+    @Optional
+    @OnClick(R.id.delete)
+    void onDeleteChurch() {
+        Log.d("ITH", "onDeleteChurch called.");
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        dialog.setMessage("Are you sure you want to delete ?")
+                .setTitle("Confirm?")
+                .setCancelable(true)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                        //dismiss the dialog
+                        dismiss();
+
+                        if(mChurch != null) {
+                            AsyncTaskCompat.execute(new DeleteChurcuRunnable(getActivity(), mGuid, mChurch));
+                        }
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = dialog.create();
+        alert.show();
+    }
+
     /* END lifecycle */
 
     private void startLoaders() {
@@ -167,6 +211,9 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         }
         if (mContactEmailView != null && !mChanged[CHANGED_CONTACT_EMAIL]) {
             mContactEmailView.setText(mChurch != null ? mChurch.getContactEmail() : null);
+        }
+        if (mContactMobileView != null && !mChanged[CHANGED_CONTACT_MOBILE]) {
+            mContactMobileView.setText(mChurch != null ? mChurch.getContactMobile() : null);
         }
         if (mSizeView != null && !mChanged[CHANGED_SIZE]) {
             mSizeView.setText(mChurch != null ? Integer.toString(mChurch.getSize()) : null);
@@ -190,6 +237,14 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     void updateContactEmail(@Nullable final Editable text) {
         if (mContactEmailView != null) {
             onTextUpdated(mContactEmailView, text != null ? text.toString() : "");
+        }
+    }
+
+    @Optional
+    @OnTextChanged(value = R.id.contactMobile, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    void updateContactMobile(@Nullable final Editable text) {
+        if (mContactMobileView != null) {
+            onTextUpdated(mContactMobileView, text != null ? text.toString() : "");
         }
     }
 
@@ -227,12 +282,14 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         @Nullable
         String mContactEmail;
         @Nullable
+        String mContactMobile;
+        @Nullable
         Integer mSize;
         @Nullable
         Development mDevelopment;
 
         boolean hasUpdates() {
-            return mContactName != null || mContactEmail != null || mSize != null || mDevelopment != null;
+            return mContactName != null || mContactEmail != null || mContactMobile != null || mSize != null || mDevelopment != null;
         }
     }
 
@@ -279,6 +336,10 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                     church.setContactEmail(mUpdates.mContactEmail);
                     projection.add(Contract.Church.COLUMN_CONTACT_EMAIL);
                 }
+                if (mUpdates.mContactMobile != null) {
+                    church.setContactMobile(mUpdates.mContactMobile);
+                    projection.add(Contract.Church.COLUMN_CONTACT_MOBILE);
+                }
                 if (mUpdates.mSize != null) {
                     church.setSize(mUpdates.mSize);
                     projection.add(Contract.Church.COLUMN_SIZE);
@@ -308,4 +369,55 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
             GmaSyncService.syncDirtyChurches(mContext, mGuid);
         }
     }
+
+    private static class DeleteChurcuRunnable implements Runnable {
+        private final Context mContext;
+        private final String mGuid;
+        private final Church mChurch;
+
+        public DeleteChurcuRunnable(@NonNull final Context context, @NonNull final String guid,
+                                      @NonNull final Church church) {
+            mContext = context.getApplicationContext();
+            mGuid = guid;
+            mChurch = church;
+        }
+
+        @Override
+        public void run() {
+            final GmaDao dao = GmaDao.getInstance(mContext);
+            final GmaApiClient api = GmaApiClient.getInstance(mContext, mGuid);
+
+            dao.delete(mChurch);
+
+            try {
+                try {
+                    final JSONObject json = mChurch.toJson();
+
+                    String endDate = Church.getChurchEndDate();
+                    json.put("end_date", endDate);
+
+                    final boolean success = api.deleteChurch(mChurch.getId(), json);
+                }
+                catch (JSONException e) {
+                    Log.e("JSONException", "JSONException occured");
+                }
+            }
+            catch(ApiException e) {
+                Log.e("DeleteChurch", "ApiException occured.");
+            }
+
+            /*// track this update in GA
+            GoogleAnalyticsManager.getInstance(mContext)
+                    .sendUpdateTrainingEvent(mGuid, mTraining.getMinistryId(), mTraining.getMcc(), mTraining.getId());
+*/
+            // broadcast that this training was updated
+            final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(mContext);
+            broadcastManager.sendBroadcast(updateChurchesBroadcast(mChurch.getMinistryId(), mChurch.getId()));
+
+            // trigger a sync of dirty churches
+            GmaSyncService.syncDirtyChurches(mContext, mGuid);
+        }
+    }
+
+
 }
