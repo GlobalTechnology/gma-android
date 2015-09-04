@@ -519,7 +519,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             final FragmentManager fm = getChildFragmentManager();
             if (fm.findFragmentByTag("createTraining") == null) {
                 final CreateTrainingFragment fragment =
-                        CreateTrainingFragment.newInstance(mGuid, mAssignment.getMinistryId(), mAssignment.getMcc().raw, pos);
+                        CreateTrainingFragment.newInstance(mGuid, mAssignment.getMinistryId(), mAssignment.getMcc(), pos);
                 fragment.show(fm.beginTransaction().addToBackStack("createTraining"), "createTraining");
             }
         }

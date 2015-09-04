@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
@@ -46,7 +47,7 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
     @NonNull
     private String mMinistryId = Ministry.INVALID_ID;
     @NonNull
-    private String mMcc = null;
+    private Mcc mMcc = Mcc.UNKNOWN;
     @Nullable
     private LatLng mLocation;
 
@@ -60,17 +61,17 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
     @InjectView(R.id.training_delete)
     Button mDeleteTraining;
 
-    public static Bundle buildArgs(@NonNull final String guid, @NonNull final String ministryId, @NonNull final String mcc,
+    public static Bundle buildArgs(@NonNull final String guid, @NonNull final String ministryId, @NonNull final Mcc mcc,
                                    @NonNull final LatLng location) {
         final Bundle args = buildArgs(guid);
         args.putString(ARG_MINISTRY_ID, ministryId);
-        args.putString(ARG_MCC, mcc);
+        args.putString(ARG_MCC, mcc.toString());
         args.putParcelable(ARG_LOCATION, location);
         return args;
     }
 
-    public static CreateTrainingFragment newInstance(@NonNull final String guid, @NonNull final String ministryId, @NonNull final String mcc,
-                                                   @NonNull final LatLng location) {
+    public static CreateTrainingFragment newInstance(@NonNull final String guid, @NonNull final String ministryId,
+                                                     @NonNull final Mcc mcc, @NonNull final LatLng location) {
         final CreateTrainingFragment fragment = new CreateTrainingFragment();
         fragment.setArguments(buildArgs(guid, ministryId, mcc, location));
         return fragment;
@@ -84,7 +85,7 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
 
         final Bundle args = this.getArguments();
         mMinistryId = args != null ? args.getString(ARG_MINISTRY_ID) : Ministry.INVALID_ID;
-        mMcc = args != null ? args.getString(ARG_MCC) : null;
+        mMcc = args != null ? Mcc.fromRaw(args.getString(ARG_MCC)) : Mcc.UNKNOWN;
         mLocation = args != null ? args.<LatLng>getParcelable(ARG_LOCATION) : null;
     }
 
@@ -97,11 +98,12 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
 
     @Optional
     @OnClick(R.id.training_update)
-    void onSaveChurch() {
+    void onSaveTraining() {
         // create new church object
         final Training training = new Training();
         training.setNew(true);
         training.setMinistryId(mMinistryId);
+        training.setMcc(mMcc);
         if (mLocation != null) {
             training.setLatitude(mLocation.latitude);
             training.setLongitude(mLocation.longitude);
@@ -131,9 +133,6 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
         if (mTrainingParticipants != null) {
             //training.setParticipants(mTrainingParticipants.getText().toString());
         }
-        if (mTrainingMcc != null) {
-            training.setMcc(mMcc);
-        }
 
         // save new church
         AsyncTaskCompat.execute(new CreateTrainingRunnable(getActivity().getApplicationContext(), mGuid, training));
@@ -146,7 +145,7 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
 
     private void setupViews() {
         if (mTrainingMcc != null) {
-            mTrainingMcc.setText(mMcc);
+            mTrainingMcc.setText(mMcc.toString());
         }
         if(mSaveView != null) {
             mSaveView.setText(R.string.btn_training_create);
