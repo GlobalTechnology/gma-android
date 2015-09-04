@@ -46,6 +46,8 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
      * 33: 2015-05-19
      * v0.8.9
      * 34: 2015-07-13
+     * v0.8.10
+     * 35: 2015-09-03
      */
     private static final String DATABASE_NAME = "gcm_data.db";
     private static final int DATABASE_VERSION = 35;

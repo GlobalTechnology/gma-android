@@ -100,6 +100,7 @@ public class Contract {
                         SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
+        @Deprecated
         static final String SQL_v35_ALTER_NEW = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_NEW;
 
         public static final class Completion extends Base {
@@ -261,7 +262,7 @@ public class Contract {
         static final String SQL_v22_ALTER_NEW = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_NEW;
         @Deprecated
         static final String SQL_v33_ALTER_PARENT = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_PARENT;
-
+        @Deprecated
         static final String SQL_v35_ALTER_MOBILE = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_CONTACT_MOBILE;
     }
 
