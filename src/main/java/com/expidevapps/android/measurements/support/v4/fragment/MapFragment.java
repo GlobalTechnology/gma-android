@@ -633,24 +633,19 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 mMapFrame.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
             }
 
-            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-            dialog.setMessage("Create New?").setCancelable(true)
-                    .setPositiveButton("Training", new DialogInterface.OnClickListener() {
+            new AlertDialog.Builder(getActivity()).setTitle(R.string.title_dialog_map_create_item)
+                    .setPositiveButton(R.string.btn_dialog_map_create_training, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-
+                            dialog.dismiss();
                             showCreateTraining(pos);
                         }
                     })
-                    .setNegativeButton("Church", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.btn_dialog_map_create_church, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-
+                            dialog.dismiss();
                             showCreateChurch(pos);
                         }
-                    });
-            AlertDialog alert = dialog.create();
-            alert.show();
+                    }).show();
         }
     }
 

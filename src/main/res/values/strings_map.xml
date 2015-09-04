@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_map_create_item">Create New</string>
+    <string name="btn_dialog_map_create_church">Church</string>
+    <string name="btn_dialog_map_create_training">Training</string>
+</resources>
