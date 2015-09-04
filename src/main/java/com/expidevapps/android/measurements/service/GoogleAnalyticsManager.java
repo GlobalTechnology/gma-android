@@ -174,8 +174,8 @@ public class GoogleAnalyticsManager {
 
     @NonNull
     private HitBuilders.EventBuilder trainingEvent(@NonNull final String action, @NonNull final String guid,
-                                                 @NonNull final String ministryId) {
-        return event(CATEGORY_TRAINING, action, guid, ministryId);
+                                                 @NonNull final String ministryId, @NonNull final Mcc mcc) {
+        return event(CATEGORY_TRAINING, action, guid, ministryId, mcc);
     }
 
     @NonNull
@@ -191,8 +191,8 @@ public class GoogleAnalyticsManager {
         mTracker.send(trainingEvent(ACTION_MOVE, guid, ministryId, mcc, trainingId).build());
     }
 
-    public void sendCreateTrainingEvent(@NonNull final String guid, @NonNull final String ministryId) {
-        mTracker.send(trainingEvent(ACTION_CREATE, guid, ministryId).build());
+    public void sendCreateTrainingEvent(@NonNull final String guid, @NonNull final String ministryId, @NonNull final Mcc mcc) {
+        mTracker.send(trainingEvent(ACTION_CREATE, guid, ministryId, mcc).build());
     }
 
     public void sendUpdateTrainingEvent(@NonNull final String guid, @NonNull final String ministryId,
