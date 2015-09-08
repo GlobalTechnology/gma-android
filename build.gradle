@@ -161,7 +161,7 @@ dependencies {
     compile 'com.github.PhilJay:MPAndroidChart:v2.1.0'
     compile 'com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.6.2'
     compile 'com.viewpagerindicator:library:2.4.2-SNAPSHOT'
-    compile 'net.danlew:android.joda:2.7.2'
+    compile 'net.danlew:android.joda:2.8.2'
 
     debugCompile 'com.facebook.stetho:stetho:1.1.1'
 }
