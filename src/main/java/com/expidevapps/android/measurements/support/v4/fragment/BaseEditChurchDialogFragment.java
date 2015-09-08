@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.widget.ArrayAdapter;
@@ -168,6 +169,12 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
         if (mDevelopmentSpinner != null) {
             final Object item = mDevelopmentSpinner.getSelectedItem();
             this.onChangeDevelopment(item instanceof Development ? (Development) item : Development.UNKNOWN);
+        }
+    }
+
+    protected void updateTitle(@StringRes final int title) {
+        if (mTitleView != null) {
+            mTitleView.setText(title);
         }
     }
 

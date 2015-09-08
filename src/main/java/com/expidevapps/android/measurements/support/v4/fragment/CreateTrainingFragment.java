@@ -92,7 +92,7 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        updateTitle("Create New Training");
+        updateTitle(R.string.title_dialog_training_create);
         setupViews();
     }
 

@@ -83,7 +83,7 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        updateTitle("Create New Church");
+        updateTitle(R.string.title_dialog_church_create);
         setupViews();
     }
 

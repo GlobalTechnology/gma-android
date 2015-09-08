@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="title_dialog_church_create">Create New Church</string>
+
     <string name="label_church_name">Name</string>
     <string name="label_church_contact_name">Contact Name</string>
     <string name="label_church_contact_email">Contact Email</string>
