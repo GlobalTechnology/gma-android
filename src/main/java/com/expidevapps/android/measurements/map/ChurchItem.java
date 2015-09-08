@@ -1,9 +1,11 @@
 package com.expidevapps.android.measurements.map;
 
+import android.content.Context;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Church;
 
@@ -22,8 +24,9 @@ public class ChurchItem extends GmaItem<Church> {
     }
 
     @Override
-    public String getSnippet() {
-        return "Size: " + mObj.getSize();
+    public String getSnippet(@NonNull final Context context) {
+        return context.getResources()
+                .getQuantityString(R.plurals.text_marker_map_church_snippet, mObj.getSize(), mObj.getSize());
     }
 
     @DrawableRes

@@ -3,4 +3,10 @@
     <string name="title_dialog_map_create_item">Create New</string>
     <string name="btn_dialog_map_create_church">Church</string>
     <string name="btn_dialog_map_create_training">Training</string>
+
+    <string name="label_marker_map_no_name">(no name)</string>
+    <plurals name="text_marker_map_church_snippet">
+        <item quantity="one">%d member</item>
+        <item quantity="other">%d members</item>
+    </plurals>
 </resources>

@@ -1,5 +1,6 @@
 package com.expidevapps.android.measurements.map;
 
+import android.content.Context;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,7 +25,7 @@ public class TrainingItem extends GmaItem<Training> {
     }
 
     @Override
-    public String getSnippet() {
+    public String getSnippet(@NonNull final Context context) {
         return null;
     }
 

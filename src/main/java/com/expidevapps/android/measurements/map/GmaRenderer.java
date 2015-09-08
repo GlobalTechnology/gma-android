@@ -4,7 +4,9 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
+import android.text.TextUtils;
 
+import com.expidevapps.android.measurements.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -25,6 +27,8 @@ import java.util.Set;
 
 public class GmaRenderer extends DefaultClusterRenderer<GmaItem> {
     @NonNull
+    private final Context mContext;
+    @NonNull
     private final GoogleMap mMap;
     @NonNull
     private final ClusterManager<GmaItem> mClusterManager;
@@ -42,6 +46,7 @@ public class GmaRenderer extends DefaultClusterRenderer<GmaItem> {
     public GmaRenderer(@NonNull final Context context, @NonNull final GoogleMap map,
                        @NonNull final ClusterManager<GmaItem> clusterManager) {
         super(context, map, clusterManager);
+        mContext = context;
         mMap = map;
         mClusterManager = clusterManager;
     }
@@ -149,8 +154,9 @@ public class GmaRenderer extends DefaultClusterRenderer<GmaItem> {
         super.onBeforeClusterItemRendered(item, markerOptions);
         markerOptions.anchor(0.5F, 0.5F);
         markerOptions.icon(BitmapDescriptorFactory.fromResource(item.getItemImage()));
-        markerOptions.title(item.getName());
-        markerOptions.snippet(item.getSnippet());
+        final String name = item.getName();
+        markerOptions.title(TextUtils.isEmpty(name) ? mContext.getString(R.string.label_marker_map_no_name) : name);
+        markerOptions.snippet(item.getSnippet(mContext));
         markerOptions.draggable(item.isDraggable());
     }
 

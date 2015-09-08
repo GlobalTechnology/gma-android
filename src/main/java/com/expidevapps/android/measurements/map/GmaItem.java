@@ -1,5 +1,6 @@
 package com.expidevapps.android.measurements.map;
 
+import android.content.Context;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -46,7 +47,7 @@ public abstract class GmaItem<T extends Location> implements ClusterItem {
 
     public abstract String getName();
 
-    public abstract String getSnippet();
+    public abstract String getSnippet(@NonNull final Context context);
 
     @DrawableRes
     public abstract int getItemImage();
