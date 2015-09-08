@@ -192,13 +192,14 @@ public class GoogleAnalyticsManager {
                 .setCustomDimension(DIMEN_TRAINING_ID, Long.toString(trainingId));
     }
 
+    public void sendCreateTrainingEvent(@NonNull final String guid, @NonNull final String ministryId,
+                                        @NonNull final Mcc mcc) {
+        mTracker.send(trainingEvent(ACTION_CREATE, guid, ministryId, mcc).build());
+    }
+
     public void sendMoveTrainingEvent(@NonNull final String guid, @NonNull final String ministryId,
                                       @NonNull final Mcc mcc, final long trainingId) {
         mTracker.send(trainingEvent(ACTION_MOVE, guid, ministryId, mcc, trainingId).build());
-    }
-
-    public void sendCreateTrainingEvent(@NonNull final String guid, @NonNull final String ministryId, @NonNull final Mcc mcc) {
-        mTracker.send(trainingEvent(ACTION_CREATE, guid, ministryId, mcc).build());
     }
 
     public void sendUpdateTrainingEvent(@NonNull final String guid, @NonNull final String ministryId,
