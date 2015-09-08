@@ -330,29 +330,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
     }
 
-    public boolean deleteChurch(final long id, @NonNull final JSONObject church) throws ApiException {
-        Log.d("ITH", "delete Church id: " + id);
-        Log.d("ITH", "delete Church Param: " + church.toString());
-        if (id == Church.INVALID_ID) {
-            return false;
-        }
-        final Request<Session> request = new Request<>(CHURCHES + "/" + id);
-        request.method = Method.PUT;
-        request.setContent(church);
-
-        HttpURLConnection conn = null;
-        try {
-            conn = this.sendRequest(request);
-            Log.d("ITH", "delete Church Response: " + conn.getResponseCode());
-            return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
-        } catch (final IOException e) {
-            Log.d("ITH", "delete Church IOException: " + e.getMessage());
-            throw new ApiSocketException(e);
-        } finally {
-            IOUtils.closeQuietly(conn);
-        }
-    }
-
     /* END church methods */
 
     /* BEGIN measurements methods */
