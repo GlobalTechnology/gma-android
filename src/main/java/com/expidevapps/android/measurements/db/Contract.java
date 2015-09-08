@@ -95,7 +95,8 @@ public class Contract {
         public static final String SQL_WHERE_NEW_DELETED_OR_DIRTY =
                 COLUMN_NEW + " = 1 OR " + COLUMN_DELETED + " = 1 OR " + SQL_WHERE_DIRTY;
 
-        public static final String SQL_WHERE_NOT_DELETED = COLUMN_DELETED + " != 1";
+        public static final String SQL_WHERE_NOT_DELETED =
+                "(" + COLUMN_DELETED + " IS NULL OR " + COLUMN_DELETED + " != 1)";
         public static final String SQL_WHERE_MINISTRY_MCC = SQL_WHERE_MINISTRY + " AND " + SQL_WHERE_MCC;
         public static final String SQL_WHERE_MINISTRY_MCC_NOT_DELETED =
                 SQL_WHERE_MINISTRY_MCC + " AND " + SQL_WHERE_NOT_DELETED;
