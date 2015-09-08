@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_dialog_church_create">Create New Church</string>
+    <string name="title_dialog_church_delete">Delete Church?</string>
+    <string name="text_dialog_church_delete_confirm">Are you sure you want to delete this church?</string>
 
     <string name="label_church_name">Name</string>
     <string name="label_church_contact_name">Contact Name</string>

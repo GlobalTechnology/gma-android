@@ -164,17 +164,15 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     @Optional
     @OnClick(R.id.delete)
     void onDeleteChurch() {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-        dialog.setMessage("Are you sure you want to delete ?")
-                .setTitle("Confirm?")
-                .setCancelable(true)
+        new AlertDialog.Builder(getActivity()).setTitle(R.string.title_dialog_church_delete)
+                .setMessage(R.string.text_dialog_church_delete_confirm)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.dismiss();
                         //dismiss the dialog
                         dismiss();
 
-                        if(mChurch != null) {
+                        if (mChurch != null) {
                             AsyncTaskCompat.execute(new DeleteChurchRunnable(getActivity(), mGuid, mChurch));
                         }
                     }
@@ -183,9 +181,7 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
-                });
-        AlertDialog alert = dialog.create();
-        alert.show();
+                }).show();
     }
 
     /* END lifecycle */
