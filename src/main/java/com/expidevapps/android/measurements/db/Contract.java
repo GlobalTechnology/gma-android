@@ -229,12 +229,13 @@ public class Contract {
         public static final String COLUMN_DEVELOPMENT = "development";
         public static final String COLUMN_SIZE = "size";
         public static final String COLUMN_SECURITY = "security";
+        public static final String COLUMN_END_DATE = "end_date";
         static final String COLUMN_NEW = "new";
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_ID, COLUMN_PARENT, COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_CONTACT_NAME, COLUMN_CONTACT_EMAIL,
-                        COLUMN_CONTACT_MOBILE, COLUMN_LATITUDE, COLUMN_LONGITUDE, COLUMN_DEVELOPMENT, COLUMN_SIZE, COLUMN_SECURITY, COLUMN_NEW,
-                        COLUMN_DIRTY, COLUMN_LAST_SYNCED};
+                        COLUMN_CONTACT_MOBILE, COLUMN_LATITUDE, COLUMN_LONGITUDE, COLUMN_DEVELOPMENT, COLUMN_SIZE,
+                        COLUMN_SECURITY, COLUMN_END_DATE, COLUMN_NEW, COLUMN_DIRTY, COLUMN_LAST_SYNCED};
 
         private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
         private static final String SQL_COLUMN_PARENT = COLUMN_PARENT + " INTEGER";
@@ -245,16 +246,22 @@ public class Contract {
         private static final String SQL_COLUMN_DEVELOPMENT = COLUMN_DEVELOPMENT + " INTEGER";
         private static final String SQL_COLUMN_SIZE = COLUMN_SIZE + " INTEGER";
         private static final String SQL_COLUMN_SECURITY = COLUMN_SECURITY + " INTEGER";
+        private static final String SQL_COLUMN_END_DATE = COLUMN_END_DATE + " TEXT";
         private static final String SQL_COLUMN_NEW = COLUMN_NEW + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
+        public static final String SQL_WHERE_NOT_ENDED =
+                "(" + COLUMN_END_DATE + " IS NULL OR " + COLUMN_END_DATE + " >= ?)";
+        public static final String SQL_WHERE_MINISTRY_AND_NOT_ENDED =
+                SQL_WHERE_MINISTRY + " AND " + SQL_WHERE_NOT_ENDED;
         public static final String SQL_WHERE_NEW_OR_DIRTY = COLUMN_NEW + " = 1 OR " + SQL_WHERE_DIRTY;
 
         static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_PARENT, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME,
-                        SQL_COLUMN_CONTACT_NAME, SQL_COLUMN_CONTACT_EMAIL, SQL_COLUMN_CONTACT_MOBILE, SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE,
-                        SQL_COLUMN_DEVELOPMENT, SQL_COLUMN_SIZE, SQL_COLUMN_SECURITY, SQL_COLUMN_NEW, SQL_COLUMN_DIRTY,
+                        SQL_COLUMN_CONTACT_NAME, SQL_COLUMN_CONTACT_EMAIL, SQL_COLUMN_CONTACT_MOBILE,
+                        SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE, SQL_COLUMN_DEVELOPMENT, SQL_COLUMN_SIZE,
+                        SQL_COLUMN_SECURITY, SQL_COLUMN_END_DATE, SQL_COLUMN_NEW, SQL_COLUMN_DIRTY,
                         SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
         static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
@@ -264,6 +271,8 @@ public class Contract {
         static final String SQL_v33_ALTER_PARENT = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_PARENT;
         @Deprecated
         static final String SQL_v35_ALTER_MOBILE = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_CONTACT_MOBILE;
+        @Deprecated
+        static final String SQL_v36_ALTER_END_DATE = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_END_DATE;
     }
 
     ///////////////////////////////////////////////////////////////

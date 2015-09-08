@@ -44,6 +44,7 @@ public class GoogleAnalyticsManager {
     private static final String ACTION_CREATE = "create";
     private static final String ACTION_UPDATE = "update";
     private static final String ACTION_MOVE = "move";
+    private static final String ACTION_DELETE = "delete";
 
     private final Tracker mTracker;
 
@@ -170,6 +171,11 @@ public class GoogleAnalyticsManager {
     public void sendUpdateChurchEvent(@NonNull final String guid, @NonNull final String ministryId,
                                       final long churchId) {
         mTracker.send(churchEvent(ACTION_UPDATE, guid, ministryId, churchId).build());
+    }
+
+    public void sendDeleteChurchEvent(@NonNull final String guid, @NonNull final String ministryId,
+                                      final long churchId) {
+        mTracker.send(churchEvent(ACTION_DELETE, guid, ministryId, churchId).build());
     }
 
     @NonNull

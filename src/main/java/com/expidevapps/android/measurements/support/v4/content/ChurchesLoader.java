@@ -1,6 +1,7 @@
 package com.expidevapps.android.measurements.support.v4.content;
 
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.sync.BroadcastUtils;
 
 import org.ccci.gto.android.common.support.v4.content.AsyncTaskBroadcastReceiverLoader;
+import org.joda.time.LocalDate;
 
 import java.util.List;
 
@@ -37,7 +39,8 @@ public class ChurchesLoader extends AsyncTaskBroadcastReceiverLoader<List<Church
     @Override
     public List<Church> loadInBackground() {
         if (!Ministry.INVALID_ID.equals(mMinistryId)) {
-            return mDao.get(Church.class, Contract.Church.SQL_WHERE_MINISTRY, new String[] {mMinistryId});
+            return mDao.get(Church.class, Contract.Church.SQL_WHERE_MINISTRY_AND_NOT_ENDED,
+                            bindValues(mMinistryId, LocalDate.now()));
         }
         return null;
     }

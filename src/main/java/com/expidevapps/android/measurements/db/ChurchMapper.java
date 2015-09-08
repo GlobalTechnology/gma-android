@@ -13,6 +13,7 @@ import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_CON
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_CONTACT_MOBILE;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_CONTACT_NAME;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_DEVELOPMENT;
+import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_END_DATE;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_ID;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_MINISTRY_ID;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_NAME;
@@ -59,6 +60,9 @@ public class ChurchMapper extends LocationMapper<Church> {
             case COLUMN_SECURITY:
                 values.put(field, church.getSecurity().id);
                 break;
+            case COLUMN_END_DATE:
+                values.put(field, church.getEndDate() != null ? church.getEndDate().toString() : null);
+                break;
             case COLUMN_NEW:
                 values.put(field, church.isNew());
                 break;
@@ -89,6 +93,7 @@ public class ChurchMapper extends LocationMapper<Church> {
         church.setDevelopment(Development.fromRaw(getInt(c, COLUMN_DEVELOPMENT, Development.UNKNOWN.id)));
         church.setSize(getInt(c, COLUMN_SIZE, 0));
         church.setSecurity(Security.fromRaw(getInt(c, COLUMN_SECURITY, SECURITY_DEFAULT)));
+        church.setEndDate(getLocalDate(c, COLUMN_END_DATE, null));
         church.setNew(getBool(c, COLUMN_NEW, false));
 
         return church;

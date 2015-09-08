@@ -6,7 +6,9 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.expidevapps.android.measurements.R;
+import com.google.common.base.Objects;
 
+import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -98,6 +100,7 @@ public class Church extends Location implements Cloneable {
     public static final String JSON_DEVELOPMENT = "development";
     public static final String JSON_SIZE = "size";
     public static final String JSON_SECURITY = "security";
+    public static final String JSON_END_DATE = "end_date";
 
     private long id = INVALID_ID;
     private long mParentId = INVALID_ID;
@@ -116,6 +119,8 @@ public class Church extends Location implements Cloneable {
     @NonNull
     private Security security = Security.PUBLIC;
     private int size = 0;
+    @Nullable
+    private LocalDate mEndDate;
 
     private boolean mNew = false;
 
@@ -167,6 +172,7 @@ public class Church extends Location implements Cloneable {
         this.development = church.development;
         this.size = church.size;
         this.security = church.security;
+        mEndDate = church.mEndDate;
         mDirty.clear();
         mDirty.addAll(church.mDirty);
         mTrackingChanges = church.mTrackingChanges;
@@ -281,6 +287,22 @@ public class Church extends Location implements Cloneable {
         this.security = security;
     }
 
+    @Nullable
+    public LocalDate getEndDate() {
+        return mEndDate;
+    }
+
+    public void setEndDate(@Nullable final LocalDate date) {
+        if (mTrackingChanges && !Objects.equal(mEndDate, date)) {
+            mDirty.add(JSON_END_DATE);
+        }
+        mEndDate = date;
+    }
+
+    public void setDeletedEndDate() {
+        setEndDate(LocalDate.now().withDayOfMonth(1).minusDays(1));
+    }
+
     public void setNew(final boolean state) {
         mNew = state;
     }
@@ -317,6 +339,9 @@ public class Church extends Location implements Cloneable {
         }
         json.put(JSON_SIZE, this.size);
         json.put(JSON_SECURITY, this.security.id);
+        if (mEndDate != null) {
+            json.put(JSON_END_DATE, mEndDate.toString());
+        }
         return json;
     }
 
