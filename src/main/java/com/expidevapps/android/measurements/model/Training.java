@@ -49,6 +49,7 @@ public class Training extends Location implements Cloneable {
     private final List<Completion> completions = new ArrayList<>();
 
     private boolean mNew = false;
+    private boolean mDeleted = false;
 
     public Training()
     {       
@@ -64,6 +65,8 @@ public class Training extends Location implements Cloneable {
         this.type = training.type;
         this.mcc = training.mcc;
         this.setCompletions(training.completions);
+        mNew = training.mNew;
+        mDeleted = training.mDeleted;
         mDirty.clear();
         mDirty.addAll(training.mDirty);
         mTrackingChanges = training.mTrackingChanges;
@@ -210,6 +213,14 @@ public class Training extends Location implements Cloneable {
 
     public boolean isNew() {
         return mNew;
+    }
+
+    public boolean isDeleted() {
+        return mDeleted;
+    }
+
+    public void setDeleted(boolean state) {
+        mDeleted = state;
     }
 
     public void addCompletion(@NonNull final Completion completion) {

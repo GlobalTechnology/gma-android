@@ -175,15 +175,14 @@ public final class BroadcastUtils {
     public static Intent updateMinistriesBroadcast() {
         return new Intent(ACTION_UPDATE_MINISTRIES, ministriesUri());
     }
-    
-    public static Intent updateTrainingBroadcast(@NonNull final long... ids)
-    {
+
+    public static Intent updateTrainingBroadcast(@NonNull final long... ids) {
         return updateTrainingBroadcast(null, ids);        
     }
-    
-    public static Intent updateTrainingBroadcast(@NonNull final String ministryId, @NonNull final long... ids)
-    {
-        final Intent intent = new Intent(ACTION_UPDATE_TRAINING, ministryId != null ? trainingUri(ministryId) : trainingUri());
+
+    public static Intent updateTrainingBroadcast(@Nullable final String ministryId, @NonNull final long... ids) {
+        final Intent intent =
+                new Intent(ACTION_UPDATE_TRAINING, ministryId != null ? trainingUri(ministryId) : trainingUri());
         intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
         intent.putExtra(EXTRA_TRAINING_IDS, ids);
         return intent;

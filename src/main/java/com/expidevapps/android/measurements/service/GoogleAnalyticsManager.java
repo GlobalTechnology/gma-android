@@ -206,4 +206,9 @@ public class GoogleAnalyticsManager {
                                         @NonNull final Mcc mcc, final long trainingId) {
         mTracker.send(trainingEvent(ACTION_UPDATE, guid, ministryId, mcc, trainingId).build());
     }
+
+    public void sendDeleteTrainingEvent(@NonNull final String guid, @NonNull final String ministryId,
+                                        @NonNull final Mcc mcc, final long trainingId) {
+        mTracker.send(trainingEvent(ACTION_DELETE, guid, ministryId, mcc, trainingId).build());
+    }
 }

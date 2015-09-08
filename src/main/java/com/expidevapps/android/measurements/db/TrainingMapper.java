@@ -1,5 +1,7 @@
 package com.expidevapps.android.measurements.db;
 
+import static com.expidevapps.android.measurements.db.Contract.Training.COLUMN_DELETED;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
@@ -36,6 +38,9 @@ public class TrainingMapper extends LocationMapper<Training> {
             case Contract.Training.COLUMN_NEW:
                 values.put(field, training.isNew());
                 break;
+            case COLUMN_DELETED:
+                values.put(field, training.isDeleted());
+                break;
             default:
                 super.mapField(values, field, training);
                 break;
@@ -59,6 +64,7 @@ public class TrainingMapper extends LocationMapper<Training> {
         training.setType(this.getString(c, Contract.Training.COLUMN_TYPE, null));
         training.setMcc(this.getString(c, Contract.Training.COLUMN_MCC, null));
         training.setNew(getBool(c, Contract.Training.COLUMN_NEW, false));
+        training.setDeleted(getBool(c, COLUMN_DELETED, false));
         return training;
     }
 }

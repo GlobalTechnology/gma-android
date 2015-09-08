@@ -122,7 +122,7 @@ class TrainingSyncTasks extends BaseSyncTasks {
         synchronized (LOCK_DIRTY_TRAININGS) {
             // short-circuit if there aren't any trainings to process
             final GmaDao dao = GmaDao.getInstance(context);
-            final List<Training> trainings = dao.get(Training.class, Contract.Training.SQL_WHERE_NEW_OR_DIRTY, null);
+            final List<Training> trainings = dao.get(Training.class, Contract.Training.SQL_WHERE_NEW_DELETED_OR_DIRTY, null);
             if (trainings.isEmpty()) {
                 return;
             }
@@ -172,6 +172,23 @@ class TrainingSyncTasks extends BaseSyncTasks {
 
                             // increment update counter
                             result.stats.numUpdates++;
+                        } else {
+                            result.stats.numParseExceptions++;
+                        }
+                    } else if (training.isDeleted()) {
+                        // delete this training
+                        final boolean success = api.deleteTraining(training.getId());
+
+                        // was this deletion successful?
+                        if (success) {
+                            // delete the training from the database
+                            dao.delete(training);
+
+                            // add training to the list of broadcasts
+                            broadcasts.put(training.getMinistryId(), training.getId());
+
+                            // increment delete counter
+                            result.stats.numDeletes++;
                         } else {
                             result.stats.numParseExceptions++;
                         }

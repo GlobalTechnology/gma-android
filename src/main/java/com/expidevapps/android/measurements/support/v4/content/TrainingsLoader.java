@@ -50,7 +50,8 @@ public class TrainingsLoader extends AsyncTaskBroadcastReceiverLoader<List<Train
     @Override
     public List<Training> loadInBackground() {
         if (mMinistryId != null && mMcc != Mcc.UNKNOWN) {
-            return mDao.get(Training.class, Contract.Training.SQL_WHERE_MINISTRY_MCC, bindValues(mMinistryId, mMcc));
+            return mDao.get(Training.class, Contract.Training.SQL_WHERE_MINISTRY_MCC_NOT_DELETED,
+                            bindValues(mMinistryId, mMcc));
         }
         return null;
     }

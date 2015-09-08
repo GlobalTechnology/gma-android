@@ -1,6 +1,5 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
-import android.support.v7.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -9,12 +8,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.util.Log;
 import android.view.View;
 
 import com.expidevapps.android.measurements.R;
-import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Training;
@@ -23,7 +22,6 @@ import com.expidevapps.android.measurements.support.v4.content.SingleTrainingLoa
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.common.collect.Lists;
 
-import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.db.Transaction;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
@@ -345,7 +343,7 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(mContext);
             broadcastManager.sendBroadcast(updateTrainingBroadcast(mTraining.getMinistryId(), mTraining.getId()));
 
-            // trigger a sync of dirty churches
+            // trigger a sync of dirty trainings
             GmaSyncService.syncDirtyTrainings(mContext, mGuid);
         }
     }
@@ -364,27 +362,20 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
 
         @Override
         public void run() {
+            // mark this training as deleted
             final GmaDao dao = GmaDao.getInstance(mContext);
-            final GmaApiClient api = GmaApiClient.getInstance(mContext, mGuid);
+            mTraining.setDeleted(true);
+            dao.update(mTraining, new String[] {Contract.Training.COLUMN_DELETED});
 
-            dao.delete(mTraining);
+            // track this delete in GA
+            GoogleAnalyticsManager.getInstance(mContext).sendDeleteTrainingEvent(mGuid, mTraining.getMinistryId(),
+                                                                                 mTraining.getMcc(), mTraining.getId());
 
-            try {
-                final boolean success = api.deleteTraining(mTraining.getId());
-            }
-            catch(ApiException e) {
-                Log.e("DeleteTraining", "ApiException occured.");
-            }
-
-            /*// track this update in GA
-            GoogleAnalyticsManager.getInstance(mContext)
-                    .sendUpdateTrainingEvent(mGuid, mTraining.getMinistryId(), mTraining.getMcc(), mTraining.getId());
-*/
             // broadcast that this training was updated
             final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(mContext);
             broadcastManager.sendBroadcast(updateTrainingBroadcast(mTraining.getMinistryId(), mTraining.getId()));
 
-            // trigger a sync of dirty churches
+            // trigger a sync of dirty trainings
             GmaSyncService.syncDirtyTrainings(mContext, mGuid);
         }
     }
