@@ -168,9 +168,9 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         dialog.setMessage("Are you sure you want to delete ?")
                 .setTitle("Confirm?")
                 .setCancelable(true)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
+                        dialog.dismiss();
                         //dismiss the dialog
                         dismiss();
 
@@ -179,7 +179,7 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                         }
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
