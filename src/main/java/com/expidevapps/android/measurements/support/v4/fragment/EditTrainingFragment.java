@@ -154,30 +154,24 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
     @Optional
     @OnClick(R.id.training_delete)
     void onDeleteTraining() {
-        Log.d("ITH", "onDeleteTraining called.");
-
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-        dialog.setMessage("Are you sure you want to delete ?")
-                .setTitle("Confirm?")
-                .setCancelable(true)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        new AlertDialog.Builder(getActivity()).setTitle(R.string.title_dialog_training_delete).setMessage(
+                R.string.text_dialog_training_delete_confirm)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
+                        dialog.dismiss();
                         //dismiss the dialog
                         dismiss();
 
-                        if(mTraining != null) {
+                        if (mTraining != null) {
                             AsyncTaskCompat.execute(new DeleteTrainingRunnable(getActivity(), mGuid, mTraining));
                         }
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
-                });
-        AlertDialog alert = dialog.create();
-        alert.show();
+                }).show();
     }
 
     @Override

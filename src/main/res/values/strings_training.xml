@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_dialog_training_create">Create New Training</string>
+    <string name="title_dialog_training_delete">Delete Training?</string>
+    <string name="text_dialog_training_delete_confirm">Are you sure you want to delete this training?</string>
 
     <!-- Training Details Fragment-->
     <string name="label_training_name">Name</string>
