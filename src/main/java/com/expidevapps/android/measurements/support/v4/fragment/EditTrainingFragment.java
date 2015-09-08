@@ -10,7 +10,6 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
-import android.util.Log;
 import android.view.View;
 
 import com.expidevapps.android.measurements.R;
@@ -20,6 +19,7 @@ import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.content.SingleTrainingLoader;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 import org.ccci.gto.android.common.db.Transaction;
@@ -27,9 +27,6 @@ import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
 import org.joda.time.LocalDate;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import butterknife.ButterKnife;
@@ -67,6 +64,8 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
         return fragment;
     }
 
+    /* BEGIN lifecycle */
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -89,11 +88,19 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
         ButterKnife.inject(this, getDialog());
         updateViews();
     }
-    
-    void onLoadTraining(final Training training)
-    {
+
+    void onLoadTraining(@Nullable final Training training) {
         mTraining = training;
+        if (!mChanged[CHANGED_DATE]) {
+            setTrainingDate(mTraining != null ? mTraining.getDate() : null);
+        }
         updateViews();
+    }
+
+    @Override
+    protected void onChangeTrainingDate(@Nullable final LocalDate date) {
+        super.onChangeTrainingDate(date);
+        mChanged[CHANGED_DATE] = !Objects.equal(mTraining != null ? mTraining.getDate() : null, date);
     }
 
     @Override
@@ -112,10 +119,6 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
                 break;
             case R.id.et_training_type:
                 mChanged[CHANGED_TYPE] = !(mTraining != null ? text.equals(mTraining.getType()) : text.isEmpty());
-                break;
-            case R.id.et_training_date:
-                mChanged[CHANGED_DATE] = !(mTraining != null && mTraining.getDate() != null ?
-                        text.equals(mTraining.getDate().toString("MM/dd/yyyy")) : text.isEmpty());
                 break;
         }
     }
@@ -137,8 +140,9 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
 
                 updates.mTrainingType = ((String) trainingType).equalsIgnoreCase(Training.TRAINING_TYPE_OTHER) ? "" : (String) trainingType;
             }
-            if (mTrainingDate != null && mChanged[CHANGED_DATE]) {
-                updates.mTrainingDate = mTrainingDate.getText().toString();
+            if (mChanged[CHANGED_DATE]) {
+                updates.mTrainingDate = mTrainingDate;
+                updates.mTrainingDateChanged = mChanged[CHANGED_DATE];
             }
 
             // persist changes in the database (if there are any)
@@ -181,22 +185,17 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
         ButterKnife.reset(this);
     }
 
+    /* END lifecycle */
+
     private void startLoaders()
     {
         final LoaderManager manager = this.getLoaderManager();
         manager.initLoader(LOADER_TRAINING, null, new TrainingLoaderCallBacks());
     }
-    
-    private void updateViews()
-    {
-        if (mTrainingName != null)
-        {
+
+    private void updateViews() {
+        if (mTrainingName != null && !mChanged[CHANGED_NAME]) {
             mTrainingName.setText(mTraining != null ? mTraining.getName() : null);
-        }
-        if (mTrainingDate != null)
-        {
-            mTrainingDate.setText(mTraining != null && mTraining.getDate() != null ? mTraining.getDate().toString(
-                    "MM/dd/yyyy") : null);
         }
         if (mTrainingMcc != null) {
             mTrainingMcc.setText(mTraining != null ? mTraining.getMcc().name() : null);
@@ -216,17 +215,7 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             onTextUpdated(mTrainingName, text != null ? text.toString() : "");
         }
     }
-    
-    @Optional
-    @OnTextChanged(value = R.id.et_training_date, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    void updateDate(@Nullable final Editable text)
-    {
-        if (mTrainingDate != null)
-        {
-            onTextUpdated(mTrainingDate, text != null ? text.toString() : "");
-        }
-    }
-    
+
     private class TrainingLoaderCallBacks extends SimpleLoaderCallbacks<Training>
     {
         @Nullable
@@ -259,10 +248,11 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
         @Nullable
         String mTrainingType;
         @Nullable
-        String mTrainingDate;
+        LocalDate mTrainingDate;
+        boolean mTrainingDateChanged = false;
 
         boolean hasUpdates() {
-            return mTrainingName != null || mTrainingType != null || mTrainingDate != null;
+            return mTrainingName != null || mTrainingType != null || mTrainingDateChanged;
         }
     }
 
@@ -308,15 +298,8 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
                     training.setType(mUpdates.mTrainingType);
                     projection.add(Contract.Training.COLUMN_TYPE);
                 }
-                if (mUpdates.mTrainingDate != null) {
-                    try
-                    {
-                        DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
-                        training.setDate(new LocalDate(format.parse(mUpdates.mTrainingDate)));
-                    }
-                    catch (ParseException ignored) {
-                        Log.e("ParseException", "error Parsing Date string to LocalDate.");
-                    }
+                if (mUpdates.mTrainingDateChanged) {
+                    training.setDate(mUpdates.mTrainingDate);
                     projection.add(Contract.Training.COLUMN_DATE);
                 }
 

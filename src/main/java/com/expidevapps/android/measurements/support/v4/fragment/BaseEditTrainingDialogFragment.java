@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.ImageView;
@@ -19,9 +18,9 @@ import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.model.Church.Development;
 import com.expidevapps.android.measurements.model.Training;
 
+import org.joda.time.LocalDate;
+
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.EnumSet;
 
 import butterknife.ButterKnife;
@@ -48,7 +47,7 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
     @Optional
     @Nullable
     @InjectView(R.id.et_training_date)
-    TextView mTrainingDate;
+    TextView mTrainingDateLabel;
     @Optional
     @Nullable
     @InjectView(R.id.et_training_participants)
@@ -67,6 +66,8 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
 
     @NonNull
     /* final */ String mGuid;
+    @Nullable
+    LocalDate mTrainingDate;
 
     @NonNull
     public static Bundle buildArgs(@NonNull final String guid) {
@@ -106,7 +107,10 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
     }
 
     protected void onChangeTrainingType(@NonNull final String trainingType) {
+    }
 
+    protected void onChangeTrainingDate(@Nullable final LocalDate date) {
+        setTrainingDate(date);
     }
 
     @Optional
@@ -144,26 +148,20 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
         mTrainingTypeAdapter = null;
     }
 
+    protected final void setTrainingDate(@Nullable final LocalDate date) {
+        mTrainingDate = date;
+        updateTrainingDateLabel(mTrainingDate);
+    }
+
     @Optional
     @OnClick(R.id.et_training_date)
-    void onTrainingDateClick() {
-        Log.d("ITH", "onTraingDateClick called.");
-        DatePickerDialog datePickerDialog;
-
-        Calendar newCalendar = Calendar.getInstance();
-        datePickerDialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
-
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                Calendar newDate = Calendar.getInstance();
-                newDate.set(year, monthOfYear, dayOfMonth);
-
-                DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
-                mTrainingDate.setText(format.format(newDate.getTime()));
+    void changeTrainingDate() {
+        final LocalDate currentDate = mTrainingDate != null ? mTrainingDate : LocalDate.now();
+        new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+            public void onDateSet(final DatePicker view, final int year, final int month, final int day) {
+                onChangeTrainingDate(new LocalDate(year, month + 1, day));
             }
-
-        }, newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
-
-        datePickerDialog.show();
+        }, currentDate.getYear(), currentDate.getMonthOfYear() - 1, currentDate.getDayOfMonth()).show();
     }
 
     @Optional
@@ -174,13 +172,6 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
             //this.onChangeTrainingType(item instanceof TrainingType ? (TrainingType) item : TrainingType.UNKNOWN);
             this.onChangeTrainingType((String) item);
         }
-    }
-
-    @Optional
-    @OnClick(R.id.training_cancel)
-    void onCancelEdit()
-    {
-        this.dismiss();
     }
 
     protected void updateTitle(@StringRes final int title) {
@@ -195,9 +186,10 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
         }
     }
 
-    protected void updateIcon(@NonNull final Development state) {
-        if (mIconView != null) {
-            mIconView.setImageResource(state.image);
+    protected void updateTrainingDateLabel(@Nullable final LocalDate date) {
+        if (mTrainingDateLabel != null) {
+            mTrainingDateLabel
+                    .setText(date != null ? DateFormat.getDateInstance(DateFormat.SHORT).format(date.toDate()) : "");
         }
     }
 }
