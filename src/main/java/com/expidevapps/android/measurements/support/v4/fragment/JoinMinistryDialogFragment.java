@@ -42,7 +42,7 @@ public class JoinMinistryDialogFragment extends AbstractDialogFragment {
     TextView mNameView;
     @Optional
     @Nullable
-    @InjectView(R.id.join)
+    @InjectView(android.R.id.button1)
     Button mJoinButton;
     @Optional
     @Nullable
@@ -83,6 +83,8 @@ public class JoinMinistryDialogFragment extends AbstractDialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable final Bundle savedState) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setPositiveButton(R.string.btn_join_ministry_join, null);
+        builder.setNegativeButton(android.R.string.cancel, null);
         builder.setView(R.layout.fragment_dialog_join_ministry);
         return builder.create();
     }
@@ -101,7 +103,7 @@ public class JoinMinistryDialogFragment extends AbstractDialogFragment {
     }
 
     @Optional
-    @OnClick(R.id.join)
+    @OnClick(android.R.id.button1)
     void onJoinMinistry() {
         if (mGuid != null) {
             if (mJoinButton != null) {
@@ -137,12 +139,6 @@ public class JoinMinistryDialogFragment extends AbstractDialogFragment {
         if (listener != null) {
             listener.onJoinedMinistry(mMinistryId);
         }
-    }
-
-    @Optional
-    @OnClick(R.id.cancel)
-    void onCancelJoin() {
-        dismiss();
     }
 
     @Override

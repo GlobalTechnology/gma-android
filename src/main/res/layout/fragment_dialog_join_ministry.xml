@@ -1,72 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_marginTop="16dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:layout_centerHorizontal="true">
 
-    <RelativeLayout
-        android:id="@+id/content"
+    <TextView
+        android:id="@+id/header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:textAppearance="@style/TextAppearance.GMA.Large"
+        android:text="@string/label_join_ministry_ministry"/>
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/header"
         android:layout_marginTop="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_centerHorizontal="true">
+        android:layout_centerHorizontal="true"
+        android:textAppearance="@style/TextAppearance.GMA"
+        tools:text="Athens Campus Team (GRC)"/>
 
-        <TextView
-            android:id="@+id/header"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:textAppearance="@style/TextAppearance.GMA.Large"
-            android:text="@string/label_join_ministry_ministry"/>
-
-        <TextView
-            android:id="@+id/name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/header"
-            android:layout_marginTop="16dp"
-            android:layout_centerHorizontal="true"
-            android:textAppearance="@style/TextAppearance.GMA"
-            tools:text="Athens Campus Team (GRC)"/>
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_below="@id/name"
-            style="?android:attr/progressBarStyleLarge"
-            android:visibility="invisible"
-            tools:visibility="visible"
-            android:indeterminate="true"/>
-    </RelativeLayout>
-
-    <LinearLayout
+    <ProgressBar
+        android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/content"
-        android:layout_margin="16dp"
-        android:layout_centerHorizontal="true">
-
-        <Button
-            android:id="@+id/cancel"
-            android:layout_width="wrap_content"
-            style="@style/Widget.GMA.Button"
-            android:text="@android:string/cancel"/>
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:minWidth="16dp"/>
-
-        <Button
-            android:id="@+id/join"
-            android:layout_width="wrap_content"
-            style="@style/Widget.GMA.Button"
-            android:text="@string/btn_join_ministry_join"/>
-    </LinearLayout>
+        android:layout_centerInParent="true"
+        android:layout_below="@id/name"
+        style="?android:attr/progressBarStyleLarge"
+        android:visibility="invisible"
+        tools:visibility="visible"
+        android:indeterminate="true"/>
 </RelativeLayout>
