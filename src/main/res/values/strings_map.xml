@@ -6,7 +6,7 @@
 
     <string name="label_marker_map_no_name">(no name)</string>
     <plurals name="text_marker_map_church_snippet">
-        <item quantity="one">%d member</item>
-        <item quantity="other">%d members</item>
+        <item quantity="one">%1$d member</item>
+        <item quantity="other">%1$d members</item>
     </plurals>
 </resources>
