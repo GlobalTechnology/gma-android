@@ -5,6 +5,7 @@
     <string name="text_dialog_training_delete_confirm">Are you sure you want to delete this training?</string>
 
     <!-- Training Details Fragment-->
+    <eat-comment />
     <string name="label_training_name">Name</string>
     <string name="label_training_type">Training Type</string>
     <string name="label_training_date">Date</string>

@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Titles -->
+    <eat-comment />
     <string name="app_name">GMA</string>
     <string name="title_activity_main">GMA</string>
 
     <!-- Common Menu items -->
+    <eat-comment />
     <string name="menu_refresh">Refresh</string>
 
     <!-- Common Buttons -->
+    <eat-comment />
     <string name="btn_delete">Delete</string>
     <string name="btn_update">Update</string>
 </resources>
