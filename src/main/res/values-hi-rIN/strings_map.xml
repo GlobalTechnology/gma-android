@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_map_create_item">नया बनाएं</string>
+    <string name="btn_dialog_map_create_church">चर्च</string>
+    <string name="btn_dialog_map_create_training">प्रशिक्षण</string>
+    <string name="label_marker_map_no_name">(नाम नहीं)</string>
+    <plurals name="text_marker_map_church_snippet">
+        <item quantity="one">%1$d सदस्य</item>
+        <item quantity="other">%1$d सदस्य</item>
+    </plurals>
+</resources>

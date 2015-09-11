@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Titles -->
+    <!-- Common Menu items -->
+    <string name="menu_refresh">Actualizar</string>
+    <!-- Common Buttons -->
+    <string name="btn_delete">Eliminar</string>
+    <string name="btn_update">Actualizar</string>
+</resources>

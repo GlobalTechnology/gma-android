@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_join_ministry">Rejoindre nouveau ministère</string>
+    <string name="title_activity_join_ministry">Rejoindre ministère</string>
+    <string name="menu_ministry_search">Recherche</string>
+    <string name="label_join_ministry_ministry">Ministère/Équipe</string>
+    <string name="btn_join_ministry_join">Rejoindre</string>
+</resources>

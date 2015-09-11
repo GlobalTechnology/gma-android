@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_training_create">नया प्रशिक्षण बनाएं</string>
+    <string name="title_dialog_training_delete">प्रशिक्षण हटाएं?</string>
+    <string name="text_dialog_training_delete_confirm">आप सचमुच यह प्रशिक्षण हटाना चाहते हैं?</string>
+    <!-- Training Details Fragment-->
+    <string name="label_training_name">नाम</string>
+    <string name="label_training_type">प्रशिक्षण प्रकार</string>
+    <string name="label_training_date">दिनांक</string>
+    <string name="label_training_participants">सहभागी</string>
+    <string name="btn_training_create">बनाएं</string>
+</resources>

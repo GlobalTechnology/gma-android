@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_measurements">قياسات</string>
+    <string name="title_activity_measurements">قياسات</string>
+    <string name="title_activity_measurement_details">تفاصيل القياسات</string>
+    <!-- Measurements Not Authorized dialog -->
+    <string name="title_dialog_measurements_unauthorized">محجوب</string>
+    <string name="text_dialog_measurements_unauthorized">لا يسمح لك برؤية القياسات لهذا الكهنوت</string>
+    <!-- Measurement accordion sections -->
+    <string name="label_measurements_column_faith">أعمال الإيمان</string>
+    <string name="label_measurements_column_fruit">فواكه</string>
+    <string name="label_measurements_column_outcomes">النتيجة</string>
+    <string name="label_measurements_column_other">غير ذلك</string>
+    <!-- Measurement details breakdown sections -->
+    <string name="label_measurement_details_breakdown_section_total">المجموع</string>
+    <string name="label_measurement_details_breakdown_section_local">الفريق المحلي</string>
+    <string name="label_measurement_details_breakdown_section_team">أعضاء الفريق</string>
+    <string name="label_measurement_details_breakdown_section_subministries">فروع الكهنوت/الفرق</string>
+    <string name="label_measurement_details_breakdown_section_selfassigned">الأعضاء المعينون ذاتيا</string>
+    <string name="label_measurement_details_breakdown_section_split">تقسيم القياسات</string>
+    <string name="label_measurement_details_breakdown_local">محلي</string>
+    <string name="label_measurement_details_breakdown_you">أنت</string>
+</resources>

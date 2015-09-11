@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_join_ministry">Unirse a nuevo ministerio</string>
+    <string name="title_activity_join_ministry">Unirse a ministerio</string>
+    <string name="menu_ministry_search">Buscar</string>
+    <string name="label_join_ministry_ministry">Ministerio/Equipo</string>
+    <string name="btn_join_ministry_join">Unirse</string>
+</resources>

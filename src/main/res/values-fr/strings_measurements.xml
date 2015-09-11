@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_measurements">Mesures</string>
+    <string name="title_activity_measurements">Mesures</string>
+    <string name="title_activity_measurement_details">Détails de mesures</string>
+    <!-- Measurements Not Authorized dialog -->
+    <string name="title_dialog_measurements_unauthorized">Bloqué</string>
+    <string name="text_dialog_measurements_unauthorized">Vous n\'avez pas l\'autorisation de voir les mesures pour ce ministère</string>
+    <!-- Measurement accordion sections -->
+    <string name="label_measurements_column_faith">Actions de foi</string>
+    <string name="label_measurements_column_fruit">Fruit</string>
+    <string name="label_measurements_column_outcomes">Résultats</string>
+    <string name="label_measurements_column_other">Autre</string>
+    <!-- Measurement details breakdown sections -->
+    <string name="label_measurement_details_breakdown_section_total">Total</string>
+    <string name="label_measurement_details_breakdown_section_local">Équipe locale</string>
+    <string name="label_measurement_details_breakdown_section_team">Membres de l\'équipe</string>
+    <string name="label_measurement_details_breakdown_section_subministries">Sous-ministères/Équipes</string>
+    <string name="label_measurement_details_breakdown_section_selfassigned">Membres à horaire libre</string>
+    <string name="label_measurement_details_breakdown_section_split">Mesures divisées</string>
+    <string name="label_measurement_details_breakdown_local">Local</string>
+    <string name="label_measurement_details_breakdown_you">Vous</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_church_create">إنشاء كنيسة جديدة</string>
+    <string name="title_dialog_church_delete">هل تريد حذف هذه الكنيسة؟</string>
+    <string name="text_dialog_church_delete_confirm">هل أنت متأكد من أنك تريد حذف هذه الكنيسة؟</string>
+    <string name="label_church_name">الاسم</string>
+    <string name="label_church_contact_name">اسم جهة الاتصال</string>
+    <string name="label_church_contact_email">بريد جهة الاتصال الالكتروني</string>
+    <string name="label_church_contact_mobile">رقم جوال جهة الاتصال</string>
+    <string name="label_church_development">النوع</string>
+    <string name="label_church_security">الأمن</string>
+    <string name="label_church_size">الحجم</string>
+    <string name="btn_church_create">إنشاء</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_join_ministry">नई मिनिस्ट्री से जुडें</string>
+    <string name="title_activity_join_ministry">मिनिस्ट्री से जुडें</string>
+    <string name="menu_ministry_search">खोजें</string>
+    <string name="label_join_ministry_ministry">मिनिस्ट्री/टीम</string>
+    <string name="btn_join_ministry_join">जुडें</string>
+</resources>

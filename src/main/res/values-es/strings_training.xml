@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_training_create">Crear nuevo entrenamiento</string>
+    <string name="title_dialog_training_delete">¿Eliminar entrenamiento?</string>
+    <string name="text_dialog_training_delete_confirm">¿Seguro que deseas eliminar este entrenamiento?</string>
+    <!-- Training Details Fragment-->
+    <string name="label_training_name">Nombre</string>
+    <string name="label_training_type">Tipo de entrenamiento</string>
+    <string name="label_training_date">Fecha</string>
+    <string name="label_training_participants">Participantes</string>
+    <string name="btn_training_create">Crear</string>
+</resources>

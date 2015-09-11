@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="text_login_welcome">Bienvenue dans GMA, cliquez sur Connexion pour commencer.</string>
+    <string name="btn_login">Connexion</string>
+    <string name="menu_logout">Déconnexion</string>
+    <string name="title_dialog_logout">Déconnexion</string>
+    <string name="text_logout_message">Voulez-vous vraiment vous déconnecter ?</string>
+</resources>

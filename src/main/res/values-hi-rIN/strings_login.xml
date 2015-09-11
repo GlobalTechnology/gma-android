@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="text_login_welcome">जीएमए पर स्वागत. शुरु करने के लिए साइन इन पर क्लिक करें.</string>
+    <string name="btn_login">साइन इन</string>
+    <string name="menu_logout">लॉगआउट</string>
+    <string name="title_dialog_logout">लॉगआउट</string>
+    <string name="text_logout_message">आप सचमुच लॉगआउट करना चाहते हैं?</string>
+</resources>
