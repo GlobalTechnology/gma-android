@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="text_login_welcome">Добро пожаловать в GMA, нажмите «Войти», чтобы начать работу.</string>
+    <string name="btn_login">Войти</string>
+    <string name="menu_logout">Выйти</string>
+    <string name="title_dialog_logout">Выход</string>
+    <string name="text_logout_message">Вы действительно хотите выйти?</string>
+</resources>

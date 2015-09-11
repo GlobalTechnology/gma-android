@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_church_create">Создать церковь</string>
+    <string name="title_dialog_church_delete">Удалить церковь?</string>
+    <string name="text_dialog_church_delete_confirm">Вы действительно хотите удалить эту церковь?</string>
+    <string name="label_church_name">Название</string>
+    <string name="label_church_contact_name">Контактное лицо</string>
+    <string name="label_church_contact_email">Контактный адрес эл. почты</string>
+    <string name="label_church_contact_mobile">Контактный телефон</string>
+    <string name="label_church_development">Тип</string>
+    <string name="label_church_security">Безопасность</string>
+    <string name="label_church_size">Размер</string>
+    <string name="btn_church_create">Создать</string>
+</resources>

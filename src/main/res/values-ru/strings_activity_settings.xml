@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_settings">Настройки</string>
+    <string name="title_activity_settings">Настройки</string>
+    <!-- Strings related to Settings -->
+    <string name="pref_category_active_ministry">Активная миссионерская организация</string>
+    <string name="pref_category_map_layer">Слои карты</string>
+    <!-- Ministry preference strings -->
+    <string name="pref_title_ministry_team_text">Миссионерская организация/команда</string>
+    <string name="pref_summary_ministry_none_set">Миссионерская организация не выбрана</string>
+    <string name="pref_summary_ministry_none_available">Нет доступных миссионерских организаций</string>
+    <!-- MCC preference strings -->
+    <string name="pref_summary_mcc_none_set">Нет выбранных MCC</string>
+    <string name="pref_summary_mcc_none_available">Нет доступных MCC</string>
+    <!-- Map preferences -->
+    <string name="pref_title_map_layer_church_parents">Отцы церкви</string>
+    <string name="pref_title_map_layer_church_target">Цели</string>
+    <string name="pref_title_map_layer_church_group">Группы</string>
+    <string name="pref_title_map_layer_church_church">Церкви</string>
+    <string name="pref_title_map_layer_church_multiplying">Расширяющиеся церкви</string>
+    <string name="pref_title_map_layer_training">Тренировки</string>
+</resources>
