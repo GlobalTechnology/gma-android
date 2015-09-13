@@ -26,6 +26,7 @@ public class Training extends Location implements Cloneable {
     private static final String JSON_DATE = "date";
     private static final String JSON_MCC = "mcc";
     private static final String JSON_COMPLETIONS = "gcm_training_completions";
+    private static final String JSON_CREATED_BY = "created_by";
 
     public static final String TRAINING_TYPE_MC2 = "MC2";
     public static final String TRAINING_TYPE_T4T = "T4T";
@@ -41,6 +42,8 @@ public class Training extends Location implements Cloneable {
     private String type;
     @NonNull
     private Ministry.Mcc mcc = Ministry.Mcc.UNKNOWN;
+    @Nullable
+    private String createdBy;
     @NonNull
     private final List<Completion> completions = new ArrayList<>();
 
@@ -60,6 +63,7 @@ public class Training extends Location implements Cloneable {
         this.date = training.date;
         this.type = training.type;
         this.mcc = training.mcc;
+        this.createdBy = training.createdBy;
         this.setCompletions(training.completions);
         mNew = training.mNew;
         mDeleted = training.mDeleted;
@@ -92,6 +96,7 @@ public class Training extends Location implements Cloneable {
         training.type = json.getString(JSON_TYPE);
         training.mcc = Ministry.Mcc.fromRaw(json.getString(JSON_MCC));
         training.date = LocalDate.parse(json.getString(JSON_DATE));
+        training.createdBy = json.getString(JSON_CREATED_BY);
         training.setLatitude(json.optDouble(JSON_LATITUDE, Double.NaN));
         training.setLongitude(json.optDouble(JSON_LONGITUDE, Double.NaN));
 
@@ -176,6 +181,15 @@ public class Training extends Location implements Cloneable {
 
     public void setMcc(@NonNull final Ministry.Mcc mcc) {
         this.mcc = mcc;
+    }
+
+    @Nullable
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(@Nullable String createdBy) {
+        this.createdBy = createdBy;
     }
 
     @Override

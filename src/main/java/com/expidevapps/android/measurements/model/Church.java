@@ -97,6 +97,7 @@ public class Church extends Location implements Cloneable {
     public static final String JSON_SIZE = "size";
     public static final String JSON_SECURITY = "security";
     public static final String JSON_END_DATE = "end_date";
+    public static final String JSON_CREATED_BY = "created_by";
 
     private long id = INVALID_ID;
     private long mParentId = INVALID_ID;
@@ -115,6 +116,8 @@ public class Church extends Location implements Cloneable {
     @NonNull
     private Security security = Security.PUBLIC;
     private int size = 0;
+    @Nullable
+    private String createdBy;
     @Nullable
     private LocalDate mEndDate;
 
@@ -150,6 +153,7 @@ public class Church extends Location implements Cloneable {
         church.development = Development.fromRaw(json.optInt(JSON_DEVELOPMENT, DEVELOPMENT_UNKNOWN));
         church.security = Security.fromRaw(json.optInt(JSON_SECURITY, SECURITY_DEFAULT));
         church.size = json.optInt(JSON_SIZE, 0);
+        church.createdBy = json.optString(JSON_CREATED_BY, null);
         return church;
     }
 
@@ -168,6 +172,7 @@ public class Church extends Location implements Cloneable {
         this.development = church.development;
         this.size = church.size;
         this.security = church.security;
+        this.createdBy = church.createdBy;
         mNew = church.mNew;
         mEndDate = church.mEndDate;
         mDirty.clear();
@@ -282,6 +287,15 @@ public class Church extends Location implements Cloneable {
 
     public void setSecurity(@NonNull final Security security) {
         this.security = security;
+    }
+
+    @Nullable
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(@Nullable final String createdBy) {
+        this.createdBy = createdBy;
     }
 
     @Nullable

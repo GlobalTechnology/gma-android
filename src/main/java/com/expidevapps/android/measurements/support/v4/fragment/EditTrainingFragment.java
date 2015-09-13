@@ -10,11 +10,14 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.util.Log;
 import android.view.View;
 
 import com.expidevapps.android.measurements.R;
+import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
+import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.content.SingleTrainingLoader;
@@ -34,6 +37,7 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import butterknife.Optional;
 
+import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
 import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.ARG_TRAINING_ID;
 import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateTrainingBroadcast;
@@ -52,13 +56,16 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
     private final boolean[] mChanged = new boolean[3];
     @Nullable
     private Training mTraining;
+    @Nullable
+    private Assignment.Role mRole;
 
-    public static EditTrainingFragment newInstance(@NonNull final String guid, final long trainingId) {
+    public static EditTrainingFragment newInstance(@NonNull final String guid, final long trainingId, final Assignment.Role role) {
         final EditTrainingFragment fragment = new EditTrainingFragment();
         
         final Bundle bundle = new Bundle();
         bundle.putString(ARG_GUID, guid);
         bundle.putLong(ARG_TRAINING_ID, trainingId);
+        bundle.putString(ARG_ROLE, role.toString());
         fragment.setArguments(bundle);
         
         return fragment;
@@ -78,6 +85,7 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
         }
         mGuid = guid;
         mTrainingId = args.getLong(ARG_TRAINING_ID, Training.INVALID_ID);
+        mRole = Assignment.Role.fromRaw(args.getString(ARG_ROLE));
     }
 
     @Override
@@ -95,6 +103,9 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             setTrainingDate(mTraining != null ? mTraining.getDate() : null);
         }
         updateViews();
+        if(mTraining != null) {
+            setViewEditMode();
+        }
     }
 
     @Override
@@ -203,6 +214,47 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
         if (mTrainingTypeSpinner != null && mTrainingTypeAdapter != null && !mChanged[CHANGED_TYPE]) {
             mTrainingTypeSpinner.setSelection(
                     mTrainingTypeAdapter.getPosition(mTraining != null ? mTraining.getType() : Training.TRAINING_TYPE_OTHER));
+        }
+    }
+
+    private boolean getModeOfDisplay() {
+        boolean editMode = false;
+        String personId = GmaApiClient.getUserId(getActivity());
+        switch (mRole) {
+            case LEADER:
+            case INHERITED_LEADER:
+                editMode = true;
+                break;
+            case SELF_ASSIGNED:
+            case MEMBER:
+                if(personId != null && mTraining.getCreatedBy() != null) {
+                    editMode = personId.equalsIgnoreCase(mTraining.getCreatedBy());
+                }
+                break;
+            default:
+                editMode = false;
+        }
+        return editMode;
+    }
+
+    private void setViewEditMode() {
+        boolean editMode = getModeOfDisplay();
+
+        if (mTrainingName != null) {
+            mTrainingName.setEnabled(editMode);
+        }
+        if (mTrainingMcc != null) {
+            mTrainingMcc.setEnabled(editMode);
+        }
+        if (mTrainingTypeSpinner != null) {
+            mTrainingTypeSpinner.setEnabled(editMode);
+        }
+        if (mTrainingDateLabel != null) {
+            mTrainingDateLabel.setEnabled(editMode);
+        }
+
+        if(mBottomButtonContainer != null && editMode == false) {
+            mBottomButtonContainer.setVisibility(View.GONE);
         }
     }
     

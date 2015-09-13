@@ -49,6 +49,9 @@ import me.thekey.android.lib.TheKeyImpl;
 
 import static com.expidevapps.android.measurements.Constants.MEASUREMENTS_SOURCE;
 
+import static com.expidevapps.android.measurements.Constants.PREFS_USER;
+import static com.expidevapps.android.measurements.Constants.PREF_PERSON_ID;
+
 public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Session>, Session> {
     private static final Logger LOG = LoggerFactory.getLogger(GmaApiClient.class);
     private final String TAG = getClass().getSimpleName();
@@ -122,6 +125,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
                             // save the returned associated ministries
                             // XXX: this isn't ideal and crosses logical components, but I can't think of a cleaner way to do it currently -DF
                             GmaSyncService.saveAssignments(mContext, request.guid, json.optJSONArray("assignments"));
+
+                            saveUser(mContext, json.optJSONObject("user"));
 
                             // create session object
                             return new Session(json.optString("session_ticket", null), cookies, request.guid);
@@ -664,6 +669,21 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     /* END Training endpoints */
+
+    private void saveUser(@NonNull final Context context, @Nullable final JSONObject user) {
+        if(user != null) {
+            String persionId = user.optString("person_id", null);
+            SharedPreferences.Editor editor = context.getSharedPreferences(PREFS_USER, context.MODE_PRIVATE).edit();
+            editor.putString(PREF_PERSON_ID, persionId);
+            editor.commit();
+        }
+    }
+
+    public static String getUserId(@NonNull final Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_USER, context.MODE_PRIVATE);
+        String persionId = prefs.getString(PREF_PERSON_ID, null);
+        return persionId;
+    }
 
     protected static class Session extends AbstractTheKeyApi.Session {
         @NonNull

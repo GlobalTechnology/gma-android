@@ -19,6 +19,9 @@ public final class Constants {
     public static final String PREF_MAP_LAYER_CHURCH_MULTIPLYING = "map.layer.church.multiplying";
     public static final String PREF_MAP_LAYER_CHURCH_PARENTS = "map.layer.church.parents";
 
+    public static final String PREFS_USER = "user";
+    public static final String PREF_PERSON_ID = "person_id";
+
     @NonNull
     public static String PREFS_SETTINGS(@NonNull final String guid) {
         return PREFS_SETTINGS + "_" + guid;
@@ -33,6 +36,7 @@ public final class Constants {
     public static final String ARG_PERMLINK = "perm_link";
     public static final String ARG_PERIOD = "period";
     public static final String ARG_TYPE = "type";
+    public static final String ARG_ROLE = "role";
 
     /* common extra's */
     public static final String EXTRA_GUID = "guid";

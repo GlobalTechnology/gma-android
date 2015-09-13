@@ -35,6 +35,9 @@ public class TrainingMapper extends LocationMapper<Training> {
             case Contract.Training.COLUMN_MCC:
                 values.put(field, training.getMcc().toString());
                 break;
+            case Contract.Training.COLUMN_CREATED_BY:
+                values.put(field, training.getCreatedBy());
+                break;
             case Contract.Training.COLUMN_NEW:
                 values.put(field, training.isNew());
                 break;
@@ -63,6 +66,7 @@ public class TrainingMapper extends LocationMapper<Training> {
         training.setDate(getLocalDate(c, Contract.Training.COLUMN_DATE, null));
         training.setType(this.getString(c, Contract.Training.COLUMN_TYPE, null));
         training.setMcc(this.getString(c, Contract.Training.COLUMN_MCC, null));
+        training.setCreatedBy(this.getString(c, Contract.Training.COLUMN_CREATED_BY, null));
         training.setNew(getBool(c, Contract.Training.COLUMN_NEW, false));
         training.setDeleted(getBool(c, COLUMN_DELETED, false));
         return training;

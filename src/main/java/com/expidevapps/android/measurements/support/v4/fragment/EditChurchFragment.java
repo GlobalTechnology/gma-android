@@ -10,11 +10,14 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.util.Log;
 import android.view.View;
 
 import com.expidevapps.android.measurements.R;
+import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
+import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Church.Development;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
@@ -37,6 +40,7 @@ import butterknife.Optional;
 
 import static android.view.View.GONE;
 import static com.expidevapps.android.measurements.Constants.ARG_CHURCH_ID;
+import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
 import static com.expidevapps.android.measurements.Constants.VISIBILITY;
 import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
 
@@ -54,21 +58,24 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     private boolean[] mChanged = new boolean[5];
     @Nullable
     private Church mChurch;
+    @Nullable
+    private Assignment.Role mRole;
 
     @Optional
     @InjectViews({R.id.nameRow})
     List<View> mHiddenViews;
 
     @NonNull
-    public static Bundle buildArgs(@NonNull final String guid, final long churchId) {
+    public static Bundle buildArgs(@NonNull final String guid, final long churchId, final Assignment.Role role) {
         final Bundle args = buildArgs(guid);
         args.putLong(ARG_CHURCH_ID, churchId);
+        args.putString(ARG_ROLE, role.toString());
         return args;
     }
 
-    public static EditChurchFragment newInstance(@NonNull final String guid, final long churchId) {
+    public static EditChurchFragment newInstance(@NonNull final String guid, final long churchId, final Assignment.Role role) {
         final EditChurchFragment fragment = new EditChurchFragment();
-        fragment.setArguments(buildArgs(guid, churchId));
+        fragment.setArguments(buildArgs(guid, churchId, role));
         return fragment;
     }
 
@@ -81,6 +88,7 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         // process arguments
         final Bundle args = this.getArguments();
         mChurchId = args.getLong(ARG_CHURCH_ID, Church.INVALID_ID);
+        mRole = Assignment.Role.fromRaw(args.getString(ARG_ROLE));
     }
 
     @Override
@@ -93,7 +101,11 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
 
     void onLoadChurch(final Church church) {
         mChurch = church;
+
         updateViews();
+        if(mChurch != null) {
+            setViewEditMode();
+        }
     }
 
     @Override
@@ -210,6 +222,53 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         if (mDevelopmentSpinner != null && mDevelopmentAdapter != null && !mChanged[CHANGED_DEVELOPMENT]) {
             mDevelopmentSpinner.setSelection(
                     mDevelopmentAdapter.getPosition(mChurch != null ? mChurch.getDevelopment() : Development.UNKNOWN));
+        }
+    }
+
+    private boolean getModeOfDisplay() {
+        boolean editMode = false;
+        String personId = GmaApiClient.getUserId(getActivity());
+        switch (mRole) {
+            case LEADER:
+            case INHERITED_LEADER:
+                editMode = true;
+                break;
+            case SELF_ASSIGNED:
+            case MEMBER:
+                if(personId != null && mChurch.getCreatedBy() != null) {
+                    editMode = personId.equalsIgnoreCase(mChurch.getCreatedBy());
+                }
+                break;
+            default:
+                editMode = false;
+        }
+        return editMode;
+    }
+
+    private void setViewEditMode() {
+        boolean editMode = getModeOfDisplay();
+
+        if (mContactNameView != null) {
+            mContactNameView.setEnabled(editMode);
+        }
+        if (mContactEmailView != null) {
+            mContactEmailView.setEnabled(editMode);
+        }
+        if (mContactMobileView != null) {
+            mContactMobileView.setEnabled(editMode);
+        }
+        if (mSizeView != null) {
+            mSizeView.setEnabled(editMode);
+        }
+        if (mDevelopmentSpinner != null) {
+            mDevelopmentSpinner.setEnabled(editMode);
+        }
+        if (mSecuritySpinner != null) {
+            mSecuritySpinner.setEnabled(editMode);
+        }
+
+        if(mBottomButtonContainer != null && editMode == false) {
+            mBottomButtonContainer.setVisibility(View.GONE);
         }
     }
 

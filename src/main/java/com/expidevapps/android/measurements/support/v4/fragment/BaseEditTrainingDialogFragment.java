@@ -11,6 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -60,6 +61,10 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
     @Nullable
     @InjectView(R.id.icon)
     ImageView mIconView;
+    @Optional
+    @Nullable
+    @InjectView(R.id.bottom_button_container)
+    LinearLayout mBottomButtonContainer;
 
     @Nullable
     ArrayAdapter<String> mTrainingTypeAdapter;
