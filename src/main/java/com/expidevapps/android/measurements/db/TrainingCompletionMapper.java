@@ -1,5 +1,7 @@
 package com.expidevapps.android.measurements.db;
 
+import static com.expidevapps.android.measurements.db.Contract.Training.Completion.COLUMN_DELETED;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
@@ -8,8 +10,6 @@ import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.model.Training.Completion;
 
 import org.joda.time.LocalDate;
-
-import static com.expidevapps.android.measurements.db.Contract.Training.COLUMN_DELETED;
 
 public class TrainingCompletionMapper extends BaseMapper<Completion> {
     @Override
