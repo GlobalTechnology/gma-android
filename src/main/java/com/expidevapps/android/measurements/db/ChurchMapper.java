@@ -16,6 +16,7 @@ import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_CRE
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_DEVELOPMENT;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_END_DATE;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_ID;
+import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_JESUS_FILM_ACTIVITY;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_MINISTRY_ID;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_NAME;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_NEW;
@@ -52,6 +53,8 @@ public class ChurchMapper extends LocationMapper<Church> {
             case COLUMN_CONTACT_MOBILE:
                 values.put(field, church.getContactMobile());
                 break;
+            case COLUMN_JESUS_FILM_ACTIVITY:
+                values.put(field, church.getJesusFilmActivity());
             case COLUMN_DEVELOPMENT:
                 values.put(field, church.getDevelopment().id);
                 break;
@@ -94,6 +97,7 @@ public class ChurchMapper extends LocationMapper<Church> {
         church.setContactName(getString(c, COLUMN_CONTACT_NAME, null));
         church.setContactEmail(getString(c, COLUMN_CONTACT_EMAIL, null));
         church.setContactMobile(getString(c, COLUMN_CONTACT_MOBILE, null));
+        church.setJesusFilmActivity(getInt(c,COLUMN_JESUS_FILM_ACTIVITY, 0));
         church.setDevelopment(Development.fromRaw(getInt(c, COLUMN_DEVELOPMENT, Development.UNKNOWN.id)));
         church.setSize(getInt(c, COLUMN_SIZE, 0));
         church.setSecurity(Security.fromRaw(getInt(c, COLUMN_SECURITY, SECURITY_DEFAULT)));

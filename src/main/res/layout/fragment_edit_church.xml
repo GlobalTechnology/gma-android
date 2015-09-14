@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="15dp">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="15dp">
 
     <ImageView
         android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:src="@drawable/ic_church_church"/>
 
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:layout_gravity="center_horizontal"
-        android:layout_alignParentTop="true"
-        tools:text="Long Title"
         android:layout_alignBottom="@id/icon"
-        android:gravity="center_vertical|center_horizontal"
-        android:layout_toRightOf="@id/icon"
-        android:layout_toEndOf="@id/icon"
-        android:ellipsize="end"
-        android:lines="2"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"/>
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_toEndOf="@id/icon"
+        android:layout_toRightOf="@id/icon"
+        android:ellipsize="end"
+        android:gravity="center_vertical|center_horizontal"
+        android:lines="2"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        tools:text="Long Title"/>
 
     <TableLayout
         android:id="@+id/data"
@@ -40,17 +40,19 @@
         android:layout_marginTop="10dp"
         android:stretchColumns="1">
 
-        <TableRow android:id="@+id/nameRow">
+        <TableRow
+            android:id="@+id/nameRow"
+            >
 
             <TextView
                 android:id="@+id/nameLabel"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center_vertical|start"
-                android:text="@string/label_church_name"
+                android:layout_gravity="center_vertical"
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
-                android:layout_gravity="center_vertical"/>
+                android:gravity="center_vertical|start"
+                android:text="@string/label_church_name"/>
 
             <EditText
                 android:id="@+id/name"
@@ -59,17 +61,19 @@
                 tools:text="Name"/>
         </TableRow>
 
-        <TableRow>
+        <TableRow
+
+            >
 
             <TextView
                 android:id="@+id/contactNameLabel"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center_vertical|start"
-                android:text="@string/label_church_contact_name"
+                android:layout_gravity="center_vertical"
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
-                android:layout_gravity="center_vertical"/>
+                android:gravity="center_vertical|start"
+                android:text="@string/label_church_contact_name"/>
 
             <EditText
                 android:id="@+id/contactName"
@@ -78,48 +82,92 @@
                 tools:text="Contact Name"/>
         </TableRow>
 
-        <TableRow>
+        <TableRow
+
+            >
 
             <TextView
                 android:id="@+id/contactEmailLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:gravity="center_vertical|start"
-                android:text="@string/label_church_contact_email"
-                android:layout_gravity="center_vertical"/>
+                android:text="@string/label_church_contact_email"/>
 
             <EditText
                 android:id="@+id/contactEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textEmailAddress"
                 android:ems="10"
+                android:inputType="textEmailAddress"
                 tools:text="contact@email.com"/>
         </TableRow>
 
-        <TableRow>
+        <TableRow
+
+            >
 
             <TextView
                 android:id="@+id/contactMobileLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:gravity="center_vertical|start"
-                android:text="@string/label_church_contact_mobile"
-                android:layout_gravity="center_vertical"/>
+                android:text="@string/label_church_contact_mobile"/>
 
             <EditText
                 android:id="@+id/contactMobile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:inputType="phone" />
+                android:inputType="phone"/>
         </TableRow>
 
-        <TableRow android:id="@+id/developmentRow">
+        <TableRow
+
+            >
+
+            <TextView
+                android:id="@+id/tvJesusActivity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:gravity="center_vertical|start"
+                android:text="@string/label_jesus_film_activity"/>
+
+            <RadioGroup
+                android:id="@+id/rgJessusFilmActivity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+
+                >
+
+                <RadioButton
+                    android:id="@+id/rbYes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_jesus_film_activity_yes"
+                    />
+
+                <RadioButton
+                    android:id="@+id/rbNo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_jesus_film_activity_no"
+                    />
+            </RadioGroup>
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/developmentRow"
+          >
 
             <TextView
                 android:id="@+id/developmentLabel"
@@ -135,7 +183,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
         </TableRow>
-        <TableRow>
+
+        <TableRow
+
+            >
 
             <TextView
                 android:id="@+id/sizeLabel"
@@ -150,11 +201,14 @@
                 android:id="@+id/size"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="number"
                 android:ems="10"
+                android:inputType="number"
                 tools:text="1234"/>
         </TableRow>
-        <TableRow>
+
+        <TableRow
+
+            >
 
             <TextView
                 android:id="@+id/SecurityLabel"
@@ -196,24 +250,28 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/data"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
         android:orientation="horizontal"
-        android:layout_marginTop="10dp">
+
+        >
+
         <Button
             android:id="@+id/save"
-            android:layout_width="wrap_content"
             style="@style/Widget.GMA.Button"
+            android:layout_width="wrap_content"
             android:text="@string/btn_update"/>
 
         <Button
             android:id="@+id/delete"
-            android:layout_width="wrap_content"
             style="@style/Widget.GMA.Button"
+            android:layout_width="wrap_content"
             android:text="@string/btn_delete"/>
 
         <Button
             android:id="@+id/cancel"
-            android:layout_width="wrap_content"
             style="@style/Widget.GMA.Button"
+            android:layout_width="wrap_content"
             android:text="@android:string/cancel"/>
     </LinearLayout>
 </RelativeLayout>

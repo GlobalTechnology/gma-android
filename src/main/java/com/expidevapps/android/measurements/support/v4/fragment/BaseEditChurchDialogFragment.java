@@ -10,6 +10,7 @@ import android.support.v7.app.AlertDialog;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -53,6 +54,12 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
     @Nullable
     @InjectView(R.id.contactMobile)
     TextView mContactMobileView;
+
+    @Optional
+    @Nullable
+    @InjectView(R.id.rgJessusFilmActivity)
+    RadioGroup mJesusFilmActivity;
+
     @Optional
     @Nullable
     @InjectView(R.id.development)

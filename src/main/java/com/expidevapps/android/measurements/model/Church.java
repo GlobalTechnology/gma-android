@@ -18,13 +18,15 @@ import java.util.List;
 
 public class Church extends Location implements Cloneable {
     public static final long INVALID_ID = -1;
+    public static final int JESUS_FILM_ACTIVITY_NO = 0;
+    public static final int JESUS_FILM_ACTIVITY_YES = 1;
 
     private static final int DEVELOPMENT_UNKNOWN = 0;
     private static final int DEVELOPMENT_TARGET = 1;
     private static final int DEVELOPMENT_GROUP = 2;
     private static final int DEVELOPMENT_CHURCH = 3;
     private static final int DEVELOPMENT_MULTIPLYING_CHURCH = 5;
-
+private boolean mJesusFilmActivity = false;
     public enum Development {
         UNKNOWN(DEVELOPMENT_UNKNOWN, R.drawable.ic_church_church),
         TARGET(DEVELOPMENT_TARGET, R.drawable.ic_church_target), GROUP(DEVELOPMENT_GROUP, R.drawable.ic_church_group),
@@ -93,6 +95,8 @@ public class Church extends Location implements Cloneable {
     public static final String JSON_CONTACT_EMAIL = "contact_email";
     public static final String JSON_CONTACT_MOBILE = "contact_mobile";
     public static final String JSON_CONTACT_NAME = "contact_name";
+    public static final String JSON_JESUS_FILM_ACTIVITY = "jf_contrib";
+
     public static final String JSON_DEVELOPMENT = "development";
     public static final String JSON_SIZE = "size";
     public static final String JSON_SECURITY = "security";
@@ -112,6 +116,9 @@ public class Church extends Location implements Cloneable {
     @Nullable
     private String contactName;
     @NonNull
+    @Nullable
+    private int jesusFilmActivity;
+
     private Development development = Development.UNKNOWN;
     @NonNull
     private Security security = Security.PUBLIC;
@@ -147,6 +154,7 @@ public class Church extends Location implements Cloneable {
         church.name = json.optString(JSON_NAME, null);
         church.contactEmail = json.optString(JSON_CONTACT_EMAIL, null);
         church.contactMobile = json.optString(JSON_CONTACT_MOBILE, null);
+        church.jesusFilmActivity = json.optInt(JSON_JESUS_FILM_ACTIVITY);
         church.contactName = json.optString(JSON_CONTACT_NAME, null);
         church.setLatitude(json.optDouble(JSON_LATITUDE, Double.NaN));
         church.setLongitude(json.optDouble(JSON_LONGITUDE, Double.NaN));
@@ -168,6 +176,7 @@ public class Church extends Location implements Cloneable {
         this.name = church.name;
         this.contactEmail = church.contactEmail;
         this.contactMobile = church.contactMobile;
+        this.jesusFilmActivity = church.jesusFilmActivity;
         this.contactName = church.contactName;
         this.development = church.development;
         this.size = church.size;
@@ -243,6 +252,18 @@ public class Church extends Location implements Cloneable {
             mDirty.add(JSON_CONTACT_MOBILE);
         }
         this.contactMobile = mobile;
+    }
+
+    @Nullable
+    public int getJesusFilmActivity() {
+        return jesusFilmActivity;
+    }
+
+    public void setJesusFilmActivity(@Nullable final int jesusFilmActivity) {
+        if (mTrackingChanges && this.jesusFilmActivity== jesusFilmActivity) {
+            mDirty.add(JSON_CONTACT_MOBILE);
+        }
+        this.jesusFilmActivity = jesusFilmActivity;
     }
 
     @Nullable
@@ -340,11 +361,16 @@ public class Church extends Location implements Cloneable {
         if (mParentId != INVALID_ID) {
             json.put(JSON_PARENT, mParentId);
         }
+        if(this.jesusFilmActivity == Church.JESUS_FILM_ACTIVITY_YES) {
+            mJesusFilmActivity = true;
+        }
         json.put(JSON_MINISTRY_ID, this.ministryId);
         json.put(JSON_NAME, this.name);
         json.put(JSON_CONTACT_NAME, this.contactName);
         json.put(JSON_CONTACT_EMAIL, this.contactEmail);
         json.put(JSON_CONTACT_MOBILE, this.contactMobile);
+        json.put(JSON_JESUS_FILM_ACTIVITY, this.mJesusFilmActivity);
+
         if (this.development != Development.UNKNOWN) {
             json.put(JSON_DEVELOPMENT, this.development.id);
         }
