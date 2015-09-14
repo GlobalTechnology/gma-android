@@ -26,6 +26,9 @@ import org.ccci.gto.android.common.util.AsyncTaskCompat;
 import org.joda.time.LocalDate;
 
 import java.security.SecureRandom;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import butterknife.InjectView;
 import butterknife.OnClick;
@@ -121,6 +124,14 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
             //training.setType((String) trainingType);
             training.setType(((String) trainingType).equalsIgnoreCase(Training.TRAINING_TYPE_OTHER) ? "" : (String) trainingType);
         }
+        if (mTrainingDate != null) {
+            try {
+                DateFormat format = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                training.setDate(new LocalDate(format.parse(mTrainingDateLabel.getText().toString())));
+            } catch (final Exception ignored) {
+                Log.e("Exception", "error Parsing Date string to LocalDate.");
+            }
+        }
         if (mTrainingParticipants != null) {
             //training.setParticipants(mTrainingParticipants.getText().toString());
         }
@@ -143,7 +154,19 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
         }
 
         if(mDeleteTraining != null) {
-            mDeleteTraining.setVisibility(View.INVISIBLE);
+            mDeleteTraining.setVisibility(View.GONE);
+        }
+
+        if(mStagesData != null) {
+            mStagesData.setVisibility(View.GONE);
+        }
+
+        if(mTrainingData != null) {
+            mTrainingData.setVisibility(View.VISIBLE);
+        }
+
+        if(mShowStages != null) {
+            mShowStages.setEnabled(false);
         }
     }
 

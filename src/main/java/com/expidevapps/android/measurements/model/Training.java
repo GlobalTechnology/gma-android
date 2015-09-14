@@ -253,6 +253,7 @@ public class Training extends Location implements Cloneable {
         @Deprecated
         private static final String JSON_ID_V2 = "Id";
         private static final String JSON_ID = "id";
+        private static final String JSON_TRAINING_ID = "training_id";
         private static final String JSON_PHASE = "phase";
         private static final String JSON_NUMBER_COMPLETED = "number_completed";
         private static final String JSON_DATE = "date";
@@ -263,6 +264,28 @@ public class Training extends Location implements Cloneable {
         private int numberCompleted;
         @Nullable
         private LocalDate date = LocalDate.now();
+
+        private boolean mNew = false;
+        private boolean mDeleted = false;
+
+        public Completion()
+        {
+        }
+
+        private Completion(@NonNull final Completion completion)
+        {
+            super(completion);
+            this.id = completion.id;
+            this.trainingId = completion.trainingId;
+            this.phase = completion.phase;
+            this.numberCompleted = completion.numberCompleted;
+            this.date = completion.date;
+            mNew = completion.mNew;
+            mDeleted = completion.mDeleted;
+            mDirty.clear();
+            mDirty.addAll(completion.mDirty);
+            mTrackingChanges = completion.mTrackingChanges;
+        }
 
         @NonNull
         public static List<Completion> listFromJson(final long trainingId, @NonNull final JSONArray json)
@@ -309,6 +332,10 @@ public class Training extends Location implements Cloneable {
         public void setPhase(int phase)
         {
             this.phase = phase;
+            if (mTrackingChanges)
+            {
+                mDirty.add(JSON_PHASE);
+            }
         }
 
         public int getNumberCompleted()
@@ -319,6 +346,10 @@ public class Training extends Location implements Cloneable {
         public void setNumberCompleted(int numberCompleted)
         {
             this.numberCompleted = numberCompleted;
+            if (mTrackingChanges)
+            {
+                mDirty.add(JSON_NUMBER_COMPLETED);
+            }
         }
 
         @Nullable
@@ -328,6 +359,10 @@ public class Training extends Location implements Cloneable {
 
         public void setDate(@Nullable final LocalDate date) {
             this.date = date;
+            if (mTrackingChanges)
+            {
+                mDirty.add(JSON_DATE);
+            }
         }
 
         public long getTrainingId() {
@@ -336,6 +371,42 @@ public class Training extends Location implements Cloneable {
 
         public void setTrainingId(final long trainingId) {
             this.trainingId = trainingId;
+            if (mTrackingChanges)
+            {
+                mDirty.add(JSON_TRAINING_ID);
+            }
+        }
+
+        public void setNew(final boolean state) {
+            mNew = state;
+        }
+
+        public boolean isNew() {
+            return mNew;
+        }
+
+        public boolean isDeleted() {
+            return mDeleted;
+        }
+
+        public void setDeleted(boolean state) {
+            mDeleted = state;
+        }
+
+        @Override
+        public Completion clone()
+        {
+            return new Completion(this);
+        }
+
+        public JSONObject toJson() throws JSONException
+        {
+            final JSONObject json = super.toJson();
+            json.put(JSON_TRAINING_ID, this.getTrainingId());
+            json.put(JSON_PHASE, this.getPhase());
+            json.put(JSON_DATE, this.getDate());
+            json.put(JSON_NUMBER_COMPLETED, this.getNumberCompleted());
+            return json;
         }
     }
 }

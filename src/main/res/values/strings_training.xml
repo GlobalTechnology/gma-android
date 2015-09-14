@@ -13,4 +13,19 @@
     <string name="label_training_mcc">MCC</string>
 
     <string name="btn_training_create">Create</string>
+
+    <!-- Training tabs-->
+    <string name="btn_training">Training</string>
+    <string name="btn_stages">Stages</string>
+
+    <string name="btn_add_stage">Add Stage</string>
+
+
+    <string name="label_stage">Stage</string>
+    <string name="label_date">Date</string>
+    <string name="label_participants">Participants</string>
+
+    <string name="title_dialog_training_completion_delete">Delete Training Completion?</string>
+    <string name="text_dialog_training_completion_delete_confirm">Are you sure you want to delete this training completion?</string>
+
 </resources>
