@@ -32,140 +32,252 @@
         android:lines="2"
         android:ellipsize="end"/>
 
-    <TableLayout
-        android:id="@+id/data"
+    <LinearLayout
+        android:id="@+id/custom_training_tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/icon"
+        android:orientation="horizontal"
         android:layout_marginTop="10dp"
-        android:stretchColumns="1"        >
-        <TableRow>
-            <TextView
-                android:id="@+id/trainingNameLabel"
+        android:layout_below="@id/icon">
+        <Button
+            android:id="@+id/show_training"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_training"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/show_stages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_stages"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/data_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/custom_training_tabs"
+        android:layout_above="@+id/bottom_button_container" >
+
+        <TableLayout
+            android:id="@+id/data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/icon"
+            android:layout_marginTop="10dp"
+            android:stretchColumns="1"
+            android:visibility="gone">
+            <TableRow>
+                <TextView
+                    android:id="@+id/trainingNameLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginRight="5dp"
+                    android:gravity="center_vertical|start"
+                    android:text="@string/label_training_name"/>
+
+                <EditText
+                    android:id="@+id/et_training_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:text="Training Name"/>
+
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:id="@+id/trainingTypeLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginRight="5dp"
+                    android:gravity="center_vertical|start"
+                    android:text="@string/label_training_type"/>
+
+                <Spinner
+                    android:id="@+id/et_training_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <!--<EditText
+                    android:id="@+id/et_training_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:inputType="textEmailAddress"
+                    android:ems="10" />-->
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:id="@+id/trainingDateLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginRight="5dp"
+                    android:gravity="center_vertical|start"
+                    android:text="@string/label_training_date"/>
+
+                <EditText
+                    android:id="@+id/et_training_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:editable="false"
+                    android:focusable="false"
+                    android:ems="10"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:id="@+id/trainingParticipantsLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginRight="5dp"
+                    android:gravity="center_vertical|start"
+                    android:text="@string/label_training_participants"/>
+
+                <EditText
+                    android:id="@+id/et_training_participants"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:inputType="number"
+                    android:ems="10"/>
+
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:id="@+id/trainingMCCLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginRight="5dp"
+                    android:gravity="center_vertical|start"
+                    android:text="@string/label_training_mcc"/>
+
+                <TextView
+                    android:id="@+id/et_training_mcc"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="5dp"
+                    android:textAllCaps="true"
+                    android:layout_gravity="center_vertical"/>
+
+            </TableRow>
+
+            </TableLayout>
+
+        <LinearLayout
+            android:id="@+id/stages_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            android:visibility="visible"
+            android:layout_weight="1">
+
+            <LinearLayout android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:weightSum="1">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".2"
+                    android:singleLine="true"
+                    android:text="@string/label_stage"
+                    android:textStyle="bold"
+                    android:gravity="left"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".3"
+                    android:singleLine="true"
+                    android:text="@string/label_date"
+                    android:textStyle="bold"
+                    android:gravity="left"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".2"
+                    android:singleLine="true"
+                    android:text="@string/label_participants"
+                    android:textStyle="bold"
+                    android:gravity="left"/>
+
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".3"/>
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/list_stages"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:layout_marginEnd="5dp"
-                android:layout_marginRight="5dp"
-                android:gravity="center_vertical|start"
-                android:text="@string/label_training_name"/>
+                android:layout_height="0dp"
+                android:layout_weight=".5"/>
 
-            <EditText
-                android:id="@+id/et_training_name"
+            <LinearLayout
+                android:id="@+id/add_stage_container"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:text="Training Name"/>
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="1">
 
-        </TableRow>
-        <TableRow>
-            <TextView
-                android:id="@+id/trainingTypeLabel"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:layout_marginEnd="5dp"
-                android:layout_marginRight="5dp"
-                android:gravity="center_vertical|start"
-                android:text="@string/label_training_type"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".15"
+                    android:textAppearance="?android:attr/textAppearanceSmall"/>
 
-            <Spinner
-                android:id="@+id/et_training_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                <EditText
+                    android:id="@+id/et_new_completion_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".35"
+                    android:singleLine="true"
+                    android:editable="false"
+                    android:focusable="false"
+                    android:textAppearance="?android:attr/textAppearanceSmall"/>
 
-            <!--<EditText
-                android:id="@+id/et_training_type"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:inputType="textEmailAddress"
-                android:ems="10" />-->
-        </TableRow>
+                <EditText
+                    android:id="@+id/new_completion_participants"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".2"
+                    android:inputType="number"
+                    android:singleLine="true"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
-        <TableRow>
-            <TextView
-                android:id="@+id/trainingDateLabel"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:layout_marginEnd="5dp"
-                android:layout_marginRight="5dp"
-                android:gravity="center_vertical|start"
-                android:text="@string/label_training_date"/>
 
-            <EditText
-                android:id="@+id/et_training_date"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:editable="false"
-                android:focusable="false"
-                android:ems="10"/>
-        </TableRow>
+                <Button
+                    android:id="@+id/add_new_stage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".30"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="@string/btn_add_stage"/>
 
-        <TableRow>
-            <TextView
-                android:id="@+id/trainingParticipantsLabel"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:layout_marginEnd="5dp"
-                android:layout_marginRight="5dp"
-                android:gravity="center_vertical|start"
-                android:text="@string/label_training_participants"/>
-
-            <EditText
-                android:id="@+id/et_training_participants"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:inputType="number"
-                android:ems="10"/>
-
-        </TableRow>
-
-        <TableRow>
-            <TextView
-                android:id="@+id/trainingMCCLabel"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="5dp"
-                android:layout_marginRight="5dp"
-                android:gravity="center_vertical|start"
-                android:text="@string/label_training_mcc"/>
-
-            <TextView
-                android:id="@+id/et_training_mcc"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="5dp"
-                android:textAllCaps="true"
-                android:layout_gravity="center_vertical"/>
-
-        </TableRow>
-
-        </TableLayout>
-
-    <!--<Button
-        android:id="@+id/training_update"
-        android:layout_width="wrap_content"
-        android:layout_below="@id/data"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="10dp"
-        style="@style/Widget.GMA.Button"
-        android:text="@string/btn_update"/>
-
-    <Button
-        android:id="@+id/training_cancel"
-        android:layout_width="wrap_content"
-        android:layout_alignTop="@id/training_update"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        style="@style/Widget.GMA.Button"
-        android:text="@string/cancel_button"/>-->
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/bottom_button_container"
@@ -173,7 +285,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="10dp"
-        android:layout_below="@id/data">
+        android:layout_alignParentBottom="true">
         <Button
             android:id="@+id/training_update"
             android:layout_width="wrap_content"

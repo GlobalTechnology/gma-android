@@ -9,6 +9,8 @@ import com.expidevapps.android.measurements.model.Training.Completion;
 
 import org.joda.time.LocalDate;
 
+import static com.expidevapps.android.measurements.db.Contract.Training.COLUMN_DELETED;
+
 public class TrainingCompletionMapper extends BaseMapper<Completion> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
@@ -29,6 +31,12 @@ public class TrainingCompletionMapper extends BaseMapper<Completion> {
             case Contract.Training.Completion.COLUMN_DATE:
                 final LocalDate date = completion.getDate();
                 values.put(field, date != null ? date.toString() : null);
+                break;
+            case Contract.Training.Completion.COLUMN_NEW:
+                values.put(field, completion.isNew());
+                break;
+            case COLUMN_DELETED:
+                values.put(field, completion.isDeleted());
                 break;
             default:
                 super.mapField(values, field, completion);
@@ -52,6 +60,8 @@ public class TrainingCompletionMapper extends BaseMapper<Completion> {
         completion.setPhase(this.getInt(c, Contract.Training.Completion.COLUMN_PHASE, 0));
         completion.setNumberCompleted(this.getInt(c, Contract.Training.Completion.COLUMN_NUMBER_COMPLETED, 0));
         completion.setDate(getLocalDate(c, Contract.Training.Completion.COLUMN_DATE, null));
+        completion.setNew(getBool(c, Contract.Training.Completion.COLUMN_NEW, false));
+        completion.setDeleted(getBool(c, COLUMN_DELETED, false));
 
         return completion;
     }

@@ -1,7 +1,10 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,6 +12,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
 import android.util.Log;
 import android.view.View;
@@ -21,24 +25,31 @@ import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.content.SingleTrainingLoader;
+import com.expidevapps.android.measurements.support.v7.adapter.TrainingCompletionRecyclerViewAdapter;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 import org.ccci.gto.android.common.db.Transaction;
+import org.ccci.gto.android.common.recyclerview.decorator.DividerItemDecoration;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
 import org.joda.time.LocalDate;
 
+import java.security.SecureRandom;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import butterknife.Optional;
 
-import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
 import static com.expidevapps.android.measurements.Constants.ARG_TRAINING_ID;
 import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateTrainingBroadcast;
 
@@ -49,6 +60,9 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
     private static final int CHANGED_TYPE = 1;
     private static final int CHANGED_DATE = 2;
 
+    @SuppressLint("TrulyRandom")
+    private static final SecureRandom RAND = new SecureRandom();
+
     @NonNull
     /* final */ String mGuid;
     private long mTrainingId = Training.INVALID_ID;
@@ -58,6 +72,9 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
     private Training mTraining;
     @Nullable
     private Assignment.Role mRole;
+
+    @Nullable
+    private TrainingCompletionRecyclerViewAdapter mTrainingCompletionAdapter;
 
     public static EditTrainingFragment newInstance(@NonNull final String guid, final long trainingId, final Assignment.Role role) {
         final EditTrainingFragment fragment = new EditTrainingFragment();
@@ -189,6 +206,38 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
                 }).show();
     }
 
+    @Optional
+    @OnClick(R.id.add_new_stage)
+    void onAddNewStageTap() {
+        if(mTraining != null) {
+            //create new training stage
+            final Training.Completion completion = new Training.Completion();
+            completion.setNew(true);
+            completion.setTrainingId(mTrainingId);
+            completion.setPhase(mTraining.getCompletions().size() + 1);
+            if (mNewCompletionDate != null) {
+                Log.d("ITH", "EditTrainingFragment mTrainingDate: " + mTrainingDateLabel.getText().toString());
+                try {
+                    DateFormat format = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                    completion.setDate(new LocalDate(format.parse(mTrainingDateLabel.getText().toString())));
+                } catch (final Exception ignored) {
+                    Log.e("Exception", "error Parsing Date string to LocalDate.");
+                }
+            }
+            if (mNewCompletionParticipants != null) {
+                try {
+                    completion.setNumberCompleted(Integer.valueOf(mNewCompletionParticipants.getText().toString()));
+                }
+                catch(final Exception ignored) {
+                    Log.e("Exception", "error Parsing Date string to LocalDate.");
+                }
+            }
+
+            // save new training completion
+            AsyncTaskCompat.execute(new CreateTrainingCompletionRunnable(getActivity().getApplicationContext(), mGuid, mTraining.getMinistryId(), completion));
+        }
+    }
+
     @Override
     public void onStop()
     {
@@ -205,6 +254,14 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
     }
 
     private void updateViews() {
+        if(mStagesData != null) {
+            mStagesData.setVisibility(View.GONE);
+        }
+
+        if(mTrainingData != null) {
+            mTrainingData.setVisibility(View.VISIBLE);
+        }
+
         if (mTrainingName != null && !mChanged[CHANGED_NAME]) {
             mTrainingName.setText(mTraining != null ? mTraining.getName() : null);
         }
@@ -214,6 +271,23 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
         if (mTrainingTypeSpinner != null && mTrainingTypeAdapter != null && !mChanged[CHANGED_TYPE]) {
             mTrainingTypeSpinner.setSelection(
                     mTrainingTypeAdapter.getPosition(mTraining != null ? mTraining.getType() : Training.TRAINING_TYPE_OTHER));
+        }
+
+        if(mStagesView != null) {
+            if(mTraining != null) {
+                Log.d("ITH", "Training Id: " + mTraining.getId() + " " + mTraining.getName());
+                Log.d("ITH", "Training Completion found: " + mTraining.getCompletions().size());
+
+                if(mTrainingCompletionAdapter == null) {
+                    setupStagesView();
+                }
+                else {
+                    mTrainingCompletionAdapter.notifyDataSetChanged();
+                }
+            }
+            else {
+                Log.d("ITH", "Training is NULL ");
+            }
         }
     }
 
@@ -255,6 +329,19 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
 
         if(mBottomButtonContainer != null && editMode == false) {
             mBottomButtonContainer.setVisibility(View.GONE);
+        }
+    }
+
+    private void setupStagesView() {
+        if (mStagesView != null) {
+            mStagesView.setHasFixedSize(true);
+            mStagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            mStagesView.addItemDecoration(new DividerItemDecoration(getActivity(), VERTICAL));
+
+            mTrainingCompletionAdapter = new TrainingCompletionRecyclerViewAdapter(getActivity(), mGuid, mTraining.getMinistryId(), mTraining.getCompletions());
+            mStagesView.setAdapter(mTrainingCompletionAdapter);
+
+            //mStagesView.addOnItemTouchListener(new ItemClickListener(getActivity(), mListenerCompletionOnClick));
         }
     }
     
@@ -406,6 +493,68 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
 
             // trigger a sync of dirty trainings
             GmaSyncService.syncDirtyTrainings(mContext, mGuid);
+        }
+    }
+
+    private static class CreateTrainingCompletionRunnable implements Runnable {
+        @NonNull
+        private final Context mContext;
+        @NonNull
+        private final LocalBroadcastManager mBroadcastManager;
+        @NonNull
+        private final GmaDao mDao;
+        @NonNull
+        private final String mGuid;
+        @NonNull
+        private final String mMinistryId;
+        @NonNull
+        private final Training.Completion mCompletion;
+
+        CreateTrainingCompletionRunnable(@NonNull final Context context, @NonNull final String guid, @NonNull final String ministryId, @NonNull final Training.Completion completion) {
+            mContext = context;
+            mGuid = guid;
+            mMinistryId = ministryId;
+            mCompletion = completion;
+            mBroadcastManager = LocalBroadcastManager.getInstance(mContext);
+            mDao = GmaDao.getInstance(mContext);
+        }
+
+        @Override
+        public void run() {
+            boolean saved = false;
+            Log.e("ITH", "mMinistryId: " + mMinistryId);
+            Log.e("ITH", "mCompletion Id: " + mCompletion.getId());
+            Log.e("ITH", "mCompletion trainingId: " + mCompletion.getTrainingId());
+            while (!saved) {
+                // generate a new id
+                long id = 0;
+                while (id < Integer.MAX_VALUE) {
+                    id = RAND.nextLong();
+                }
+                mCompletion.setId(id);
+
+                // update in the database
+                try {
+                    mDao.insert(mCompletion, SQLiteDatabase.CONFLICT_ROLLBACK);
+                    saved = true;
+                } catch (final SQLException e) {
+                    Log.e("CreateCompletion", "insert error", e);
+                }
+            }
+
+            // trigger GA event
+            //GoogleAnalyticsManager.getInstance(mContext).sendCreateTrainingEvent(mGuid, mTraining.getMinistryId(), mTraining.getMcc());
+
+            // broadcast that this training completion was created
+            mBroadcastManager.sendBroadcast(updateTrainingBroadcast(mMinistryId, mCompletion.getTrainingId()));
+
+            // broadcast that this training was updated
+            final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(mContext);
+            broadcastManager.sendBroadcast(updateTrainingBroadcast(mMinistryId, mCompletion.getTrainingId()));
+
+            // trigger a sync of dirty training completions
+            Log.d("ITH", "EditTrainingFragment syncDirtyTrainingCompletions mGUID: " + mGuid);
+            GmaSyncService.syncDirtyTrainingCompletions(mContext, mMinistryId, mGuid);
         }
     }
 }

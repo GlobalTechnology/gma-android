@@ -1,27 +1,5 @@
 package com.expidevapps.android.measurements.sync;
 
-import static com.expidevapps.android.measurements.BuildConfig.ACCOUNT_TYPE;
-import static com.expidevapps.android.measurements.BuildConfig.SYNC_AUTHORITY;
-import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
-import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
-import static com.expidevapps.android.measurements.sync.AssignmentSyncTasks.EXTRA_ASSIGNMENTS;
-import static com.expidevapps.android.measurements.sync.BaseSyncTasks.baseExtras;
-import static com.expidevapps.android.measurements.sync.BaseSyncTasks.measurementExtras;
-import static com.expidevapps.android.measurements.sync.BaseSyncTasks.ministryExtras;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.EXTRA_SYNCTYPE;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_ASSIGNMENTS;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_CHURCHES;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_CHURCHES;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_MEASUREMENTS;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_TRAININGS;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENTS;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENT_DETAILS;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENT_TYPES;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MINISTRIES;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_NONE;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_SAVE_ASSIGNMENTS;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_TRAININGS;
-
 import android.accounts.Account;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -39,6 +17,29 @@ import org.joda.time.YearMonth;
 import org.json.JSONArray;
 
 import me.thekey.android.lib.accounts.AccountUtils;
+
+import static com.expidevapps.android.measurements.BuildConfig.ACCOUNT_TYPE;
+import static com.expidevapps.android.measurements.BuildConfig.SYNC_AUTHORITY;
+import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
+import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
+import static com.expidevapps.android.measurements.sync.AssignmentSyncTasks.EXTRA_ASSIGNMENTS;
+import static com.expidevapps.android.measurements.sync.BaseSyncTasks.baseExtras;
+import static com.expidevapps.android.measurements.sync.BaseSyncTasks.measurementExtras;
+import static com.expidevapps.android.measurements.sync.BaseSyncTasks.ministryExtras;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.EXTRA_SYNCTYPE;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_ASSIGNMENTS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_CHURCHES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_CHURCHES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_MEASUREMENTS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_TRAININGS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_TRAINING_COMPLETIONS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENTS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENT_DETAILS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENT_TYPES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MINISTRIES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_NONE;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_SAVE_ASSIGNMENTS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_TRAININGS;
 
 public class GmaSyncService extends ThreadedIntentService {
     @NonNull
@@ -99,6 +100,14 @@ public class GmaSyncService extends ThreadedIntentService {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_DIRTY_TRAININGS);
         intent.putExtras(baseExtras(guid, false));
+        context.startService(intent);
+    }
+
+    public static void syncDirtyTrainingCompletions(@NonNull final Context context, @NonNull final String ministryId, @NonNull final String guid) {
+        final Intent intent = new Intent(context, GmaSyncService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_DIRTY_TRAINING_COMPLETIONS);
+        //intent.putExtras(baseExtras(guid, false));
+        intent.putExtras(ministryExtras(guid, ministryId, false));
         context.startService(intent);
     }
 

@@ -120,31 +120,53 @@ public class Contract {
             public static final String TABLE_NAME = "training_completions";
 
             static final String COLUMN_ID = _ID;
-            static final String COLUMN_TRAINING_ID = "training_id";
-            static final String COLUMN_PHASE = "phase";
-            static final String COLUMN_NUMBER_COMPLETED = "number_completed";
-            static final String COLUMN_DATE = "date";
+            public static final String COLUMN_TRAINING_ID = "training_id";
+            public static final String COLUMN_PHASE = "phase";
+            public static final String COLUMN_NUMBER_COMPLETED = "number_completed";
+            public static final String COLUMN_DATE = "date";
+            static final String COLUMN_NEW = "new";
+            public static final String COLUMN_DELETED = "deleted";
 
             static final String[] PROJECTION_ALL =
                     {COLUMN_ID, COLUMN_TRAINING_ID, COLUMN_PHASE, COLUMN_NUMBER_COMPLETED, COLUMN_DATE,
-                            COLUMN_LAST_SYNCED};
+                            COLUMN_LAST_SYNCED, COLUMN_DIRTY, COLUMN_NEW, COLUMN_DELETED};
 
             private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
             private static final String SQL_COLUMN_TRAINING_ID = COLUMN_TRAINING_ID + " INTEGER";
             private static final String SQL_COLUMN_PHASE = COLUMN_PHASE + " INTEGER";
             private static final String SQL_COLUMN_NUMBER_COMPLETED = COLUMN_NUMBER_COMPLETED + " INTEGER";
             private static final String SQL_COLUMN_DATE = COLUMN_DATE + " TEXT";
+            private static final String SQL_COLUMN_NEW = COLUMN_NEW + " INTEGER";
+            private static final String SQL_COLUMN_DELETED = COLUMN_DELETED + " INTEGER";
 
             private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
             static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
-            static final String SQL_WHERE_TRAINING_ID = COLUMN_TRAINING_ID + " = ?";
+            public static final String SQL_WHERE_TRAINING_ID = COLUMN_TRAINING_ID + " = ?";
+
+            public static final String SQL_WHERE_NEW_DELETED_OR_DIRTY =
+                    COLUMN_NEW + " = 1 OR " + COLUMN_DELETED + " = 1 OR " + SQL_WHERE_DIRTY;
+            public static final String SQL_WHERE_NOT_DELETED =
+                    "(" + COLUMN_DELETED + " IS NULL OR " + COLUMN_DELETED + " != 1)";
+
+            //public static final String SQL_WHERE_NOT_DELETED_AND_TRAINING_ID = SQL_WHERE_NOT_DELETED + SQL_WHERE_TRAINING_ID;
+            public static final String SQL_WHERE_NOT_DELETED_AND_TRAINING_ID =
+                    "(" + COLUMN_DELETED + " IS NULL OR " + COLUMN_DELETED + " != 1 AND " + COLUMN_TRAINING_ID + "= ?)";
 
             public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
-                    .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_TRAINING_ID, SQL_COLUMN_PHASE,
-                            SQL_COLUMN_NUMBER_COMPLETED, SQL_COLUMN_DATE, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) +
+                    .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_TRAINING_ID, SQL_COLUMN_PHASE, SQL_COLUMN_DIRTY, SQL_COLUMN_NEW,
+                            SQL_COLUMN_DELETED, SQL_COLUMN_NUMBER_COMPLETED, SQL_COLUMN_DATE, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) +
                     ")";
             public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+
+            @Deprecated
+            static final String SQL_v40_ALTER_DIRTY = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_DIRTY;
+
+            @Deprecated
+            static final String SQL_v41_ALTER_NEW = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_NEW;
+
+            @Deprecated
+            static final String SQL_v42_ALTER_DELETED = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_DELETED;
         }
     }
 

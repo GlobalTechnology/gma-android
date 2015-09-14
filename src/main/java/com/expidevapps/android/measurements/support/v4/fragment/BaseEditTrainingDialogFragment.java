@@ -8,11 +8,16 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
@@ -65,6 +70,31 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
     @Nullable
     @InjectView(R.id.bottom_button_container)
     LinearLayout mBottomButtonContainer;
+
+    @Optional
+    @Nullable
+    @InjectView(R.id.show_stages)
+    Button mShowStages;
+    @Optional
+    @Nullable
+    @InjectView(R.id.data)
+    TableLayout mTrainingData;
+    @Optional
+    @Nullable
+    @InjectView(R.id.stages_container)
+    LinearLayout mStagesData;
+    @Optional
+    @Nullable
+    @InjectView(R.id.list_stages)
+    RecyclerView mStagesView;
+    @Optional
+    @Nullable
+    @InjectView(R.id.et_new_completion_date)
+    EditText mNewCompletionDate;
+    @Optional
+    @Nullable
+    @InjectView(R.id.new_completion_participants)
+    EditText mNewCompletionParticipants;
 
     @Nullable
     ArrayAdapter<String> mTrainingTypeAdapter;
@@ -196,5 +226,30 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
             mTrainingDateLabel
                     .setText(date != null ? DateFormat.getDateInstance(DateFormat.SHORT).format(date.toDate()) : "");
         }
+    }
+
+    @Optional
+    @OnClick(R.id.show_training)
+    void onShowTrainingTap() {
+        mTrainingData.setVisibility(View.VISIBLE);
+        mStagesData.setVisibility(View.GONE);
+    }
+
+    @Optional
+    @OnClick(R.id.show_stages)
+    void onShowTrainingStagesTap() {
+        mStagesData.setVisibility(View.VISIBLE);
+        mTrainingData.setVisibility(View.GONE);
+    }
+
+    @Optional
+    @OnClick(R.id.et_new_completion_date)
+    void onNewTrainingCompletionDateClick() {
+        final LocalDate currentDate = mTrainingDate != null ? mTrainingDate : LocalDate.now();
+        new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+            public void onDateSet(final DatePicker view, final int year, final int month, final int day) {
+                onChangeTrainingDate(new LocalDate(year, month + 1, day));
+            }
+        }, currentDate.getYear(), currentDate.getMonthOfYear() - 1, currentDate.getDayOfMonth()).show();
     }
 }
