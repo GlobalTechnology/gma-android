@@ -61,11 +61,12 @@ private boolean mJesusFilmActivity = false;
 
     private static final int SECURITY_LOCAL_PRIVATE = 0;
     private static final int SECURITY_PRIVATE = 1;
-    private static final int SECURITY_PUBLIC = 2;
-    public static final int SECURITY_DEFAULT = SECURITY_PUBLIC;
+    private static final int SECURITY_REGISTERED_USERS = 2;
+    private static final int SECURITY_PUBLIC = 3;
+    public static final int SECURITY_DEFAULT = SECURITY_REGISTERED_USERS;
 
     public enum Security {
-        LOCAL_PRIVATE(SECURITY_LOCAL_PRIVATE), PRIVATE(SECURITY_PRIVATE), PUBLIC(SECURITY_PUBLIC);
+        LOCAL_PRIVATE(SECURITY_LOCAL_PRIVATE), PRIVATE(SECURITY_PRIVATE), REGISTERED_USERS(SECURITY_REGISTERED_USERS), PUBLIC(SECURITY_PUBLIC);
 
         public final int id;
 
@@ -81,8 +82,10 @@ private boolean mJesusFilmActivity = false;
                 case SECURITY_PRIVATE:
                     return PRIVATE;
                 case SECURITY_PUBLIC:
-                default:
                     return PUBLIC;
+                case SECURITY_REGISTERED_USERS:
+                default:
+                    return REGISTERED_USERS;
             }
         }
     }

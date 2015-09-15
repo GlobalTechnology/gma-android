@@ -159,7 +159,8 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
 
         if (mSecuritySpinner != null) {
             // generate set of options
-            final EnumSet<Church.Security> types = EnumSet.allOf(Church.Security.class);
+            //final EnumSet<Church.Security> types = EnumSet.allOf(Church.Security.class);
+            final EnumSet<Church.Security> types = EnumSet.range(Church.Security.PRIVATE, Church.Security.PUBLIC);
 
             // generate Adapter for church types
             mSecurityAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item,
