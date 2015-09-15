@@ -53,15 +53,17 @@ public class TrainingCompletionRecyclerViewAdapter extends RecyclerView.Adapter<
     private Context mContext;
     private String mGuid;
     private String mMinistryId;
+    private boolean mEditMode;
 
     @NonNull
     private final boolean[] mChanged = new boolean[2];
 
-    public TrainingCompletionRecyclerViewAdapter(Context context, @NonNull final String guid, @NonNull final String ministryId, List<Training.Completion> completionList) {
+    public TrainingCompletionRecyclerViewAdapter(Context context, @NonNull final String guid, @NonNull final String ministryId, List<Training.Completion> completionList, final boolean editMode) {
         this.mCompletionList = new ArrayList<>(completionList);
         this.mContext = context;
         this.mGuid = guid;
         this.mMinistryId = ministryId;
+        this.mEditMode = editMode;
     }
 
     @Override
@@ -139,6 +141,9 @@ public class TrainingCompletionRecyclerViewAdapter extends RecyclerView.Adapter<
             }
 
             if (holder.mEditStage != null) {
+                if (mEditMode == false) {
+                    holder.mEditStage.setVisibility(View.GONE);
+                }
                 holder.mEditStage.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
                         holder.mCompletionDate.setEnabled(true);
@@ -151,6 +156,9 @@ public class TrainingCompletionRecyclerViewAdapter extends RecyclerView.Adapter<
             }
 
             if (holder.mSaveStage != null) {
+                if (mEditMode == false) {
+                    holder.mEditStage.setVisibility(View.GONE);
+                }
                 holder.mSaveStage.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
                         Log.d("ITH", "mSaveStage button called.");
@@ -183,6 +191,9 @@ public class TrainingCompletionRecyclerViewAdapter extends RecyclerView.Adapter<
             }
 
             if (holder.mDeleteStage != null) {
+                if (mEditMode == false) {
+                    holder.mDeleteStage.setVisibility(View.GONE);
+                }
                 holder.mDeleteStage.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
                         new AlertDialog.Builder(mContext).setTitle(R.string.title_dialog_training_completion_delete)

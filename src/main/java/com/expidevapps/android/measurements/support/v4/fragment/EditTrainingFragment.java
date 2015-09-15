@@ -327,7 +327,15 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             mTrainingDateLabel.setEnabled(editMode);
         }
 
-        if(mBottomButtonContainer != null && editMode == false) {
+        if (mStagesView != null) {
+            mStagesView.setEnabled(false);
+        }
+
+        if (mAddStageContainer != null && editMode == false) {
+            mAddStageContainer.setVisibility(View.GONE);
+        }
+
+        if (mBottomButtonContainer != null && editMode == false) {
             mBottomButtonContainer.setVisibility(View.GONE);
         }
     }
@@ -338,7 +346,7 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             mStagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
             mStagesView.addItemDecoration(new DividerItemDecoration(getActivity(), VERTICAL));
 
-            mTrainingCompletionAdapter = new TrainingCompletionRecyclerViewAdapter(getActivity(), mGuid, mTraining.getMinistryId(), mTraining.getCompletions());
+            mTrainingCompletionAdapter = new TrainingCompletionRecyclerViewAdapter(getActivity(), mGuid, mTraining.getMinistryId(), mTraining.getCompletions(), getModeOfDisplay());
             mStagesView.setAdapter(mTrainingCompletionAdapter);
 
             //mStagesView.addOnItemTouchListener(new ItemClickListener(getActivity(), mListenerCompletionOnClick));

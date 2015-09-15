@@ -89,6 +89,10 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
     RecyclerView mStagesView;
     @Optional
     @Nullable
+    @InjectView(R.id.add_stage_container)
+    LinearLayout mAddStageContainer;
+    @Optional
+    @Nullable
     @InjectView(R.id.et_new_completion_date)
     EditText mNewCompletionDate;
     @Optional
