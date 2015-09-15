@@ -385,8 +385,8 @@ public class TrainingCompletionRecyclerViewAdapter extends RecyclerView.Adapter<
             final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(mContext);
             broadcastManager.sendBroadcast(updateTrainingBroadcast(mMinistryId, mCompletion.getId()));
 
-            // trigger a sync of dirty trainings
-            GmaSyncService.syncDirtyTrainings(mContext, mGuid);
+            // trigger a sync of dirty training completions
+            GmaSyncService.syncDirtyTrainingCompletions(mContext, mMinistryId, mGuid);
         }
     }
 }
