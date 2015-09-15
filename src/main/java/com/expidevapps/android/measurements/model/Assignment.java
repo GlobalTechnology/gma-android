@@ -17,14 +17,17 @@ public class Assignment extends Base implements Cloneable {
     private static final String JSON_ROLE = "team_role";
     private static final String JSON_SUB_ASSIGNMENTS = "sub_ministries";
 
+    private static final String ROLE_ADMIN = "admin";
+    private static final String ROLE_INHERITED_ADMIN = "inherited_admin";
     private static final String ROLE_LEADER = "leader";
     private static final String ROLE_INHERITED_LEADER = "inherited_leader";
     private static final String ROLE_MEMBER = "member";
     private static final String ROLE_SELF_ASSIGNED = "self_assigned";
     private static final String ROLE_BLOCKED = "blocked";
+    private static final String ROLE_FORMER_MEMBER = "former_member";
     public enum Role {
-        LEADER(ROLE_LEADER), INHERITED_LEADER(ROLE_INHERITED_LEADER), MEMBER(ROLE_MEMBER),
-        SELF_ASSIGNED(ROLE_SELF_ASSIGNED), BLOCKED(ROLE_BLOCKED), UNKNOWN(null);
+        ADMIN(ROLE_ADMIN), INHERITED_ADMIN(ROLE_INHERITED_ADMIN), LEADER(ROLE_LEADER), INHERITED_LEADER(ROLE_INHERITED_LEADER), MEMBER(ROLE_MEMBER),
+        SELF_ASSIGNED(ROLE_SELF_ASSIGNED), BLOCKED(ROLE_BLOCKED), FORMER_MEMBER(ROLE_FORMER_MEMBER), UNKNOWN(null);
 
         @Nullable
         public final String raw;
@@ -37,6 +40,10 @@ public class Assignment extends Base implements Cloneable {
         public static Role fromRaw(@Nullable final String raw) {
             if (raw != null) {
                 switch (raw.toLowerCase(Locale.US)) {
+                    case ROLE_ADMIN:
+                        return ADMIN;
+                    case ROLE_INHERITED_ADMIN:
+                        return INHERITED_ADMIN;
                     case ROLE_LEADER:
                         return LEADER;
                     case ROLE_INHERITED_LEADER:
@@ -45,6 +52,8 @@ public class Assignment extends Base implements Cloneable {
                         return MEMBER;
                     case ROLE_SELF_ASSIGNED:
                         return SELF_ASSIGNED;
+                    case ROLE_FORMER_MEMBER:
+                        return FORMER_MEMBER;
                     case ROLE_BLOCKED:
                         return BLOCKED;
                 }
@@ -191,8 +200,16 @@ public class Assignment extends Base implements Cloneable {
         return "id: " + id;
     }
 
+    private boolean isAdmin() {
+        return getRole() == Role.ADMIN;
+    }
+
+    private boolean isInheritedAdmin() {
+        return getRole() == Role.INHERITED_ADMIN;
+    }
+
     private boolean isLeader() {
-        return this.role == Role.LEADER;
+        return getRole() == Role.LEADER;
     }
 
     public boolean isInheritedLeader()
@@ -202,12 +219,16 @@ public class Assignment extends Base implements Cloneable {
 
     public boolean isLeadership()
     {
-        return isLeader() || isInheritedLeader();
+        return isAdmin() || isInheritedAdmin() || isLeader() || isInheritedLeader();
     }
 
     public boolean isMember()
     {
         return getRole() == Role.MEMBER;
+    }
+
+    public boolean isFormerMember() {
+        return getRole() == Role.FORMER_MEMBER;
     }
 
     public boolean isSelfAssigned()
@@ -224,14 +245,14 @@ public class Assignment extends Base implements Cloneable {
         switch (task) {
             case CREATE_CHURCH:
             case EDIT_CHURCH:
-                return !isBlocked();
+                return !(isBlocked() || isFormerMember());
             case VIEW_CHURCH:
                 throw new UnsupportedOperationException(
                         "You need to specify a church to check VIEW_CHURCH permissions");
             case CREATE_TRAINING:
             case EDIT_TRAINING:
             case VIEW_TRAINING:
-                return !isBlocked();
+                return !(isBlocked() || isFormerMember());
             case UPDATE_PERSONAL_MEASUREMENTS:
                 return isLeader() || isMember() || isSelfAssigned();
             case UPDATE_MINISTRY_MEASUREMENTS:

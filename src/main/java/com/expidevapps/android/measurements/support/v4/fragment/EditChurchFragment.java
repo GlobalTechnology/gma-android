@@ -10,7 +10,6 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
-import android.util.Log;
 import android.view.View;
 
 import com.expidevapps.android.measurements.R;
@@ -229,6 +228,8 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         boolean editMode = false;
         String personId = GmaApiClient.getUserId(getActivity());
         switch (mRole) {
+            case ADMIN:
+            case INHERITED_ADMIN:
             case LEADER:
             case INHERITED_LEADER:
                 editMode = true;

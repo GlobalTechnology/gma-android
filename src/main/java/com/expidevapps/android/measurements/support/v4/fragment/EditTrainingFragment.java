@@ -295,6 +295,8 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
         boolean editMode = false;
         String personId = GmaApiClient.getUserId(getActivity());
         switch (mRole) {
+            case ADMIN:
+            case INHERITED_ADMIN:
             case LEADER:
             case INHERITED_LEADER:
                 editMode = true;
