@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="15dp">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="15dp">
 
     <ImageView
         android:id="@+id/icon"
@@ -13,7 +13,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:src="@drawable/ic_church_church"/>
+        android:src="@drawable/ic_church_church" />
 
     <TextView
         android:id="@+id/title"
@@ -30,7 +30,7 @@
         android:gravity="center_vertical|center_horizontal"
         android:lines="2"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        tools:text="Long Title"/>
+        tools:text="Long Title" />
 
     <TableLayout
         android:id="@+id/data"
@@ -38,11 +38,11 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/icon"
         android:layout_marginTop="10dp"
-        android:stretchColumns="1">
+        android:stretchColumns="1"
 
-        <TableRow
-            android:id="@+id/nameRow"
-            >
+        >
+
+        <TableRow android:id="@+id/nameRow">
 
             <TextView
                 android:id="@+id/nameLabel"
@@ -52,13 +52,13 @@
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:gravity="center_vertical|start"
-                android:text="@string/label_church_name"/>
+                android:text="@string/label_church_name" />
 
             <EditText
                 android:id="@+id/name"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:text="Name"/>
+                tools:text="Name" />
         </TableRow>
 
         <TableRow
@@ -73,13 +73,13 @@
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:gravity="center_vertical|start"
-                android:text="@string/label_church_contact_name"/>
+                android:text="@string/label_church_contact_name" />
 
             <EditText
                 android:id="@+id/contactName"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:text="Contact Name"/>
+                tools:text="Contact Name" />
         </TableRow>
 
         <TableRow
@@ -94,7 +94,7 @@
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:gravity="center_vertical|start"
-                android:text="@string/label_church_contact_email"/>
+                android:text="@string/label_church_contact_email" />
 
             <EditText
                 android:id="@+id/contactEmail"
@@ -102,7 +102,7 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="textEmailAddress"
-                tools:text="contact@email.com"/>
+                tools:text="contact@email.com" />
         </TableRow>
 
         <TableRow
@@ -117,14 +117,14 @@
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:gravity="center_vertical|start"
-                android:text="@string/label_church_contact_mobile"/>
+                android:text="@string/label_church_contact_mobile" />
 
             <EditText
                 android:id="@+id/contactMobile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:inputType="phone"/>
+                android:inputType="phone" />
         </TableRow>
 
         <TableRow
@@ -138,7 +138,7 @@
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:gravity="center_vertical|start"
-                android:text="@string/label_jesus_film_activity"/>
+                android:text="@string/label_jesus_film_activity" />
 
             <RadioGroup
                 android:id="@+id/rgJessusFilmActivity"
@@ -152,22 +152,18 @@
                     android:id="@+id/rbYes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_jesus_film_activity_yes"
-                    />
+                    android:text="@string/label_jesus_film_activity_yes" />
 
                 <RadioButton
                     android:id="@+id/rbNo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_jesus_film_activity_no"
-                    />
+                    android:text="@string/label_jesus_film_activity_no" />
             </RadioGroup>
 
         </TableRow>
 
-        <TableRow
-            android:id="@+id/developmentRow"
-          >
+        <TableRow android:id="@+id/developmentRow">
 
             <TextView
                 android:id="@+id/developmentLabel"
@@ -176,12 +172,12 @@
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:gravity="center_vertical|start"
-                android:text="@string/label_church_development"/>
+                android:text="@string/label_church_development" />
 
             <Spinner
                 android:id="@+id/development"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
         </TableRow>
 
         <TableRow
@@ -195,7 +191,7 @@
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:gravity="center_vertical|start"
-                android:text="@string/label_church_size"/>
+                android:text="@string/label_church_size" />
 
             <EditText
                 android:id="@+id/size"
@@ -203,12 +199,10 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="number"
-                tools:text="1234"/>
+                tools:text="1234" />
         </TableRow>
 
-        <TableRow
-
-            >
+        <TableRow android:layout_marginBottom="10dp">
 
             <TextView
                 android:id="@+id/SecurityLabel"
@@ -217,12 +211,13 @@
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:gravity="center_vertical|start"
-                android:text="@string/label_church_security"/>
+                android:text="@string/label_church_security" />
 
             <Spinner
+
                 android:id="@+id/security"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
         </TableRow>
     </TableLayout>
 
@@ -244,34 +239,59 @@
         android:layout_alignParentLeft="true"
         style="@style/Widget.GMA.Button"
         android:text="@string/cancel_button"/>-->
+    <View
+
+        android:id="@+id/viewBottom"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@+id/bottom_button_container"
+        android:layout_marginTop="25dp"
+        android:background="@android:color/darker_gray" />
 
     <LinearLayout
         android:id="@+id/bottom_button_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/data"
-        android:layout_marginTop="10dp"
+      android:layout_below="@id/data"
         android:gravity="center"
-        android:orientation="horizontal"
-
-        >
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/save"
             style="@style/Widget.GMA.Button"
-            android:layout_width="wrap_content"
-            android:text="@string/btn_update"/>
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/btn_update" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@android:color/darker_gray" />
 
         <Button
             android:id="@+id/delete"
             style="@style/Widget.GMA.Button"
-            android:layout_width="wrap_content"
-            android:text="@string/btn_delete"/>
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/btn_delete" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@android:color/darker_gray" />
 
         <Button
             android:id="@+id/cancel"
             style="@style/Widget.GMA.Button"
-            android:layout_width="wrap_content"
-            android:text="@android:string/cancel"/>
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@android:string/cancel" />
     </LinearLayout>
 </RelativeLayout>
