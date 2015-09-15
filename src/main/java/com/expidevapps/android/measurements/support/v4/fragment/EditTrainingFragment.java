@@ -522,9 +522,6 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
         @Override
         public void run() {
             boolean saved = false;
-            Log.e("ITH", "mMinistryId: " + mMinistryId);
-            Log.e("ITH", "mCompletion Id: " + mCompletion.getId());
-            Log.e("ITH", "mCompletion trainingId: " + mCompletion.getTrainingId());
             while (!saved) {
                 // generate a new id
                 long id = 0;
@@ -548,12 +545,7 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             // broadcast that this training completion was created
             mBroadcastManager.sendBroadcast(updateTrainingBroadcast(mMinistryId, mCompletion.getTrainingId()));
 
-            // broadcast that this training was updated
-            final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(mContext);
-            broadcastManager.sendBroadcast(updateTrainingBroadcast(mMinistryId, mCompletion.getTrainingId()));
-
             // trigger a sync of dirty training completions
-            Log.d("ITH", "EditTrainingFragment syncDirtyTrainingCompletions mGUID: " + mGuid);
             GmaSyncService.syncDirtyTrainingCompletions(mContext, mMinistryId, mGuid);
         }
     }
