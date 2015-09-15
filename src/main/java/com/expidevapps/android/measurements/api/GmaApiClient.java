@@ -17,6 +17,7 @@ import com.expidevapps.android.measurements.model.MeasurementType;
 import com.expidevapps.android.measurements.model.MeasurementValue;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Training;
+import com.expidevapps.android.measurements.model.Training.Completion;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
@@ -670,12 +671,14 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Nullable
-    public Training.Completion createTrainingCompletion(@NonNull final long trainingId, @NonNull final Training.Completion completion) throws ApiException, JSONException {
+    public Completion createTrainingCompletion(final long trainingId, @NonNull final Completion completion)
+            throws ApiException, JSONException {
         return this.createTrainingCompletion(trainingId, completion.toJson());
     }
 
     @Nullable
-    public Training.Completion createTrainingCompletion(@NonNull final long trainingId, @NonNull final JSONObject completion) throws ApiException {
+    public Completion createTrainingCompletion(final long trainingId, @NonNull final JSONObject completion)
+            throws ApiException {
         // build request
         final Request<Session> request = new Request<>(TRAINING_COMPLETION);
         request.method = Method.POST;
@@ -690,7 +693,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             Log.d("ITH", "createTrainingCompletion: conn.getResponseCode(): " + conn.getResponseCode());
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
-                return Training.Completion.fromJson(trainingId, new JSONObject(IOUtils.readString(conn.getInputStream())));
+                return Completion.fromJson(trainingId, new JSONObject(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
             LOG.error("error parsing createTraining response", e);
@@ -704,7 +707,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     public boolean deleteTrainingCompletion(final long id) throws ApiException {
-        if (id == Training.Completion.INVALID_ID) {
+        if (id == Completion.INVALID_ID) {
             return false;
         }
 
@@ -724,7 +727,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Nullable
-    public Training.Completion updateTrainingCompletion(@NonNull final long trainingId, @NonNull final long completionId, @NonNull final JSONObject completion) throws ApiException {
+    public Completion updateTrainingCompletion(final long trainingId, final long completionId,
+                                               @NonNull final JSONObject completion) throws ApiException {
         // build request
         final Request<Session> request = new Request<>(TRAINING_COMPLETION + "/" + completionId);
         request.method = Method.PUT;
@@ -740,7 +744,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             Log.d("ITH", "updateTrainingCompletion: conn.getResponseCode(): " + conn.getResponseCode() + " " + conn.getResponseMessage() );
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
-                return Training.Completion.fromJson(trainingId, new JSONObject(IOUtils.readString(conn.getInputStream())));
+                return Completion.fromJson(trainingId, new JSONObject(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
             LOG.error("error parsing createTraining response", e);
