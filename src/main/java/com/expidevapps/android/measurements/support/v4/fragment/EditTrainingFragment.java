@@ -262,6 +262,10 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             mTrainingData.setVisibility(View.VISIBLE);
         }
 
+        if (mTableRowParticipants != null) {
+            mTableRowParticipants.setVisibility(View.GONE);
+        }
+
         if (mTrainingName != null && !mChanged[CHANGED_NAME]) {
             mTrainingName.setText(mTraining != null ? mTraining.getName() : null);
         }

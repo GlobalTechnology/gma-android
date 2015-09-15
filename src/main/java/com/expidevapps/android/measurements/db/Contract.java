@@ -79,10 +79,11 @@ public class Contract {
         static final String COLUMN_NEW = "new";
         public static final String COLUMN_DELETED = "deleted";
         static final String COLUMN_CREATED_BY = "created_by";
+        public static final String COLUMN_PARTICIPANTS = "participants";
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_ID, COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_DATE, COLUMN_TYPE, COLUMN_MCC, COLUMN_LATITUDE,
-                        COLUMN_LONGITUDE, COLUMN_DIRTY, COLUMN_LAST_SYNCED, COLUMN_NEW, COLUMN_DELETED, COLUMN_CREATED_BY};
+                        COLUMN_LONGITUDE, COLUMN_DIRTY, COLUMN_LAST_SYNCED, COLUMN_NEW, COLUMN_DELETED, COLUMN_CREATED_BY, COLUMN_PARTICIPANTS};
 
         private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
         private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
@@ -91,6 +92,7 @@ public class Contract {
         private static final String SQL_COLUMN_NEW = COLUMN_NEW + " INTEGER";
         private static final String SQL_COLUMN_DELETED = COLUMN_DELETED + " INTEGER";
         private static final String SQL_COLUMN_CREATED_BY = COLUMN_CREATED_BY + " TEXT";
+        private static final String SQL_COLUMN_PARTICIPANTS = COLUMN_PARTICIPANTS + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
@@ -105,7 +107,7 @@ public class Contract {
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME, SQL_COLUMN_DATE,
-                        SQL_COLUMN_TYPE, SQL_COLUMN_MCC, SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE, SQL_COLUMN_CREATED_BY,
+                        SQL_COLUMN_TYPE, SQL_COLUMN_MCC, SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE, SQL_COLUMN_CREATED_BY, SQL_COLUMN_PARTICIPANTS,
                         SQL_COLUMN_DIRTY, SQL_COLUMN_NEW, SQL_COLUMN_DELETED, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
@@ -115,6 +117,8 @@ public class Contract {
         static final String SQL_v37_ALTER_DELETED = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_DELETED;
         @Deprecated
         static final String SQL_v39_ALTER_CREATED_BY = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_CREATED_BY;
+        @Deprecated
+        static final String SQL_v44_ALTER_PARTICIPANTS = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_PARTICIPANTS;
 
         public static final class Completion extends Base {
             public static final String TABLE_NAME = "training_completions";

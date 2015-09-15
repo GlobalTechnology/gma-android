@@ -133,7 +133,7 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
             }
         }
         if (mTrainingParticipants != null) {
-            //training.setParticipants(mTrainingParticipants.getText().toString());
+            training.setParticipants(Integer.valueOf(mTrainingParticipants.getText().toString()));
         }
 
         // save new church

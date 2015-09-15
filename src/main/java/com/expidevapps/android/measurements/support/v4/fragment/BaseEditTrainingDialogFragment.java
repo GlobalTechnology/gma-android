@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
@@ -99,6 +100,10 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
     @Nullable
     @InjectView(R.id.new_completion_participants)
     EditText mNewCompletionParticipants;
+    @Optional
+    @Nullable
+    @InjectView(R.id.table_row_participants)
+    TableRow mTableRowParticipants;
 
     @Nullable
     ArrayAdapter<String> mTrainingTypeAdapter;

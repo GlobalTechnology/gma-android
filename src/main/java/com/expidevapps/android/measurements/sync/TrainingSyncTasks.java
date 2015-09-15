@@ -40,8 +40,8 @@ class TrainingSyncTasks extends BaseSyncTasks {
 
     private static String[] PROJECTION_GET_TRAININGS =
             {Contract.Training.COLUMN_MINISTRY_ID, Contract.Training.COLUMN_MCC, Contract.Training.COLUMN_NAME,
-                    Contract.Training.COLUMN_DATE, Contract.Training.COLUMN_TYPE, Contract.Training.COLUMN_LATITUDE,
-                    Contract.Training.COLUMN_LONGITUDE};
+                    Contract.Training.COLUMN_DATE, Contract.Training.COLUMN_TYPE, Contract.Training.COLUMN_PARTICIPANTS,
+                    Contract.Training.COLUMN_LATITUDE, Contract.Training.COLUMN_LONGITUDE};
 
     private static String[] PROJECTION_GET_COMPLETIONS =
             {Contract.Training.Completion.COLUMN_TRAINING_ID, Contract.Training.Completion.COLUMN_PHASE,
@@ -147,13 +147,19 @@ class TrainingSyncTasks extends BaseSyncTasks {
                 try {
                     if (training.isNew()) {
                         // try creating the training
+                        Log.d("ITH", "Training is new");
                         final Training newTraining = api.createTraining(training);
-
                         // update id of training
                         if (newTraining != null) {
                             dao.delete(training);
                             newTraining.setLastSynced(new Date());
                             dao.updateOrInsert(newTraining, PROJECTION_GET_TRAININGS);
+
+                            if (newTraining.getCompletions().size() > 0) {
+                                for (final Training.Completion newTrainingCompletion : newTraining.getCompletions()) {
+                                    dao.updateOrInsert(newTrainingCompletion, PROJECTION_GET_COMPLETIONS);
+                                }
+                            }
 
                             // add training to list of broadcasts
                             broadcasts.put(training.getMinistryId(), training.getId());

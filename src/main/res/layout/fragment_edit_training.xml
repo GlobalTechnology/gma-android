@@ -134,7 +134,7 @@
                     android:ems="10"/>
             </TableRow>
 
-            <TableRow>
+            <TableRow android:id="@+id/table_row_participants">
                 <TextView
                     android:id="@+id/trainingParticipantsLabel"
                     android:layout_width="match_parent"

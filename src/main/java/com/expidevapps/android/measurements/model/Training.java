@@ -25,6 +25,7 @@ public class Training extends Location implements Cloneable {
     private static final String JSON_TYPE = "type";
     private static final String JSON_DATE = "date";
     private static final String JSON_MCC = "mcc";
+    private static final String JSON_PARTICIPANTS = "participants";
     private static final String JSON_COMPLETIONS = "gcm_training_completions";
     private static final String JSON_CREATED_BY = "created_by";
 
@@ -47,6 +48,7 @@ public class Training extends Location implements Cloneable {
     @NonNull
     private final List<Completion> completions = new ArrayList<>();
 
+    private int mParticipants = 0;
     private boolean mNew = false;
     private boolean mDeleted = false;
 
@@ -65,6 +67,7 @@ public class Training extends Location implements Cloneable {
         this.mcc = training.mcc;
         this.createdBy = training.createdBy;
         this.setCompletions(training.completions);
+        mParticipants = training.mParticipants;
         mNew = training.mNew;
         mDeleted = training.mDeleted;
         mDirty.clear();
@@ -192,6 +195,15 @@ public class Training extends Location implements Cloneable {
         this.createdBy = createdBy;
     }
 
+    @Nullable
+    public int getParticipants() {
+        return mParticipants;
+    }
+
+    public void setParticipants(@Nullable int participants) {
+        this.mParticipants = participants;
+    }
+
     @Override
     public boolean canEdit(@Nullable final Assignment assignment) {
         return assignment != null && assignment.can(Task.EDIT_TRAINING);
@@ -244,6 +256,7 @@ public class Training extends Location implements Cloneable {
         json.put(JSON_DATE, this.getDate());
         json.put(JSON_TYPE, this.getType());
         json.put(JSON_MCC, this.getMcc().raw);
+        json.put(JSON_PARTICIPANTS, this.getParticipants());
         return json;
     }
 
