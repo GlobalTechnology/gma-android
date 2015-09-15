@@ -50,6 +50,7 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
      * 35: 2015-09-03
      * 36: 2015-09-08
      * 37: 2015-09-08
+     * v0.8.11
      * 38: 2015-09-09
      * 39: 2015-09-09
      * 40: 2015-09-14
