@@ -54,7 +54,8 @@ public class ChurchMapper extends LocationMapper<Church> {
                 values.put(field, church.getContactMobile());
                 break;
             case COLUMN_JESUS_FILM_ACTIVITY:
-                values.put(field, church.getJesusFilmActivity());
+                values.put(field, church.isJesusFilmActivity());
+                break;
             case COLUMN_DEVELOPMENT:
                 values.put(field, church.getDevelopment().id);
                 break;
@@ -97,7 +98,7 @@ public class ChurchMapper extends LocationMapper<Church> {
         church.setContactName(getString(c, COLUMN_CONTACT_NAME, null));
         church.setContactEmail(getString(c, COLUMN_CONTACT_EMAIL, null));
         church.setContactMobile(getString(c, COLUMN_CONTACT_MOBILE, null));
-        church.setJesusFilmActivity(getInt(c,COLUMN_JESUS_FILM_ACTIVITY, 0));
+        church.setJesusFilmActivity(getBool(c, COLUMN_JESUS_FILM_ACTIVITY, false));
         church.setDevelopment(Development.fromRaw(getInt(c, COLUMN_DEVELOPMENT, Development.UNKNOWN.id)));
         church.setSize(getInt(c, COLUMN_SIZE, 0));
         church.setSecurity(Security.fromRaw(getInt(c, COLUMN_SECURITY, SECURITY_DEFAULT)));

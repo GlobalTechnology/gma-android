@@ -111,13 +111,7 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
             church.setContactMobile(mContactMobileView.getText().toString());
         }
         if (mJesusFilmActivity != null) {
-            //check selected radio button
-            if (mJesusFilmActivity.getCheckedRadioButtonId() == R.id.rbYes) {
-                church.setJesusFilmActivity(Church.JESUS_FILM_ACTIVITY_YES);
-            }
-            else {
-                church.setJesusFilmActivity(Church.JESUS_FILM_ACTIVITY_NO);
-            }
+            church.setJesusFilmActivity(mJesusFilmActivity.getCheckedRadioButtonId() == R.id.rbYes);
         }
 
         if (mDevelopmentSpinner != null) {

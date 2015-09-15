@@ -18,15 +18,13 @@ import java.util.List;
 
 public class Church extends Location implements Cloneable {
     public static final long INVALID_ID = -1;
-    public static final int JESUS_FILM_ACTIVITY_NO = 0;
-    public static final int JESUS_FILM_ACTIVITY_YES = 1;
 
     private static final int DEVELOPMENT_UNKNOWN = 0;
     private static final int DEVELOPMENT_TARGET = 1;
     private static final int DEVELOPMENT_GROUP = 2;
     private static final int DEVELOPMENT_CHURCH = 3;
     private static final int DEVELOPMENT_MULTIPLYING_CHURCH = 5;
-private boolean mJesusFilmActivity = false;
+
     public enum Development {
         UNKNOWN(DEVELOPMENT_UNKNOWN, R.drawable.ic_church_church),
         TARGET(DEVELOPMENT_TARGET, R.drawable.ic_church_target), GROUP(DEVELOPMENT_GROUP, R.drawable.ic_church_group),
@@ -119,12 +117,10 @@ private boolean mJesusFilmActivity = false;
     @Nullable
     private String contactName;
     @NonNull
-    @Nullable
-    private int jesusFilmActivity;
-
     private Development development = Development.UNKNOWN;
     @NonNull
     private Security security = Security.PUBLIC;
+    private boolean mJesusFilmActivity = false;
     private int size = 0;
     @Nullable
     private String createdBy;
@@ -157,7 +153,7 @@ private boolean mJesusFilmActivity = false;
         church.name = json.optString(JSON_NAME, null);
         church.contactEmail = json.optString(JSON_CONTACT_EMAIL, null);
         church.contactMobile = json.optString(JSON_CONTACT_MOBILE, null);
-        church.jesusFilmActivity = json.optInt(JSON_JESUS_FILM_ACTIVITY);
+        church.mJesusFilmActivity = json.optInt(JSON_JESUS_FILM_ACTIVITY, 0) > 0;
         church.contactName = json.optString(JSON_CONTACT_NAME, null);
         church.setLatitude(json.optDouble(JSON_LATITUDE, Double.NaN));
         church.setLongitude(json.optDouble(JSON_LONGITUDE, Double.NaN));
@@ -179,7 +175,7 @@ private boolean mJesusFilmActivity = false;
         this.name = church.name;
         this.contactEmail = church.contactEmail;
         this.contactMobile = church.contactMobile;
-        this.jesusFilmActivity = church.jesusFilmActivity;
+        mJesusFilmActivity = church.mJesusFilmActivity;
         this.contactName = church.contactName;
         this.development = church.development;
         this.size = church.size;
@@ -257,16 +253,15 @@ private boolean mJesusFilmActivity = false;
         this.contactMobile = mobile;
     }
 
-    @Nullable
-    public int getJesusFilmActivity() {
-        return jesusFilmActivity;
+    public boolean isJesusFilmActivity() {
+        return mJesusFilmActivity;
     }
 
-    public void setJesusFilmActivity(@Nullable final int jesusFilmActivity) {
-        if (mTrackingChanges && this.jesusFilmActivity== jesusFilmActivity) {
-            mDirty.add(JSON_CONTACT_MOBILE);
+    public void setJesusFilmActivity(final boolean state) {
+        if (mTrackingChanges && mJesusFilmActivity != state) {
+            mDirty.add(JSON_JESUS_FILM_ACTIVITY);
         }
-        this.jesusFilmActivity = jesusFilmActivity;
+        mJesusFilmActivity = state;
     }
 
     @Nullable
@@ -364,15 +359,12 @@ private boolean mJesusFilmActivity = false;
         if (mParentId != INVALID_ID) {
             json.put(JSON_PARENT, mParentId);
         }
-        if(this.jesusFilmActivity == Church.JESUS_FILM_ACTIVITY_YES) {
-            mJesusFilmActivity = true;
-        }
         json.put(JSON_MINISTRY_ID, this.ministryId);
         json.put(JSON_NAME, this.name);
         json.put(JSON_CONTACT_NAME, this.contactName);
         json.put(JSON_CONTACT_EMAIL, this.contactEmail);
         json.put(JSON_CONTACT_MOBILE, this.contactMobile);
-        json.put(JSON_JESUS_FILM_ACTIVITY, this.mJesusFilmActivity);
+        json.put(JSON_JESUS_FILM_ACTIVITY, mJesusFilmActivity);
 
         if (this.development != Development.UNKNOWN) {
             json.put(JSON_DEVELOPMENT, this.development.id);
