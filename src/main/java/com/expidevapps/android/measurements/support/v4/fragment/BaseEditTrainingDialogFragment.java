@@ -95,7 +95,7 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
     @Optional
     @Nullable
     @InjectView(R.id.et_new_completion_date)
-    EditText mNewCompletionDate;
+    EditText mNewCompletionDateLabel;
     @Optional
     @Nullable
     @InjectView(R.id.new_completion_participants)
@@ -112,6 +112,8 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
     /* final */ String mGuid;
     @Nullable
     LocalDate mTrainingDate;
+    @Nullable
+    LocalDate mNewCompletionDate;
 
     @NonNull
     public static Bundle buildArgs(@NonNull final String guid) {
@@ -157,6 +159,10 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
         setTrainingDate(date);
     }
 
+    protected void onChangeNewCompletionDate(@Nullable final LocalDate date) {
+        setNewCompletionDate(date);
+    }
+
     @Optional
     @OnClick(R.id.cancel)
     protected void onCancel() {
@@ -195,6 +201,11 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
     protected final void setTrainingDate(@Nullable final LocalDate date) {
         mTrainingDate = date;
         updateTrainingDateLabel(mTrainingDate);
+    }
+
+    protected final void setNewCompletionDate(@Nullable final LocalDate date) {
+        mNewCompletionDate = date;
+        updateTrainingCompletionDateLabel(mNewCompletionDate);
     }
 
     @Optional
@@ -237,6 +248,13 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
         }
     }
 
+    protected void updateTrainingCompletionDateLabel(@Nullable final LocalDate date) {
+        if (mNewCompletionDateLabel != null) {
+            mNewCompletionDateLabel
+                    .setText(date != null ? DateFormat.getDateInstance(DateFormat.SHORT).format(date.toDate()) : "");
+        }
+    }
+
     @Optional
     @OnClick(R.id.show_training)
     void onShowTrainingTap() {
@@ -254,10 +272,10 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
     @Optional
     @OnClick(R.id.et_new_completion_date)
     void onNewTrainingCompletionDateClick() {
-        final LocalDate currentDate = mTrainingDate != null ? mTrainingDate : LocalDate.now();
+        final LocalDate currentDate = mNewCompletionDate  != null ? mNewCompletionDate : LocalDate.now();
         new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
             public void onDateSet(final DatePicker view, final int year, final int month, final int day) {
-                onChangeTrainingDate(new LocalDate(year, month + 1, day));
+                onChangeNewCompletionDate(new LocalDate(year, month + 1, day));
             }
         }, currentDate.getYear(), currentDate.getMonthOfYear() - 1, currentDate.getDayOfMonth()).show();
     }

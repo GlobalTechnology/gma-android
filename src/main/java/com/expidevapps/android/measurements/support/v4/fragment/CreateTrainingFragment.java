@@ -26,9 +26,6 @@ import org.ccci.gto.android.common.util.AsyncTaskCompat;
 import org.joda.time.LocalDate;
 
 import java.security.SecureRandom;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
 
 import butterknife.InjectView;
 import butterknife.OnClick;
@@ -113,24 +110,9 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
         if (mTrainingName != null) {
             training.setName(mTrainingName.getText().toString());
         }
-        /*if (mTrainingType != null) {
-            training.setType(mTrainingType.getText().toString());
-        }*/
         if (mTrainingTypeSpinner != null) {
             final Object trainingType = mTrainingTypeSpinner.getSelectedItem();
-            /*if (trainingType instanceof Church.Development) {
-                training.setType((Church.Development) development);
-            }*/
-            //training.setType((String) trainingType);
             training.setType(((String) trainingType).equalsIgnoreCase(Training.TRAINING_TYPE_OTHER) ? "" : (String) trainingType);
-        }
-        if (mTrainingDate != null) {
-            try {
-                DateFormat format = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                training.setDate(new LocalDate(format.parse(mTrainingDateLabel.getText().toString())));
-            } catch (final Exception ignored) {
-                Log.e("Exception", "error Parsing Date string to LocalDate.");
-            }
         }
         if (mTrainingParticipants != null) {
             training.setParticipants(Integer.valueOf(mTrainingParticipants.getText().toString()));

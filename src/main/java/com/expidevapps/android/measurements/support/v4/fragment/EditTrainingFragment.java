@@ -37,10 +37,9 @@ import org.ccci.gto.android.common.util.AsyncTaskCompat;
 import org.joda.time.LocalDate;
 
 import java.security.SecureRandom;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Locale;
+import java.util.Collections;
+import java.util.Comparator;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -214,16 +213,9 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             final Training.Completion completion = new Training.Completion();
             completion.setNew(true);
             completion.setTrainingId(mTrainingId);
-            completion.setPhase(mTraining.getCompletions().size() + 1);
-            if (mNewCompletionDate != null) {
-                Log.d("ITH", "EditTrainingFragment mTrainingDate: " + mTrainingDateLabel.getText().toString());
-                try {
-                    DateFormat format = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                    completion.setDate(new LocalDate(format.parse(mTrainingDateLabel.getText().toString())));
-                } catch (final Exception ignored) {
-                    Log.e("Exception", "error Parsing Date string to LocalDate.");
-                }
-            }
+            completion.setPhase(getLastLastCompletionPhase() + 1);
+            completion.setDate(mNewCompletionDate);
+
             if (mNewCompletionParticipants != null) {
                 try {
                     completion.setNumberCompleted(Integer.valueOf(mNewCompletionParticipants.getText().toString()));
@@ -232,6 +224,9 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
                     Log.e("Exception", "error Parsing Date string to LocalDate.");
                 }
             }
+
+            updateTrainingCompletions(completion);
+            resetNewCompletionView();
 
             // save new training completion
             AsyncTaskCompat.execute(new CreateTrainingCompletionRunnable(getActivity().getApplicationContext(), mGuid, mTraining.getMinistryId(), completion));
@@ -358,10 +353,41 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             //mStagesView.addOnItemTouchListener(new ItemClickListener(getActivity(), mListenerCompletionOnClick));
         }
     }
-    
+
+    private void updateTrainingCompletions(Training.Completion completion) {
+        if (mStagesView != null && mTrainingCompletionAdapter != null) {
+            mTrainingCompletionAdapter.addItemToCompletionList(completion);
+        }
+    }
+
+    private void resetNewCompletionView() {
+        if (mNewCompletionParticipants != null) {
+            mNewCompletionDate = new LocalDate().now();
+            mNewCompletionDateLabel.setText("");
+            mNewCompletionParticipants.setText("");
+            mNewCompletionParticipants.clearFocus();
+        }
+    }
+
+    private int getLastLastCompletionPhase() {
+        if (mTraining.getCompletions().size() > 0) {
+            ArrayList<Training.Completion> completionList = new ArrayList<>(mTraining.getCompletions());
+            Collections.sort(completionList, new Comparator<Training.Completion>() {
+                public int compare(Training.Completion completion1, Training.Completion completion2) {
+                    return completion1.getPhase() - completion2.getPhase();
+                }
+            });
+            return  completionList.get(completionList.size() - 1).getPhase();
+        }
+        else {
+            return 0;
+        }
+    }
+
     @Optional
     @OnTextChanged(value = R.id.et_training_name, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     void updateName(@Nullable final Editable text)
+
     {
         if (mTrainingName != null)
         {

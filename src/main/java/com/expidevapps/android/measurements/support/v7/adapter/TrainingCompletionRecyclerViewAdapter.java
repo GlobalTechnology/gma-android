@@ -242,6 +242,11 @@ public class TrainingCompletionRecyclerViewAdapter extends RecyclerView.Adapter<
         return Training.INVALID_ID;
     }
 
+    public void addItemToCompletionList(Training.Completion completion) {
+        this.mCompletionList.add(completion);
+        notifyDataSetChanged();
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         @Optional
         @Nullable
