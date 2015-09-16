@@ -127,6 +127,10 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
         updateIcon(development);
     }
 
+    protected void onChangeSecurity(@NonNull final Church.Security security) {
+
+    }
+
     @Optional
     @OnClick(R.id.cancel)
     protected void onCancel() {
@@ -182,6 +186,15 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
         if (mDevelopmentSpinner != null) {
             final Object item = mDevelopmentSpinner.getSelectedItem();
             this.onChangeDevelopment(item instanceof Development ? (Development) item : Development.UNKNOWN);
+        }
+    }
+
+    @Optional
+    @OnItemSelected(R.id.security)
+    void changeSecurity() {
+        if (mSecuritySpinner != null) {
+            final Object item = mSecuritySpinner.getSelectedItem();
+            this.onChangeSecurity(item instanceof Church.Security ? (Church.Security) item : Church.Security.fromRaw(Church.SECURITY_DEFAULT));
         }
     }
 

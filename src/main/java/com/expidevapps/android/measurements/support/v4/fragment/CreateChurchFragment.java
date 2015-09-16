@@ -126,7 +126,12 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
             } catch (final NumberFormatException ignored) {
             }
         }
-
+        if (mSecuritySpinner != null) {
+            final Object security = mSecuritySpinner.getSelectedItem();
+            if (security instanceof Church.Security) {
+                church.setSecurity((Church.Security) security);
+            }
+        }
         // save new church
         AsyncTaskCompat.execute(new CreateChurchRunnable(getActivity().getApplicationContext(), mGuid, church));
 
@@ -143,6 +148,11 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
 
         if(mDeleteChurch != null) {
             mDeleteChurch.setVisibility(View.INVISIBLE);
+        }
+
+        if (mSecuritySpinner != null && mSecurityAdapter != null) {
+            mSecuritySpinner.setSelection(
+                    mSecurityAdapter.getPosition(Church.Security.fromRaw(Church.SECURITY_DEFAULT)));
         }
     }
 

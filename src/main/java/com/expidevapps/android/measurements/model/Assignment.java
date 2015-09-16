@@ -270,7 +270,6 @@ public class Assignment extends Base implements Cloneable {
                     case PRIVATE:
                         return isMember() || isSelfAssigned() || isLeadership();
                     case REGISTERED_USERS:
-                        return isMember() || isSelfAssigned() || isLeadership();
                     case PUBLIC:
                         return true;
                     default:

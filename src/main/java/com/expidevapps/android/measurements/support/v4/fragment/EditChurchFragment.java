@@ -51,10 +51,11 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     private static final int CHANGED_DEVELOPMENT = 2;
     private static final int CHANGED_SIZE = 3;
     private static final int CHANGED_CONTACT_MOBILE = 4;
+    private static final int CHANGED_SECURITY = 5;
 
     private long mChurchId = Church.INVALID_ID;
     @NonNull
-    private boolean[] mChanged = new boolean[5];
+    private boolean[] mChanged = new boolean[6];
     @Nullable
     private Church mChurch;
     @Nullable
@@ -114,6 +115,11 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                 !development.equals(mChurch != null ? mChurch.getDevelopment() : Development.UNKNOWN);
     }
 
+    protected void onChangeSecurity(@NonNull final Church.Security security) {
+        mChanged[CHANGED_SECURITY] =
+                !security.equals(mChurch != null ? mChurch.getSecurity() : Church.Security.fromRaw(Church.SECURITY_DEFAULT));
+    }
+
     void onTextUpdated(@NonNull final View view, @NonNull final String text) {
         switch (view.getId()) {
             case R.id.contactName:
@@ -160,6 +166,11 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                     updates.mSize = Integer.valueOf(mSizeView.getText().toString());
                 } catch (final NumberFormatException ignored) {
                 }
+            }
+            if (mSecuritySpinner != null && mChanged[CHANGED_SECURITY]) {
+                final Object security = mSecuritySpinner.getSelectedItem();
+                updates.mSecurity =
+                        security instanceof Church.Security ? (Church.Security) security : Church.Security.fromRaw(Church.SECURITY_DEFAULT);
             }
 
             // persist changes in the database (if there are any)
@@ -221,6 +232,10 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         if (mDevelopmentSpinner != null && mDevelopmentAdapter != null && !mChanged[CHANGED_DEVELOPMENT]) {
             mDevelopmentSpinner.setSelection(
                     mDevelopmentAdapter.getPosition(mChurch != null ? mChurch.getDevelopment() : Development.UNKNOWN));
+        }
+        if (mSecuritySpinner != null && mSecurityAdapter != null && !mChanged[CHANGED_SECURITY]) {
+            mSecuritySpinner.setSelection(
+                    mSecurityAdapter.getPosition(mChurch != null ? mChurch.getSecurity() : Church.Security.fromRaw(Church.SECURITY_DEFAULT)));
         }
     }
 
@@ -336,9 +351,11 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         Integer mSize;
         @Nullable
         Development mDevelopment;
+        @Nullable
+        Church.Security mSecurity;
 
         boolean hasUpdates() {
-            return mContactName != null || mContactEmail != null || mContactMobile != null || mSize != null || mDevelopment != null;
+            return mContactName != null || mContactEmail != null || mContactMobile != null || mSize != null || mDevelopment != null || mSecurity != null;
         }
     }
 
@@ -396,6 +413,10 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                 if (mUpdates.mDevelopment != null) {
                     church.setDevelopment(mUpdates.mDevelopment);
                     projection.add(Contract.Church.COLUMN_DEVELOPMENT);
+                }
+                if (mUpdates.mSecurity != null) {
+                    church.setSecurity(mUpdates.mSecurity);
+                    projection.add(Contract.Church.COLUMN_SECURITY);
                 }
                 church.trackingChanges(false);
 
