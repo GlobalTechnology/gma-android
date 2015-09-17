@@ -227,8 +227,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         {
             conn = this.sendRequest(request);
 
-            Log.i(TAG, "response code: " + Integer.toString(conn.getResponseCode()));
-
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 return Ministry.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())));
@@ -663,7 +661,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             conn = this.sendRequest(request);
             return conn.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT;
         } catch (final IOException e) {
-            Log.d("Exception", "delete Training IOException: " + e.getMessage());
             throw new ApiSocketException(e);
         } finally {
             IOUtils.closeQuietly(conn);
@@ -684,13 +681,11 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         request.method = Method.POST;
         request.setContent(completion);
 
-        Log.d("ITH", "GmaApiClient request Params: " + completion.toString());
         // process request
         HttpURLConnection conn = null;
         try {
             conn = this.sendRequest(request);
 
-            Log.d("ITH", "createTrainingCompletion: conn.getResponseCode(): " + conn.getResponseCode());
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
                 return Completion.fromJson(trainingId, new JSONObject(IOUtils.readString(conn.getInputStream())));
@@ -719,7 +714,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             conn = this.sendRequest(request);
             return conn.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT;
         } catch (final IOException e) {
-            Log.d("Exception", "delete Training Completion IOException: " + e.getMessage());
             throw new ApiSocketException(e);
         } finally {
             IOUtils.closeQuietly(conn);
@@ -734,14 +728,11 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         request.method = Method.PUT;
         request.setContent(completion);
 
-        Log.d("ITH", "GmaApiClient request completionId: " + completionId);
-        Log.d("ITH", "GmaApiClient request Params: " + completion.toString());
         // process request
         HttpURLConnection conn = null;
         try {
             conn = this.sendRequest(request);
 
-            Log.d("ITH", "updateTrainingCompletion: conn.getResponseCode(): " + conn.getResponseCode() + " " + conn.getResponseMessage() );
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
                 return Completion.fromJson(trainingId, new JSONObject(IOUtils.readString(conn.getInputStream())));
