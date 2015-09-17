@@ -23,6 +23,7 @@ import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
+import org.ccci.gto.android.common.util.BundleCompat;
 
 import java.security.SecureRandom;
 
@@ -76,8 +77,10 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
         super.onCreate(savedState);
 
         final Bundle args = this.getArguments();
-        mMinistryId = args != null ? args.getString(ARG_MINISTRY_ID) : Ministry.INVALID_ID;
-        mLocation = args != null ? args.<LatLng>getParcelable(ARG_LOCATION) : null;
+        if (args != null) {
+            mMinistryId = BundleCompat.getString(args, ARG_MINISTRY_ID, Ministry.INVALID_ID);
+            mLocation = args.getParcelable(ARG_LOCATION);
+        }
     }
 
     @Override
