@@ -3,9 +3,6 @@ package com.expidevapps.android.measurements.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.expidevapps.android.measurements.model.Base;
-import com.expidevapps.android.measurements.model.Ministry;
-
 import org.joda.time.YearMonth;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,7 +36,7 @@ public class Measurement extends Base {
                                        @NonNull final YearMonth period) throws JSONException {
         final Measurement measurement = new Measurement();
 
-        measurement.type = MeasurementType.fromJson(json);
+        measurement.type = MeasurementType.fromJson(json, ministryId);
         if (json.has(MinistryMeasurement.JSON_VALUE)) {
             measurement.ministryMeasurement = MinistryMeasurement.fromJson(json, ministryId, mcc, period);
         }

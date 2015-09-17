@@ -11,6 +11,7 @@ import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.MeasurementDetails;
 import com.expidevapps.android.measurements.model.MeasurementType;
+import com.expidevapps.android.measurements.model.MeasurementTypeLocalization;
 import com.expidevapps.android.measurements.model.MeasurementValue;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.MinistryMeasurement;
@@ -35,6 +36,8 @@ public class GmaDao extends AbstractDao
     private static final Mapper<Assignment> ASSIGNMENT_MAPPER = new AssignmentMapper();
     private static final Mapper<Ministry> MINISTRY_MAPPER = new MinistryMapper();
     private static final Mapper<MeasurementType> MEASUREMENT_TYPE_MAPPER = new MeasurementTypeMapper();
+    private static final Mapper<MeasurementTypeLocalization> MEASUREMENT_TYPE_LOCALIZATION_MAPPER =
+            new MeasurementTypeLocalizationMapper();
     private static final Mapper<MinistryMeasurement> MINISTRY_MEASUREMENT_MAPPER = new MinistryMeasurementMapper();
     private static final Mapper<PersonalMeasurement> PERSONAL_MEASUREMENT_MAPPER = new PersonalMeasurementMapper();
     private static final Mapper<MeasurementDetails> MEASUREMENT_DETAILS_MAPPER = new MeasurementDetailsMapper();
@@ -70,6 +73,8 @@ public class GmaDao extends AbstractDao
             return Contract.Assignment.TABLE_NAME;
         } else if (MeasurementType.class.equals(clazz)) {
             return Contract.MeasurementType.TABLE_NAME;
+        } else if (MeasurementTypeLocalization.class.equals(clazz)) {
+            return Contract.MeasurementTypeLocalization.TABLE_NAME;
         } else if (Contract.MeasurementVisibility.class.equals(clazz)) {
             return Contract.MeasurementVisibility.TABLE_NAME;
         } else if (MinistryMeasurement.class.equals(clazz)) {
@@ -100,6 +105,8 @@ public class GmaDao extends AbstractDao
             return Contract.Assignment.PROJECTION_ALL;
         } else if (MeasurementType.class.equals(clazz)) {
             return Contract.MeasurementType.PROJECTION_ALL;
+        } else if (MeasurementTypeLocalization.class.equals(clazz)) {
+            return Contract.MeasurementTypeLocalization.PROJECTION_ALL;
         } else if (MinistryMeasurement.class.equals(clazz)) {
             return Contract.MinistryMeasurement.PROJECTION_ALL;
         } else if (PersonalMeasurement.class.equals(clazz)) {
@@ -128,6 +135,8 @@ public class GmaDao extends AbstractDao
             return (Mapper<T>) ASSIGNMENT_MAPPER;
         } else if (MeasurementType.class.equals(clazz)) {
             return (Mapper<T>) MEASUREMENT_TYPE_MAPPER;
+        } else if (MeasurementTypeLocalization.class.equals(clazz)) {
+            return (Mapper<T>) MEASUREMENT_TYPE_LOCALIZATION_MAPPER;
         } else if (MinistryMeasurement.class.equals(clazz)) {
             return (Mapper<T>) MINISTRY_MEASUREMENT_MAPPER;
         } else if (PersonalMeasurement.class.equals(clazz)) {
@@ -170,6 +179,9 @@ public class GmaDao extends AbstractDao
         } else if (MeasurementType.class.equals(clazz)) {
             keyLength = 1;
             where = Contract.MeasurementType.SQL_WHERE_PRIMARY_KEY;
+        } else if (MeasurementTypeLocalization.class.equals(clazz)) {
+            keyLength = 3;
+            where = Contract.MeasurementTypeLocalization.SQL_WHERE_PRIMARY_KEY;
         } else if (MinistryMeasurement.class.equals(clazz)) {
             keyLength = 4;
             where = Contract.MinistryMeasurement.SQL_WHERE_PRIMARY_KEY;
@@ -206,6 +218,10 @@ public class GmaDao extends AbstractDao
                                       ((Assignment) obj).getMinistryId());
         } else if (obj instanceof MeasurementType) {
             return getPrimaryKeyWhere(MeasurementType.class, ((MeasurementType) obj).getPermLinkStub());
+        } else if (obj instanceof MeasurementTypeLocalization) {
+            final MeasurementTypeLocalization localization = (MeasurementTypeLocalization) obj;
+            return getPrimaryKeyWhere(MeasurementTypeLocalization.class, localization.getPermLinkStub(),
+                                      localization.getMinistryId(), localization.getLocale());
         } else if (obj instanceof MinistryMeasurement) {
             final MinistryMeasurement measurement = (MinistryMeasurement) obj;
             return getPrimaryKeyWhere(MinistryMeasurement.class, measurement.getMinistryId(), measurement.getMcc(),

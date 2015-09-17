@@ -438,6 +438,39 @@ public class Contract {
         static final String SQL_V32_ALTER_CUSTOM = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_CUSTOM;
     }
 
+    public static final class MeasurementTypeLocalization extends Base implements MinistryId, MeasurementPermLink {
+        static final String TABLE_NAME = "measurementTypeLocalizations";
+
+        static final String COLUMN_LOCALE = "locale";
+        static final String COLUMN_NAME = "name";
+        static final String COLUMN_DESCRIPTION = "description";
+
+        static final String[] PROJECTION_ALL =
+                {COLUMN_PERM_LINK_STUB, COLUMN_MINISTRY_ID, COLUMN_LOCALE, COLUMN_NAME, COLUMN_DESCRIPTION};
+
+        private static final String SQL_COLUMN_LOCALE = COLUMN_LOCALE + " TEXT";
+        private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
+        private static final String SQL_COLUMN_DESCRIPTION = COLUMN_DESCRIPTION + " TEXT";
+        private static final String SQL_PRIMARY_KEY = "UNIQUE(" +
+                TextUtils.join(",", new Object[] {COLUMN_PERM_LINK_STUB, COLUMN_MINISTRY_ID, COLUMN_LOCALE}) + ")";
+
+        private static final String SQL_PREFIX = TABLE_NAME + ".";
+
+        private static final String SQL_WHERE_LOCALE = COLUMN_LOCALE + " = ?";
+        static final String SQL_WHERE_PRIMARY_KEY =
+                SQL_WHERE_PERM_LINK_STUB + " AND " + SQL_WHERE_MINISTRY + " AND " + SQL_WHERE_LOCALE;
+
+        static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+                TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_MINISTRY_ID,
+                        SQL_COLUMN_LOCALE, SQL_COLUMN_NAME, SQL_COLUMN_DESCRIPTION, SQL_PRIMARY_KEY}) + ");";
+        static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+
+        @Deprecated
+        static final String SQL_V45_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+                TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_MINISTRY_ID,
+                        SQL_COLUMN_LOCALE, SQL_COLUMN_NAME, SQL_COLUMN_DESCRIPTION, SQL_PRIMARY_KEY}) + ");";
+    }
+
     public static final class MeasurementVisibility extends Base implements MinistryId, MeasurementPermLink {
         static final String TABLE_NAME = "measurementVisibility";
 

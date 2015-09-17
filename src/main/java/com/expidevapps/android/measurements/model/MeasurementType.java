@@ -108,22 +108,26 @@ public class MeasurementType extends Base {
     private Column column = Column.UNKNOWN;
     private boolean custom = DEFAULT_CUSTOM;
     private int sortOrder = DEFAULT_SORT_ORDER;
+    @Nullable
+    private MeasurementTypeLocalization mLocalization;
 
     public MeasurementType(@NonNull final String permLinkStub) {
         this.permLinkStub = permLinkStub;
     }
 
     @NonNull
-    public static List<MeasurementType> listFromJson(@NonNull final JSONArray json) throws JSONException {
+    public static List<MeasurementType> listFromJson(@NonNull final JSONArray json, @NonNull final String ministryId)
+            throws JSONException {
         final List<MeasurementType> types = new ArrayList<>();
         for (int i = 0; i < json.length(); i++) {
-            types.add(MeasurementType.fromJson(json.getJSONObject(i)));
+            types.add(MeasurementType.fromJson(json.getJSONObject(i), ministryId));
         }
         return types;
     }
 
     @NonNull
-    public static MeasurementType fromJson(@NonNull final JSONObject json) throws JSONException {
+    public static MeasurementType fromJson(@NonNull final JSONObject json, @NonNull final String ministryId)
+            throws JSONException {
         final MeasurementType type = new MeasurementType(json.getString(JSON_PERM_LINK_STUB));
 
         if (json.has(JSON_NAME)) {
@@ -146,6 +150,11 @@ public class MeasurementType extends Base {
             type.personalId = json.optString(JSON_PERSONAL_ID, INVALID_ID);
             type.localId = json.optString(JSON_LOCAL_ID, INVALID_ID);
             type.totalId = json.optString(JSON_TOTAL_ID, INVALID_ID);
+        }
+
+        // parse MeasurementType localization if we have a valid ministry ID and a locale
+        if (!ministryId.equals(Ministry.INVALID_ID) && json.has(MeasurementTypeLocalization.JSON_LOCALE_NAME)) {
+            type.mLocalization = MeasurementTypeLocalization.fromJson(json, ministryId);
         }
 
         return type;
@@ -233,5 +242,14 @@ public class MeasurementType extends Base {
 
     public void setSortOrder(final int order) {
         this.sortOrder = order;
+    }
+
+    @Nullable
+    public MeasurementTypeLocalization getLocalization() {
+        return mLocalization;
+    }
+
+    public void setLocalization(@Nullable final MeasurementTypeLocalization localization) {
+        mLocalization = localization;
     }
 }

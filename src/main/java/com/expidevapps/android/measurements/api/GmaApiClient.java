@@ -26,6 +26,7 @@ import org.ccci.gto.android.common.api.AbstractTheKeyApi;
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.api.ApiSocketException;
 import org.ccci.gto.android.common.util.IOUtils;
+import org.ccci.gto.android.common.util.LocaleCompat;
 import org.ccci.gto.android.common.util.SharedPreferencesUtils;
 import org.joda.time.YearMonth;
 import org.json.JSONArray;
@@ -42,6 +43,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -193,6 +195,11 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         // super.onCleanupRequest(request);
     }
 
+    @NonNull
+    protected final Request.Parameter param(@NonNull final String name, @NonNull final Locale value) {
+        return param(name, LocaleCompat.toLanguageTag(value));
+    }
+
     /* API methods */
 
     @NonNull
@@ -340,15 +347,31 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     /* BEGIN measurements methods */
 
     @Nullable
-    public List<MeasurementType> getMeasurementTypes() throws ApiException {
-        // build & process request
+    public List<MeasurementType> getMeasurementTypes(@NonNull final String ministryId) throws ApiException {
+        return getMeasurementTypes(ministryId, Locale.getDefault());
+    }
+
+    @Nullable
+    public List<MeasurementType> getMeasurementTypes(@NonNull final String ministryId, @NonNull final Locale locale)
+            throws ApiException {
+        // build request
+        final Request<Session> request = new Request<>(MEASUREMENT_TYPES);
+
+        // only use locale and ministryId if we have a valid ministryId
+        if (!ministryId.equals(Ministry.INVALID_ID)) {
+            request.params.add(param("ministry_id", ministryId));
+            request.params.add(param("locale", locale));
+        }
+
+        // process request
         HttpURLConnection conn = null;
         try {
-            conn = sendRequest(new Request<Session>(MEASUREMENT_TYPES));
+            conn = sendRequest(request);
 
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                return MeasurementType.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())));
+                return MeasurementType
+                        .listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())), ministryId);
             }
         } catch (final JSONException e) {
             Log.e(TAG, "error parsing getMeasurementTypes response", e);
@@ -364,6 +387,13 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     @Nullable
     public List<Measurement> getMeasurements(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
                                              @NonNull final YearMonth period) throws ApiException {
+        return getMeasurements(ministryId, mcc, period, Locale.getDefault());
+    }
+
+    @Nullable
+    public List<Measurement> getMeasurements(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
+                                             @NonNull final YearMonth period, @NonNull final Locale locale)
+            throws ApiException {
         // short-circuit if we don't have a valid ministryId or mcc
         if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
             return null;
@@ -376,6 +406,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         request.params.add(param("ministry_id", ministryId));
         request.params.add(param("mcc", mcc.raw));
         request.params.add(param("period", period.toString()));
+        request.params.add(param("locale", locale));
 
         // process request
         HttpURLConnection conn = null;

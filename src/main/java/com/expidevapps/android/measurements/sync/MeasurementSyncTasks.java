@@ -22,6 +22,7 @@ import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Measurement;
 import com.expidevapps.android.measurements.model.MeasurementDetails;
 import com.expidevapps.android.measurements.model.MeasurementType;
+import com.expidevapps.android.measurements.model.MeasurementTypeLocalization;
 import com.expidevapps.android.measurements.model.MeasurementValue;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
@@ -32,6 +33,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
 
 import org.ccci.gto.android.common.api.ApiException;
+import org.ccci.gto.android.common.util.BundleCompat;
 import org.ccci.gto.android.common.util.ThreadUtils;
 import org.ccci.gto.android.common.util.ThreadUtils.GenericKey;
 import org.joda.time.YearMonth;
@@ -78,12 +80,13 @@ class MeasurementSyncTasks extends BaseSyncTasks {
     static void syncMeasurementTypes(@NonNull final Context context, @NonNull final String guid,
                                      @NonNull final Bundle args) throws ApiException {
         final boolean force = isForced(args);
+        final String ministryId = BundleCompat.getString(args, EXTRA_MINISTRY_ID, Ministry.INVALID_ID);
 
         final GmaDao dao = GmaDao.getInstance(context);
         if (force || System.currentTimeMillis() - dao.getLastSyncTime(SYNC_TIME_MEASUREMENT_TYPES) >
                 STALE_DURATION_MEASUREMENT_TYPES) {
             final GmaApiClient api = GmaApiClient.getInstance(context, guid);
-            final List<MeasurementType> types = api.getMeasurementTypes();
+            final List<MeasurementType> types = api.getMeasurementTypes(ministryId);
             if (types != null) {
                 final List<String> updatedTypes = new ArrayList<>();
 
@@ -346,6 +349,12 @@ class MeasurementSyncTasks extends BaseSyncTasks {
                 type.setLastSynced();
                 dao.updateOrInsert(type, PROJECTION_SYNC_MEASUREMENTS_TYPE);
                 updatedTypes.add(type.getPermLinkStub());
+
+                // update measurement type localizations
+                final MeasurementTypeLocalization localization = type.getLocalization();
+                if (localization != null) {
+                    dao.updateOrInsert(localization);
+                }
             }
 
             // update ministry measurements
