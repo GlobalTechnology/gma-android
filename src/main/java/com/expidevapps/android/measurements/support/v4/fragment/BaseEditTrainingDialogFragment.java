@@ -22,13 +22,11 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
-import com.expidevapps.android.measurements.model.Church.Development;
 import com.expidevapps.android.measurements.model.Training;
 
 import org.joda.time.LocalDate;
 
 import java.text.DateFormat;
-import java.util.EnumSet;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -180,10 +178,6 @@ public abstract class BaseEditTrainingDialogFragment extends DialogFragment {
 
     private void setupViews() {
         if (mTrainingTypeSpinner != null) {
-            // generate set of options
-            final EnumSet<Development> types = EnumSet.allOf(Development.class);
-            types.remove(Development.UNKNOWN);
-
             // generate Adapter for training types
             mTrainingTypeAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item,
                     new String[] {Training.TRAINING_TYPE_MC2, Training.TRAINING_TYPE_T4T, Training.TRAINING_TYPE_CPMI, Training.TRAINING_TYPE_OTHER});
