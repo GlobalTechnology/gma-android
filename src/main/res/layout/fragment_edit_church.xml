@@ -138,7 +138,7 @@
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:gravity="center_vertical|start"
-                android:text="@string/label_jesus_film_activity" />
+                android:text="@string/label_church_jesus_film_activity" />
 
             <RadioGroup
                 android:id="@+id/rgJessusFilmActivity"
@@ -152,13 +152,13 @@
                     android:id="@+id/rbYes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_jesus_film_activity_yes" />
+                    android:text="@string/opt_church_jesus_film_activity_yes" />
 
                 <RadioButton
                     android:id="@+id/rbNo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_jesus_film_activity_no" />
+                    android:text="@string/opt_church_jesus_film_activity_no" />
             </RadioGroup>
 
         </TableRow>

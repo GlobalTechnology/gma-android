@@ -52,7 +52,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/btn_training"
+            android:text="@string/tab_training_training"
             style="@style/Widget.GMA.Button"
             />
         <View
@@ -67,7 +67,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/btn_stages" />
+            android:text="@string/tab_training_stages" />
     </LinearLayout>
 
     <LinearLayout
@@ -224,7 +224,7 @@
                     android:layout_weight=".2"
                     android:gravity="left"
                     android:singleLine="true"
-                    android:text="@string/label_stage"
+                    android:text="@string/label_training_stage"
                     android:textStyle="bold" />
 
                 <TextView
@@ -233,7 +233,7 @@
                     android:layout_weight=".3"
                     android:gravity="left"
                     android:singleLine="true"
-                    android:text="@string/label_date"
+                    android:text="@string/label_training_stage_date"
                     android:textStyle="bold" />
 
                 <TextView
@@ -242,7 +242,7 @@
                     android:layout_weight=".40"
                     android:gravity="left"
                     android:singleLine="true"
-                    android:text="@string/label_participants"
+                    android:text="@string/label_training_stage_participants"
                     android:textStyle="bold" />
 
                 <TextView
@@ -295,7 +295,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight=".30"
-                    android:text="@string/btn_add_stage"
+                    android:text="@string/btn_training_add_stage"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
             </LinearLayout>
