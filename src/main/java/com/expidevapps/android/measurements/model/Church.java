@@ -61,10 +61,11 @@ public class Church extends Location implements Cloneable {
     private static final int SECURITY_PRIVATE = 1;
     private static final int SECURITY_REGISTERED_USERS = 2;
     private static final int SECURITY_PUBLIC = 3;
-    public static final int SECURITY_DEFAULT = SECURITY_REGISTERED_USERS;
 
     public enum Security {
         LOCAL_PRIVATE(SECURITY_LOCAL_PRIVATE), PRIVATE(SECURITY_PRIVATE), REGISTERED_USERS(SECURITY_REGISTERED_USERS), PUBLIC(SECURITY_PUBLIC);
+
+        public static Security DEFAULT = Security.REGISTERED_USERS;
 
         public final int id;
 
@@ -158,7 +159,7 @@ public class Church extends Location implements Cloneable {
         church.setLatitude(json.optDouble(JSON_LATITUDE, Double.NaN));
         church.setLongitude(json.optDouble(JSON_LONGITUDE, Double.NaN));
         church.development = Development.fromRaw(json.optInt(JSON_DEVELOPMENT, DEVELOPMENT_UNKNOWN));
-        church.security = Security.fromRaw(json.optInt(JSON_SECURITY, SECURITY_DEFAULT));
+        church.security = Security.fromRaw(json.optInt(JSON_SECURITY, Security.DEFAULT.id));
         church.size = json.optInt(JSON_SIZE, 0);
         church.createdBy = json.optString(JSON_CREATED_BY, null);
         return church;

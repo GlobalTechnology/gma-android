@@ -23,7 +23,6 @@ import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_NEW
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_PARENT;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_SECURITY;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_SIZE;
-import static com.expidevapps.android.measurements.model.Church.SECURITY_DEFAULT;
 
 public class ChurchMapper extends LocationMapper<Church> {
     @Override
@@ -101,7 +100,7 @@ public class ChurchMapper extends LocationMapper<Church> {
         church.setJesusFilmActivity(getBool(c, COLUMN_JESUS_FILM_ACTIVITY, false));
         church.setDevelopment(Development.fromRaw(getInt(c, COLUMN_DEVELOPMENT, Development.UNKNOWN.id)));
         church.setSize(getInt(c, COLUMN_SIZE, 0));
-        church.setSecurity(Security.fromRaw(getInt(c, COLUMN_SECURITY, SECURITY_DEFAULT)));
+        church.setSecurity(Security.fromRaw(getInt(c, COLUMN_SECURITY, Security.DEFAULT.id)));
         church.setCreatedBy(getString(c, COLUMN_CREATED_BY, null));
         church.setEndDate(getLocalDate(c, COLUMN_END_DATE, null));
         church.setNew(getBool(c, COLUMN_NEW, false));

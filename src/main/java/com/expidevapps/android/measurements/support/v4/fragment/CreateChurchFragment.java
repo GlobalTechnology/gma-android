@@ -151,8 +151,7 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
         }
 
         if (mSecuritySpinner != null && mSecurityAdapter != null) {
-            mSecuritySpinner.setSelection(
-                    mSecurityAdapter.getPosition(Church.Security.fromRaw(Church.SECURITY_DEFAULT)));
+            mSecuritySpinner.setSelection(mSecurityAdapter.getPosition(Church.Security.DEFAULT));
         }
     }
 

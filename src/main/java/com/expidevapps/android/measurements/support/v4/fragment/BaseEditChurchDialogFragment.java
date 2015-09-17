@@ -194,7 +194,7 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
     void changeSecurity() {
         if (mSecuritySpinner != null) {
             final Object item = mSecuritySpinner.getSelectedItem();
-            this.onChangeSecurity(item instanceof Church.Security ? (Church.Security) item : Church.Security.fromRaw(Church.SECURITY_DEFAULT));
+            this.onChangeSecurity(item instanceof Church.Security ? (Church.Security) item : Church.Security.DEFAULT);
         }
     }
 

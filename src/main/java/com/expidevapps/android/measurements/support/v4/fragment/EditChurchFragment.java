@@ -117,7 +117,7 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
 
     protected void onChangeSecurity(@NonNull final Church.Security security) {
         mChanged[CHANGED_SECURITY] =
-                !security.equals(mChurch != null ? mChurch.getSecurity() : Church.Security.fromRaw(Church.SECURITY_DEFAULT));
+                !security.equals(mChurch != null ? mChurch.getSecurity() : Church.Security.DEFAULT);
     }
 
     void onTextUpdated(@NonNull final View view, @NonNull final String text) {
@@ -170,7 +170,7 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
             if (mSecuritySpinner != null && mChanged[CHANGED_SECURITY]) {
                 final Object security = mSecuritySpinner.getSelectedItem();
                 updates.mSecurity =
-                        security instanceof Church.Security ? (Church.Security) security : Church.Security.fromRaw(Church.SECURITY_DEFAULT);
+                        security instanceof Church.Security ? (Church.Security) security : Church.Security.DEFAULT;
             }
 
             // persist changes in the database (if there are any)
@@ -235,7 +235,7 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         }
         if (mSecuritySpinner != null && mSecurityAdapter != null && !mChanged[CHANGED_SECURITY]) {
             mSecuritySpinner.setSelection(
-                    mSecurityAdapter.getPosition(mChurch != null ? mChurch.getSecurity() : Church.Security.fromRaw(Church.SECURITY_DEFAULT)));
+                    mSecurityAdapter.getPosition(mChurch != null ? mChurch.getSecurity() : Church.Security.DEFAULT));
         }
     }
 
