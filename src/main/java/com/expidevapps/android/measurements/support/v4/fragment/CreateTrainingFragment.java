@@ -108,14 +108,20 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
             training.setLongitude(mLocation.longitude);
         }
         if (mTrainingName != null) {
-            training.setName(mTrainingName.getText().toString());
+            if (!mTrainingName.getText().toString().isEmpty()) {
+                training.setName(mTrainingName.getText().toString());
+            }
+            else {
+                return;
+            }
         }
         if (mTrainingTypeSpinner != null) {
             final Object trainingType = mTrainingTypeSpinner.getSelectedItem();
             training.setType(((String) trainingType).equalsIgnoreCase(Training.TRAINING_TYPE_OTHER) ? "" : (String) trainingType);
         }
         if (mTrainingParticipants != null) {
-            training.setParticipants(Integer.valueOf(mTrainingParticipants.getText().toString()));
+            training.setParticipants(
+                    !mTrainingParticipants.getText().toString().isEmpty() ? Integer.valueOf(mTrainingParticipants.getText().toString()) : 0);
         }
 
         // save new church
