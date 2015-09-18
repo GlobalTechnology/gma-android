@@ -209,6 +209,11 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
     @OnClick(R.id.add_new_stage)
     void onAddNewStageTap() {
         if(mTraining != null) {
+
+            if (mNewCompletionDate == null) {
+                return;
+            }
+
             //create new training stage
             final Training.Completion completion = new Training.Completion();
             completion.setNew(true);

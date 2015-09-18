@@ -74,14 +74,14 @@ public class TrainingCompletionRecyclerViewAdapter extends RecyclerView.Adapter<
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
-        if (mCompletionList != null) {
+        if (mCompletionList != null && mCompletionList.size() > 0) {
             final Training.Completion mCompletion = mCompletionList.get(position);
 
             if (holder.mPhase != null) {
                 holder.mPhase.setText(Integer.toString(mCompletion.getPhase()));
             }
             if (holder.mCompletionDate != null) {
-                holder.mCompletionDate.setText(mCompletion.getDate().toString());
+                holder.mCompletionDate.setText(mCompletion.getDate() != null ? DateFormat.getDateInstance(DateFormat.SHORT).format(mCompletion.getDate().toDate()) : "");
                 holder.mCompletionDate.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
                         DatePickerDialog datePickerDialog;
