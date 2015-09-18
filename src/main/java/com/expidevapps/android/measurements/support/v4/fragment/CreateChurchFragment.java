@@ -9,9 +9,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.GmaDao;
@@ -122,7 +125,18 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
             church.setContactMobile(mContactMobileView.getText().toString());
         }
         if (mJesusFilmActivity != null) {
-            church.setJesusFilmActivity(mJesusFilmActivity.getCheckedRadioButtonId() == R.id.rbYes);
+            if (((RadioButton) mJesusFilmActivity.findViewById(R.id.rbYes)).isChecked()) {
+                church.setJesusFilmActivity(true);
+            }
+            else if (((RadioButton) mJesusFilmActivity.findViewById(R.id.rbNo)).isChecked()) {
+                church.setJesusFilmActivity(false);
+            }
+            else {
+                Toast alertToast = Toast.makeText(getActivity(), getResources().getString(R.string.alert_select_jesus_file_activity_option), Toast.LENGTH_LONG);
+                alertToast.setGravity(Gravity.CENTER, 0 ,0);
+                alertToast.show();
+                return;
+            }
         }
 
         if (mDevelopmentSpinner != null) {

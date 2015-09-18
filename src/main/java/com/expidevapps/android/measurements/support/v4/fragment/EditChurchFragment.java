@@ -317,7 +317,8 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
             mBottomButtonContainer.setVisibility(View.GONE);
         }
         if (mJesusFilmActivity != null) {
-            mJesusFilmActivity.setEnabled(editMode);
+            mJesusFilmActivity.findViewById(R.id.rbYes).setEnabled(editMode);
+            mJesusFilmActivity.findViewById(R.id.rbNo).setEnabled(editMode);
         }
     }
 

@@ -16,4 +16,6 @@
     <string name="label_church_security">Security</string>
     <string name="label_church_size">Size</string>
     <string name="btn_church_create">Create</string>
+    
+    <string name="alert_select_jesus_file_activity_option">Please make a choice for Jesus file activity.</string>
 </resources>
