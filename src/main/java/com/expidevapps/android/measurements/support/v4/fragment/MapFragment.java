@@ -633,19 +633,40 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 mMapFrame.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
             }
 
-            new AlertDialog.Builder(getActivity()).setTitle(R.string.title_dialog_map_create_item)
-                    .setPositiveButton(R.string.btn_dialog_map_create_training, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                            showCreateTraining(pos);
-                        }
-                    })
-                    .setNegativeButton(R.string.btn_dialog_map_create_church, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                            showCreateChurch(pos);
-                        }
-                    }).show();
+            if (mAssignment.getMcc() == Ministry.Mcc.UNKNOWN ) {
+                new AlertDialog.Builder(getActivity()).setTitle(R.string.validation_mcc_not_defined)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                            }
+                        }).show();
+            }
+            else {
+                if (mAssignment.getMcc() == Ministry.Mcc.GCM) {
+                    new AlertDialog.Builder(getActivity()).setTitle(R.string.title_dialog_map_create_item)
+                            .setPositiveButton(R.string.btn_dialog_map_create_training, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.dismiss();
+                                    showCreateTraining(pos);
+                                }
+                            })
+                            .setNegativeButton(R.string.btn_dialog_map_create_church, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.dismiss();
+                                    showCreateChurch(pos);
+                                }
+                            }).show();
+                }
+                else {
+                    new AlertDialog.Builder(getActivity()).setTitle(R.string.title_dialog_map_create_item)
+                            .setPositiveButton(R.string.btn_dialog_map_create_training, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.dismiss();
+                                    showCreateTraining(pos);
+                                }
+                            }).show();
+                }
+            }
         }
     }
 
