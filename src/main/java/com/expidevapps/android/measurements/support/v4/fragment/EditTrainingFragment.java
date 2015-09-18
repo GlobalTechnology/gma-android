@@ -210,17 +210,20 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
     void onAddNewStageTap() {
         if(mTraining != null) {
 
-            if (mNewCompletionDate == null) {
-                return;
-            }
-
             //create new training stage
             final Training.Completion completion = new Training.Completion();
             completion.setNew(true);
             completion.setTrainingId(mTrainingId);
             completion.setPhase(getLastLastCompletionPhase() + 1);
-            completion.setDate(mNewCompletionDate);
 
+            if (mNewCompletionDateLabel != null) {
+                if (!mNewCompletionDateLabel.getText().toString().isEmpty()) {
+                    completion.setDate(mNewCompletionDate);
+                }
+                else {
+                    return;
+                }
+            }
             if (mNewCompletionParticipants != null) {
                 try {
                     completion.setNumberCompleted(Integer.valueOf(mNewCompletionParticipants.getText().toString()));
