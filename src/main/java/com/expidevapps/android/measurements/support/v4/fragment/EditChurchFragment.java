@@ -11,6 +11,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.view.View;
+import android.widget.RadioButton;
 
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.api.GmaApiClient;
@@ -33,11 +34,13 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectViews;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import butterknife.Optional;
 
 import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.expidevapps.android.measurements.Constants.ARG_CHURCH_ID;
 import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
 import static com.expidevapps.android.measurements.Constants.VISIBILITY;
@@ -52,10 +55,11 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     private static final int CHANGED_SIZE = 3;
     private static final int CHANGED_CONTACT_MOBILE = 4;
     private static final int CHANGED_SECURITY = 5;
+    private static final int CHANGED_JESUS_FILM_ACTIVITY = 6;
 
     private long mChurchId = Church.INVALID_ID;
     @NonNull
-    private boolean[] mChanged = new boolean[6];
+    private boolean[] mChanged = new boolean[7];
     @Nullable
     private Church mChurch;
     @Nullable
@@ -172,6 +176,15 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                 updates.mSecurity =
                         security instanceof Church.Security ? (Church.Security) security : Church.Security.DEFAULT;
             }
+            if (mJesusFilmActivity != null && mChanged[CHANGED_JESUS_FILM_ACTIVITY]) {
+                if (((RadioButton) mJesusFilmActivity.findViewById(R.id.rbYes)).isChecked()) {
+                    updates.mJfActivity = true;
+                }
+                else if (((RadioButton) mJesusFilmActivity.findViewById(R.id.rbNo)).isChecked()) {
+                    updates.mJfActivity = false;
+                }
+            }
+
 
             // persist changes in the database (if there are any)
             if (updates.hasUpdates()) {
@@ -237,6 +250,14 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
             mSecuritySpinner.setSelection(
                     mSecurityAdapter.getPosition(mChurch != null ? mChurch.getSecurity() : Church.Security.DEFAULT));
         }
+        if (mJesusFilmActivity != null && !mChanged[CHANGED_JESUS_FILM_ACTIVITY] && mChurch != null) {
+            if (mChurch.isJesusFilmActivity()) {
+                ((RadioButton) mJesusFilmActivity.findViewById(R.id.rbYes)).setChecked(true);
+            }
+            else {
+                ((RadioButton) mJesusFilmActivity.findViewById(R.id.rbNo)).setChecked(true);
+            }
+        }
     }
 
     private boolean getModeOfDisplay() {
@@ -280,11 +301,23 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
             mDevelopmentSpinner.setEnabled(editMode);
         }
         if (mSecuritySpinner != null) {
-            mSecuritySpinner.setEnabled(editMode);
+            switch (mRole) {
+                case ADMIN:
+                case INHERITED_ADMIN:
+                case LEADER:
+                case INHERITED_LEADER:
+                    mSecurityRow.setVisibility(VISIBLE);
+                    break;
+                default:
+                    mSecurityRow.setVisibility(GONE);
+            }
         }
 
         if(mBottomButtonContainer != null && editMode == false) {
             mBottomButtonContainer.setVisibility(View.GONE);
+        }
+        if (mJesusFilmActivity != null) {
+            mJesusFilmActivity.setEnabled(editMode);
         }
     }
 
@@ -320,6 +353,20 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         }
     }
 
+    @Optional
+    @OnCheckedChanged({R.id.rbYes, R.id.rbNo})
+    void updteJessusFilmActivity() {
+        if (mJesusFilmActivity != null) {
+            if ((mChurch.isJesusFilmActivity() && ((RadioButton) mJesusFilmActivity.findViewById(R.id.rbNo)).isChecked()) ||
+                    (!mChurch.isJesusFilmActivity() && ((RadioButton) mJesusFilmActivity.findViewById(R.id.rbYes)).isChecked())) {
+                mChanged[CHANGED_JESUS_FILM_ACTIVITY] = true;
+            }
+            else {
+                mChanged[CHANGED_JESUS_FILM_ACTIVITY] = false;
+            }
+        }
+    }
+
     private class ChurchLoaderCallbacks extends SimpleLoaderCallbacks<Church> {
         @Override
         public Loader<Church> onCreateLoader(final int id, @Nullable final Bundle args) {
@@ -350,12 +397,14 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         @Nullable
         Integer mSize;
         @Nullable
+        Boolean mJfActivity;
+        @Nullable
         Development mDevelopment;
         @Nullable
         Church.Security mSecurity;
 
         boolean hasUpdates() {
-            return mContactName != null || mContactEmail != null || mContactMobile != null || mSize != null || mDevelopment != null || mSecurity != null;
+            return mContactName != null || mContactEmail != null || mContactMobile != null || mSize != null || mDevelopment != null || mSecurity != null || mJfActivity != null;
         }
     }
 
@@ -417,6 +466,10 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                 if (mUpdates.mSecurity != null) {
                     church.setSecurity(mUpdates.mSecurity);
                     projection.add(Contract.Church.COLUMN_SECURITY);
+                }
+                if (mUpdates.mJfActivity != null) {
+                    church.setJesusFilmActivity(mUpdates.mJfActivity);
+                    projection.add(Contract.Church.COLUMN_JESUS_FILM_ACTIVITY);
                 }
                 church.trackingChanges(false);
 

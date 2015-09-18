@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.GmaDao;
+import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Church.Development;
 import com.expidevapps.android.measurements.model.Ministry;
@@ -31,7 +32,10 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.Optional;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
 import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
 
 public class CreateChurchFragment extends BaseEditChurchDialogFragment {
@@ -44,6 +48,8 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     private String mMinistryId = Ministry.INVALID_ID;
     @Nullable
     private LatLng mLocation;
+    @Nullable
+    private Assignment.Role mRole;
 
     @Optional
     @Nullable
@@ -55,18 +61,19 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     @InjectView(R.id.delete)
     Button mDeleteChurch;
 
-    public static Bundle buildArgs(@NonNull final String guid, @NonNull final String ministryId,
+    public static Bundle buildArgs(@NonNull final String guid, @NonNull final String ministryId, @NonNull final Assignment.Role role,
                                    @NonNull final LatLng location) {
         final Bundle args = buildArgs(guid);
         args.putString(ARG_MINISTRY_ID, ministryId);
+        args.putString(ARG_ROLE, role.toString());
         args.putParcelable(ARG_LOCATION, location);
         return args;
     }
 
-    public static CreateChurchFragment newInstance(@NonNull final String guid, @NonNull final String ministryId,
+    public static CreateChurchFragment newInstance(@NonNull final String guid, @NonNull final String ministryId, @NonNull final Assignment.Role role,
                                                    @NonNull final LatLng location) {
         final CreateChurchFragment fragment = new CreateChurchFragment();
-        fragment.setArguments(buildArgs(guid, ministryId, location));
+        fragment.setArguments(buildArgs(guid, ministryId, role, location));
         return fragment;
     }
 
@@ -79,6 +86,7 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
         final Bundle args = this.getArguments();
         if (args != null) {
             mMinistryId = BundleCompat.getString(args, ARG_MINISTRY_ID, Ministry.INVALID_ID);
+            mRole = Assignment.Role.fromRaw(args.getString(ARG_ROLE));
             mLocation = args.getParcelable(ARG_LOCATION);
         }
     }
@@ -129,11 +137,14 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
             } catch (final NumberFormatException ignored) {
             }
         }
-        if (mSecuritySpinner != null) {
+        if (mSecuritySpinner != null && mSecuritySpinner.getVisibility() == VISIBLE) {
             final Object security = mSecuritySpinner.getSelectedItem();
             if (security instanceof Church.Security) {
                 church.setSecurity((Church.Security) security);
             }
+        }
+        else {
+            church.setSecurity(Church.Security.DEFAULT);
         }
         // save new church
         AsyncTaskCompat.execute(new CreateChurchRunnable(getActivity().getApplicationContext(), mGuid, church));
@@ -150,11 +161,22 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
         }
 
         if(mDeleteChurch != null) {
-            mDeleteChurch.setVisibility(View.INVISIBLE);
+            mDeleteChurch.setVisibility(View.GONE);
         }
 
         if (mSecuritySpinner != null && mSecurityAdapter != null) {
-            mSecuritySpinner.setSelection(mSecurityAdapter.getPosition(Church.Security.DEFAULT));
+            mSecuritySpinner.setSelection(
+                    mSecurityAdapter.getPosition(Church.Security.fromRaw(Church.Security.DEFAULT.id)));
+            switch (mRole) {
+                case ADMIN:
+                case INHERITED_ADMIN:
+                case LEADER:
+                case INHERITED_LEADER:
+                    mSecurityRow.setVisibility(VISIBLE);
+                    break;
+                default:
+                    mSecurityRow.setVisibility(GONE);
+            }
         }
     }
 
