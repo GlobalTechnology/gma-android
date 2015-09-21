@@ -12,6 +12,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.util.LongSparseArray;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -21,6 +22,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
+import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.map.ChurchItem;
@@ -535,6 +537,30 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         }
     }
 
+    private boolean canMoveMarker(GmaItem item) {
+        boolean canMove = false;
+        switch (mAssignment.getRole()) {
+            case ADMIN:
+            case INHERITED_ADMIN:
+            case LEADER:
+            case INHERITED_LEADER:
+                canMove = true;
+                break;
+            case SELF_ASSIGNED:
+            case MEMBER:
+                if (item instanceof ChurchItem) {
+                    return isOwnerOfChurch((ChurchItem) item);
+                }
+                else if (item instanceof  TrainingItem) {
+                    return isOwnerOfTraining((TrainingItem) item);
+                }
+                break;
+            default:
+                canMove = false;
+        }
+        return canMove;
+    }
+
     private class MarkerDragListener implements GmaRenderer.OnMarkerDragListener<GmaItem> {
         @Override
         public void onMarkerDragStart(@NonNull GmaItem item, @NonNull Marker marker) {
@@ -547,7 +573,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         @Override
         public void onMarkerDragEnd(@NonNull final GmaItem item, @NonNull final Marker marker) {
             final Location obj = item.getObject();
-            if (obj.canEdit(mAssignment)) {
+            if (mAssignment != null && canMoveMarker(item)) {
                 // update location in the database
                 final LatLng position = marker.getPosition();
                 AsyncTaskCompat.execute(
@@ -565,6 +591,24 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 marker.setPosition(item.getPosition());
             }
         }
+    }
+
+    private boolean isOwnerOfChurch(ChurchItem church) {
+        boolean editMode = false;
+        String personId = GmaApiClient.getUserId(getActivity());
+        if(personId != null && church.getCreatedBy() != null) {
+            editMode = personId.equalsIgnoreCase(church.getCreatedBy());
+        }
+        return editMode;
+    }
+
+    private boolean isOwnerOfTraining(TrainingItem training) {
+        boolean editMode = false;
+        String personId = GmaApiClient.getUserId(getActivity());
+        if(personId != null && training.getCreatedBy() != null) {
+            editMode = personId.equalsIgnoreCase(training.getCreatedBy());
+        }
+        return editMode;
     }
 
     private static class UpdateLocationRunnable implements Runnable {

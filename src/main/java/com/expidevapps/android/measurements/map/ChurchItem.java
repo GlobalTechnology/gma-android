@@ -23,6 +23,10 @@ public class ChurchItem extends GmaItem<Church> {
         return mObj.getName();
     }
 
+    public String getCreatedBy() {
+        return mObj.getCreatedBy();
+    }
+
     @Override
     public String getSnippet(@NonNull final Context context) {
         return context.getResources()
