@@ -71,6 +71,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     private static final String TOKEN = "token";
     private static final String TRAINING = "training";
     private static final String TRAINING_COMPLETION = "training_completion";
+    private static final String USER_PREFERENCES = "user_preferences";
 
     private static final Map<String, GmaApiClient> INSTANCES = new HashMap<>();
 
@@ -746,6 +747,26 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
 
         return null;
+    }
+
+    public boolean updatePreference(final JSONObject preference) throws ApiException {
+
+        final Request<Session> request = new Request<>(USER_PREFERENCES);
+        request.method = Method.POST;
+        request.setContent(preference);
+
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+
+            return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
+        }
+        catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+            return false;
+        }
     }
 
     /* END Training endpoints */

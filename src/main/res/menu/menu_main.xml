@@ -6,6 +6,10 @@
         android:title="@string/menu_join_ministry"
         android:orderInCategory="1"
         app:showAsAction="never"/>
+    <item android:id="@+id/action_supported_staff"
+        android:title="@string/menu_supported_staff"
+        android:orderInCategory="1"
+        app:showAsAction="never"/>
     <item android:id="@+id/action_measurements"
         android:title="@string/menu_measurements"
           android:orderInCategory="2"
