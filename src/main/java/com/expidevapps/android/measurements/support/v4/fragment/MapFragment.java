@@ -1,5 +1,22 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_MCC;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.PREFS_SETTINGS;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_CHURCH;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_GROUP;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_MULTIPLYING;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_PARENTS;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_TARGET;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_TRAINING;
+import static com.expidevapps.android.measurements.model.Task.CREATE_CHURCH;
+import static com.expidevapps.android.measurements.model.Task.CREATE_TRAINING;
+import static com.expidevapps.android.measurements.model.Task.EDIT_TRAINING;
+import static com.expidevapps.android.measurements.model.Task.VIEW_CHURCH;
+import static com.expidevapps.android.measurements.model.Task.VIEW_TRAINING;
+import static com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -58,24 +75,6 @@ import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.Optional;
-
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-import static com.expidevapps.android.measurements.Constants.ARG_MCC;
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.PREFS_SETTINGS;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_CHURCH;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_GROUP;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_MULTIPLYING;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_PARENTS;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_TARGET;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_TRAINING;
-import static com.expidevapps.android.measurements.model.Task.CREATE_CHURCH;
-import static com.expidevapps.android.measurements.model.Task.CREATE_TRAINING;
-import static com.expidevapps.android.measurements.model.Task.EDIT_CHURCH;
-import static com.expidevapps.android.measurements.model.Task.EDIT_TRAINING;
-import static com.expidevapps.android.measurements.model.Task.VIEW_CHURCH;
-import static com.expidevapps.android.measurements.model.Task.VIEW_TRAINING;
-import static com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
 
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback {
     private static final int LOADER_CURRENT_ASSIGNMENT = 1;
@@ -372,7 +371,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                         @Override
                         public void onClusterItemInfoWindowClick(final GmaItem item) {
                             if (item instanceof ChurchItem) {
-                                showEditChurch(((ChurchItem) item).getChurchId());
+                                showEditChurch(((ChurchItem) item).getObject());
                             } else if (item instanceof TrainingItem) {
                                 showEditTraining(((TrainingItem) item).getTrainingId());
                             }
@@ -505,11 +504,13 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         }
     }
 
-    void showEditChurch(final long churchId) {
-        if (mAssignment != null && mAssignment.can(EDIT_CHURCH)) {
+    void showEditChurch(@NonNull final Church church) {
+        final boolean editable = church.canEdit(mAssignment);
+        if (mAssignment != null && (editable || mAssignment.can(VIEW_CHURCH, church))) {
             final FragmentManager fm = getChildFragmentManager();
             if (fm.findFragmentByTag("editChurch") == null) {
-                final EditChurchFragment fragment = EditChurchFragment.newInstance(mGuid, churchId, mAssignment.getMinistryId(), mAssignment.getRole());
+                final EditChurchFragment fragment = EditChurchFragment
+                        .newInstance(mGuid, church.getId(), mAssignment.getMinistryId(), mAssignment.getRole());
                 fragment.show(fm.beginTransaction().addToBackStack("editChurch"), "editChurch");
             }
         }

@@ -347,7 +347,7 @@ public class Church extends Location implements Cloneable {
 
     @Override
     public boolean canEdit(@Nullable final Assignment assignment) {
-        return assignment != null && assignment.can(Task.EDIT_CHURCH);
+        return assignment != null && assignment.can(Task.EDIT_CHURCH, this);
     }
 
     @Override

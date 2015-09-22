@@ -3,6 +3,8 @@ package com.expidevapps.android.measurements.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.google.common.base.Objects;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,8 +28,9 @@ public class Assignment extends Base implements Cloneable {
     private static final String ROLE_BLOCKED = "blocked";
     private static final String ROLE_FORMER_MEMBER = "former_member";
     public enum Role {
-        ADMIN(ROLE_ADMIN), INHERITED_ADMIN(ROLE_INHERITED_ADMIN), LEADER(ROLE_LEADER), INHERITED_LEADER(ROLE_INHERITED_LEADER), MEMBER(ROLE_MEMBER),
-        SELF_ASSIGNED(ROLE_SELF_ASSIGNED), BLOCKED(ROLE_BLOCKED), FORMER_MEMBER(ROLE_FORMER_MEMBER), UNKNOWN(null);
+        ADMIN(ROLE_ADMIN), INHERITED_ADMIN(ROLE_INHERITED_ADMIN), LEADER(ROLE_LEADER),
+        INHERITED_LEADER(ROLE_INHERITED_LEADER), MEMBER(ROLE_MEMBER), SELF_ASSIGNED(ROLE_SELF_ASSIGNED),
+        BLOCKED(ROLE_BLOCKED), FORMER_MEMBER(ROLE_FORMER_MEMBER), UNKNOWN(null);
 
         @Nullable
         public final String raw;
@@ -227,40 +230,35 @@ public class Assignment extends Base implements Cloneable {
         return getRole() == Role.LEADER;
     }
 
-    public boolean isInheritedLeader()
-    {
+    private boolean isInheritedLeader() {
         return getRole() == Role.INHERITED_LEADER;
     }
 
-    public boolean isLeadership()
-    {
+    private boolean isLeadership() {
         return isAdmin() || isInheritedAdmin() || isLeader() || isInheritedLeader();
     }
 
-    public boolean isMember()
-    {
+    private boolean isMember() {
         return getRole() == Role.MEMBER;
     }
 
-    public boolean isFormerMember() {
-        return getRole() == Role.FORMER_MEMBER;
-    }
-
-    public boolean isSelfAssigned()
-    {
+    private boolean isSelfAssigned() {
         return getRole() == Role.SELF_ASSIGNED;
     }
 
-    public boolean isBlocked()
-    {
+    private boolean isFormerMember() {
+        return getRole() == Role.FORMER_MEMBER;
+    }
+
+    private boolean isBlocked() {
         return getRole() == Role.BLOCKED;
     }
 
     public boolean can(@NonNull final Task task) {
         switch (task) {
             case CREATE_CHURCH:
-            case EDIT_CHURCH:
                 return !(isBlocked() || isFormerMember());
+            case EDIT_CHURCH:
             case VIEW_CHURCH:
                 throw new UnsupportedOperationException(
                         "You need to specify a church to check VIEW_CHURCH permissions");
@@ -279,6 +277,9 @@ public class Assignment extends Base implements Cloneable {
 
     public boolean can(@NonNull final Task task, @NonNull final Church church) {
         switch (task) {
+            case EDIT_CHURCH:
+                return isLeadership() ||
+                        ((isMember() || isSelfAssigned()) && Objects.equal(mPersonId, church.getCreatedBy()));
             case VIEW_CHURCH:
                 switch (church.getSecurity()) {
                     case LOCAL_PRIVATE:
