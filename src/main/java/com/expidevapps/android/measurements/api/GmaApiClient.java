@@ -765,7 +765,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             throw new ApiSocketException(e);
         } finally {
             IOUtils.closeQuietly(conn);
-            return false;
         }
     }
 
