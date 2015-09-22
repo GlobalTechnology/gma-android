@@ -362,7 +362,7 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         }
     }
 
-    public void onLoadMinistries(@Nullable final Cursor c) {
+    void onLoadMinistries(@Nullable final Cursor c) {
         mMinistries = c;
 
         if (mMinistrySpinner != null && mMinistries != null && !mChanged[CHANGED_MINISTRY]) {
