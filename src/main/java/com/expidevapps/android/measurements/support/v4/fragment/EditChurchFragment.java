@@ -2,6 +2,7 @@ package com.expidevapps.android.measurements.support.v4.fragment;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,6 +12,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.view.View;
+import android.widget.RadioButton;
 
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.api.GmaApiClient;
@@ -19,12 +21,16 @@ import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Church.Development;
+import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
+import com.expidevapps.android.measurements.support.v4.adapter.MinistrySpinnerCursorAdapter;
 import com.expidevapps.android.measurements.support.v4.content.ChurchLoader;
+import com.expidevapps.android.measurements.support.v4.content.MinistriesCursorLoader;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.common.collect.Lists;
 
 import org.ccci.gto.android.common.db.Transaction;
+import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
 
@@ -33,18 +39,24 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectViews;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
+import butterknife.OnItemSelected;
 import butterknife.OnTextChanged;
 import butterknife.Optional;
 
 import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.expidevapps.android.measurements.Constants.ARG_CHURCH_ID;
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
 import static com.expidevapps.android.measurements.Constants.VISIBILITY;
 import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
 
 public class EditChurchFragment extends BaseEditChurchDialogFragment {
     private static final int LOADER_CHURCH = 1;
+    private static final int LOADER_MINISTRIES = 2;
 
     private static final int CHANGED_CONTACT_NAME = 0;
     private static final int CHANGED_CONTACT_EMAIL = 1;
@@ -52,30 +64,40 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     private static final int CHANGED_SIZE = 3;
     private static final int CHANGED_CONTACT_MOBILE = 4;
     private static final int CHANGED_SECURITY = 5;
+    private static final int CHANGED_JESUS_FILM_ACTIVITY = 6;
+    private static final int CHANGED_MINISTRY = 7;
 
     private long mChurchId = Church.INVALID_ID;
     @NonNull
-    private boolean[] mChanged = new boolean[6];
+    private boolean[] mChanged = new boolean[8];
     @Nullable
     private Church mChurch;
+    @Nullable
+    private String mMinistryId;
     @Nullable
     private Assignment.Role mRole;
 
     @Optional
     @InjectViews({R.id.nameRow})
     List<View> mHiddenViews;
+    @Nullable
+    private MinistrySpinnerCursorAdapter mMinistriesAdapter;
+    private final CursorLoaderCallbacks mLoaderCallbacksCursor = new CursorLoaderCallbacks();
+    @Nullable
+    private Cursor mMinistries = null;
 
     @NonNull
-    public static Bundle buildArgs(@NonNull final String guid, final long churchId, final Assignment.Role role) {
+    public static Bundle buildArgs(@NonNull final String guid, final long churchId, final String ministryId, final Assignment.Role role) {
         final Bundle args = buildArgs(guid);
         args.putLong(ARG_CHURCH_ID, churchId);
+        args.putString(ARG_MINISTRY_ID, ministryId);
         args.putString(ARG_ROLE, role.toString());
         return args;
     }
 
-    public static EditChurchFragment newInstance(@NonNull final String guid, final long churchId, final Assignment.Role role) {
+    public static EditChurchFragment newInstance(@NonNull final String guid, final long churchId, final String ministryId, final Assignment.Role role) {
         final EditChurchFragment fragment = new EditChurchFragment();
-        fragment.setArguments(buildArgs(guid, churchId, role));
+        fragment.setArguments(buildArgs(guid, churchId, ministryId, role));
         return fragment;
     }
 
@@ -88,6 +110,7 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         // process arguments
         final Bundle args = this.getArguments();
         mChurchId = args.getLong(ARG_CHURCH_ID, Church.INVALID_ID);
+        mMinistryId = args.getString(ARG_MINISTRY_ID, Ministry.INVALID_ID);
         mRole = Assignment.Role.fromRaw(args.getString(ARG_ROLE));
     }
 
@@ -172,6 +195,19 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                 updates.mSecurity =
                         security instanceof Church.Security ? (Church.Security) security : Church.Security.DEFAULT;
             }
+            if (mJesusFilmActivity != null && mChanged[CHANGED_JESUS_FILM_ACTIVITY]) {
+                if (((RadioButton) mJesusFilmActivity.findViewById(R.id.rbYes)).isChecked()) {
+                    updates.mJfActivity = true;
+                }
+                else if (((RadioButton) mJesusFilmActivity.findViewById(R.id.rbNo)).isChecked()) {
+                    updates.mJfActivity = false;
+                }
+            }
+            if (mMinistrySpinner != null && mMinistriesAdapter != null && mChanged[CHANGED_MINISTRY]) {
+                final Cursor ministry = mMinistriesAdapter.getCursor();
+                updates.mMinistry = ministry.getString(ministry.getColumnIndex(Contract.Ministry.COLUMN_MINISTRY_ID));
+            }
+
 
             // persist changes in the database (if there are any)
             if (updates.hasUpdates()) {
@@ -210,7 +246,11 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
 
     private void startLoaders() {
         final LoaderManager manager = this.getLoaderManager();
+        final Bundle args = new Bundle();
+        args.putString(ARG_GUID, mGuid);
+
         manager.initLoader(LOADER_CHURCH, null, new ChurchLoaderCallbacks());
+        manager.initLoader(LOADER_MINISTRIES, args, mLoaderCallbacksCursor);
     }
 
     private void updateViews() {
@@ -236,6 +276,14 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         if (mSecuritySpinner != null && mSecurityAdapter != null && !mChanged[CHANGED_SECURITY]) {
             mSecuritySpinner.setSelection(
                     mSecurityAdapter.getPosition(mChurch != null ? mChurch.getSecurity() : Church.Security.DEFAULT));
+        }
+        if (mJesusFilmActivity != null && !mChanged[CHANGED_JESUS_FILM_ACTIVITY] && mChurch != null) {
+            if (mChurch.isJesusFilmActivity()) {
+                ((RadioButton) mJesusFilmActivity.findViewById(R.id.rbYes)).setChecked(true);
+            }
+            else {
+                ((RadioButton) mJesusFilmActivity.findViewById(R.id.rbNo)).setChecked(true);
+            }
         }
     }
 
@@ -280,11 +328,88 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
             mDevelopmentSpinner.setEnabled(editMode);
         }
         if (mSecuritySpinner != null) {
-            mSecuritySpinner.setEnabled(editMode);
+            switch (mRole) {
+                case ADMIN:
+                case INHERITED_ADMIN:
+                case LEADER:
+                case INHERITED_LEADER:
+                    mSecurityRow.setVisibility(VISIBLE);
+                    break;
+                default:
+                    mSecurityRow.setVisibility(GONE);
+            }
+        }
+
+        if (mMinistrySpinner != null) {
+            switch (mRole) {
+                case ADMIN:
+                case INHERITED_ADMIN:
+                case LEADER:
+                case INHERITED_LEADER:
+                    mMinistryRow.setVisibility(VISIBLE);
+                    break;
+                default:
+                    mMinistryRow.setVisibility(GONE);
+            }
         }
 
         if(mBottomButtonContainer != null && editMode == false) {
             mBottomButtonContainer.setVisibility(View.GONE);
+        }
+        if (mJesusFilmActivity != null) {
+            mJesusFilmActivity.findViewById(R.id.rbYes).setEnabled(editMode);
+            mJesusFilmActivity.findViewById(R.id.rbNo).setEnabled(editMode);
+        }
+    }
+
+    void onLoadMinistries(@Nullable final Cursor c) {
+        mMinistries = c;
+
+        if (mMinistrySpinner != null && mMinistries != null && !mChanged[CHANGED_MINISTRY]) {
+
+            // generate Adapter for ministries
+            mMinistriesAdapter = new MinistrySpinnerCursorAdapter(getActivity(), android.R.layout.simple_spinner_item, mMinistries,
+                    new String[] {Contract.Ministry.COLUMN_NAME}, new int[] {android.R.id.text1});
+            mMinistriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+            // attach adapter
+            mMinistrySpinner.setAdapter(mMinistriesAdapter);
+
+            if (mChurch != null) {
+                int position = getPosition(mMinistryId, mMinistries);
+                mMinistrySpinner.setSelection(position);
+            }
+        }
+    }
+
+    private int getPosition(String ministryid, Cursor cursor) {
+        int i;
+        int position = 0;
+        cursor.moveToFirst();
+        for (i = 0; i < cursor.getCount() - 1; i++) {
+
+            String locationVal = CursorUtils.getNonNullString(cursor, Contract.Ministry.COLUMN_MINISTRY_ID,
+                                                              Ministry.INVALID_ID);
+            if (locationVal.equals(ministryid)) {
+                position = i;
+                break;
+            } else {
+                position = 0;
+            }
+            cursor.moveToNext();
+        }
+        return position;
+    }
+
+    @Optional
+    @OnItemSelected(R.id.ministry)
+    void changeMinistry() {
+        if (mMinistrySpinner != null && mMinistriesAdapter != null) {
+            final Cursor item = mMinistriesAdapter.getCursor();
+            final String ministryId =
+                    CursorUtils.getNonNullString(item, Contract.Ministry.COLUMN_MINISTRY_ID, Ministry.INVALID_ID);
+
+            mChanged[CHANGED_MINISTRY] = !ministryId.equals(mMinistryId);
         }
     }
 
@@ -320,6 +445,20 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         }
     }
 
+    @Optional
+    @OnCheckedChanged({R.id.rbYes, R.id.rbNo})
+    void updteJessusFilmActivity() {
+        if (mJesusFilmActivity != null) {
+            if ((mChurch.isJesusFilmActivity() && ((RadioButton) mJesusFilmActivity.findViewById(R.id.rbNo)).isChecked()) ||
+                    (!mChurch.isJesusFilmActivity() && ((RadioButton) mJesusFilmActivity.findViewById(R.id.rbYes)).isChecked())) {
+                mChanged[CHANGED_JESUS_FILM_ACTIVITY] = true;
+            }
+            else {
+                mChanged[CHANGED_JESUS_FILM_ACTIVITY] = false;
+            }
+        }
+    }
+
     private class ChurchLoaderCallbacks extends SimpleLoaderCallbacks<Church> {
         @Override
         public Loader<Church> onCreateLoader(final int id, @Nullable final Bundle args) {
@@ -340,6 +479,27 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         }
     }
 
+    private class CursorLoaderCallbacks extends SimpleLoaderCallbacks<Cursor> {
+        @Nullable
+        @Override
+        public Loader<Cursor> onCreateLoader(final int id, @Nullable final Bundle args) {
+            switch (id) {
+                case LOADER_MINISTRIES:
+                    return new MinistriesCursorLoader(getActivity(), args);
+                default:
+                    return null;
+            }
+        }
+
+        public void onLoadFinished(@NonNull final Loader<Cursor> loader, @Nullable final Cursor cursor) {
+            switch (loader.getId()) {
+                case LOADER_MINISTRIES:
+                    onLoadMinistries(cursor);
+                    break;
+            }
+        }
+    }
+
     private static class ChurchUpdates {
         @Nullable
         String mContactName;
@@ -350,12 +510,16 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         @Nullable
         Integer mSize;
         @Nullable
+        Boolean mJfActivity;
+        @Nullable
         Development mDevelopment;
         @Nullable
         Church.Security mSecurity;
+        @Nullable
+        String mMinistry;
 
         boolean hasUpdates() {
-            return mContactName != null || mContactEmail != null || mContactMobile != null || mSize != null || mDevelopment != null || mSecurity != null;
+            return mContactName != null || mContactEmail != null || mContactMobile != null || mSize != null || mDevelopment != null || mSecurity != null || mJfActivity != null || mMinistry != null;
         }
     }
 
@@ -417,6 +581,14 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                 if (mUpdates.mSecurity != null) {
                     church.setSecurity(mUpdates.mSecurity);
                     projection.add(Contract.Church.COLUMN_SECURITY);
+                }
+                if (mUpdates.mJfActivity != null) {
+                    church.setJesusFilmActivity(mUpdates.mJfActivity);
+                    projection.add(Contract.Church.COLUMN_JESUS_FILM_ACTIVITY);
+                }
+                if (mUpdates.mMinistry != null) {
+                    church.setMinistryId(mUpdates.mMinistry);
+                    projection.add(Contract.Church.COLUMN_MINISTRY_ID);
                 }
                 church.trackingChanges(false);
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_supported_staff">Supported Staff</string>
+    <string name="title_dialog_set_supported_staff">Supported Staff</string>
+    <string name="text_set_supported_staff_message">Do you want to Join current ministry/Team as Supported Staff?</string>
+
+    <string name="btn_yes">Yes</string>
+    <string name="btn_no">No</string>
+
+</resources>

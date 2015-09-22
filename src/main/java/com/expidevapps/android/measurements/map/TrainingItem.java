@@ -19,6 +19,10 @@ public class TrainingItem extends GmaItem<Training> {
         return mObj.getId();
     }
 
+    public String getCreatedBy() {
+        return mObj.getCreatedBy();
+    }
+
     @Override
     public String getName() {
         return mObj.getName();

@@ -1,11 +1,5 @@
 package com.expidevapps.android.measurements.activity;
 
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
-import static com.expidevapps.android.measurements.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
-import static com.expidevapps.android.measurements.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
-import static com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -20,10 +14,12 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.expidevapps.android.measurements.R;
+import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
@@ -32,12 +28,22 @@ import com.expidevapps.android.measurements.support.v4.fragment.MapFragment;
 import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 
+import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.ccci.gto.android.common.util.AsyncTaskCompat;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
 import me.thekey.android.lib.support.v4.content.AttributesLoader;
+
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
+import static com.expidevapps.android.measurements.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
+import static com.expidevapps.android.measurements.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
+import static com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = this.getClass().getSimpleName();
@@ -127,6 +133,9 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_join_ministry:
                 joinNewMinistry();
+                return true;
+            case R.id.action_supported_staff:
+                setSupportedStaff();
                 return true;
             case R.id.action_settings:
                 if (mGuid != null) {
@@ -237,6 +246,38 @@ public class MainActivity extends AppCompatActivity {
     void joinNewMinistry() {
         if (mGuid != null) {
             JoinMinistryActivity.start(this, mGuid);
+        }
+    }
+
+    void setSupportedStaff() {
+        if (mGuid != null && mAssignment != null) {
+            new AlertDialog.Builder(this).setTitle(R.string.title_dialog_set_supported_staff).setMessage(
+                    R.string.text_set_supported_staff_message).setPositiveButton(R.string.btn_no, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    try {
+                        JSONObject json = new JSONObject();
+                        json.put("supported_staff", "0");
+
+                        AsyncTaskCompat.execute(new UpdatePreferenceRunnable(getApplicationContext(), mGuid, json));
+                    } catch (final JSONException e) {
+                        Log.e("JSONException", "JSONException occurred.");
+                    }
+                    dialog.dismiss();
+                }
+            }).setNegativeButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    try {
+                        JSONObject json = new JSONObject();
+                        json.put("supported_staff", "1");
+
+                        AsyncTaskCompat.execute(new UpdatePreferenceRunnable(getApplicationContext(), mGuid, json));
+                    } catch (final JSONException e) {
+                        Log.e("JSONException", "JSONException occurred.");
+                    }
+                    dialog.dismiss();
+                }
+            }).show();
         }
     }
 
@@ -355,6 +396,33 @@ public class MainActivity extends AppCompatActivity {
                 case LOADER_THEKEY_ATTRIBUTES:
                     onLoadAttributes(attrs);
                     break;
+            }
+        }
+    }
+
+    private class UpdatePreferenceRunnable implements Runnable {
+        @NonNull
+        private final Context mContext;
+        @NonNull
+        private final String mGuid;
+        @NonNull
+        private final JSONObject mSupportedStaff;
+
+        UpdatePreferenceRunnable(@NonNull final Context context, @NonNull final String guid, @NonNull final JSONObject supportedStaff) {
+            mContext = context;
+            mGuid = guid;
+            mSupportedStaff = supportedStaff;
+        }
+
+        @Override
+        public void run() {
+            final GmaApiClient api = GmaApiClient.getInstance(mContext, mGuid);
+
+            try {
+                api.updatePreference(mSupportedStaff);
+            }
+            catch (ApiException e) {
+                Log.e("ApiException", "ApiExceptin occured.");
             }
         }
     }

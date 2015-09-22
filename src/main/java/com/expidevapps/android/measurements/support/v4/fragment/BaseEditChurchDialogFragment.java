@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
@@ -76,6 +77,18 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
     @Nullable
     @InjectView(R.id.bottom_button_container)
     LinearLayout mBottomButtonContainer;
+    @Optional
+    @Nullable
+    @InjectView(R.id.securityRow)
+    TableRow mSecurityRow;
+    @Optional
+    @Nullable
+    @InjectView(R.id.ministry)
+    Spinner mMinistrySpinner;
+    @Optional
+    @Nullable
+    @InjectView(R.id.ministryRow)
+    TableRow mMinistryRow;
 
     @Nullable
     ArrayAdapter<Development> mDevelopmentAdapter;

@@ -21,6 +21,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
+import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.map.ChurchItem;
@@ -498,7 +499,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             final FragmentManager fm = getChildFragmentManager();
             if (fm.findFragmentByTag("createChurch") == null) {
                 final CreateChurchFragment fragment =
-                        CreateChurchFragment.newInstance(mGuid, mAssignment.getMinistryId(), pos);
+                        CreateChurchFragment.newInstance(mGuid, mAssignment.getMinistryId(), mAssignment.getRole(), pos);
                 fragment.show(fm.beginTransaction().addToBackStack("createChurch"), "createChurch");
             }
         }
@@ -508,7 +509,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         if (mAssignment != null && mAssignment.can(EDIT_CHURCH)) {
             final FragmentManager fm = getChildFragmentManager();
             if (fm.findFragmentByTag("editChurch") == null) {
-                final EditChurchFragment fragment = EditChurchFragment.newInstance(mGuid, churchId, mAssignment.getRole());
+                final EditChurchFragment fragment = EditChurchFragment.newInstance(mGuid, churchId, mAssignment.getMinistryId(), mAssignment.getRole());
                 fragment.show(fm.beginTransaction().addToBackStack("editChurch"), "editChurch");
             }
         }
@@ -535,6 +536,30 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         }
     }
 
+    private boolean canMoveMarker(GmaItem item) {
+        boolean canMove = false;
+        switch (mAssignment.getRole()) {
+            case ADMIN:
+            case INHERITED_ADMIN:
+            case LEADER:
+            case INHERITED_LEADER:
+                canMove = true;
+                break;
+            case SELF_ASSIGNED:
+            case MEMBER:
+                if (item instanceof ChurchItem) {
+                    return isOwnerOfChurch((ChurchItem) item);
+                }
+                else if (item instanceof  TrainingItem) {
+                    return isOwnerOfTraining((TrainingItem) item);
+                }
+                break;
+            default:
+                canMove = false;
+        }
+        return canMove;
+    }
+
     private class MarkerDragListener implements GmaRenderer.OnMarkerDragListener<GmaItem> {
         @Override
         public void onMarkerDragStart(@NonNull GmaItem item, @NonNull Marker marker) {
@@ -547,7 +572,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         @Override
         public void onMarkerDragEnd(@NonNull final GmaItem item, @NonNull final Marker marker) {
             final Location obj = item.getObject();
-            if (obj.canEdit(mAssignment)) {
+            if (mAssignment != null && canMoveMarker(item)) {
                 // update location in the database
                 final LatLng position = marker.getPosition();
                 AsyncTaskCompat.execute(
@@ -565,6 +590,24 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 marker.setPosition(item.getPosition());
             }
         }
+    }
+
+    private boolean isOwnerOfChurch(ChurchItem church) {
+        boolean editMode = false;
+        String personId = GmaApiClient.getUserId(getActivity());
+        if(personId != null && church.getCreatedBy() != null) {
+            editMode = personId.equalsIgnoreCase(church.getCreatedBy());
+        }
+        return editMode;
+    }
+
+    private boolean isOwnerOfTraining(TrainingItem training) {
+        boolean editMode = false;
+        String personId = GmaApiClient.getUserId(getActivity());
+        if(personId != null && training.getCreatedBy() != null) {
+            editMode = personId.equalsIgnoreCase(training.getCreatedBy());
+        }
+        return editMode;
     }
 
     private static class UpdateLocationRunnable implements Runnable {
@@ -633,19 +676,40 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 mMapFrame.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
             }
 
-            new AlertDialog.Builder(getActivity()).setTitle(R.string.title_dialog_map_create_item)
-                    .setPositiveButton(R.string.btn_dialog_map_create_training, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                            showCreateTraining(pos);
-                        }
-                    })
-                    .setNegativeButton(R.string.btn_dialog_map_create_church, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                            showCreateChurch(pos);
-                        }
-                    }).show();
+            if (mAssignment.getMcc() == Ministry.Mcc.UNKNOWN ) {
+                new AlertDialog.Builder(getActivity()).setTitle(R.string.validation_mcc_not_defined)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                            }
+                        }).show();
+            }
+            else {
+                if (mAssignment.getMcc() == Ministry.Mcc.GCM) {
+                    new AlertDialog.Builder(getActivity()).setTitle(R.string.title_dialog_map_create_item)
+                            .setPositiveButton(R.string.btn_dialog_map_create_training, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.dismiss();
+                                    showCreateTraining(pos);
+                                }
+                            })
+                            .setNegativeButton(R.string.btn_dialog_map_create_church, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.dismiss();
+                                    showCreateChurch(pos);
+                                }
+                            }).show();
+                }
+                else {
+                    new AlertDialog.Builder(getActivity()).setTitle(R.string.title_dialog_map_create_item)
+                            .setPositiveButton(R.string.btn_dialog_map_create_training, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.dismiss();
+                                    showCreateTraining(pos);
+                                }
+                            }).show();
+                }
+            }
         }
     }
 

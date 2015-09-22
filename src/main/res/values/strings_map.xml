@@ -9,4 +9,7 @@
         <item quantity="one">%1$d member</item>
         <item quantity="other">%1$d members</item>
     </plurals>
+
+    <!-- Alert Messages -->
+    <string name="validation_mcc_not_defined">No MCCs available</string>
 </resources>

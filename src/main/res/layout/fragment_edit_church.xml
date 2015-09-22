@@ -202,7 +202,8 @@
                 tools:text="1234" />
         </TableRow>
 
-        <TableRow android:layout_marginBottom="10dp">
+        <TableRow android:id="@+id/securityRow"
+            android:layout_marginBottom="10dp">
 
             <TextView
                 android:id="@+id/SecurityLabel"
@@ -219,79 +220,85 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </TableRow>
+
+        <TableRow
+            android:id="@+id/ministryRow"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:id="@+id/ministryLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:gravity="center_vertical|start"
+                android:text="@string/label_ministry" />
+
+            <Spinner
+                android:id="@+id/ministry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </TableRow>
     </TableLayout>
-
-    <!--<Button
-        android:id="@+id/save"
-        android:layout_width="wrap_content"
-        android:layout_below="@id/data"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="10dp"
-        style="@style/Widget.GMA.Button"
-        android:text="@string/btn_update"/>
-
-    <Button
-        android:id="@+id/cancel"
-        android:layout_width="wrap_content"
-        android:layout_alignTop="@id/save"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        style="@style/Widget.GMA.Button"
-        android:text="@string/cancel_button"/>-->
-    <View
-
-        android:id="@+id/viewBottom"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_above="@+id/bottom_button_container"
-        android:layout_marginTop="25dp"
-        android:background="@android:color/darker_gray" />
 
     <LinearLayout
         android:id="@+id/bottom_button_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-      android:layout_below="@id/data"
+        android:layout_below="@id/data"
         android:gravity="center"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/save"
-            style="@style/Widget.GMA.Button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/btn_update" />
+        android:orientation="vertical">
 
         <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp"
+            android:id="@+id/viewBottom"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="15dp"
             android:background="@android:color/darker_gray" />
 
-        <Button
-            android:id="@+id/delete"
-            style="@style/Widget.GMA.Button"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/btn_delete" />
+            android:orientation="horizontal" >
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp"
-            android:background="@android:color/darker_gray" />
+            <Button
+                android:id="@+id/save"
+                style="@style/Widget.GMA.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/btn_update" />
 
-        <Button
-            android:id="@+id/cancel"
-            style="@style/Widget.GMA.Button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@android:string/cancel" />
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:background="@android:color/darker_gray" />
+
+            <Button
+                android:id="@+id/delete"
+                style="@style/Widget.GMA.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/btn_delete" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:background="@android:color/darker_gray" />
+
+            <Button
+                android:id="@+id/cancel"
+                style="@style/Widget.GMA.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@android:string/cancel" />
+        </LinearLayout>
+
     </LinearLayout>
 </RelativeLayout>
