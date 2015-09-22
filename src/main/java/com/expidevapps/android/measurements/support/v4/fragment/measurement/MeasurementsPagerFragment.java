@@ -5,6 +5,10 @@ import static com.expidevapps.android.measurements.Constants.ARG_MCC;
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
 import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
+import static com.expidevapps.android.measurements.db.Contract.Base.COLUMN_ROWID;
+import static com.expidevapps.android.measurements.db.Contract.MeasurementPermLink.COLUMN_PERM_LINK_STUB;
+import static com.expidevapps.android.measurements.db.Contract.MeasurementTypeLocalization.COLUMN_LOCALE;
+import static com.expidevapps.android.measurements.db.Contract.MinistryId.COLUMN_MINISTRY_ID;
 import static com.expidevapps.android.measurements.model.MeasurementType.ARG_COLUMN;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
@@ -15,6 +19,9 @@ import static org.ccci.gto.android.common.db.AbstractDao.ARG_PROJECTION;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE_ARGS;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
+import static org.ccci.gto.android.common.db.Expression.field;
+import static org.ccci.gto.android.common.db.Expression.literal;
+import static org.ccci.gto.android.common.db.Expression.raw;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -34,6 +41,7 @@ import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.Contract.MeasurementVisibility;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.MeasurementType;
+import com.expidevapps.android.measurements.model.MeasurementTypeLocalization;
 import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.MinistryMeasurement;
@@ -43,11 +51,16 @@ import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.viewpagerindicator.CirclePageIndicator;
 
 import org.ccci.gto.android.common.db.Join;
+import org.ccci.gto.android.common.db.Table;
 import org.ccci.gto.android.common.db.support.v4.content.DaoCursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.util.ArrayUtils;
+import org.ccci.gto.android.common.util.LocaleCompat;
 import org.joda.time.YearMonth;
+
+import java.util.ArrayList;
+import java.util.Locale;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -171,45 +184,68 @@ public class MeasurementsPagerFragment extends Fragment {
         manager.initLoader(LOADER_MEASUREMENTS, getLoaderArgsMeasurements(), mLoaderCallbacksCursor);
     }
 
-    private static final String[] PROJECTION_BASE =
-            {Contract.MeasurementType.COLUMN_ROWID, Contract.MeasurementType.COLUMN_PERM_LINK_STUB,
-                    Contract.MeasurementType.COLUMN_NAME};
+    private static final String[] PROJECTION_BASE = {COLUMN_ROWID, COLUMN_PERM_LINK_STUB};
     private static final Join<MeasurementType, PersonalMeasurement> JOIN_PERSONAL_MEASUREMENT =
-            Contract.MeasurementType.JOIN_PERSONAL_MEASUREMENT.type("LEFT").andOn(
-                    Contract.PersonalMeasurement.SQL_WHERE_GUID_MINISTRY_MCC_PERIOD);
+            Contract.MeasurementType.JOIN_PERSONAL_MEASUREMENT.type("LEFT");
     private static final Join<MeasurementType, MinistryMeasurement> JOIN_MINISTRY_MEASUREMENT =
-            Contract.MeasurementType.JOIN_MINISTRY_MEASUREMENT.type("LEFT").andOn(
-                    Contract.MinistryMeasurement.SQL_WHERE_MINISTRY_MCC_PERIOD);
+            Contract.MeasurementType.JOIN_MINISTRY_MEASUREMENT.type("LEFT");
     private static final Join<MeasurementType, MeasurementVisibility> JOIN_MEASUREMENT_VISIBILITY =
-            Contract.MeasurementType.JOIN_MEASUREMENT_VISIBILITY.type("LEFT")
-                    .andOn(MeasurementVisibility.SQL_WHERE_MINISTRY);
+            Contract.MeasurementType.JOIN_MEASUREMENT_VISIBILITY.type("LEFT");
 
     @NonNull
     private Bundle getLoaderArgsMeasurements() {
         final Bundle args = new Bundle(5);
 
-        // generate joins & projections based on measurement type
+        // build dynamic query parts
+        final Table<MeasurementType> base = Table.forClass(MeasurementType.class);
+        final StringBuilder name = new StringBuilder("COALESCE(");
+        final ArrayList<Join<MeasurementType, ?>> joins = new ArrayList<>();
+        String[] projection = PROJECTION_BASE;
+
+        // add visibility join
+        joins.add(JOIN_MEASUREMENT_VISIBILITY
+                          .andOn(field(MeasurementVisibility.class, COLUMN_MINISTRY_ID).eq(literal(mMinistryId))));
+
+        // add joins & projections based on measurement type
         switch (mType) {
             case TYPE_LOCAL:
-                args.putParcelableArray(ARG_JOINS, new Join[] {JOIN_MEASUREMENT_VISIBILITY.args(mMinistryId),
-                        JOIN_MINISTRY_MEASUREMENT.args(mMinistryId, mMcc, mPeriod)});
-                args.putStringArray(ARG_PROJECTION, ArrayUtils.merge(String.class, PROJECTION_BASE, new String[] {
+                joins.add(JOIN_MINISTRY_MEASUREMENT.andOn(
+                        raw(Contract.MinistryMeasurement.SQL_WHERE_MINISTRY_MCC_PERIOD, mMinistryId, mMcc, mPeriod)));
+                projection = ArrayUtils.merge(String.class, projection, new String[] {
                         Contract.MinistryMeasurement.SQL_PREFIX + Contract.MinistryMeasurement.COLUMN_VALUE,
-                        Contract.MinistryMeasurement.SQL_PREFIX + Contract.MinistryMeasurement.COLUMN_DELTA}));
+                        Contract.MinistryMeasurement.SQL_PREFIX + Contract.MinistryMeasurement.COLUMN_DELTA});
                 break;
             case TYPE_PERSONAL:
-                args.putParcelableArray(ARG_JOINS, new Join[] {JOIN_MEASUREMENT_VISIBILITY.args(mMinistryId),
-                        JOIN_PERSONAL_MEASUREMENT.args(mGuid, mMinistryId, mMcc, mPeriod)});
-                args.putStringArray(ARG_PROJECTION, ArrayUtils.merge(String.class, PROJECTION_BASE, new String[] {
+                joins.add(JOIN_PERSONAL_MEASUREMENT.andOn(
+                        raw(Contract.PersonalMeasurement.SQL_WHERE_GUID_MINISTRY_MCC_PERIOD, mGuid, mMinistryId, mMcc,
+                            mPeriod)));
+                projection = ArrayUtils.merge(String.class, projection, new String[] {
                         Contract.PersonalMeasurement.SQL_PREFIX + Contract.PersonalMeasurement.COLUMN_VALUE,
-                        Contract.PersonalMeasurement.SQL_PREFIX + Contract.PersonalMeasurement.COLUMN_DELTA}));
-                break;
-            default:
-                args.putStringArray(ARG_PROJECTION, PROJECTION_BASE);
+                        Contract.PersonalMeasurement.SQL_PREFIX + Contract.PersonalMeasurement.COLUMN_DELTA});
                 break;
         }
 
-        // set WHERE and ORDER BY clauses
+        // process fallback locales
+        final Locale[] locales = LocaleCompat.getFallbacks(Locale.getDefault());
+        int i = 0;
+        for (final Locale locale : locales) {
+            final String alias = "lang" + i;
+            final Table<MeasurementTypeLocalization> table =
+                    Table.forClass(MeasurementTypeLocalization.class).as(alias);
+            name.append(alias).append('.').append(Contract.MeasurementTypeLocalization.COLUMN_NAME).append(',');
+            joins.add(Join.create(base, table).type("LEFT")
+                              .on(field(base, COLUMN_PERM_LINK_STUB).eq(field(table, COLUMN_PERM_LINK_STUB)))
+                              .andOn(field(table, COLUMN_MINISTRY_ID).eq(literal(mMinistryId)))
+                              .andOn(field(table, COLUMN_LOCALE).eq(literal(locale))));
+            i++;
+        }
+        name.append(Contract.MeasurementType.SQL_PREFIX).append(Contract.MeasurementType.COLUMN_NAME).append(") AS ")
+                .append(Contract.MeasurementType.COLUMN_NAME);
+        projection = ArrayUtils.merge(String.class, projection, new String[] {name.toString()});
+
+        // add components to args
+        args.putStringArray(ARG_PROJECTION, projection);
+        args.putParcelableArray(ARG_JOINS, joins.toArray(new Join[joins.size()]));
         if (mColumn != null) {
             args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE + " AND " +
                     Contract.MeasurementType.SQL_WHERE_COLUMN);

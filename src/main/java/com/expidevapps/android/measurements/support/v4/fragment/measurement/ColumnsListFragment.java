@@ -10,6 +10,7 @@ import static org.ccci.gto.android.common.db.AbstractDao.ARG_DISTINCT;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_JOINS;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_PROJECTION;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE;
+import static org.ccci.gto.android.common.db.Expression.raw;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -175,14 +176,14 @@ public class ColumnsListFragment extends Fragment {
     }
 
     private static final Join<MeasurementType, Contract.MeasurementVisibility> JOIN_MEASUREMENT_VISIBILITY =
-            Contract.MeasurementType.JOIN_MEASUREMENT_VISIBILITY.type("LEFT")
-                    .andOn(Contract.MeasurementVisibility.SQL_WHERE_MINISTRY);
+            Contract.MeasurementType.JOIN_MEASUREMENT_VISIBILITY.type("LEFT");
 
     @NonNull
     private Bundle getLoaderArgsColumns() {
         final Bundle args = new Bundle(4);
         args.putBoolean(ARG_DISTINCT, true);
-        args.putParcelableArray(ARG_JOINS, new Join[] {JOIN_MEASUREMENT_VISIBILITY.args(mMinistryId)});
+        args.putParcelableArray(ARG_JOINS, new Join[] {JOIN_MEASUREMENT_VISIBILITY
+                .andOn(raw(Contract.MeasurementVisibility.SQL_WHERE_MINISTRY, mMinistryId))});
         args.putStringArray(ARG_PROJECTION, new String[] {Contract.MeasurementType.COLUMN_COLUMN});
         args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE);
         return args;

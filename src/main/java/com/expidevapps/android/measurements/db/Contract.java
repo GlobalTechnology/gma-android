@@ -1,9 +1,13 @@
 package com.expidevapps.android.measurements.db;
 
+import static org.ccci.gto.android.common.db.Expression.field;
+
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
+import org.ccci.gto.android.common.db.Expression;
 import org.ccci.gto.android.common.db.Join;
+import org.ccci.gto.android.common.db.Table;
 
 public class Contract {
     private Contract() {
@@ -29,7 +33,7 @@ public class Contract {
         String SQL_WHERE_GUID = COLUMN_GUID + " = ?";
     }
 
-    private interface MinistryId {
+    public interface MinistryId {
         String COLUMN_MINISTRY_ID = "ministry_id";
 
         String SQL_COLUMN_MINISTRY_ID = COLUMN_MINISTRY_ID + " TEXT COLLATE NOCASE NOT NULL DEFAULT ''";
@@ -189,6 +193,8 @@ public class Contract {
 
     public static final class Ministry extends Base implements MinistryId, Location {
         public static final String TABLE_NAME = "ministries";
+        private static final Table<com.expidevapps.android.measurements.model.Ministry> TABLE =
+                Table.forClass(com.expidevapps.android.measurements.model.Ministry.class);
 
         public static final String COLUMN_MIN_CODE = "min_code";
         public static final String COLUMN_NAME = "name";
@@ -212,12 +218,9 @@ public class Contract {
         static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_MINISTRY;
         static final String SQL_WHERE_PARENT = COLUMN_PARENT_MINISTRY_ID + " = ?";
 
-        private static final String SQL_JOIN_ON_ASSIGNMENT =
-                SQL_PREFIX + COLUMN_MINISTRY_ID + " = " + Assignment.SQL_PREFIX + Assignment.COLUMN_MINISTRY_ID;
         public static final Join<com.expidevapps.android.measurements.model.Ministry, com.expidevapps.android.measurements.model.Assignment>
-                JOIN_ASSIGNMENT = Join.create(com.expidevapps.android.measurements.model.Ministry.class,
-                                              com.expidevapps.android.measurements.model.Assignment.class)
-                .on(SQL_JOIN_ON_ASSIGNMENT);
+                JOIN_ASSIGNMENT = Join.create(TABLE, Assignment.TABLE)
+                .on(field(TABLE, COLUMN_MINISTRY_ID).eq(field(Assignment.TABLE, Assignment.COLUMN_MINISTRY_ID)));
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME, SQL_COLUMN_MIN_CODE,
@@ -228,6 +231,8 @@ public class Contract {
 
     public static final class Assignment extends Base implements Guid, MinistryId, Mcc {
         public static final String TABLE_NAME = "assignments";
+        private static final Table<com.expidevapps.android.measurements.model.Assignment> TABLE =
+                Table.forClass(com.expidevapps.android.measurements.model.Assignment.class);
 
         public static final String COLUMN_ROLE = "team_role";
         public static final String COLUMN_ID = "assignment_id";
@@ -333,7 +338,7 @@ public class Contract {
     //              Measurement Contracts                       //
     //////////////////////////////////////////////////////////////
 
-    private interface MeasurementPermLink {
+    public interface MeasurementPermLink {
         String COLUMN_PERM_LINK_STUB = "perm_link";
 
         String SQL_COLUMN_PERM_LINK_STUB = COLUMN_PERM_LINK_STUB + " TEXT NOT NULL DEFAULT ''";
@@ -354,6 +359,8 @@ public class Contract {
 
     public static final class MeasurementType extends Base implements MeasurementPermLink {
         static final String TABLE_NAME = "measurementTypes";
+        private static final Table<com.expidevapps.android.measurements.model.MeasurementType> TABLE =
+                Table.forClass(com.expidevapps.android.measurements.model.MeasurementType.class);
 
         public static final String COLUMN_PERSONAL_ID = "personalId";
         public static final String COLUMN_LOCAL_ID = "localId";
@@ -381,7 +388,7 @@ public class Contract {
         private static final String SQL_COLUMN_SORT_ORDER = COLUMN_SORT_ORDER + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_PERM_LINK_STUB + ")";
 
-        private static final String SQL_PREFIX = TABLE_NAME + ".";
+        public static final String SQL_PREFIX = TABLE_NAME + ".";
 
         static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_PERM_LINK_STUB;
         public static final String SQL_WHERE_COLUMN = SQL_PREFIX + COLUMN_COLUMN + " = ?";
@@ -390,29 +397,22 @@ public class Contract {
                         SQL_PREFIX + COLUMN_CUSTOM + " = 0 AND " + MeasurementVisibility.SQL_PREFIX +
                         MeasurementVisibility.COLUMN_VISIBLE + " IS NULL))";
 
-        public static final String SQL_JOIN_ON_MINISTRY_MEASUREMENT =
-                SQL_PREFIX + COLUMN_PERM_LINK_STUB + " = " + MinistryMeasurement.SQL_PREFIX +
-                        MinistryMeasurement.COLUMN_PERM_LINK_STUB;
-        public static final String SQL_JOIN_ON_PERSONAL_MEASUREMENT =
-                SQL_PREFIX + COLUMN_PERM_LINK_STUB + " = " + PersonalMeasurement.SQL_PREFIX +
-                        PersonalMeasurement.COLUMN_PERM_LINK_STUB;
-        public static final String SQL_JOIN_ON_MEASUREMENT_VISIBILITY =
-                SQL_PREFIX + COLUMN_PERM_LINK_STUB + " = " + MeasurementVisibility.SQL_PREFIX +
-                        MeasurementVisibility.COLUMN_PERM_LINK_STUB;
+        private static final Expression SQL_JOIN_ON_MINISTRY_MEASUREMENT = field(TABLE, COLUMN_PERM_LINK_STUB)
+                .eq(field(MinistryMeasurement.TABLE, MinistryMeasurement.COLUMN_PERM_LINK_STUB));
+        private static final Expression SQL_JOIN_ON_PERSONAL_MEASUREMENT = field(TABLE, COLUMN_PERM_LINK_STUB)
+                .eq(field(PersonalMeasurement.TABLE, PersonalMeasurement.COLUMN_PERM_LINK_STUB));
+        private static final Expression SQL_JOIN_ON_MEASUREMENT_VISIBILITY = field(TABLE, COLUMN_PERM_LINK_STUB)
+                .eq(field(MeasurementVisibility.TABLE, MeasurementVisibility.COLUMN_PERM_LINK_STUB));
+
         public static final Join<com.expidevapps.android.measurements.model.MeasurementType, com.expidevapps.android.measurements.model.MinistryMeasurement>
-                JOIN_MINISTRY_MEASUREMENT =
-                Join.create(com.expidevapps.android.measurements.model.MeasurementType.class,
-                            com.expidevapps.android.measurements.model.MinistryMeasurement.class).on(
-                        SQL_JOIN_ON_MINISTRY_MEASUREMENT);
+                JOIN_MINISTRY_MEASUREMENT = Join.create(TABLE, MinistryMeasurement.TABLE)
+                .on(SQL_JOIN_ON_MINISTRY_MEASUREMENT);
         public static final Join<com.expidevapps.android.measurements.model.MeasurementType, com.expidevapps.android.measurements.model.PersonalMeasurement>
-                JOIN_PERSONAL_MEASUREMENT =
-                Join.create(com.expidevapps.android.measurements.model.MeasurementType.class,
-                            com.expidevapps.android.measurements.model.PersonalMeasurement.class).on(
-                        SQL_JOIN_ON_PERSONAL_MEASUREMENT);
+                JOIN_PERSONAL_MEASUREMENT = Join.create(MeasurementType.TABLE, PersonalMeasurement.TABLE)
+                .on(SQL_JOIN_ON_PERSONAL_MEASUREMENT);
         public static final Join<com.expidevapps.android.measurements.model.MeasurementType, MeasurementVisibility>
-                JOIN_MEASUREMENT_VISIBILITY =
-                Join.create(com.expidevapps.android.measurements.model.MeasurementType.class,
-                            MeasurementVisibility.class).on(SQL_JOIN_ON_MEASUREMENT_VISIBILITY);
+                JOIN_MEASUREMENT_VISIBILITY = Join.create(TABLE, MeasurementVisibility.TABLE)
+                .on(SQL_JOIN_ON_MEASUREMENT_VISIBILITY);
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_PERSONAL_ID, SQL_COLUMN_LOCAL_ID,
@@ -441,8 +441,8 @@ public class Contract {
     public static final class MeasurementTypeLocalization extends Base implements MinistryId, MeasurementPermLink {
         static final String TABLE_NAME = "measurementTypeLocalizations";
 
-        static final String COLUMN_LOCALE = "locale";
-        static final String COLUMN_NAME = "name";
+        public static final String COLUMN_LOCALE = "locale";
+        public static final String COLUMN_NAME = "name";
         static final String COLUMN_DESCRIPTION = "description";
 
         static final String[] PROJECTION_ALL =
@@ -473,6 +473,7 @@ public class Contract {
 
     public static final class MeasurementVisibility extends Base implements MinistryId, MeasurementPermLink {
         static final String TABLE_NAME = "measurementVisibility";
+        static final Table<MeasurementVisibility> TABLE = Table.forClass(MeasurementVisibility.class);
 
         public static final String COLUMN_VISIBLE = "visible";
 
@@ -502,6 +503,8 @@ public class Contract {
 
     public static final class MinistryMeasurement extends MeasurementValue {
         static final String TABLE_NAME = "localMeasurements";
+        private static final Table<com.expidevapps.android.measurements.model.MinistryMeasurement> TABLE =
+                Table.forClass(com.expidevapps.android.measurements.model.MinistryMeasurement.class);
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD, COLUMN_VALUE, COLUMN_DELTA,
@@ -548,6 +551,8 @@ public class Contract {
 
     public static final class PersonalMeasurement extends MeasurementValue implements Guid {
         static final String TABLE_NAME = "personalMeasurements";
+        private static final Table<com.expidevapps.android.measurements.model.PersonalMeasurement> TABLE =
+                Table.forClass(com.expidevapps.android.measurements.model.PersonalMeasurement.class);
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD, COLUMN_VALUE,
