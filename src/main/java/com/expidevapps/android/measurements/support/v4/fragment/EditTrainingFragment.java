@@ -1,5 +1,13 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.ARG_TRAINING_ID;
+import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateTrainingBroadcast;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,12 +26,12 @@ import android.util.Log;
 import android.view.View;
 
 import com.expidevapps.android.measurements.R;
-import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
+import com.expidevapps.android.measurements.support.v4.content.AssignmentLoader;
 import com.expidevapps.android.measurements.support.v4.content.SingleTrainingLoader;
 import com.expidevapps.android.measurements.support.v7.adapter.TrainingCompletionRecyclerViewAdapter;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
@@ -46,14 +54,9 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import butterknife.Optional;
 
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
-import static com.expidevapps.android.measurements.Constants.ARG_TRAINING_ID;
-import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateTrainingBroadcast;
-
 public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
     private static final int LOADER_TRAINING = 1;
+    private static final int LOADER_ASSIGNMENT = 2;
     
     private static final int CHANGED_NAME = 0;
     private static final int CHANGED_TYPE = 1;
@@ -62,24 +65,25 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
     @SuppressLint("TrulyRandom")
     private static final SecureRandom RAND = new SecureRandom();
 
+    private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
+
     private long mTrainingId = Training.INVALID_ID;
     @NonNull
     private final boolean[] mChanged = new boolean[3];
     @Nullable
     private Training mTraining;
     @Nullable
-    private Assignment.Role mRole;
+    private Assignment mAssignment;
 
     @Nullable
     private TrainingCompletionRecyclerViewAdapter mTrainingCompletionAdapter;
 
-    public static EditTrainingFragment newInstance(@NonNull final String guid, final long trainingId, final Assignment.Role role) {
+    public static EditTrainingFragment newInstance(@NonNull final String guid, final long trainingId) {
         final EditTrainingFragment fragment = new EditTrainingFragment();
         
         final Bundle bundle = new Bundle();
         bundle.putString(ARG_GUID, guid);
         bundle.putLong(ARG_TRAINING_ID, trainingId);
-        bundle.putString(ARG_ROLE, role.toString());
         fragment.setArguments(bundle);
         
         return fragment;
@@ -94,7 +98,6 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
 
         final Bundle args = this.getArguments();
         mTrainingId = args.getLong(ARG_TRAINING_ID, Training.INVALID_ID);
-        mRole = Assignment.Role.fromRaw(args.getString(ARG_ROLE));
     }
 
     @Override
@@ -107,14 +110,24 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
     }
 
     void onLoadTraining(@Nullable final Training training) {
+        final Training old = mTraining;
         mTraining = training;
         if (!mChanged[CHANGED_DATE]) {
             setTrainingDate(mTraining != null ? mTraining.getDate() : null);
         }
-        updateViews();
-        if(mTraining != null) {
-            setViewEditMode();
+
+        // restart assignment loader if the training ministry changed
+        if (old == null || mTraining == null || !old.getMinistryId().equals(mTraining.getMinistryId())) {
+            restartAssignmentLoader();
         }
+
+        updateViews();
+    }
+
+    void onLoadAssignment(@Nullable final Assignment assignment) {
+        mAssignment = assignment;
+
+        updateViews();
     }
 
     @Override
@@ -249,17 +262,31 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
         manager.initLoader(LOADER_TRAINING, null, new TrainingLoaderCallBacks());
     }
 
+    private void restartAssignmentLoader() {
+        // shutdown loader if it's running
+        getLoaderManager().destroyLoader(LOADER_ASSIGNMENT);
+
+        // start loader if we have a valid training
+        if (mTraining != null) {
+            final Bundle args = new Bundle(2);
+            args.putString(ARG_GUID, mGuid);
+            args.putString(ARG_MINISTRY_ID, mTraining.getMinistryId());
+            getLoaderManager().initLoader(LOADER_ASSIGNMENT, args, mLoaderCallbacksAssignment);
+        }
+    }
+
+
     private void updateViews() {
         if(mStagesData != null) {
-            mStagesData.setVisibility(View.GONE);
+            mStagesData.setVisibility(GONE);
         }
 
         if(mTrainingData != null) {
-            mTrainingData.setVisibility(View.VISIBLE);
+            mTrainingData.setVisibility(VISIBLE);
         }
 
         if (mTableRowParticipants != null) {
-            mTableRowParticipants.setVisibility(View.GONE);
+            mTableRowParticipants.setVisibility(GONE);
         }
 
         if (mTrainingName != null && !mChanged[CHANGED_NAME]) {
@@ -289,32 +316,12 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
                 Log.d("ITH", "Training is NULL ");
             }
         }
+
+        updateEditMode();
     }
 
-    private boolean getModeOfDisplay() {
-        boolean editMode = false;
-        String personId = GmaApiClient.getUserId(getActivity());
-        switch (mRole) {
-            case ADMIN:
-            case INHERITED_ADMIN:
-            case LEADER:
-            case INHERITED_LEADER:
-                editMode = true;
-                break;
-            case SELF_ASSIGNED:
-            case MEMBER:
-                if(personId != null && mTraining.getCreatedBy() != null) {
-                    editMode = personId.equalsIgnoreCase(mTraining.getCreatedBy());
-                }
-                break;
-            default:
-                editMode = false;
-        }
-        return editMode;
-    }
-
-    private void setViewEditMode() {
-        boolean editMode = getModeOfDisplay();
+    private void updateEditMode() {
+        final boolean editMode = mTraining != null && mTraining.canEdit(mAssignment);
 
         if (mTrainingName != null) {
             mTrainingName.setEnabled(editMode);
@@ -333,12 +340,12 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             mStagesView.setEnabled(false);
         }
 
-        if (mAddStageContainer != null && editMode == false) {
-            mAddStageContainer.setVisibility(View.GONE);
+        if (mAddStageContainer != null) {
+            mAddStageContainer.setVisibility(editMode ? VISIBLE : GONE);
         }
 
-        if (mBottomButtonContainer != null && editMode == false) {
-            mBottomButtonContainer.setVisibility(View.GONE);
+        if (mBottomButtonContainer != null) {
+            mBottomButtonContainer.setVisibility(editMode ? VISIBLE : GONE);
         }
     }
 
@@ -348,7 +355,10 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             mStagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
             mStagesView.addItemDecoration(new DividerItemDecoration(getActivity(), VERTICAL));
 
-            mTrainingCompletionAdapter = new TrainingCompletionRecyclerViewAdapter(getActivity(), mGuid, mTraining.getMinistryId(), mTraining.getCompletions(), getModeOfDisplay());
+            mTrainingCompletionAdapter =
+                    new TrainingCompletionRecyclerViewAdapter(getActivity(), mGuid, mTraining.getMinistryId(),
+                                                              mTraining.getCompletions(),
+                                                              mTraining.canEdit(mAssignment));
             mStagesView.setAdapter(mTrainingCompletionAdapter);
 
             //mStagesView.addOnItemTouchListener(new ItemClickListener(getActivity(), mListenerCompletionOnClick));
@@ -393,6 +403,28 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
         if (mTrainingName != null)
         {
             onTextUpdated(mTrainingName, text != null ? text.toString() : "");
+        }
+    }
+
+    private class AssignmentLoaderCallbacks extends SimpleLoaderCallbacks<Assignment> {
+        @Nullable
+        @Override
+        public Loader<Assignment> onCreateLoader(final int id, @Nullable final Bundle bundle) {
+            switch (id) {
+                case LOADER_ASSIGNMENT:
+                    return new AssignmentLoader(getActivity(), bundle);
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull final Loader<Assignment> loader, @Nullable final Assignment assignment) {
+            switch (loader.getId()) {
+                case LOADER_ASSIGNMENT:
+                    onLoadAssignment(assignment);
+                    break;
+            }
         }
     }
 

@@ -530,8 +530,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         if (mAssignment != null && (editable || mAssignment.can(VIEW_TRAINING))) {
             final FragmentManager fm = getChildFragmentManager();
             if (fm.findFragmentByTag("editTraining") == null) {
-                final EditTrainingFragment fragment =
-                        EditTrainingFragment.newInstance(mGuid, training.getId(), mAssignment.getRole());
+                final EditTrainingFragment fragment = EditTrainingFragment.newInstance(mGuid, training.getId());
                 fragment.show(fm.beginTransaction().addToBackStack("editTraining"), "editTraining");
             }
         }
