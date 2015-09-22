@@ -239,7 +239,8 @@ public class Contract {
         public static final String COLUMN_PERSON_ID = "person_id";
 
         static final String[] PROJECTION_ALL =
-                {COLUMN_GUID, COLUMN_ID, COLUMN_ROLE, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_LAST_SYNCED};
+                {COLUMN_GUID, COLUMN_PERSON_ID, COLUMN_ID, COLUMN_ROLE, COLUMN_MINISTRY_ID, COLUMN_MCC,
+                        COLUMN_LAST_SYNCED};
         public static final String[] PROJECTION_API_GET_ASSIGNMENT =
                 {COLUMN_ID, COLUMN_ROLE, COLUMN_PERSON_ID, COLUMN_LAST_SYNCED};
         public static final String[] PROJECTION_API_CREATE_ASSIGNMENT = PROJECTION_API_GET_ASSIGNMENT;
