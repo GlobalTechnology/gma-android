@@ -507,8 +507,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         if (mAssignment != null && (editable || mAssignment.can(VIEW_CHURCH, church))) {
             final FragmentManager fm = getChildFragmentManager();
             if (fm.findFragmentByTag("editChurch") == null) {
-                final EditChurchFragment fragment = EditChurchFragment
-                        .newInstance(mGuid, church.getId(), mAssignment.getMinistryId(), mAssignment.getRole());
+                final EditChurchFragment fragment = EditChurchFragment.newInstance(mGuid, church.getId(),
+                                                                                   mAssignment.getMinistryId());
                 fragment.show(fm.beginTransaction().addToBackStack("editChurch"), "editChurch");
             }
         }

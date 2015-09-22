@@ -1,5 +1,14 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static com.expidevapps.android.measurements.Constants.ARG_CHURCH_ID;
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.VISIBILITY;
+import static com.expidevapps.android.measurements.model.Task.ADMIN_CHURCH;
+import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
@@ -15,7 +24,6 @@ import android.view.View;
 import android.widget.RadioButton;
 
 import com.expidevapps.android.measurements.R;
-import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Assignment;
@@ -24,6 +32,7 @@ import com.expidevapps.android.measurements.model.Church.Development;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.adapter.MinistrySpinnerCursorAdapter;
+import com.expidevapps.android.measurements.support.v4.content.AssignmentLoader;
 import com.expidevapps.android.measurements.support.v4.content.ChurchLoader;
 import com.expidevapps.android.measurements.support.v4.content.MinistriesCursorLoader;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
@@ -33,6 +42,7 @@ import org.ccci.gto.android.common.db.Transaction;
 import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
+import org.ccci.gto.android.common.util.BundleCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,18 +55,10 @@ import butterknife.OnItemSelected;
 import butterknife.OnTextChanged;
 import butterknife.Optional;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static com.expidevapps.android.measurements.Constants.ARG_CHURCH_ID;
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
-import static com.expidevapps.android.measurements.Constants.VISIBILITY;
-import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
-
 public class EditChurchFragment extends BaseEditChurchDialogFragment {
     private static final int LOADER_CHURCH = 1;
     private static final int LOADER_MINISTRIES = 2;
+    private static final int LOADER_ASSIGNMENT = 3;
 
     private static final int CHANGED_CONTACT_NAME = 0;
     private static final int CHANGED_CONTACT_EMAIL = 1;
@@ -67,37 +69,39 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     private static final int CHANGED_JESUS_FILM_ACTIVITY = 6;
     private static final int CHANGED_MINISTRY = 7;
 
+    private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
+    private final CursorLoaderCallbacks mLoaderCallbacksCursor = new CursorLoaderCallbacks();
+
     private long mChurchId = Church.INVALID_ID;
     @NonNull
     private boolean[] mChanged = new boolean[8];
     @Nullable
     private Church mChurch;
     @Nullable
-    private String mMinistryId;
+    private Assignment mAssignment;
     @Nullable
-    private Assignment.Role mRole;
+    private String mMinistryId;
 
     @Optional
     @InjectViews({R.id.nameRow})
     List<View> mHiddenViews;
     @Nullable
     private MinistrySpinnerCursorAdapter mMinistriesAdapter;
-    private final CursorLoaderCallbacks mLoaderCallbacksCursor = new CursorLoaderCallbacks();
     @Nullable
     private Cursor mMinistries = null;
 
     @NonNull
-    public static Bundle buildArgs(@NonNull final String guid, final long churchId, final String ministryId, final Assignment.Role role) {
+    private static Bundle buildArgs(@NonNull final String guid, final long churchId, final String ministryId) {
         final Bundle args = buildArgs(guid);
         args.putLong(ARG_CHURCH_ID, churchId);
         args.putString(ARG_MINISTRY_ID, ministryId);
-        args.putString(ARG_ROLE, role.toString());
         return args;
     }
 
-    public static EditChurchFragment newInstance(@NonNull final String guid, final long churchId, final String ministryId, final Assignment.Role role) {
+    public static EditChurchFragment newInstance(@NonNull final String guid, final long churchId,
+                                                 final String ministryId) {
         final EditChurchFragment fragment = new EditChurchFragment();
-        fragment.setArguments(buildArgs(guid, churchId, ministryId, role));
+        fragment.setArguments(buildArgs(guid, churchId, ministryId));
         return fragment;
     }
 
@@ -110,8 +114,8 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         // process arguments
         final Bundle args = this.getArguments();
         mChurchId = args.getLong(ARG_CHURCH_ID, Church.INVALID_ID);
-        mMinistryId = args.getString(ARG_MINISTRY_ID, Ministry.INVALID_ID);
-        mRole = Assignment.Role.fromRaw(args.getString(ARG_ROLE));
+
+        mMinistryId = BundleCompat.getString(args, ARG_MINISTRY_ID, Ministry.INVALID_ID);
     }
 
     @Override
@@ -122,13 +126,24 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         updateViews();
     }
 
-    void onLoadChurch(final Church church) {
+    void onLoadChurch(@Nullable final Church church) {
+        final Church old = mChurch;
         mChurch = church;
 
-        updateViews();
-        if(mChurch != null) {
-            setViewEditMode();
+        // restart assignment loader if the church ministry id changes
+        if (mChurch == null || old == null || !mChurch.getMinistryId().equals(old.getMinistryId())) {
+            restartAssignmentLoader();
         }
+
+        // update views
+        updateViews();
+    }
+
+    void onLoadAssignment(@Nullable final Assignment assignment) {
+        mAssignment = assignment;
+
+        // update views
+        updateViews();
     }
 
     @Override
@@ -253,6 +268,19 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         manager.initLoader(LOADER_MINISTRIES, args, mLoaderCallbacksCursor);
     }
 
+    private void restartAssignmentLoader() {
+        // shutdown loader if it's running
+        getLoaderManager().destroyLoader(LOADER_ASSIGNMENT);
+
+        // start loader if we have a valid church
+        if (mChurch != null) {
+            final Bundle args = new Bundle(2);
+            args.putString(ARG_GUID, mGuid);
+            args.putString(ARG_MINISTRY_ID, mChurch.getMinistryId());
+            getLoaderManager().initLoader(LOADER_ASSIGNMENT, args, mLoaderCallbacksAssignment);
+        }
+    }
+
     private void updateViews() {
         updateTitle(mChurch != null ? mChurch.getName() : null);
         updateIcon(mChurch != null ? mChurch.getDevelopment() : Development.UNKNOWN);
@@ -285,80 +313,44 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
                 ((RadioButton) mJesusFilmActivity.findViewById(R.id.rbNo)).setChecked(true);
             }
         }
+
+        // update whether we are editing this church or not
+        updateEditMode();
     }
 
-    private boolean getModeOfDisplay() {
-        boolean editMode = false;
-        String personId = GmaApiClient.getUserId(getActivity());
-        switch (mRole) {
-            case ADMIN:
-            case INHERITED_ADMIN:
-            case LEADER:
-            case INHERITED_LEADER:
-                editMode = true;
-                break;
-            case SELF_ASSIGNED:
-            case MEMBER:
-                if(personId != null && mChurch.getCreatedBy() != null) {
-                    editMode = personId.equalsIgnoreCase(mChurch.getCreatedBy());
-                }
-                break;
-            default:
-                editMode = false;
-        }
-        return editMode;
-    }
-
-    private void setViewEditMode() {
-        boolean editMode = getModeOfDisplay();
+    private void updateEditMode() {
+        final boolean editing = mChurch != null && mChurch.canEdit(mAssignment);
+        final boolean admin = mAssignment != null && mAssignment.can(ADMIN_CHURCH);
 
         if (mContactNameView != null) {
-            mContactNameView.setEnabled(editMode);
+            mContactNameView.setEnabled(editing);
         }
         if (mContactEmailView != null) {
-            mContactEmailView.setEnabled(editMode);
+            mContactEmailView.setEnabled(editing);
         }
         if (mContactMobileView != null) {
-            mContactMobileView.setEnabled(editMode);
+            mContactMobileView.setEnabled(editing);
         }
         if (mSizeView != null) {
-            mSizeView.setEnabled(editMode);
+            mSizeView.setEnabled(editing);
         }
         if (mDevelopmentSpinner != null) {
-            mDevelopmentSpinner.setEnabled(editMode);
-        }
-        if (mSecuritySpinner != null) {
-            switch (mRole) {
-                case ADMIN:
-                case INHERITED_ADMIN:
-                case LEADER:
-                case INHERITED_LEADER:
-                    mSecurityRow.setVisibility(VISIBLE);
-                    break;
-                default:
-                    mSecurityRow.setVisibility(GONE);
-            }
+            mDevelopmentSpinner.setEnabled(editing);
         }
 
-        if (mMinistrySpinner != null) {
-            switch (mRole) {
-                case ADMIN:
-                case INHERITED_ADMIN:
-                case LEADER:
-                case INHERITED_LEADER:
-                    mMinistryRow.setVisibility(VISIBLE);
-                    break;
-                default:
-                    mMinistryRow.setVisibility(GONE);
-            }
+        if (mSecurityRow != null) {
+            mSecurityRow.setVisibility(admin ? VISIBLE : GONE);
+        }
+        if (mMinistryRow != null) {
+            mMinistryRow.setVisibility(admin ? VISIBLE : GONE);
         }
 
-        if(mBottomButtonContainer != null && editMode == false) {
-            mBottomButtonContainer.setVisibility(View.GONE);
+        if (mBottomButtonContainer != null) {
+            mBottomButtonContainer.setVisibility(editing ? VISIBLE : GONE);
         }
         if (mJesusFilmActivity != null) {
-            mJesusFilmActivity.findViewById(R.id.rbYes).setEnabled(editMode);
-            mJesusFilmActivity.findViewById(R.id.rbNo).setEnabled(editMode);
+            mJesusFilmActivity.findViewById(R.id.rbYes).setEnabled(editing);
+            mJesusFilmActivity.findViewById(R.id.rbNo).setEnabled(editing);
         }
     }
 
@@ -447,7 +439,7 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
 
     @Optional
     @OnCheckedChanged({R.id.rbYes, R.id.rbNo})
-    void updteJessusFilmActivity() {
+    void updateJesusFilmActivity() {
         if (mJesusFilmActivity != null) {
             if ((mChurch.isJesusFilmActivity() && ((RadioButton) mJesusFilmActivity.findViewById(R.id.rbNo)).isChecked()) ||
                     (!mChurch.isJesusFilmActivity() && ((RadioButton) mJesusFilmActivity.findViewById(R.id.rbYes)).isChecked())) {
@@ -455,6 +447,28 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
             }
             else {
                 mChanged[CHANGED_JESUS_FILM_ACTIVITY] = false;
+            }
+        }
+    }
+
+    private class AssignmentLoaderCallbacks extends SimpleLoaderCallbacks<Assignment> {
+        @Nullable
+        @Override
+        public Loader<Assignment> onCreateLoader(final int id, @Nullable final Bundle bundle) {
+            switch (id) {
+                case LOADER_ASSIGNMENT:
+                    return new AssignmentLoader(getActivity(), bundle);
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull final Loader<Assignment> loader, @Nullable final Assignment assignment) {
+            switch (loader.getId()) {
+                case LOADER_ASSIGNMENT:
+                    onLoadAssignment(assignment);
+                    break;
             }
         }
     }
