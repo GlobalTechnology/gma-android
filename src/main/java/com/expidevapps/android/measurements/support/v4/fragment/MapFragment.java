@@ -496,7 +496,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             final FragmentManager fm = getChildFragmentManager();
             if (fm.findFragmentByTag("createChurch") == null) {
                 final CreateChurchFragment fragment =
-                        CreateChurchFragment.newInstance(mGuid, mAssignment.getMinistryId(), mAssignment.getRole(), pos);
+                        CreateChurchFragment.newInstance(mGuid, mAssignment.getMinistryId(), pos);
                 fragment.show(fm.beginTransaction().addToBackStack("createChurch"), "createChurch");
             }
         }

@@ -1,5 +1,12 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.model.Task.ADMIN_CHURCH;
+import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.SQLException;
@@ -7,10 +14,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -23,9 +30,11 @@ import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Church.Development;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
+import com.expidevapps.android.measurements.support.v4.content.AssignmentLoader;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
 import org.ccci.gto.android.common.util.BundleCompat;
 
@@ -35,14 +44,12 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.Optional;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
-import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
-
 public class CreateChurchFragment extends BaseEditChurchDialogFragment {
+    private static final int LOADER_ASSIGNMENT = 1;
+
     private static String ARG_LOCATION = CreateChurchFragment.class.getName() + ".ARG_LOCATION";
+
+    private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
 
     @SuppressLint("TrulyRandom")
     private static final SecureRandom RAND = new SecureRandom();
@@ -52,7 +59,7 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     @Nullable
     private LatLng mLocation;
     @Nullable
-    private Assignment.Role mRole;
+    private Assignment mAssignment;
 
     @Optional
     @Nullable
@@ -64,19 +71,18 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     @InjectView(R.id.delete)
     Button mDeleteChurch;
 
-    public static Bundle buildArgs(@NonNull final String guid, @NonNull final String ministryId, @NonNull final Assignment.Role role,
+    public static Bundle buildArgs(@NonNull final String guid, @NonNull final String ministryId,
                                    @NonNull final LatLng location) {
         final Bundle args = buildArgs(guid);
         args.putString(ARG_MINISTRY_ID, ministryId);
-        args.putString(ARG_ROLE, role.toString());
         args.putParcelable(ARG_LOCATION, location);
         return args;
     }
 
-    public static CreateChurchFragment newInstance(@NonNull final String guid, @NonNull final String ministryId, @NonNull final Assignment.Role role,
+    public static CreateChurchFragment newInstance(@NonNull final String guid, @NonNull final String ministryId,
                                                    @NonNull final LatLng location) {
         final CreateChurchFragment fragment = new CreateChurchFragment();
-        fragment.setArguments(buildArgs(guid, ministryId, role, location));
+        fragment.setArguments(buildArgs(guid, ministryId, location));
         return fragment;
     }
 
@@ -89,7 +95,6 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
         final Bundle args = this.getArguments();
         if (args != null) {
             mMinistryId = BundleCompat.getString(args, ARG_MINISTRY_ID, Ministry.INVALID_ID);
-            mRole = Assignment.Role.fromRaw(args.getString(ARG_ROLE));
             mLocation = args.getParcelable(ARG_LOCATION);
         }
     }
@@ -97,8 +102,14 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     @Override
     public void onStart() {
         super.onStart();
+        startLoaders();
         updateTitle(R.string.title_dialog_church_create);
         setupViews();
+    }
+
+    void onLoadAssignment(@Nullable final Assignment assignment) {
+        mAssignment = assignment;
+        updateViewEditMode();
     }
 
     @Optional
@@ -175,26 +186,53 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
         }
 
         if(mDeleteChurch != null) {
-            mDeleteChurch.setVisibility(View.GONE);
+            mDeleteChurch.setVisibility(GONE);
+        }
+
+        if (mMinistryRow != null) {
+            mMinistryRow.setVisibility(GONE);
         }
 
         if (mSecuritySpinner != null && mSecurityAdapter != null) {
-            mSecuritySpinner.setSelection(
-                    mSecurityAdapter.getPosition(Church.Security.fromRaw(Church.Security.DEFAULT.id)));
-            switch (mRole) {
-                case ADMIN:
-                case INHERITED_ADMIN:
-                case LEADER:
-                case INHERITED_LEADER:
-                    mSecurityRow.setVisibility(VISIBLE);
-                    break;
+            mSecuritySpinner.setSelection(mSecurityAdapter.getPosition(Church.Security.DEFAULT));
+        }
+
+        updateViewEditMode();
+    }
+
+    private void startLoaders() {
+        final Bundle args = new Bundle(2);
+        args.putString(ARG_GUID, mGuid);
+        args.putString(ARG_MINISTRY_ID, mMinistryId);
+
+        getLoaderManager().initLoader(LOADER_ASSIGNMENT, args, mLoaderCallbacksAssignment);
+    }
+
+    private void updateViewEditMode() {
+        if (mSecurityRow != null) {
+            mSecurityRow.setVisibility(mAssignment != null && mAssignment.can(ADMIN_CHURCH) ? VISIBLE : GONE);
+        }
+    }
+
+    private class AssignmentLoaderCallbacks extends SimpleLoaderCallbacks<Assignment> {
+        @Nullable
+        @Override
+        public Loader<Assignment> onCreateLoader(final int id, @Nullable final Bundle bundle) {
+            switch (id) {
+                case LOADER_ASSIGNMENT:
+                    return new AssignmentLoader(getActivity(), bundle);
                 default:
-                    mSecurityRow.setVisibility(GONE);
+                    return null;
             }
         }
 
-        if (mMinistryRow != null && mMinistrySpinner != null) {
-            mMinistryRow.setVisibility(GONE);
+        @Override
+        public void onLoadFinished(@NonNull final Loader<Assignment> loader, @Nullable final Assignment assignment) {
+            switch (loader.getId()) {
+                case LOADER_ASSIGNMENT:
+                    onLoadAssignment(assignment);
+                    break;
+            }
         }
     }
 
