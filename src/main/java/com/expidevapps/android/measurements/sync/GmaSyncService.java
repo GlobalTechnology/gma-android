@@ -112,10 +112,10 @@ public class GmaSyncService extends ThreadedIntentService {
     }
 
     public static void syncMeasurementTypes(@NonNull final Context context, @NonNull final String guid,
-                                            final boolean force) {
+                                            @NonNull final String ministryId, final boolean force) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_MEASUREMENT_TYPES);
-        intent.putExtras(baseExtras(guid, force));
+        intent.putExtras(ministryExtras(guid, ministryId, force));
         context.startService(intent);
     }
 
