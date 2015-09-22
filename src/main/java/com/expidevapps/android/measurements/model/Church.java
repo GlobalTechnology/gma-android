@@ -215,6 +215,9 @@ public class Church extends Location implements Cloneable {
     }
 
     public void setMinistryId(@NonNull final String ministryId) {
+        if (mTrackingChanges && !TextUtils.equals(this.ministryId, ministryId)) {
+            mDirty.add(JSON_MINISTRY_ID);
+        }
         this.ministryId = ministryId;
     }
 

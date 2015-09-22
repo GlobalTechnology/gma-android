@@ -12,7 +12,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.util.LongSparseArray;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -510,7 +509,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         if (mAssignment != null && mAssignment.can(EDIT_CHURCH)) {
             final FragmentManager fm = getChildFragmentManager();
             if (fm.findFragmentByTag("editChurch") == null) {
-                final EditChurchFragment fragment = EditChurchFragment.newInstance(mGuid, churchId, mAssignment.getRole());
+                final EditChurchFragment fragment = EditChurchFragment.newInstance(mGuid, churchId, mAssignment.getMinistryId(), mAssignment.getRole());
                 fragment.show(fm.beginTransaction().addToBackStack("editChurch"), "editChurch");
             }
         }
