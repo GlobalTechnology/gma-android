@@ -232,7 +232,7 @@
                 android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:gravity="center_vertical|start"
-                android:text="@string/label_ministry" />
+                android:text="@string/label_church_ministry" />
 
             <Spinner
                 android:id="@+id/ministry"

@@ -251,8 +251,8 @@ public class MainActivity extends AppCompatActivity {
 
     void setSupportedStaff() {
         if (mGuid != null && mAssignment != null) {
-            new AlertDialog.Builder(this).setTitle(R.string.title_dialog_set_supported_staff).setMessage(
-                    R.string.text_set_supported_staff_message).setPositiveButton(R.string.btn_no, new DialogInterface.OnClickListener() {
+            new AlertDialog.Builder(this).setTitle(R.string.title_dialog_profile_set_supported_staff).setMessage(
+                    R.string.text_profile_supported_staff_message).setPositiveButton(R.string.btn_profile_no, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     try {
                         JSONObject json = new JSONObject();
@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     dialog.dismiss();
                 }
-            }).setNegativeButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
+            }).setNegativeButton(R.string.btn_profile_yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     try {

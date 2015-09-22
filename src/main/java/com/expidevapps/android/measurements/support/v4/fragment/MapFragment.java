@@ -659,7 +659,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             } else if (canCreateTraining) {
                 showCreateTraining(pos);
             } else {
-                new AlertDialog.Builder(getActivity()).setTitle(R.string.validation_mcc_not_defined)
+                new AlertDialog.Builder(getActivity()).setTitle(R.string.title_dialog_map_create_item_unauthorized)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.dismiss();

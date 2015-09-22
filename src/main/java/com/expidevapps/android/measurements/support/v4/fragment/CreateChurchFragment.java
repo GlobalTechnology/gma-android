@@ -142,7 +142,7 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
                 church.setJesusFilmActivity(false);
             }
             else {
-                Toast alertToast = Toast.makeText(getActivity(), getResources().getString(R.string.alert_select_jesus_file_activity_option), Toast.LENGTH_LONG);
+                Toast alertToast = Toast.makeText(getActivity(), getResources().getString(R.string.alrt_church_jesus_film_required), Toast.LENGTH_LONG);
                 alertToast.setGravity(Gravity.CENTER, 0 ,0);
                 alertToast.show();
                 return;

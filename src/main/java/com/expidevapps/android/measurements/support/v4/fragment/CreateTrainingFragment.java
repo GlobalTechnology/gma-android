@@ -205,7 +205,8 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
             }
 
             // trigger GA event
-            GoogleAnalyticsManager.getInstance(mContext).sendCreateTrainingEvent(mGuid, mTraining.getMinistryId(), mTraining.getMcc());
+            GoogleAnalyticsManager.getInstance(mContext).sendCreateTrainingEvent(mGuid, mTraining.getMinistryId(),
+                                                                                 mTraining.getMcc());
 
             // broadcast that this training was created
             mBroadcastManager.sendBroadcast(updateTrainingBroadcast(mTraining.getMinistryId(), mTraining.getId()));
