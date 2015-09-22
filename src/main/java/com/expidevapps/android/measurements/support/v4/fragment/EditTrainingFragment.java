@@ -62,8 +62,6 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
     @SuppressLint("TrulyRandom")
     private static final SecureRandom RAND = new SecureRandom();
 
-    @NonNull
-    /* final */ String mGuid;
     private long mTrainingId = Training.INVALID_ID;
     @NonNull
     private final boolean[] mChanged = new boolean[3];
@@ -95,11 +93,6 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
         super.onCreate(savedInstanceState);
 
         final Bundle args = this.getArguments();
-        final String guid = args.getString(ARG_GUID);
-        if (guid == null) {
-            throw new IllegalStateException("cannot create EditTrainingFragment with invalid guid");
-        }
-        mGuid = guid;
         mTrainingId = args.getLong(ARG_TRAINING_ID, Training.INVALID_ID);
         mRole = Assignment.Role.fromRaw(args.getString(ARG_ROLE));
     }
