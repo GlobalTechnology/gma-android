@@ -36,7 +36,7 @@ public final class Constants {
     public static final String ARG_PERMLINK = "perm_link";
     public static final String ARG_PERIOD = "period";
     public static final String ARG_TYPE = "type";
-    public static final String ARG_ROLE = "role";
+    public static final String ARG_LOCATION = "location";
 
     /* common extra's */
     public static final String EXTRA_GUID = "guid";

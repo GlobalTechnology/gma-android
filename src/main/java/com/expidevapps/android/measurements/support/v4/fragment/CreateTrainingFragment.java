@@ -1,5 +1,10 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
+import static com.expidevapps.android.measurements.Constants.ARG_LOCATION;
+import static com.expidevapps.android.measurements.Constants.ARG_MCC;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateTrainingBroadcast;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.SQLException;
@@ -23,6 +28,7 @@ import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
+import org.ccci.gto.android.common.util.BundleCompat;
 import org.joda.time.LocalDate;
 
 import java.security.SecureRandom;
@@ -31,13 +37,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.Optional;
 
-import static com.expidevapps.android.measurements.Constants.ARG_MCC;
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateTrainingBroadcast;
-
 public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
-    private static String ARG_LOCATION = CreateTrainingFragment.class.getName() + ".ARG_LOCATION";
-
     @SuppressLint("TrulyRandom")
     private static final SecureRandom RAND = new SecureRandom();
 
@@ -81,9 +81,15 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
         super.onCreate(savedState);
 
         final Bundle args = this.getArguments();
-        mMinistryId = args != null ? args.getString(ARG_MINISTRY_ID) : Ministry.INVALID_ID;
-        mMcc = args != null ? Mcc.fromRaw(args.getString(ARG_MCC)) : Mcc.UNKNOWN;
-        mLocation = args != null ? args.<LatLng>getParcelable(ARG_LOCATION) : null;
+        if (args != null) {
+            mMinistryId = BundleCompat.getString(args, ARG_MINISTRY_ID, Ministry.INVALID_ID);
+            mMcc = Mcc.fromRaw(args.getString(ARG_MCC));
+            mLocation = args.getParcelable(ARG_LOCATION);
+        } else {
+            mMinistryId = Ministry.INVALID_ID;
+            mMcc = Mcc.UNKNOWN;
+            mLocation = null;
+        }
     }
 
     @Override

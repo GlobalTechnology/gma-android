@@ -3,6 +3,7 @@ package com.expidevapps.android.measurements.support.v4.fragment;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_LOCATION;
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
 import static com.expidevapps.android.measurements.model.Task.ADMIN_CHURCH;
 import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
@@ -46,8 +47,6 @@ import butterknife.Optional;
 
 public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     private static final int LOADER_ASSIGNMENT = 1;
-
-    private static String ARG_LOCATION = CreateChurchFragment.class.getName() + ".ARG_LOCATION";
 
     private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
 
