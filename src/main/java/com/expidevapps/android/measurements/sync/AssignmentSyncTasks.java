@@ -32,6 +32,7 @@ class AssignmentSyncTasks extends BaseSyncTasks {
     private static final Logger LOG = LoggerFactory.getLogger(AssignmentSyncTasks.class);
 
     static final String EXTRA_ASSIGNMENTS = AssignmentSyncTasks.class.getName() + ".EXTRA_ASSIGNMENTS";
+    static final String EXTRA_PERSON_ID = AssignmentSyncTasks.class.getName() + ".EXTRA_PERSON_ID";
 
     private static final String SYNC_TIME_ASSIGNMENTS = "last_synced.assignments";
 
@@ -56,9 +57,10 @@ class AssignmentSyncTasks extends BaseSyncTasks {
     static void saveAssignments(@NonNull final Context context, @NonNull final String guid,
                                 @NonNull final Bundle args, @NonNull final SyncResult result) {
         final String raw = args.getString(EXTRA_ASSIGNMENTS);
+        final String personId = args.getString(EXTRA_PERSON_ID);
         if (raw != null) {
             try {
-                updateAllAssignments(context, guid, Assignment.listFromJson(new JSONArray(raw), guid));
+                updateAllAssignments(context, guid, Assignment.listFromJson(new JSONArray(raw), guid, personId));
             } catch (final JSONException e) {
                 result.stats.numParseExceptions++;
             }
@@ -82,7 +84,7 @@ class AssignmentSyncTasks extends BaseSyncTasks {
 
             // column projections for updates
             final String[] PROJECTION_ASSIGNMENT = {Contract.Assignment.COLUMN_ROLE, Contract.Assignment.COLUMN_ID,
-                    Contract.Assignment.COLUMN_LAST_SYNCED};
+                    Contract.Assignment.COLUMN_PERSON_ID, Contract.Assignment.COLUMN_LAST_SYNCED};
             final String[] PROJECTION_MINISTRY =
                     {Contract.Ministry.COLUMN_NAME, Contract.Ministry.COLUMN_MIN_CODE, Contract.Ministry.COLUMN_MCCS,
                             Contract.Ministry.COLUMN_LATITUDE, Contract.Ministry.COLUMN_LONGITUDE,

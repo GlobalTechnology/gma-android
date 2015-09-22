@@ -132,7 +132,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
                             // save the returned associated ministries
                             // XXX: this isn't ideal and crosses logical components, but I can't think of a cleaner way to do it currently -DF
-                            GmaSyncService.saveAssignments(mContext, request.guid, json.optJSONArray("assignments"));
+                            GmaSyncService.saveAssignments(mContext, request.guid, personId,
+                                                           json.optJSONArray("assignments"));
 
                             saveUser(user);
 
@@ -535,7 +536,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 assert request.guid != null : "request.guid should be non-null because the request was successful";
-                return Assignment.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())), request.guid);
+                return Assignment.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())), request.guid,
+                                               request.session != null ? request.session.mPersonId : null);
             }
         } catch (final JSONException e) {
             Log.e(TAG, "error parsing getAllMinistries response", e);
@@ -574,7 +576,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
             // if successful return parsed response
             if (conn.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
-                return Assignment.fromJson(new JSONObject(IOUtils.readString(conn.getInputStream())), guid);
+                return Assignment.fromJson(new JSONObject(IOUtils.readString(conn.getInputStream())), guid,
+                                           request.session != null ? request.session.mPersonId : null);
             }
         } catch (final IOException e) {
             throw new ApiSocketException(e);

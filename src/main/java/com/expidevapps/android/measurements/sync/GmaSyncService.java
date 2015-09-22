@@ -23,6 +23,7 @@ import static com.expidevapps.android.measurements.BuildConfig.SYNC_AUTHORITY;
 import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
 import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
 import static com.expidevapps.android.measurements.sync.AssignmentSyncTasks.EXTRA_ASSIGNMENTS;
+import static com.expidevapps.android.measurements.sync.AssignmentSyncTasks.EXTRA_PERSON_ID;
 import static com.expidevapps.android.measurements.sync.BaseSyncTasks.baseExtras;
 import static com.expidevapps.android.measurements.sync.BaseSyncTasks.measurementExtras;
 import static com.expidevapps.android.measurements.sync.BaseSyncTasks.ministryExtras;
@@ -65,10 +66,11 @@ public class GmaSyncService extends ThreadedIntentService {
     }
 
     public static void saveAssignments(@NonNull final Context context, @NonNull final String guid,
-                                       @Nullable final JSONArray assignments) {
+                                       @Nullable final String personId, @Nullable final JSONArray assignments) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_SAVE_ASSIGNMENTS);
         intent.putExtras(baseExtras(guid, false));
+        intent.putExtra(EXTRA_PERSON_ID, personId);
         intent.putExtra(EXTRA_ASSIGNMENTS, assignments != null ? assignments.toString() : null);
         context.startService(intent);
     }

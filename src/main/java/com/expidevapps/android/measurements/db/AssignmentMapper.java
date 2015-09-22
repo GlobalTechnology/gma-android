@@ -1,5 +1,7 @@
 package com.expidevapps.android.measurements.db;
 
+import static com.expidevapps.android.measurements.db.Contract.Assignment.COLUMN_PERSON_ID;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
@@ -27,6 +29,9 @@ public class AssignmentMapper extends BaseMapper<Assignment> {
             case Contract.Assignment.COLUMN_MCC:
                 values.put(field, assignment.getMcc().toString());
                 break;
+            case COLUMN_PERSON_ID:
+                values.put(field, assignment.getPersonId());
+                break;
             default:
                 super.mapField(values, field, assignment);
                 break;
@@ -44,6 +49,7 @@ public class AssignmentMapper extends BaseMapper<Assignment> {
     @Override
     public Assignment toObject(@NonNull final Cursor c) {
         final Assignment assignment = super.toObject(c);
+        assignment.setPersonId(getString(c, COLUMN_PERSON_ID, null));
         assignment.setId(this.getString(c, Contract.Assignment.COLUMN_ID, null));
         assignment.setRole(this.getString(c, Contract.Assignment.COLUMN_ROLE, null));
         assignment.setMcc(Ministry.Mcc.fromRaw(getString(c, Contract.Assignment.COLUMN_MCC, null)));
