@@ -206,7 +206,7 @@ public class Training extends Location implements Cloneable {
 
     @Override
     public boolean canEdit(@Nullable final Assignment assignment) {
-        return assignment != null && assignment.can(Task.EDIT_TRAINING);
+        return assignment != null && assignment.can(Task.EDIT_TRAINING, this);
     }
 
     @NonNull

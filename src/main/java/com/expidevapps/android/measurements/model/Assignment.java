@@ -261,11 +261,13 @@ public class Assignment extends Base implements Cloneable {
             case EDIT_CHURCH:
             case VIEW_CHURCH:
                 throw new UnsupportedOperationException(
-                        "You need to specify a church to check VIEW_CHURCH permissions");
+                        "You need to specify a church to check VIEW_CHURCH or EDIT_CHURCH permissions");
             case CREATE_TRAINING:
-            case EDIT_TRAINING:
             case VIEW_TRAINING:
                 return !(isBlocked() || isFormerMember());
+            case EDIT_TRAINING:
+                throw new UnsupportedOperationException(
+                        "You need to specify a training to check EDIT_TRAINING permissions");
             case UPDATE_PERSONAL_MEASUREMENTS:
                 return isLeadership() || isMember() || isSelfAssigned();
             case UPDATE_MINISTRY_MEASUREMENTS:
@@ -290,6 +292,16 @@ public class Assignment extends Base implements Cloneable {
                     default:
                         return false;
                 }
+            default:
+                return can(task);
+        }
+    }
+
+    public boolean can(@NonNull final Task task, @NonNull final Training training) {
+        switch (task) {
+            case EDIT_TRAINING:
+                return isLeadership() ||
+                        ((isMember() || isSelfAssigned()) && Objects.equal(mPersonId, training.getCreatedBy()));
             default:
                 return can(task);
         }

@@ -12,7 +12,6 @@ import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHUR
 import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_TRAINING;
 import static com.expidevapps.android.measurements.model.Task.CREATE_CHURCH;
 import static com.expidevapps.android.measurements.model.Task.CREATE_TRAINING;
-import static com.expidevapps.android.measurements.model.Task.EDIT_TRAINING;
 import static com.expidevapps.android.measurements.model.Task.VIEW_CHURCH;
 import static com.expidevapps.android.measurements.model.Task.VIEW_TRAINING;
 import static com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
@@ -373,7 +372,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                             if (item instanceof ChurchItem) {
                                 showEditChurch(((ChurchItem) item).getObject());
                             } else if (item instanceof TrainingItem) {
-                                showEditTraining(((TrainingItem) item).getTrainingId());
+                                showEditTraining(((TrainingItem) item).getObject());
                             }
                         }
                     });
@@ -527,11 +526,13 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         }
     }
 
-    void showEditTraining(final long trainingId) {
-        if (mAssignment != null && mAssignment.can(EDIT_TRAINING)) {
+    void showEditTraining(@NonNull final Training training) {
+        final boolean editable = training.canEdit(mAssignment);
+        if (mAssignment != null && (editable || mAssignment.can(VIEW_TRAINING))) {
             final FragmentManager fm = getChildFragmentManager();
             if (fm.findFragmentByTag("editTraining") == null) {
-                final EditTrainingFragment fragment = EditTrainingFragment.newInstance(mGuid, trainingId, mAssignment.getRole());
+                final EditTrainingFragment fragment =
+                        EditTrainingFragment.newInstance(mGuid, training.getId(), mAssignment.getRole());
                 fragment.show(fm.beginTransaction().addToBackStack("editTraining"), "editTraining");
             }
         }
