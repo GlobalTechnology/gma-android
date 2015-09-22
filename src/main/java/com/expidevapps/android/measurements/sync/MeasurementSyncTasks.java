@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -81,12 +82,13 @@ class MeasurementSyncTasks extends BaseSyncTasks {
                                      @NonNull final Bundle args) throws ApiException {
         final boolean force = isForced(args);
         final String ministryId = BundleCompat.getString(args, EXTRA_MINISTRY_ID, Ministry.INVALID_ID);
+        final Locale locale = Locale.getDefault();
 
         final GmaDao dao = GmaDao.getInstance(context);
-        if (force || System.currentTimeMillis() - dao.getLastSyncTime(SYNC_TIME_MEASUREMENT_TYPES) >
+        if (force || System.currentTimeMillis() - dao.getLastSyncTime(SYNC_TIME_MEASUREMENT_TYPES, ministryId, locale) >
                 STALE_DURATION_MEASUREMENT_TYPES) {
             final GmaApiClient api = GmaApiClient.getInstance(context, guid);
-            final List<MeasurementType> types = api.getMeasurementTypes(ministryId);
+            final List<MeasurementType> types = api.getMeasurementTypes(ministryId, locale);
             if (types != null) {
                 final List<String> updatedTypes = new ArrayList<>();
 
@@ -108,7 +110,7 @@ class MeasurementSyncTasks extends BaseSyncTasks {
                 }
 
                 // update the last sync time for measurement types
-                dao.updateLastSyncTime(SYNC_TIME_MEASUREMENT_TYPES);
+                dao.updateLastSyncTime(SYNC_TIME_MEASUREMENT_TYPES, ministryId, locale);
 
                 // send broadcasts
                 if (!updatedTypes.isEmpty()) {
