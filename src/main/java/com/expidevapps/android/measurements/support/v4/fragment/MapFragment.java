@@ -47,6 +47,7 @@ import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Location;
 import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.content.ChurchesLoader;
@@ -202,22 +203,22 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
         // determine what has changed
         final String oldId;
-        final Ministry.Mcc oldMcc;
+        final Mcc oldMcc;
         final String newId;
-        final Ministry.Mcc newMcc;
+        final Mcc newMcc;
         if (old != null) {
             oldId = old.getMinistryId();
             oldMcc = old.getMcc();
         } else {
             oldId = Ministry.INVALID_ID;
-            oldMcc = Ministry.Mcc.UNKNOWN;
+            oldMcc = Mcc.UNKNOWN;
         }
         if (mAssignment != null) {
             newId = mAssignment.getMinistryId();
             newMcc = mAssignment.getMcc();
         } else {
             newId = Ministry.INVALID_ID;
-            newMcc = Ministry.Mcc.UNKNOWN;
+            newMcc = Mcc.UNKNOWN;
         }
 
         final LatLng oldLocation;
@@ -305,7 +306,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private void syncData(final boolean force) {
         // trigger background syncing of data
         if (mAssignment != null) {
-            if (mAssignment.getMcc() == Ministry.Mcc.GCM) {
+            if (mAssignment.getMcc() == Mcc.GCM) {
                 GmaSyncService.syncChurches(getActivity(), mGuid, mAssignment.getMinistryId(), force);
             }
             GmaSyncService
@@ -336,10 +337,10 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
             // start loaders
             final LoaderManager manager = this.getLoaderManager();
-            if (assignment.getMcc() == Ministry.Mcc.GCM) {
+            if (assignment.getMcc() == Mcc.GCM) {
                 manager.initLoader(LOADER_CHURCHES, args, mLoaderCallbacksChurches);
             }
-            if (assignment.getMcc() != Ministry.Mcc.UNKNOWN) {
+            if (assignment.getMcc() != Mcc.UNKNOWN) {
                 manager.initLoader(LOADER_TRAININGS, args, mLoaderCallbacksTraining);
             }
         }
@@ -634,39 +635,36 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 mMapFrame.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
             }
 
-            if (mAssignment.getMcc() == Ministry.Mcc.UNKNOWN ) {
+            final Mcc mcc = mAssignment != null ? mAssignment.getMcc() : Mcc.UNKNOWN;
+            final boolean canCreateChurch = mcc == Mcc.GCM && mAssignment.can(CREATE_CHURCH);
+            final boolean canCreateTraining = mcc != Mcc.UNKNOWN && mAssignment.can(CREATE_TRAINING);
+            if (canCreateChurch && canCreateTraining) {
+                new AlertDialog.Builder(getActivity()).setTitle(R.string.title_dialog_map_create_item)
+                        .setPositiveButton(R.string.btn_dialog_map_create_training,
+                                           new DialogInterface.OnClickListener() {
+                                               public void onClick(DialogInterface dialog, int id) {
+                                                   dialog.dismiss();
+                                                   showCreateTraining(pos);
+                                               }
+                                           })
+                        .setNegativeButton(R.string.btn_dialog_map_create_church,
+                                           new DialogInterface.OnClickListener() {
+                                               public void onClick(DialogInterface dialog, int id) {
+                                                   dialog.dismiss();
+                                                   showCreateChurch(pos);
+                                               }
+                                           }).show();
+            } else if (canCreateChurch) {
+                showCreateChurch(pos);
+            } else if (canCreateTraining) {
+                showCreateTraining(pos);
+            } else {
                 new AlertDialog.Builder(getActivity()).setTitle(R.string.validation_mcc_not_defined)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.dismiss();
                             }
                         }).show();
-            }
-            else {
-                if (mAssignment.getMcc() == Ministry.Mcc.GCM) {
-                    new AlertDialog.Builder(getActivity()).setTitle(R.string.title_dialog_map_create_item)
-                            .setPositiveButton(R.string.btn_dialog_map_create_training, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.dismiss();
-                                    showCreateTraining(pos);
-                                }
-                            })
-                            .setNegativeButton(R.string.btn_dialog_map_create_church, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.dismiss();
-                                    showCreateChurch(pos);
-                                }
-                            }).show();
-                }
-                else {
-                    new AlertDialog.Builder(getActivity()).setTitle(R.string.title_dialog_map_create_item)
-                            .setPositiveButton(R.string.btn_dialog_map_create_training, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.dismiss();
-                                    showCreateTraining(pos);
-                                }
-                            }).show();
-                }
             }
         }
     }
