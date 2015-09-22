@@ -11,7 +11,6 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
-import android.util.Log;
 import android.view.View;
 import android.widget.RadioButton;
 
@@ -31,6 +30,7 @@ import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.common.collect.Lists;
 
 import org.ccci.gto.android.common.db.Transaction;
+import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
 
@@ -388,7 +388,8 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
         cursor.moveToFirst();
         for (i = 0; i < cursor.getCount() - 1; i++) {
 
-            String locationVal = cursor.getString(cursor.getColumnIndex(Contract.Ministry.COLUMN_MINISTRY_ID));
+            String locationVal = CursorUtils.getNonNullString(cursor, Contract.Ministry.COLUMN_MINISTRY_ID,
+                                                              Ministry.INVALID_ID);
             if (locationVal.equals(ministryid)) {
                 position = i;
                 break;
@@ -405,7 +406,8 @@ public class EditChurchFragment extends BaseEditChurchDialogFragment {
     void changeMinistry() {
         if (mMinistrySpinner != null && mMinistriesAdapter != null) {
             final Cursor item = mMinistriesAdapter.getCursor();
-            final String ministryId = item.getString(item.getColumnIndex(Contract.Ministry.COLUMN_MINISTRY_ID));
+            final String ministryId =
+                    CursorUtils.getNonNullString(item, Contract.Ministry.COLUMN_MINISTRY_ID, Ministry.INVALID_ID);
 
             mChanged[CHANGED_MINISTRY] = !ministryId.equals(mMinistryId);
         }
