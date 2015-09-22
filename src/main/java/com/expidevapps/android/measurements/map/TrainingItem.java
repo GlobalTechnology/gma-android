@@ -13,11 +13,6 @@ public class TrainingItem extends GmaItem<Training> {
     public TrainingItem(@Nullable final Assignment assignment, @NonNull final Training obj) {
         super(assignment, obj);
     }
-    
-    public long getTrainingId()
-    {
-        return mObj.getId();
-    }
 
     public String getCreatedBy() {
         return mObj.getCreatedBy();

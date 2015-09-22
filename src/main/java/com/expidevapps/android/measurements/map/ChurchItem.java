@@ -14,10 +14,6 @@ public class ChurchItem extends GmaItem<Church> {
         super(assignment, obj);
     }
 
-    public long getChurchId() {
-        return mObj.getId();
-    }
-
     @Override
     public String getName() {
         return mObj.getName();
