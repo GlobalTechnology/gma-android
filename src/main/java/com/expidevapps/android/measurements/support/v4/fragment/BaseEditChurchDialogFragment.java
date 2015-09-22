@@ -81,6 +81,14 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
     @Nullable
     @InjectView(R.id.securityRow)
     TableRow mSecurityRow;
+    @Optional
+    @Nullable
+    @InjectView(R.id.ministry)
+    Spinner mMinistrySpinner;
+    @Optional
+    @Nullable
+    @InjectView(R.id.ministryRow)
+    TableRow mMinistryRow;
 
     @Nullable
     ArrayAdapter<Development> mDevelopmentAdapter;

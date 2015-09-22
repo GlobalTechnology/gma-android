@@ -192,6 +192,10 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
                     mSecurityRow.setVisibility(GONE);
             }
         }
+
+        if (mMinistryRow != null && mMinistrySpinner != null) {
+            mMinistryRow.setVisibility(GONE);
+        }
     }
 
     private static class CreateChurchRunnable implements Runnable {
