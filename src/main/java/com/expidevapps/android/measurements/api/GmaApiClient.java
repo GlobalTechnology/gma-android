@@ -1,5 +1,8 @@
 package com.expidevapps.android.measurements.api;
 
+import static com.expidevapps.android.measurements.Constants.MEASUREMENTS_SOURCE;
+import static com.expidevapps.android.measurements.Constants.PREFS_USER;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
@@ -19,6 +22,7 @@ import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.model.Training.Completion;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
+import com.google.common.base.Objects;
 
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
 import org.ccci.gto.android.common.api.AbstractApi.Request.Method;
@@ -50,11 +54,6 @@ import java.util.Set;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.TheKeyImpl;
 
-import static com.expidevapps.android.measurements.Constants.MEASUREMENTS_SOURCE;
-
-import static com.expidevapps.android.measurements.Constants.PREFS_USER;
-import static com.expidevapps.android.measurements.Constants.PREF_PERSON_ID;
-
 public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Session>, Session> {
     private static final Logger LOG = LoggerFactory.getLogger(GmaApiClient.class);
     private final String TAG = getClass().getSimpleName();
@@ -64,6 +63,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     public static final int V5 = 5;
 
     private static final String PREF_COOKIES = "cookies";
+    private static final String PREF_PERSON_ID = "user.person_id";
 
     private static final String ASSIGNMENTS = "assignments";
     private static final String CHURCHES = "churches";
@@ -126,14 +126,18 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
                             // parse response JSON
                             final JSONObject json = new JSONObject(IOUtils.readString(conn.getInputStream()));
 
+                            // get the user's person_id for this session
+                            final JSONObject user = json.optJSONObject("user");
+                            final String personId = user != null ? user.optString("person_id") : null;
+
                             // save the returned associated ministries
                             // XXX: this isn't ideal and crosses logical components, but I can't think of a cleaner way to do it currently -DF
                             GmaSyncService.saveAssignments(mContext, request.guid, json.optJSONArray("assignments"));
 
-                            saveUser(json.optJSONObject("user"));
+                            saveUser(user);
 
                             // create session object
-                            return new Session(json.optString("session_ticket", null), cookies, request.guid);
+                            return new Session(json.optString("session_ticket", null), cookies, personId, request.guid);
                         } else {
                             // authentication with the ticket failed, let's clear the cached service in case that caused the issue
                             if (service.equals(getCachedService())) {
@@ -146,7 +150,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         } catch (final TheKeySocketException | IOException e) {
             throw new ApiSocketException(e);
         } catch (final JSONException e) {
-            Log.i(TAG, "invalid json for getToken", e);
+            LOG.debug("invalid json for getToken", e);
         } finally {
             IOUtils.closeQuietly(conn);
         }
@@ -799,28 +803,35 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     protected static class Session extends AbstractTheKeyApi.Session {
         @NonNull
         final Set<String> cookies;
+        @Nullable
+        final String mPersonId;
 
-        Session(@Nullable final String id, @Nullable final Collection<String> cookies, @Nullable final String guid) {
+        Session(@Nullable final String id, @Nullable final Collection<String> cookies, @Nullable final String personId,
+                @Nullable final String guid) {
             super(id, guid);
             this.cookies = Collections.unmodifiableSet(new HashSet<>(cookies));
+            mPersonId = personId;
         }
 
         Session(@NonNull final SharedPreferences prefs, @Nullable final String guid) {
             super(prefs, guid);
             this.cookies = Collections.unmodifiableSet(SharedPreferencesUtils.getStringSet(
                     prefs, getPrefAttrName(PREF_COOKIES), Collections.<String>emptySet()));
+            mPersonId = prefs.getString(getPrefAttrName(PREF_PERSON_ID), null);
         }
 
         @Override
         protected void save(@NonNull final SharedPreferences.Editor prefs) {
             super.save(prefs);
             SharedPreferencesUtils.putStringSet(prefs, getPrefAttrName(PREF_COOKIES), this.cookies);
+            prefs.putString(getPrefAttrName(PREF_PERSON_ID), mPersonId);
         }
 
         @Override
         protected void delete(@NonNull SharedPreferences.Editor prefs) {
             super.delete(prefs);
             prefs.remove(getPrefAttrName(PREF_COOKIES));
+            prefs.remove(getPrefAttrName(PREF_PERSON_ID));
         }
 
         @Override
@@ -832,7 +843,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
                 return false;
             }
             final Session that = (Session) o;
-            return super.equals(o) && this.cookies.equals(that.cookies);
+            return super.equals(o) && this.cookies.equals(that.cookies) && Objects.equal(mPersonId, that.mPersonId);
         }
 
         @Override
