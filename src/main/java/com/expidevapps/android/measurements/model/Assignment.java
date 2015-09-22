@@ -282,7 +282,6 @@ public class Assignment extends Base implements Cloneable {
                         ((isMember() || isSelfAssigned()) && Objects.equal(mPersonId, church.getCreatedBy()));
             case VIEW_CHURCH:
                 switch (church.getSecurity()) {
-                    case LOCAL_PRIVATE:
                     case PRIVATE:
                         return isMember() || isSelfAssigned() || isLeadership();
                     case REGISTERED_USERS:

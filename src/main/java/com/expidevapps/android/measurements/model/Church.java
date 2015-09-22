@@ -57,13 +57,14 @@ public class Church extends Location implements Cloneable {
         }
     }
 
+    @Deprecated
     private static final int SECURITY_LOCAL_PRIVATE = 0;
     private static final int SECURITY_PRIVATE = 1;
     private static final int SECURITY_REGISTERED_USERS = 2;
     private static final int SECURITY_PUBLIC = 3;
 
     public enum Security {
-        LOCAL_PRIVATE(SECURITY_LOCAL_PRIVATE), PRIVATE(SECURITY_PRIVATE), REGISTERED_USERS(SECURITY_REGISTERED_USERS), PUBLIC(SECURITY_PUBLIC);
+        PRIVATE(SECURITY_PRIVATE), REGISTERED_USERS(SECURITY_REGISTERED_USERS), PUBLIC(SECURITY_PUBLIC);
 
         public static Security DEFAULT = Security.REGISTERED_USERS;
 
@@ -77,14 +78,14 @@ public class Church extends Location implements Cloneable {
         public static Security fromRaw(final int id) {
             switch (id) {
                 case SECURITY_LOCAL_PRIVATE:
-                    return LOCAL_PRIVATE;
                 case SECURITY_PRIVATE:
                     return PRIVATE;
                 case SECURITY_PUBLIC:
                     return PUBLIC;
                 case SECURITY_REGISTERED_USERS:
-                default:
                     return REGISTERED_USERS;
+                default:
+                    return DEFAULT;
             }
         }
     }
