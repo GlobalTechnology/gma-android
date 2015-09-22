@@ -3,6 +3,7 @@
     <string name="title_dialog_training_create">Crear nuevo entrenamiento</string>
     <string name="title_dialog_training_delete">¿Eliminar entrenamiento?</string>
     <string name="text_dialog_training_delete_confirm">¿Seguro que deseas eliminar este entrenamiento?</string>
+    <!-- Training Dialog tabs-->
     <!-- Training Details Fragment-->
     <string name="label_training_name">Nombre</string>
     <string name="label_training_type">Tipo de entrenamiento</string>
