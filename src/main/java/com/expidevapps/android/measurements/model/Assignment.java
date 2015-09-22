@@ -271,7 +271,7 @@ public class Assignment extends Base implements Cloneable {
                 throw new UnsupportedOperationException(
                         "You need to specify a training to check EDIT_TRAINING permissions");
             case UPDATE_PERSONAL_MEASUREMENTS:
-                return isLeadership() || isMember() || isSelfAssigned();
+                return isAdmin() || isLeader() || isMember() || isSelfAssigned();
             case UPDATE_MINISTRY_MEASUREMENTS:
                 return isLeadership();
             default:
