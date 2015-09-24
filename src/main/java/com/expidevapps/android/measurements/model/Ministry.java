@@ -24,6 +24,10 @@ public class Ministry extends Location implements Serializable {
     public static final String JSON_NAME = "name";
     public static final String JSON_CODE = "min_code";
     public static final String JSON_MCCS = "mccs";
+    private static final String JSON_MCC_SLM = "slm";
+    private static final String JSON_MCC_LLM = "llm";
+    private static final String JSON_MCC_DS = "ds";
+    private static final String JSON_MCC_GCM = "gcm";
     public static final String JSON_LMI_SHOW = "lmi_show";
     public static final String JSON_LMI_HIDE = "lmi_hide";
     public static final String JSON_LOCATION = "location";
@@ -39,7 +43,7 @@ public class Ministry extends Location implements Serializable {
     private static final String JSON_HAS_SLM = "has_slm";
 
     public enum Mcc {
-        UNKNOWN(""), SLM("slm"), LLM("llm"), DS("ds"), GCM("gcm");
+        UNKNOWN(""), SLM(JSON_MCC_SLM), LLM(JSON_MCC_LLM), DS(JSON_MCC_DS), GCM(JSON_MCC_GCM);
 
         @NonNull
         public final String raw;
@@ -51,13 +55,13 @@ public class Ministry extends Location implements Serializable {
         @NonNull
         public static Mcc fromRaw(@Nullable final String raw) {
             switch (raw != null ? raw.toLowerCase(Locale.US) : "") {
-                case "slm":
+                case JSON_MCC_SLM:
                     return SLM;
-                case "llm":
+                case JSON_MCC_LLM:
                     return LLM;
-                case "ds":
+                case JSON_MCC_DS:
                     return DS;
-                case "gcm":
+                case JSON_MCC_GCM:
                     return GCM;
                 default:
                     return UNKNOWN;
