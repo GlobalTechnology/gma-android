@@ -206,6 +206,16 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         return param(name, LocaleCompat.toLanguageTag(value));
     }
 
+    @NonNull
+    protected final Request.Parameter param(@NonNull final String name, @NonNull final Ministry.Mcc value) {
+        if (BuildConfig.DEBUG) {
+            if (value == Ministry.Mcc.UNKNOWN) {
+                throw new AssertionError("param(name, Mcc.UNKNOWN) is invalid");
+            }
+        }
+        return param(name, value.raw);
+    }
+
     /* API methods */
 
     @NonNull
@@ -404,13 +414,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
             return null;
         }
-        assert mcc.raw != null : "only Mcc.UNKNOWN has a null raw value";
 
         // build request
         final Request<Session> request = new Request<>(MEASUREMENTS);
         request.params.add(param("source", MEASUREMENTS_SOURCE));
         request.params.add(param("ministry_id", ministryId));
-        request.params.add(param("mcc", mcc.raw));
+        request.params.add(param("mcc", mcc));
         request.params.add(param("period", period.toString()));
         request.params.add(param("locale", locale));
 
@@ -444,12 +453,11 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         if (ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
             return null;
         }
-        assert mcc.raw != null : "only Mcc.UNKNOWN has a null raw value";
 
         // build request
         final Request<Session> request = new Request<>(MEASUREMENTS + "/" + permLink);
         request.params.add(param("ministry_id", ministryId));
-        request.params.add(param("mcc", mcc.raw));
+        request.params.add(param("mcc", mcc));
         request.params.add(param("period", period.toString()));
 
         // process request
@@ -606,12 +614,11 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
             return null;
         }
-        assert mcc.raw != null : "Only Mcc.UNKNOWN should have a null raw value";
 
         // build request
         final Request<Session> request = new Request<>(TRAINING);
         request.params.add(param("ministry_id", ministryId));
-        request.params.add(param("mcc", mcc.raw));
+        request.params.add(param("mcc", mcc));
         request.params.add(param("show_all", all));
         request.params.add(param("show_tree", includeDescendents));
 

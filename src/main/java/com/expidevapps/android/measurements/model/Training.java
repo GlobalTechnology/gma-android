@@ -255,7 +255,7 @@ public class Training extends Location implements Cloneable {
         json.put(JSON_MINISTRY_ID, this.getMinistryId());
         json.put(JSON_DATE, this.getDate());
         json.put(JSON_TYPE, this.getType());
-        json.put(JSON_MCC, this.getMcc().raw);
+        json.put(JSON_MCC, mcc.raw);
         json.put(JSON_PARTICIPANTS, this.getParticipants());
         return json;
     }

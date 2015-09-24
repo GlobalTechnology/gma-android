@@ -39,12 +39,12 @@ public class Ministry extends Location implements Serializable {
     private static final String JSON_HAS_SLM = "has_slm";
 
     public enum Mcc {
-        UNKNOWN(null), SLM("slm"), LLM("llm"), DS("ds"), GCM("gcm");
+        UNKNOWN(""), SLM("slm"), LLM("llm"), DS("ds"), GCM("gcm");
 
-        @Nullable
+        @NonNull
         public final String raw;
 
-        Mcc(final String raw) {
+        Mcc(@NonNull final String raw) {
             this.raw = raw;
         }
 
