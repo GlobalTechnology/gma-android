@@ -195,12 +195,11 @@ public class Training extends Location implements Cloneable {
         this.createdBy = createdBy;
     }
 
-    @Nullable
     public int getParticipants() {
         return mParticipants;
     }
 
-    public void setParticipants(@Nullable int participants) {
+    public void setParticipants(final int participants) {
         this.mParticipants = participants;
     }
 
