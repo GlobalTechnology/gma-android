@@ -1,28 +1,5 @@
 package com.expidevapps.android.measurements.support.v4.fragment.measurement;
 
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-import static com.expidevapps.android.measurements.Constants.ARG_MCC;
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
-import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
-import static com.expidevapps.android.measurements.db.Contract.Base.COLUMN_ROWID;
-import static com.expidevapps.android.measurements.db.Contract.MeasurementPermLink.COLUMN_PERM_LINK_STUB;
-import static com.expidevapps.android.measurements.db.Contract.MeasurementTypeLocalization.COLUMN_LOCALE;
-import static com.expidevapps.android.measurements.db.Contract.MinistryId.COLUMN_MINISTRY_ID;
-import static com.expidevapps.android.measurements.model.MeasurementType.ARG_COLUMN;
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_JOINS;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_ORDER_BY;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_PROJECTION;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE_ARGS;
-import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
-import static org.ccci.gto.android.common.db.Expression.field;
-import static org.ccci.gto.android.common.db.Expression.literal;
-import static org.ccci.gto.android.common.db.Expression.raw;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -65,6 +42,30 @@ import java.util.Locale;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.Optional;
+
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_MCC;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
+import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
+import static com.expidevapps.android.measurements.db.Contract.Base.COLUMN_ROWID;
+import static com.expidevapps.android.measurements.db.Contract.MeasurementPermLink.COLUMN_PERM_LINK_STUB;
+import static com.expidevapps.android.measurements.db.Contract.MeasurementType.COLUMN_LEADER_ONLY;
+import static com.expidevapps.android.measurements.db.Contract.MeasurementTypeLocalization.COLUMN_LOCALE;
+import static com.expidevapps.android.measurements.db.Contract.MinistryId.COLUMN_MINISTRY_ID;
+import static com.expidevapps.android.measurements.model.MeasurementType.ARG_COLUMN;
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_JOINS;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_ORDER_BY;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_PROJECTION;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE_ARGS;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
+import static org.ccci.gto.android.common.db.Expression.field;
+import static org.ccci.gto.android.common.db.Expression.literal;
+import static org.ccci.gto.android.common.db.Expression.raw;
 
 public class MeasurementsPagerFragment extends Fragment {
     static final int LOADER_MEASUREMENTS = 1;
@@ -184,7 +185,7 @@ public class MeasurementsPagerFragment extends Fragment {
         manager.initLoader(LOADER_MEASUREMENTS, getLoaderArgsMeasurements(), mLoaderCallbacksCursor);
     }
 
-    private static final String[] PROJECTION_BASE = {COLUMN_ROWID, COLUMN_PERM_LINK_STUB};
+    private static final String[] PROJECTION_BASE = {COLUMN_ROWID, COLUMN_PERM_LINK_STUB, COLUMN_LEADER_ONLY};
     private static final Join<MeasurementType, PersonalMeasurement> JOIN_PERSONAL_MEASUREMENT =
             Contract.MeasurementType.JOIN_PERSONAL_MEASUREMENT.type("LEFT");
     private static final Join<MeasurementType, MinistryMeasurement> JOIN_MINISTRY_MEASUREMENT =
@@ -247,8 +248,16 @@ public class MeasurementsPagerFragment extends Fragment {
         args.putStringArray(ARG_PROJECTION, projection);
         args.putParcelableArray(ARG_JOINS, joins.toArray(new Join[joins.size()]));
         if (mColumn != null) {
-            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE + " AND " +
-                    Contract.MeasurementType.SQL_WHERE_COLUMN);
+            switch (mType) {
+                case TYPE_LOCAL:
+                    args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE + " AND " +
+                            Contract.MeasurementType.SQL_WHERE_COLUMN);
+                    break;
+                case TYPE_PERSONAL:
+                    args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE + " AND " + Contract.MeasurementType.SQL_WHERE_NOT_LEADER_ONLY + " AND " +
+                            Contract.MeasurementType.SQL_WHERE_COLUMN);
+                    break;
+            }
             args.putStringArray(ARG_WHERE_ARGS, bindValues(mColumn));
         } else {
             args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE);

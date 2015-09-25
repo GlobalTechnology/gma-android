@@ -18,6 +18,8 @@ public class MeasurementType extends Base {
     public static final String INVALID_PERM_LINK_STUB = "";
     public static final int DEFAULT_SORT_ORDER = -1;
     public static final boolean DEFAULT_CUSTOM = true;
+    public static final boolean DEFAULT_SUPPORTED_STAFF_ONLY = false;
+    public static final boolean DEFAULT_LEADER_ONLY = false;
 
     public static final String ARG_COLUMN = MeasurementType.class.getName() + ".ARG_COLUMN";
 
@@ -30,6 +32,8 @@ public class MeasurementType extends Base {
     private static final String JSON_COLUMN = "column";
     private static final String JSON_CUSTOM = "is_custom";
     private static final String JSON_SORT_ORDER = "sort_order";
+    private static final String JSON_LEADER_ONLY = "leader_only";
+    private static final String JSON_SUPPORTED_STAFF_ONLY = "supported_staff_only";
 
     private static final String JSON_TYPE_IDS = "measurement_type_ids";
     private static final String JSON_TYPE_IDS_PERSONAL = "person";
@@ -108,6 +112,8 @@ public class MeasurementType extends Base {
     private Column column = Column.UNKNOWN;
     private boolean custom = DEFAULT_CUSTOM;
     private int sortOrder = DEFAULT_SORT_ORDER;
+    private boolean leaderOnly = DEFAULT_LEADER_ONLY;
+    private boolean supportedStaffOnly = DEFAULT_SUPPORTED_STAFF_ONLY;
     @Nullable
     private MeasurementTypeLocalization mLocalization;
 
@@ -140,6 +146,8 @@ public class MeasurementType extends Base {
         type.column = Column.fromRaw(json.getString(JSON_COLUMN));
         type.custom = json.optBoolean(JSON_CUSTOM, DEFAULT_CUSTOM);
         type.sortOrder = json.optInt(JSON_SORT_ORDER, DEFAULT_SORT_ORDER);
+        type.leaderOnly = json.optBoolean(JSON_LEADER_ONLY, DEFAULT_LEADER_ONLY);
+        type.supportedStaffOnly = json.optBoolean(JSON_SUPPORTED_STAFF_ONLY, DEFAULT_SUPPORTED_STAFF_ONLY);
 
         final JSONObject typeIds = json.optJSONObject(JSON_TYPE_IDS);
         if (typeIds != null) {
@@ -242,6 +250,22 @@ public class MeasurementType extends Base {
 
     public void setSortOrder(final int order) {
         this.sortOrder = order;
+    }
+
+    public boolean isLeaderOnly() {
+        return leaderOnly;
+    }
+
+    public void setLeaderOnly(final boolean leaderOnly) {
+        this.leaderOnly = leaderOnly;
+    }
+
+    public boolean isSupportedStaffOnly() {
+        return supportedStaffOnly;
+    }
+
+    public void setSupportedStaffOnly(final boolean supportedStaffOnly) {
+        this.supportedStaffOnly = supportedStaffOnly;
     }
 
     @Nullable

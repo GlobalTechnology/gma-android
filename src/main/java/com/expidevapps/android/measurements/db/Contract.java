@@ -1,13 +1,13 @@
 package com.expidevapps.android.measurements.db;
 
-import static org.ccci.gto.android.common.db.Expression.field;
-
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import org.ccci.gto.android.common.db.Expression;
 import org.ccci.gto.android.common.db.Join;
 import org.ccci.gto.android.common.db.Table;
+
+import static org.ccci.gto.android.common.db.Expression.field;
 
 public class Contract {
     private Contract() {
@@ -379,11 +379,13 @@ public class Contract {
         public static final String COLUMN_COLUMN = "column";
         public static final String COLUMN_CUSTOM = "custom";
         public static final String COLUMN_SORT_ORDER = "sort_order";
+        public static final String COLUMN_SUPPORTED_STAFF_ONLY = "supported_staff_only";
+        public static final String COLUMN_LEADER_ONLY = "leader_only";
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_PERM_LINK_STUB, COLUMN_PERSONAL_ID, COLUMN_LOCAL_ID, COLUMN_TOTAL_ID, COLUMN_NAME,
                         COLUMN_DESCRIPTION, COLUMN_SECTION, COLUMN_SECTION, COLUMN_COLUMN, COLUMN_CUSTOM,
-                        COLUMN_SORT_ORDER};
+                        COLUMN_SORT_ORDER, COLUMN_SUPPORTED_STAFF_ONLY, COLUMN_LEADER_ONLY};
 
         private static final String SQL_COLUMN_PERSONAL_ID = COLUMN_PERSONAL_ID + " TEXT";
         private static final String SQL_COLUMN_LOCAL_ID = COLUMN_LOCAL_ID + " TEXT";
@@ -394,12 +396,17 @@ public class Contract {
         private static final String SQL_COLUMN_COLUMN = COLUMN_COLUMN + " TEXT";
         private static final String SQL_COLUMN_CUSTOM = COLUMN_CUSTOM + " INTEGER NOT NULL DEFAULT 0";
         private static final String SQL_COLUMN_SORT_ORDER = COLUMN_SORT_ORDER + " INTEGER";
+        private static final String SQL_COLUMN_SUPPORTED_STAFF_ONLY = COLUMN_SUPPORTED_STAFF_ONLY + " INTEGER";
+        private static final String SQL_COLUMN_LEADER_ONLY = COLUMN_LEADER_ONLY + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_PERM_LINK_STUB + ")";
 
         public static final String SQL_PREFIX = TABLE_NAME + ".";
 
         static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_PERM_LINK_STUB;
         public static final String SQL_WHERE_COLUMN = SQL_PREFIX + COLUMN_COLUMN + " = ?";
+
+        public static final String SQL_WHERE_NOT_LEADER_ONLY = SQL_PREFIX + COLUMN_LEADER_ONLY + " != 1";
+
         public static final String SQL_WHERE_VISIBLE =
                 "(" + MeasurementVisibility.SQL_PREFIX + MeasurementVisibility.COLUMN_VISIBLE + " = 1 OR (" +
                         SQL_PREFIX + COLUMN_CUSTOM + " = 0 AND " + MeasurementVisibility.SQL_PREFIX +
@@ -425,8 +432,8 @@ public class Contract {
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_PERSONAL_ID, SQL_COLUMN_LOCAL_ID,
                         SQL_COLUMN_TOTAL_ID, SQL_COLUMN_NAME, SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_DESCRIPTION,
-                        SQL_COLUMN_SECTION, SQL_COLUMN_COLUMN, SQL_COLUMN_CUSTOM, SQL_COLUMN_SORT_ORDER,
-                        SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
+                        SQL_COLUMN_SECTION, SQL_COLUMN_COLUMN, SQL_COLUMN_CUSTOM, SQL_COLUMN_SORT_ORDER, SQL_COLUMN_SUPPORTED_STAFF_ONLY,
+                        SQL_COLUMN_LEADER_ONLY, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
         @Deprecated
@@ -444,6 +451,11 @@ public class Contract {
                 SQL_V27_UPDATE_PERMLINKSTUB_BASE;
         @Deprecated
         static final String SQL_V32_ALTER_CUSTOM = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_CUSTOM;
+        @Deprecated
+        static final String SQL_V47_ALTER_SUPPORTED_STAFF_ONLY = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_SUPPORTED_STAFF_ONLY;
+        @Deprecated
+        static final String SQL_V48_ALTER_LEADER_ONLY = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_LEADER_ONLY;
+
     }
 
     public static final class MeasurementTypeLocalization extends Base implements MinistryId, MeasurementPermLink {
