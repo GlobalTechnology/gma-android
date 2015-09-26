@@ -1,13 +1,14 @@
 package com.expidevapps.android.measurements.db;
 
-import static com.expidevapps.android.measurements.db.Contract.Assignment.COLUMN_PERSON_ID;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Ministry;
+
+import static com.expidevapps.android.measurements.db.Contract.Assignment.COLUMN_PERSON_ID;
+import static com.expidevapps.android.measurements.db.Contract.Assignment.COLUMN_SUPPORTED_STAFF;
 
 public class AssignmentMapper extends BaseMapper<Assignment> {
     @Override
@@ -32,6 +33,9 @@ public class AssignmentMapper extends BaseMapper<Assignment> {
             case COLUMN_PERSON_ID:
                 values.put(field, assignment.getPersonId());
                 break;
+            case COLUMN_SUPPORTED_STAFF:
+                values.put(field, assignment.isSupportedStaff());
+                break;
             default:
                 super.mapField(values, field, assignment);
                 break;
@@ -50,6 +54,7 @@ public class AssignmentMapper extends BaseMapper<Assignment> {
     public Assignment toObject(@NonNull final Cursor c) {
         final Assignment assignment = super.toObject(c);
         assignment.setPersonId(getString(c, COLUMN_PERSON_ID, null));
+        assignment.setSupportedStaff(getBool(c, COLUMN_SUPPORTED_STAFF, false));
         assignment.setId(this.getString(c, Contract.Assignment.COLUMN_ID, null));
         assignment.setRole(this.getString(c, Contract.Assignment.COLUMN_ROLE, null));
         assignment.setMcc(Ministry.Mcc.fromRaw(getString(c, Contract.Assignment.COLUMN_MCC, null)));

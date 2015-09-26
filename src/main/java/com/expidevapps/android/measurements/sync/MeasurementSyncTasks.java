@@ -1,14 +1,5 @@
 package com.expidevapps.android.measurements.sync;
 
-import static com.expidevapps.android.measurements.BuildConfig.GMA_API_VERSION;
-import static com.expidevapps.android.measurements.Constants.ARG_MCC;
-import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
-import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINK;
-import static com.expidevapps.android.measurements.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
-import static com.expidevapps.android.measurements.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
-import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
-
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
@@ -46,6 +37,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import static com.expidevapps.android.measurements.BuildConfig.GMA_API_VERSION;
+import static com.expidevapps.android.measurements.Constants.ARG_MCC;
+import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
+import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINK;
+import static com.expidevapps.android.measurements.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
+import static com.expidevapps.android.measurements.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
+
 class MeasurementSyncTasks extends BaseSyncTasks {
     private static final String SYNC_TIME_MEASUREMENT_TYPES = "last_synced.measurement.types";
     private static final String SYNC_TIME_MEASUREMENTS = "last_synced.measurements";
@@ -64,13 +64,15 @@ class MeasurementSyncTasks extends BaseSyncTasks {
                     Contract.MeasurementType.COLUMN_SECTION, Contract.MeasurementType.COLUMN_COLUMN,
                     Contract.MeasurementType.COLUMN_SORT_ORDER, Contract.MeasurementType.COLUMN_PERSONAL_ID,
                     Contract.MeasurementType.COLUMN_LOCAL_ID, Contract.MeasurementType.COLUMN_TOTAL_ID,
-                    Contract.MeasurementType.COLUMN_CUSTOM, Contract.MeasurementType.COLUMN_LAST_SYNCED};
+                    Contract.MeasurementType.COLUMN_CUSTOM, Contract.MeasurementType.COLUMN_LAST_SYNCED,
+                    Contract.MeasurementType.COLUMN_LEADER_ONLY, Contract.MeasurementType.COLUMN_SUPPORTED_STAFF_ONLY};
     private static final String[] PROJECTION_SYNC_MEASUREMENTS_TYPE =
             {Contract.MeasurementType.COLUMN_NAME, Contract.MeasurementType.COLUMN_DESCRIPTION,
                     Contract.MeasurementType.COLUMN_SECTION, Contract.MeasurementType.COLUMN_COLUMN,
                     Contract.MeasurementType.COLUMN_SORT_ORDER, Contract.MeasurementType.COLUMN_LOCAL_ID,
                     Contract.MeasurementType.COLUMN_PERSONAL_ID, Contract.MeasurementType.COLUMN_TOTAL_ID,
-                    Contract.MeasurementType.COLUMN_CUSTOM, Contract.MeasurementType.COLUMN_LAST_SYNCED};
+                    Contract.MeasurementType.COLUMN_CUSTOM, Contract.MeasurementType.COLUMN_LAST_SYNCED,
+                    Contract.MeasurementType.COLUMN_LEADER_ONLY, Contract.MeasurementType.COLUMN_SUPPORTED_STAFF_ONLY};
     private static final String[] PROJECTION_SYNC_MEASUREMENTS_MINISTRY_MEASUREMENT =
             {Contract.MinistryMeasurement.COLUMN_VALUE, Contract.MinistryMeasurement.COLUMN_LAST_SYNCED};
     private static final String[] PROJECTION_SYNC_MEASUREMENTS_PERSONAL_MEASUREMENT =

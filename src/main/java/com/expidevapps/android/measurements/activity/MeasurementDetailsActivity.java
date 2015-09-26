@@ -1,12 +1,5 @@
 package com.expidevapps.android.measurements.activity;
 
-import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
-import static com.expidevapps.android.measurements.Constants.EXTRA_MCC;
-import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
-import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINK;
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,6 +18,13 @@ import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.fragment.measurement.MeasurementDetailsFragment;
 
 import org.joda.time.YearMonth;
+
+import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
+import static com.expidevapps.android.measurements.Constants.EXTRA_MCC;
+import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
+import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINK;
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
 
 public class MeasurementDetailsActivity extends AppCompatActivity {
     private static final String TAG_DETAILS = "measurementDetails";
@@ -92,7 +92,7 @@ public class MeasurementDetailsActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 final Intent upIntent = NavUtils.getParentActivityIntent(this);
-                MeasurementsActivity.populateIntent(upIntent, mGuid, mMinistryId, mMcc, TYPE_NONE, mPeriod);
+                MeasurementsActivity.populateIntent(upIntent, mGuid, mMinistryId, mMcc, TYPE_NONE, false, mPeriod);
 
                 if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
                     // This activity is NOT part of this app's task, so create a new task

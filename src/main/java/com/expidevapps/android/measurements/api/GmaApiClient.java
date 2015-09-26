@@ -1,8 +1,5 @@
 package com.expidevapps.android.measurements.api;
 
-import static com.expidevapps.android.measurements.Constants.MEASUREMENTS_SOURCE;
-import static com.expidevapps.android.measurements.Constants.PREFS_USER;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
@@ -54,6 +51,9 @@ import java.util.Set;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.TheKeyImpl;
 
+import static com.expidevapps.android.measurements.Constants.MEASUREMENTS_SOURCE;
+import static com.expidevapps.android.measurements.Constants.PREFS_USER;
+
 public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Session>, Session> {
     private static final Logger LOG = LoggerFactory.getLogger(GmaApiClient.class);
     private final String TAG = getClass().getSimpleName();
@@ -64,6 +64,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
     private static final String PREF_COOKIES = "cookies";
     private static final String PREF_PERSON_ID = "user.person_id";
+    private static final String PREF_SUPPORTED_STAFF = "user_preferences.supported_staff";
 
     private static final String ASSIGNMENTS = "assignments";
     private static final String CHURCHES = "churches";
@@ -131,15 +132,19 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
                             final JSONObject user = json.optJSONObject("user");
                             final String personId = user != null ? user.optString("person_id") : null;
 
+                            // get the user preference supported_staff for this session
+                            final JSONObject userPreferences = json.optJSONObject("user_preferences");
+                            final String supportedStaff = userPreferences != null ? userPreferences.optString("supported_staff") : null;
+
                             // save the returned associated ministries
                             // XXX: this isn't ideal and crosses logical components, but I can't think of a cleaner way to do it currently -DF
-                            GmaSyncService.saveAssignments(mContext, request.guid, personId,
-                                                           json.optJSONArray("assignments"));
+                            GmaSyncService.saveAssignments(mContext, request.guid, personId, (supportedStaff != null ? Integer.valueOf(supportedStaff) : 0),
+                                    json.optJSONArray("assignments"));
 
                             saveUser(user);
 
                             // create session object
-                            return new Session(json.optString("session_ticket", null), cookies, personId, request.guid);
+                            return new Session(json.optString("session_ticket", null), cookies, personId, supportedStaff, request.guid);
                         } else {
                             // authentication with the ticket failed, let's clear the cached service in case that caused the issue
                             if (service.equals(getCachedService())) {
@@ -546,7 +551,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 assert request.guid != null : "request.guid should be non-null because the request was successful";
                 return Assignment.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())), request.guid,
-                                               request.session != null ? request.session.mPersonId : null);
+                                               request.session != null ? request.session.mPersonId : null,
+                        request.session != null ? ((request.session.mSupportedStaff != null) ? Integer.parseInt(request.session.mSupportedStaff) : 0) : 0);
             }
         } catch (final JSONException e) {
             Log.e(TAG, "error parsing getAllMinistries response", e);
@@ -586,7 +592,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             // if successful return parsed response
             if (conn.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
                 return Assignment.fromJson(new JSONObject(IOUtils.readString(conn.getInputStream())), guid,
-                                           request.session != null ? request.session.mPersonId : null);
+                                           request.session != null ? request.session.mPersonId : null,
+                        request.session != null ? (request.session.mSupportedStaff != null ? Integer.valueOf(request.session.mSupportedStaff) : 0) : 0);
             }
         } catch (final IOException e) {
             throw new ApiSocketException(e);
@@ -835,12 +842,14 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         final Set<String> cookies;
         @Nullable
         final String mPersonId;
+        final String mSupportedStaff;
 
-        Session(@Nullable final String id, @Nullable final Collection<String> cookies, @Nullable final String personId,
+        Session(@Nullable final String id, @Nullable final Collection<String> cookies, @Nullable final String personId, final String supportedStaff,
                 @Nullable final String guid) {
             super(id, guid);
             this.cookies = Collections.unmodifiableSet(new HashSet<>(cookies));
             mPersonId = personId;
+            mSupportedStaff = supportedStaff;
         }
 
         Session(@NonNull final SharedPreferences prefs, @Nullable final String guid) {
@@ -848,6 +857,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             this.cookies = Collections.unmodifiableSet(SharedPreferencesUtils.getStringSet(
                     prefs, getPrefAttrName(PREF_COOKIES), Collections.<String>emptySet()));
             mPersonId = prefs.getString(getPrefAttrName(PREF_PERSON_ID), null);
+            mSupportedStaff = prefs.getString(getPrefAttrName(PREF_SUPPORTED_STAFF), null);
         }
 
         @Override
@@ -855,6 +865,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             super.save(prefs);
             SharedPreferencesUtils.putStringSet(prefs, getPrefAttrName(PREF_COOKIES), this.cookies);
             prefs.putString(getPrefAttrName(PREF_PERSON_ID), mPersonId);
+            prefs.putString(getPrefAttrName(PREF_SUPPORTED_STAFF), String.valueOf(mSupportedStaff));
         }
 
         @Override
@@ -862,6 +873,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             super.delete(prefs);
             prefs.remove(getPrefAttrName(PREF_COOKIES));
             prefs.remove(getPrefAttrName(PREF_PERSON_ID));
+            prefs.remove(getPrefAttrName(PREF_SUPPORTED_STAFF));
         }
 
         @Override
@@ -873,7 +885,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
                 return false;
             }
             final Session that = (Session) o;
-            return super.equals(o) && this.cookies.equals(that.cookies) && Objects.equal(mPersonId, that.mPersonId);
+            return super.equals(o) && this.cookies.equals(that.cookies) && Objects.equal(mPersonId, that.mPersonId) && Objects.equal(mSupportedStaff, that.mSupportedStaff);
         }
 
         @Override

@@ -74,6 +74,7 @@ public class Assignment extends Base implements Cloneable {
     private String id;
     @Nullable
     private String mPersonId;
+    private boolean mSupportedStaff = false;
     @NonNull
     private Role role = Role.UNKNOWN;
     @NonNull
@@ -86,26 +87,27 @@ public class Assignment extends Base implements Cloneable {
 
     @NonNull
     public static List<Assignment> listFromJson(@NonNull final JSONArray json, @NonNull final String guid,
-                                                @Nullable final String personId) throws JSONException {
+                                                @Nullable final String personId, final int supportedStaff) throws JSONException {
         final List<Assignment> assignments = new ArrayList<>();
         for (int i = 0; i < json.length(); i++) {
-            assignments.add(fromJson(json.getJSONObject(i), guid, personId));
+            assignments.add(fromJson(json.getJSONObject(i), guid, personId, supportedStaff));
         }
         return assignments;
     }
 
     @NonNull
     public static Assignment fromJson(@NonNull final JSONObject json, @NonNull final String guid,
-                                      @Nullable final String personId) throws JSONException {
+                                      @Nullable final String personId, final int supportedStaff) throws JSONException {
         final Assignment assignment = new Assignment(guid, json.getString(JSON_MINISTRY_ID));
         assignment.mPersonId = personId;
+        assignment.mSupportedStaff = supportedStaff > 0;
         assignment.id = json.optString(JSON_ID);
         assignment.role = Role.fromRaw(json.optString(JSON_ROLE));
 
         // parse any inherited assignments
         final JSONArray subAssignments = json.optJSONArray(JSON_SUB_ASSIGNMENTS);
         if (subAssignments != null) {
-            assignment.subAssignments.addAll(listFromJson(subAssignments, guid, personId));
+            assignment.subAssignments.addAll(listFromJson(subAssignments, guid, personId, supportedStaff));
         }
 
         // parse the merged ministry object
@@ -122,6 +124,7 @@ public class Assignment extends Base implements Cloneable {
     protected Assignment(@NonNull final Assignment assignment) {
         super(assignment);
         mPersonId = assignment.mPersonId;
+        this.mSupportedStaff = assignment.mSupportedStaff;
         this.guid = assignment.guid;
         this.ministryId = assignment.ministryId;
         this.id = assignment.id;
@@ -157,6 +160,14 @@ public class Assignment extends Base implements Cloneable {
 
     public void setPersonId(@Nullable final String personId) {
         mPersonId = personId;
+    }
+
+    public boolean isSupportedStaff() {
+        return mSupportedStaff;
+    }
+
+    public void setSupportedStaff(final boolean supportedStaff) {
+        mSupportedStaff = supportedStaff;
     }
 
     @NonNull

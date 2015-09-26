@@ -1,17 +1,5 @@
 package com.expidevapps.android.measurements.support.v4.fragment.measurement;
 
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-import static com.expidevapps.android.measurements.Constants.ARG_MCC;
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
-import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_DISTINCT;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_JOINS;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_PROJECTION;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE;
-import static org.ccci.gto.android.common.db.Expression.raw;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -52,6 +40,19 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.Optional;
 
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_MCC;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
+import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
+import static com.expidevapps.android.measurements.Constants.ARG_SUPPORTED_STAFF;
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_DISTINCT;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_JOINS;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_PROJECTION;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE;
+import static org.ccci.gto.android.common.db.Expression.raw;
+
 public class ColumnsListFragment extends Fragment {
     static final int LOADER_COLUMNS = 1;
 
@@ -74,10 +75,12 @@ public class ColumnsListFragment extends Fragment {
     private /* final */ Mcc mMcc = Mcc.UNKNOWN;
     @NonNull
     private /* final */ YearMonth mPeriod;
+    @ValueType
+    private boolean mSupportedStaff = false;
 
     public static ColumnsListFragment newInstance(@ValueType final int type, @NonNull final String guid,
                                                   @NonNull final String ministryId, @NonNull final Mcc mcc,
-                                                  @NonNull final YearMonth period) {
+                                                  @NonNull final YearMonth period, @ValueType final boolean supportedStaff) {
         final ColumnsListFragment fragment = new ColumnsListFragment();
 
         final Bundle args = new Bundle();
@@ -86,6 +89,7 @@ public class ColumnsListFragment extends Fragment {
         args.putString(ARG_MINISTRY_ID, ministryId);
         args.putString(ARG_MCC, mcc.toString());
         args.putString(ARG_PERIOD, period.toString());
+        args.putBoolean(ARG_SUPPORTED_STAFF, supportedStaff);
         fragment.setArguments(args);
 
         return fragment;
@@ -115,6 +119,7 @@ public class ColumnsListFragment extends Fragment {
         mMinistryId = args.getString(ARG_MINISTRY_ID);
         mMcc = Mcc.fromRaw(args.getString(ARG_MCC));
         mPeriod = YearMonth.parse(args.getString(ARG_PERIOD));
+        mSupportedStaff = args.getBoolean(ARG_SUPPORTED_STAFF, mSupportedStaff);
     }
 
     @Override
@@ -338,7 +343,7 @@ public class ColumnsListFragment extends Fragment {
                 final Fragment fragment = fm.findFragmentById(holder.mPagerId);
                 if (fragment == null || oldColumn != holder.mColumn) {
                     fm.beginTransaction().replace(holder.mPagerId, MeasurementsPagerFragment
-                            .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, holder.mColumn)).commit();
+                            .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, mSupportedStaff, holder.mColumn)).commit();
                 }
             }
         }

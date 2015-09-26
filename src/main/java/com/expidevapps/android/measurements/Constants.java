@@ -37,6 +37,7 @@ public final class Constants {
     public static final String ARG_PERIOD = "period";
     public static final String ARG_TYPE = "type";
     public static final String ARG_LOCATION = "location";
+    public static final String ARG_SUPPORTED_STAFF = "supported_staff";
 
     /* common extra's */
     public static final String EXTRA_GUID = "guid";
@@ -48,6 +49,7 @@ public final class Constants {
     public static final String EXTRA_PERMLINKS = "perm_links";
     public static final String EXTRA_TRAINING_IDS = "training_ids";
     public static final String EXTRA_TYPE = "type";
+    public static final String EXTRA_SUPPORTED_STAFF = "supported_staff";
 
     /* measurements source */
     public static final String MEASUREMENTS_SOURCE = "gma-app";

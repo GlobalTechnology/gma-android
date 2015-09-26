@@ -47,6 +47,7 @@ import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.ARG_MCC;
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
+import static com.expidevapps.android.measurements.Constants.ARG_SUPPORTED_STAFF;
 import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
 import static com.expidevapps.android.measurements.db.Contract.Base.COLUMN_ROWID;
 import static com.expidevapps.android.measurements.db.Contract.MeasurementPermLink.COLUMN_PERM_LINK_STUB;
@@ -85,6 +86,8 @@ public class MeasurementsPagerFragment extends Fragment {
     private /* final */ YearMonth mPeriod;
     @ValueType
     private /* final */ int mType = TYPE_NONE;
+    @ValueType
+    private boolean mSupportedStaff = false;
 
     @Nullable
     @Optional
@@ -101,6 +104,7 @@ public class MeasurementsPagerFragment extends Fragment {
                                                         @NonNull final String ministryId,
                                                         @NonNull final Ministry.Mcc mcc,
                                                         @NonNull final YearMonth period,
+                                                        @ValueType final boolean supportedStaff,
                                                         @NonNull final MeasurementType.Column column) {
         final MeasurementsPagerFragment fragment = new MeasurementsPagerFragment();
 
@@ -111,6 +115,7 @@ public class MeasurementsPagerFragment extends Fragment {
         args.putString(ARG_MCC, mcc.toString());
         args.putString(ARG_PERIOD, period.toString());
         args.putString(ARG_COLUMN, column.toString());
+        args.putBoolean(ARG_SUPPORTED_STAFF, supportedStaff);
         fragment.setArguments(args);
 
         return fragment;
@@ -131,6 +136,7 @@ public class MeasurementsPagerFragment extends Fragment {
         mMcc = Ministry.Mcc.fromRaw(args.getString(ARG_MCC));
         mPeriod = YearMonth.parse(args.getString(ARG_PERIOD));
         mColumn = MeasurementType.Column.fromRaw(args.getString(ARG_COLUMN));
+        mSupportedStaff = args.getBoolean(ARG_SUPPORTED_STAFF, mSupportedStaff);
     }
 
     @Override
@@ -251,11 +257,13 @@ public class MeasurementsPagerFragment extends Fragment {
             switch (mType) {
                 case TYPE_LOCAL:
                     args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE + " AND " +
-                            Contract.MeasurementType.SQL_WHERE_COLUMN);
+                            Contract.MeasurementType.SQL_WHERE_COLUMN +
+                            (mSupportedStaff == false ? " AND " + Contract.MeasurementType.SQL_WHERE_NOT_SUPPORTED_STAFF_ONLY : ""));
                     break;
                 case TYPE_PERSONAL:
                     args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE + " AND " + Contract.MeasurementType.SQL_WHERE_NOT_LEADER_ONLY + " AND " +
-                            Contract.MeasurementType.SQL_WHERE_COLUMN);
+                            Contract.MeasurementType.SQL_WHERE_COLUMN +
+                            (mSupportedStaff == false ? " AND " + Contract.MeasurementType.SQL_WHERE_NOT_SUPPORTED_STAFF_ONLY : ""));
                     break;
             }
             args.putStringArray(ARG_WHERE_ARGS, bindValues(mColumn));
