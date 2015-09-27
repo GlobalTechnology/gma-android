@@ -20,6 +20,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Geocoder;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -27,9 +30,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.util.LongSparseArray;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +65,7 @@ import com.expidevapps.android.measurements.support.v4.content.TrainingsLoader;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -69,6 +79,7 @@ import org.ccci.gto.android.common.db.Transaction;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
 
+import java.io.IOException;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -91,6 +102,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private final ChurchesLoaderCallbacks mLoaderCallbacksChurches = new ChurchesLoaderCallbacks();
     private final TrainingsLoaderCallbacks mLoaderCallbacksTraining = new TrainingsLoaderCallbacks();
 
+    @Nullable
+    private SearchView mSearchView;
     @Optional
     @Nullable
     @InjectView(R.id.map)
@@ -121,6 +134,12 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private List<Church> mChurches;
     @NonNull
     private LongSparseArray<ChurchItem> mVisibleChurches = new LongSparseArray<>();
+    @NonNull
+    private String mQuery = "";
+    @NonNull
+    private final LocationQueryListener mListenerQueryText = new LocationQueryListener();
+    @Nullable
+    private SearchLocationTask mSearchLocationTask;
 
     public static MapFragment newInstance(@NonNull final String guid) {
         final MapFragment fragment = new MapFragment();
@@ -178,6 +197,14 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         super.onResume();
         loadVisibleMapLayers();
         updateMapMarkers();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_find_ministry, menu);
+        // configure the search view
+        setupSearchView(menu);
     }
 
     @Override
@@ -302,6 +329,57 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     }
 
     /* END lifecycle */
+
+    private void searchLocation() {
+        final SearchLocationTask old = mSearchLocationTask;
+
+        // create & execute new task
+        mSearchLocationTask = new SearchLocationTask();
+        mSearchLocationTask.execute(mQuery);
+
+        // stop old task
+        if (old != null) {
+            old.cancel(true);
+        }
+    }
+
+    void onUpdateLocationQuery(@NonNull final String query) {
+        final String old = mQuery;
+        mQuery = query;
+
+        // only fetch a new Ministries Cursor if the query has changed
+        if (!old.equals(mQuery)) {
+            searchLocation();
+        }
+    }
+
+    private void changeMapLocation(@NonNull Address address) {
+        if (address != null) {
+            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+
+            CameraUpdate update = CameraUpdateFactory.newLatLng(latLng);
+            mMap.moveCamera(update);
+        }
+    }
+
+    private void setupSearchView(@NonNull final Menu menu) {
+        // find the search view
+        final MenuItem item = menu.findItem(R.id.action_search);
+        final View searchView = item != null ? MenuItemCompat.getActionView(item) : null;
+        mSearchView = searchView instanceof SearchView ? (SearchView) searchView : null;
+
+        // initialize the search view
+        if (mSearchView != null) {
+            // expand and populate query if we currently have one
+            if (!TextUtils.isEmpty(mQuery)) {
+                MenuItemCompat.expandActionView(item);
+                mSearchView.setQuery(mQuery, false);
+                mSearchView.clearFocus();
+            }
+
+            mSearchView.setOnQueryTextListener(mListenerQueryText);
+        }
+    }
 
     private void syncData(final boolean force) {
         // trigger background syncing of data
@@ -569,6 +647,20 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         }
     }
 
+    private final class LocationQueryListener implements SearchView.OnQueryTextListener {
+        @Override
+        public boolean onQueryTextSubmit(@NonNull final String query) {
+            onUpdateLocationQuery(query);
+            return false;
+        }
+
+        @Override
+        public boolean onQueryTextChange(@NonNull final String newText) {
+            onUpdateLocationQuery(newText);
+            return false;
+        }
+    }
+
     private static class UpdateLocationRunnable implements Runnable {
         @NonNull
         private final Context mContext;
@@ -728,6 +820,34 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 case LOADER_TRAININGS:
                     onLoadTrainings(trainings);
             }
+        }
+    }
+
+    private final class SearchLocationTask extends AsyncTask<String, Void, Address> {
+
+        @NonNull
+        @Override
+        protected Address doInBackground(@NonNull final String... params) {
+            Address targetAddress = null;
+            if (params.length == 1 && !TextUtils.isEmpty(params[0])) {
+                try {
+                    List<Address> result = new Geocoder(getActivity()).getFromLocationName(params[0], 1);
+                    if (result.size() > 0) {
+                        targetAddress = result.get(0);
+                    }
+                }
+                catch (IOException e) {
+                    Log.e("IOException", "IOException");
+                }
+            }
+
+            return targetAddress;
+        }
+
+        @Override
+        protected void onPostExecute(@NonNull final Address address) {
+            super.onPostExecute(address);
+            changeMapLocation(address);
         }
     }
 }
