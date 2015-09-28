@@ -137,9 +137,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                             final JSONObject user = json.optJSONObject("user");
                             final String personId = user != null ? user.optString("person_id") : null;
 
-                            // get the user preference supported_staff for this session
+                            // save the user preferences
+                            // XXX: not ideal and crosses logical components, but there currently isn't a cleaner way to persist this data
                             final JSONObject userPreferences = json.optJSONObject("user_preferences");
+                            GmaSyncService.savePreferences(mContext, request.context.guid, userPreferences);
 
+                            // get the user preference supported_staff for this session
                             String supportedStaff = userPreferences != null ? userPreferences.optString("supported_staff") : "0";
                             if (supportedStaff.isEmpty()) {
                                 supportedStaff = "0";

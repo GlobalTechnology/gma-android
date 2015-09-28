@@ -340,6 +340,28 @@ public class Contract {
                 " " + SQL_COLUMN_JESUS_FILM_ACTIVITY;
     }
 
+    public static final class UserPreference extends Base implements Guid {
+        public static final String TABLE_NAME = "userPreferences";
+
+        static final String COLUMN_NAME = "name";
+        public static final String COLUMN_VALUE = "value";
+
+        static final String[] PROJECTION_ALL =
+                {COLUMN_ROWID, COLUMN_GUID, COLUMN_NAME, COLUMN_VALUE, COLUMN_NEW, COLUMN_DIRTY};
+
+        private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
+        private static final String SQL_COLUMN_VALUE = COLUMN_VALUE + " TEXT";
+        private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_GUID + "," + COLUMN_NAME + ")";
+
+        private static final String SQL_WHERE_NAME = COLUMN_NAME + " = ?";
+        static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_GUID + " AND " + SQL_WHERE_NAME;
+
+        static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
+                .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_GUID, SQL_COLUMN_NAME, SQL_COLUMN_VALUE,
+                        COLUMN_NEW, COLUMN_DIRTY, SQL_PRIMARY_KEY}) + ")";
+        static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
+
     ///////////////////////////////////////////////////////////////
     //              Measurement Contracts                       //
     //////////////////////////////////////////////////////////////

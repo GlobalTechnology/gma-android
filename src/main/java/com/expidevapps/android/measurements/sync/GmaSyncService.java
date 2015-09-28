@@ -1,23 +1,5 @@
 package com.expidevapps.android.measurements.sync;
 
-import android.accounts.Account;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SyncResult;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
-import com.expidevapps.android.measurements.model.Ministry.Mcc;
-
-import org.ccci.gto.android.common.app.ThreadedIntentService;
-import org.joda.time.YearMonth;
-import org.json.JSONArray;
-
-import me.thekey.android.lib.accounts.AccountUtils;
-
 import static com.expidevapps.android.measurements.BuildConfig.ACCOUNT_TYPE;
 import static com.expidevapps.android.measurements.BuildConfig.SYNC_AUTHORITY;
 import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
@@ -41,7 +23,28 @@ import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MINISTRIES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_NONE;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_SAVE_ASSIGNMENTS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_SAVE_PREFERENCES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_TRAININGS;
+import static com.expidevapps.android.measurements.sync.UserPreferenceSyncTasks.EXTRA_PREFERENCES;
+
+import android.accounts.Account;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SyncResult;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import com.expidevapps.android.measurements.model.Ministry.Mcc;
+
+import org.ccci.gto.android.common.app.ThreadedIntentService;
+import org.joda.time.YearMonth;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import me.thekey.android.lib.accounts.AccountUtils;
 
 public class GmaSyncService extends ThreadedIntentService {
     @NonNull
@@ -55,6 +58,15 @@ public class GmaSyncService extends ThreadedIntentService {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_MINISTRIES);
         intent.putExtras(baseExtras(guid, force));
+        context.startService(intent);
+    }
+
+    public static void savePreferences(@NonNull final Context context, @NonNull final String guid,
+                                       @Nullable final JSONObject preferences) {
+        final Intent intent = new Intent(context, GmaSyncService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_SAVE_PREFERENCES);
+        intent.putExtras(baseExtras(guid, false));
+        intent.putExtra(EXTRA_PREFERENCES, preferences != null ? preferences.toString() : null);
         context.startService(intent);
     }
 
