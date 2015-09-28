@@ -149,10 +149,10 @@ dependencies {
     compile 'me.thekey.android:thekey-api:1.0.0'
     compile 'me.thekey.android:thekey-lib:1.0.0'
 
-    compile 'org.ccci.gto.android:gto-support-api:0.6.3-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-core:0.6.3-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-db:0.6.3-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-recyclerview:0.6.3-SNAPSHOT'
+    compile 'org.ccci.gto.android:gto-support-api:0.7.0-SNAPSHOT'
+    compile 'org.ccci.gto.android:gto-support-core:0.7.0-SNAPSHOT'
+    compile 'org.ccci.gto.android:gto-support-db:0.7.0-SNAPSHOT'
+    compile 'org.ccci.gto.android:gto-support-recyclerview:0.7.0-SNAPSHOT'
 
     compile 'org.slf4j:slf4j-api:1.7.12'
     compile 'org.slf4j:slf4j-android:1.7.12'

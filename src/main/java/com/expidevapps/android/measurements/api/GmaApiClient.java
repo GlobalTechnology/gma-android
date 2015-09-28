@@ -7,10 +7,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.expidevapps.android.measurements.BuildConfig;
+import com.expidevapps.android.measurements.api.GmaApiClient.Request;
 import com.expidevapps.android.measurements.api.GmaApiClient.Session;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Church;
@@ -27,6 +29,7 @@ import com.google.common.base.Objects;
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
 import org.ccci.gto.android.common.api.AbstractApi.Request.Method;
 import org.ccci.gto.android.common.api.AbstractTheKeyApi;
+import org.ccci.gto.android.common.api.AbstractTheKeyApi.ExecutionContext;
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.api.ApiSocketException;
 import org.ccci.gto.android.common.util.IOUtils;
@@ -54,7 +57,7 @@ import java.util.Set;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.TheKeyImpl;
 
-public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Request<Session>, Session> {
+public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionContext<Session>, Session> {
     private static final Logger LOG = LoggerFactory.getLogger(GmaApiClient.class);
     private final String TAG = getClass().getSimpleName();
 
@@ -101,19 +104,22 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
     @Override
     protected Session loadSession(@NonNull final SharedPreferences prefs, @NonNull final Request request) {
-        return new Session(prefs, request.guid);
+        assert request.context != null;
+        return new Session(prefs, request.context.guid);
     }
 
     @Nullable
     @Override
-    protected Session establishSession(@NonNull final Request<Session> request) throws ApiException {
+    protected Session establishSession(@NonNull final Request request) throws ApiException {
+        assert request.context != null;
+
         HttpURLConnection conn = null;
         try {
-            if (request.guid != null) {
+            if (request.context.guid != null) {
                 final String service = getService();
                 if (service != null) {
                     // get a ticket for this user
-                    final String ticket = mTheKey.getTicket(request.guid, service);
+                    final String ticket = mTheKey.getTicket(request.context.guid, service);
                     if (ticket != null) {
                         // issue getToken request
                         conn = this.getToken(ticket, false);
@@ -133,13 +139,14 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
                             // save the returned associated ministries
                             // XXX: this isn't ideal and crosses logical components, but I can't think of a cleaner way to do it currently -DF
-                            GmaSyncService.saveAssignments(mContext, request.guid, personId,
+                            GmaSyncService.saveAssignments(mContext, request.context.guid, personId,
                                                            json.optJSONArray("assignments"));
 
                             saveUser(user);
 
                             // create session object
-                            return new Session(json.optString("session_ticket", null), cookies, personId, request.guid);
+                            return new Session(json.optString("session_ticket", null), cookies, personId,
+                                               request.context.guid);
                         } else {
                             // authentication with the ticket failed, let's clear the cached service in case that caused the issue
                             if (service.equals(getCachedService())) {
@@ -180,25 +187,20 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     }
 
     @Override
-    protected void onPrepareRequest(@NonNull final HttpURLConnection conn, @NonNull final Request<Session> request)
-    throws ApiException, IOException {
+    protected void onPrepareRequest(@NonNull final HttpURLConnection conn, @NonNull final Request request)
+            throws ApiException, IOException {
         super.onPrepareRequest(conn, request);
+        assert request.context != null;
 
         // attach cookies when using the session
         // XXX: this should go away once we remove the cookie requirement on the API
-        if (request.useSession && request.session != null) {
-            conn.addRequestProperty("Cookie", TextUtils.join("; ", request.session.cookies));
+        if (request.useSession && request.context.session != null) {
+            conn.addRequestProperty("Cookie", TextUtils.join("; ", request.context.session.cookies));
         }
         //Add bearer token code to replace URI token id [MMAND-12]
-        if(request.useSession && request.session != null) {
-            conn.addRequestProperty("Authorization", "Bearer " + request.session.id);
+        if (request.useSession && request.context.session != null) {
+            conn.addRequestProperty("Authorization", "Bearer " + request.context.session.id);
         }
-    }
-
-    @Override
-    protected void onCleanupRequest(@NonNull final Request<Session> request) {
-        // we don't call the super method to prevent wiping the guid on a successful request
-        // super.onCleanupRequest(request);
     }
 
     @NonNull
@@ -221,7 +223,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     @NonNull
     private HttpURLConnection getToken(@NonNull final String ticket, final boolean refresh) throws ApiException {
         // build login request
-        final Request<Session> login = new Request<>(TOKEN);
+        final Request login = new Request(TOKEN);
         login.accept = MediaType.APPLICATION_JSON;
         login.params.add(param("st", ticket));
         login.params.add(param("refresh", refresh));
@@ -241,7 +243,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     @Nullable
     public List<Ministry> getMinistries(final boolean refresh) throws ApiException {
         // build request
-        final Request<Session> request = new Request<>(MINISTRIES);
+        final Request request = new Request(MINISTRIES);
         request.params.add(param("refresh", refresh));
 
         // process request
@@ -277,7 +279,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
 
         // build request
-        final Request<Session> request = new Request<>(CHURCHES);
+        final Request request = new Request(CHURCHES);
         request.accept = MediaType.APPLICATION_JSON;
         request.params.add(param("ministry_id", ministryId));
 
@@ -309,7 +311,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     @Nullable
     public Church createChurch(@NonNull final JSONObject church) throws ApiException {
         // build request
-        final Request<Session> request = new Request<>(CHURCHES);
+        final Request request = new Request(CHURCHES);
         request.method = Method.POST;
         request.setContent(church);
 
@@ -340,7 +342,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
 
         // build request
-        final Request<Session> request = new Request<>(CHURCHES + "/" + id);
+        final Request request = new Request(CHURCHES + "/" + id);
         request.method = Method.PUT;
         request.setContent(church);
 
@@ -371,7 +373,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     public List<MeasurementType> getMeasurementTypes(@NonNull final String ministryId, @NonNull final Locale locale)
             throws ApiException {
         // build request
-        final Request<Session> request = new Request<>(MEASUREMENT_TYPES);
+        final Request request = new Request(MEASUREMENT_TYPES);
 
         // only use locale and ministryId if we have a valid ministryId
         if (!ministryId.equals(Ministry.INVALID_ID)) {
@@ -390,7 +392,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
                         .listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())), ministryId);
             }
         } catch (final JSONException e) {
-            Log.e(TAG, "error parsing getMeasurementTypes response", e);
+            LOG.error("error parsing getMeasurementTypes response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
         } finally {
@@ -416,7 +418,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
 
         // build request
-        final Request<Session> request = new Request<>(MEASUREMENTS);
+        final Request request = new Request(MEASUREMENTS);
         request.params.add(param("source", MEASUREMENTS_SOURCE));
         request.params.add(param("ministry_id", ministryId));
         request.params.add(param("mcc", mcc));
@@ -455,7 +457,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
 
         // build request
-        final Request<Session> request = new Request<>(MEASUREMENTS + "/" + permLink);
+        final Request request = new Request(MEASUREMENTS + "/" + permLink);
         request.params.add(param("ministry_id", ministryId));
         request.params.add(param("mcc", mcc));
         request.params.add(param("period", period.toString()));
@@ -467,9 +469,9 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                if (request.guid != null) {
+                if (request.context != null && request.context.guid != null) {
                     final MeasurementDetails details =
-                            new MeasurementDetails(request.guid, ministryId, mcc, permLink, period);
+                            new MeasurementDetails(request.context.guid, ministryId, mcc, permLink, period);
                     details.setJson(new JSONObject(IOUtils.readString(conn.getInputStream())),
                                     BuildConfig.GMA_API_VERSION);
                     return details;
@@ -493,7 +495,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
 
         // build request
-        final Request<Session> request = new Request<>(MEASUREMENTS);
+        final Request request = new Request(MEASUREMENTS);
         request.method = Method.POST;
         try {
             final JSONArray json = new JSONArray();
@@ -534,7 +536,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     @Nullable
     public List<Assignment> getAssignments(final boolean refresh) throws ApiException {
         // build request
-        final Request<Session> request = new Request<>(ASSIGNMENTS);
+        final Request request = new Request(ASSIGNMENTS);
         request.params.add(param("refresh", refresh));
 
         // process request
@@ -544,9 +546,11 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
             // is this a successful response?
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                assert request.guid != null : "request.guid should be non-null because the request was successful";
-                return Assignment.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())), request.guid,
-                                               request.session != null ? request.session.mPersonId : null);
+                assert request.context != null && request.context.guid != null :
+                        "request.context.guid should be non-null because the request was successful";
+                return Assignment
+                        .listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())), request.context.guid,
+                                      request.context.session != null ? request.context.session.mPersonId : null);
             }
         } catch (final JSONException e) {
             Log.e(TAG, "error parsing getAllMinistries response", e);
@@ -568,7 +572,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
 
         // build request
-        final Request<Session> request = new Request<>(ASSIGNMENTS);
+        final Request request = new Request(ASSIGNMENTS);
         request.method = Method.POST;
 
         // generate POST data
@@ -586,7 +590,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             // if successful return parsed response
             if (conn.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
                 return Assignment.fromJson(new JSONObject(IOUtils.readString(conn.getInputStream())), guid,
-                                           request.session != null ? request.session.mPersonId : null);
+                                           request.context != null && request.context.session != null ?
+                                                   request.context.session.mPersonId : null);
             }
         } catch (final IOException e) {
             throw new ApiSocketException(e);
@@ -616,7 +621,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         }
 
         // build request
-        final Request<Session> request = new Request<>(TRAINING);
+        final Request request = new Request(TRAINING);
         request.params.add(param("ministry_id", ministryId));
         request.params.add(param("mcc", mcc));
         request.params.add(param("show_all", all));
@@ -650,7 +655,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     @Nullable
     public Training createTraining(@NonNull final JSONObject training) throws ApiException {
         // build request
-        final Request<Session> request = new Request<>(TRAINING);
+        final Request request = new Request(TRAINING);
         request.method = Method.POST;
         request.setContent(training);
 
@@ -679,7 +684,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             return false;
         }
 
-        final Request<Session> request = new Request<>(TRAINING + "/" + id);
+        final Request request = new Request(TRAINING + "/" + id);
         request.method = Method.PUT;
         request.setContent(training);
 
@@ -699,7 +704,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             return false;
         }
 
-        final Request<Session> request = new Request<>(TRAINING + "/" + id);
+        final Request request = new Request(TRAINING + "/" + id);
         request.method = Method.DELETE;
 
         HttpURLConnection conn = null;
@@ -723,7 +728,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     public Completion createTrainingCompletion(final long trainingId, @NonNull final JSONObject completion)
             throws ApiException {
         // build request
-        final Request<Session> request = new Request<>(TRAINING_COMPLETION);
+        final Request request = new Request(TRAINING_COMPLETION);
         request.method = Method.POST;
         request.setContent(completion);
 
@@ -752,7 +757,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
             return false;
         }
 
-        final Request<Session> request = new Request<>(TRAINING_COMPLETION + "/" + id);
+        final Request request = new Request(TRAINING_COMPLETION + "/" + id);
         request.method = Method.DELETE;
 
         HttpURLConnection conn = null;
@@ -770,7 +775,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
     public Completion updateTrainingCompletion(final long trainingId, final long completionId,
                                                @NonNull final JSONObject completion) throws ApiException {
         // build request
-        final Request<Session> request = new Request<>(TRAINING_COMPLETION + "/" + completionId);
+        final Request request = new Request(TRAINING_COMPLETION + "/" + completionId);
         request.method = Method.PUT;
         request.setContent(completion);
 
@@ -796,7 +801,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
 
     public boolean updatePreference(final JSONObject preference) throws ApiException {
 
-        final Request<Session> request = new Request<>(USER_PREFERENCES);
+        final Request request = new Request(USER_PREFERENCES);
         request.method = Method.POST;
         request.setContent(preference);
 
@@ -828,6 +833,12 @@ public final class GmaApiClient extends AbstractTheKeyApi<AbstractTheKeyApi.Requ
         SharedPreferences prefs = context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
         String persionId = prefs.getString(PREF_PERSON_ID, null);
         return persionId;
+    }
+
+    static final class Request extends AbstractTheKeyApi.Request<ExecutionContext<Session>, Session> {
+        Request(@NonNull final String path) {
+            super(path);
+        }
     }
 
     protected static class Session extends AbstractTheKeyApi.Session {
