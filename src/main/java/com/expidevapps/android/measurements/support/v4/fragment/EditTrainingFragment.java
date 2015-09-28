@@ -1,13 +1,5 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
-import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.ARG_TRAINING_ID;
-import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateTrainingBroadcast;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -48,11 +40,21 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import butterknife.Optional;
+
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.ARG_TRAINING_ID;
+import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateTrainingBroadcast;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
     private static final int LOADER_TRAINING = 1;
@@ -391,7 +393,14 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             return  completionList.get(completionList.size() - 1).getPhase();
         }
         else {
-            return 0;
+            // it may be possible there are only un-synced new training completions only
+            final GmaDao dao = GmaDao.getInstance(getActivity());
+            final List<Training.Completion> trainingCompletions = dao.get(Training.Completion.class, Contract.Training.Completion.SQL_WHERE_NOT_DELETED_AND_TRAINING_ID, bindValues(mTraining.getId()));
+            if (trainingCompletions.isEmpty()) {
+                return 0;
+            }
+
+            return trainingCompletions.size();
         }
     }
 
