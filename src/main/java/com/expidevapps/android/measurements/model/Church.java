@@ -129,8 +129,6 @@ public class Church extends Location implements Cloneable {
     @Nullable
     private LocalDate mEndDate;
 
-    private boolean mNew = false;
-
     @NonNull
     public static List<Church> listFromJson(@NonNull final JSONArray json) throws JSONException {
         final List<Church> churches = new ArrayList<>();
@@ -183,11 +181,7 @@ public class Church extends Location implements Cloneable {
         this.size = church.size;
         this.security = church.security;
         this.createdBy = church.createdBy;
-        mNew = church.mNew;
         mEndDate = church.mEndDate;
-        mDirty.clear();
-        mDirty.addAll(church.mDirty);
-        mTrackingChanges = church.mTrackingChanges;
     }
 
     public long getId() {
@@ -336,14 +330,6 @@ public class Church extends Location implements Cloneable {
 
     public void setDeletedEndDate() {
         setEndDate(LocalDate.now().withDayOfMonth(1).minusDays(1));
-    }
-
-    public void setNew(final boolean state) {
-        mNew = state;
-    }
-
-    public boolean isNew() {
-        return mNew;
     }
 
     @Override

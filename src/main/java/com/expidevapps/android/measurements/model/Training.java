@@ -49,8 +49,6 @@ public class Training extends Location implements Cloneable {
     private final List<Completion> completions = new ArrayList<>();
 
     private int mParticipants = 0;
-    private boolean mNew = false;
-    private boolean mDeleted = false;
 
     public Training()
     {       
@@ -68,8 +66,6 @@ public class Training extends Location implements Cloneable {
         this.createdBy = training.createdBy;
         this.setCompletions(training.completions);
         mParticipants = training.mParticipants;
-        mNew = training.mNew;
-        mDeleted = training.mDeleted;
         mDirty.clear();
         mDirty.addAll(training.mDirty);
         mTrackingChanges = training.mTrackingChanges;
@@ -220,23 +216,6 @@ public class Training extends Location implements Cloneable {
         }
     }
 
-
-    public void setNew(final boolean state) {
-        mNew = state;
-    }
-
-    public boolean isNew() {
-        return mNew;
-    }
-
-    public boolean isDeleted() {
-        return mDeleted;
-    }
-
-    public void setDeleted(boolean state) {
-        mDeleted = state;
-    }
-
     public void addCompletion(@NonNull final Completion completion) {
         this.completions.add(completion);
     }
@@ -277,9 +256,6 @@ public class Training extends Location implements Cloneable {
         @Nullable
         private LocalDate date = LocalDate.now();
 
-        private boolean mNew = false;
-        private boolean mDeleted = false;
-
         public Completion()
         {
         }
@@ -292,11 +268,6 @@ public class Training extends Location implements Cloneable {
             this.phase = completion.phase;
             this.numberCompleted = completion.numberCompleted;
             this.date = completion.date;
-            mNew = completion.mNew;
-            mDeleted = completion.mDeleted;
-            mDirty.clear();
-            mDirty.addAll(completion.mDirty);
-            mTrackingChanges = completion.mTrackingChanges;
         }
 
         @NonNull
@@ -387,22 +358,6 @@ public class Training extends Location implements Cloneable {
             {
                 mDirty.add(JSON_TRAINING_ID);
             }
-        }
-
-        public void setNew(final boolean state) {
-            mNew = state;
-        }
-
-        public boolean isNew() {
-            return mNew;
-        }
-
-        public boolean isDeleted() {
-            return mDeleted;
-        }
-
-        public void setDeleted(boolean state) {
-            mDeleted = state;
         }
 
         @Override

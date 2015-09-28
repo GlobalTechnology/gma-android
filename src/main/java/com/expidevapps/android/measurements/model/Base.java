@@ -14,9 +14,11 @@ import java.util.Iterator;
 import java.util.Set;
 
 public abstract class Base {
+    private boolean mNew = false;
     @NonNull
     protected final Set<String> mDirty = new HashSet<>();
     protected boolean mTrackingChanges = false;
+    private boolean mDeleted = false;
 
     @NonNull
     private Date lastSynced = new Date(0);
@@ -24,7 +26,19 @@ public abstract class Base {
     protected Base() {}
 
     protected Base(@NonNull final Base base) {
+        mNew = base.mNew;
+        mDirty.addAll(base.mDirty);
+        mTrackingChanges = base.mTrackingChanges;
+        mDeleted = base.mDeleted;
         this.lastSynced = base.lastSynced;
+    }
+
+    public final void setNew(final boolean state) {
+        mNew = state;
+    }
+
+    public final boolean isNew() {
+        return mNew;
     }
 
     public final void trackingChanges(final boolean state) {
@@ -45,6 +59,14 @@ public abstract class Base {
 
     public final boolean isDirty() {
         return !mDirty.isEmpty();
+    }
+
+    public final boolean isDeleted() {
+        return mDeleted;
+    }
+
+    public final void setDeleted(boolean state) {
+        mDeleted = state;
     }
 
     public long getLastSynced() {

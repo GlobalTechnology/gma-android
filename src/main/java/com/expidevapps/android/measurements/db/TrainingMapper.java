@@ -9,8 +9,6 @@ import com.expidevapps.android.measurements.model.Training;
 
 import org.joda.time.LocalDate;
 
-import static com.expidevapps.android.measurements.db.Contract.Training.COLUMN_DELETED;
-
 public class TrainingMapper extends LocationMapper<Training> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
@@ -41,12 +39,6 @@ public class TrainingMapper extends LocationMapper<Training> {
             case Contract.Training.COLUMN_CREATED_BY:
                 values.put(field, training.getCreatedBy());
                 break;
-            case Contract.Training.COLUMN_NEW:
-                values.put(field, training.isNew());
-                break;
-            case COLUMN_DELETED:
-                values.put(field, training.isDeleted());
-                break;
             default:
                 super.mapField(values, field, training);
                 break;
@@ -71,8 +63,6 @@ public class TrainingMapper extends LocationMapper<Training> {
         training.setMcc(this.getString(c, Contract.Training.COLUMN_MCC, null));
         training.setParticipants(this.getInt(c, Contract.Training.COLUMN_PARTICIPANTS, 0));
         training.setCreatedBy(this.getString(c, Contract.Training.COLUMN_CREATED_BY, null));
-        training.setNew(getBool(c, Contract.Training.COLUMN_NEW, false));
-        training.setDeleted(getBool(c, COLUMN_DELETED, false));
         return training;
     }
 }

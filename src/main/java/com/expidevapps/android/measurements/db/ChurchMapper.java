@@ -1,14 +1,5 @@
 package com.expidevapps.android.measurements.db;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.support.annotation.NonNull;
-
-import com.expidevapps.android.measurements.model.Church;
-import com.expidevapps.android.measurements.model.Church.Development;
-import com.expidevapps.android.measurements.model.Church.Security;
-import com.expidevapps.android.measurements.model.Ministry;
-
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_CONTACT_EMAIL;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_CONTACT_MOBILE;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_CONTACT_NAME;
@@ -19,10 +10,18 @@ import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_ID;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_JESUS_FILM_ACTIVITY;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_MINISTRY_ID;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_NAME;
-import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_NEW;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_PARENT;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_SECURITY;
 import static com.expidevapps.android.measurements.db.Contract.Church.COLUMN_SIZE;
+
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.support.annotation.NonNull;
+
+import com.expidevapps.android.measurements.model.Church;
+import com.expidevapps.android.measurements.model.Church.Development;
+import com.expidevapps.android.measurements.model.Church.Security;
+import com.expidevapps.android.measurements.model.Ministry;
 
 public class ChurchMapper extends LocationMapper<Church> {
     @Override
@@ -70,9 +69,6 @@ public class ChurchMapper extends LocationMapper<Church> {
             case COLUMN_END_DATE:
                 values.put(field, church.getEndDate() != null ? church.getEndDate().toString() : null);
                 break;
-            case COLUMN_NEW:
-                values.put(field, church.isNew());
-                break;
             default:
                 super.mapField(values, field, church);
                 break;
@@ -103,7 +99,6 @@ public class ChurchMapper extends LocationMapper<Church> {
         church.setSecurity(Security.fromRaw(getInt(c, COLUMN_SECURITY, Security.DEFAULT.id)));
         church.setCreatedBy(getString(c, COLUMN_CREATED_BY, null));
         church.setEndDate(getLocalDate(c, COLUMN_END_DATE, null));
-        church.setNew(getBool(c, COLUMN_NEW, false));
 
         return church;
     }
