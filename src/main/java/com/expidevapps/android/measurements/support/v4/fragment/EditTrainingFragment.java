@@ -302,29 +302,11 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
                     mTrainingTypeAdapter.getPosition(mTraining != null ? mTraining.getType() : Training.TRAINING_TYPE_OTHER));
         }
 
-        if(mStagesView != null) {
-            if(mTraining != null) {
-                Log.d("ITH", "Training Id: " + mTraining.getId() + " " + mTraining.getName());
-                Log.d("ITH", "Training Completion found: " + mTraining.getCompletions().size());
-
-                if(mTrainingCompletionAdapter == null) {
-                    setupStagesView();
-                }
-                else {
-                    mTrainingCompletionAdapter.notifyDataSetChanged();
-                }
-            }
-            else {
-                Log.d("ITH", "Training is NULL ");
-            }
-        }
-
         updateEditMode();
     }
 
     private void updateEditMode() {
         final boolean editMode = mTraining != null && mTraining.canEdit(mAssignment);
-
         if (mTrainingName != null) {
             mTrainingName.setEnabled(editMode);
         }
@@ -349,9 +331,13 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
         if (mBottomButtonContainer != null) {
             mBottomButtonContainer.setVisibility(editMode ? VISIBLE : GONE);
         }
+
+        if (mStagesView != null && mTraining != null) {
+            setupStagesView(editMode);
+        }
     }
 
-    private void setupStagesView() {
+    private void setupStagesView(final boolean editMode) {
         if (mStagesView != null) {
             mStagesView.setHasFixedSize(true);
             mStagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -359,11 +345,8 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
 
             mTrainingCompletionAdapter =
                     new TrainingCompletionRecyclerViewAdapter(getActivity(), mGuid, mTraining.getMinistryId(),
-                                                              mTraining.getCompletions(),
-                                                              mTraining.canEdit(mAssignment));
+                                                              mTraining.getCompletions(), editMode);
             mStagesView.setAdapter(mTrainingCompletionAdapter);
-
-            //mStagesView.addOnItemTouchListener(new ItemClickListener(getActivity(), mListenerCompletionOnClick));
         }
     }
 
