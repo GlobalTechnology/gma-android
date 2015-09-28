@@ -15,14 +15,21 @@ public class Contract {
 
     public static abstract class Base implements BaseColumns {
         public static final String COLUMN_ROWID = _ID;
+        public static final String COLUMN_NEW = "new";
         public static final String COLUMN_DIRTY = "dirtyData";
+        public static final String COLUMN_DELETED = "deleted";
         public static final String COLUMN_LAST_SYNCED = "lastSynced";
 
         static final String SQL_COLUMN_ROWID = COLUMN_ROWID + " INTEGER PRIMARY KEY";
+        static final String SQL_COLUMN_NEW = COLUMN_NEW + " INTEGER";
         static final String SQL_COLUMN_DIRTY = COLUMN_DIRTY + " TEXT";
+        static final String SQL_COLUMN_DELETED = COLUMN_DELETED + " INTEGER";
         static final String SQL_COLUMN_LAST_SYNCED = COLUMN_LAST_SYNCED + " INTEGER";
 
-        public static final String SQL_WHERE_DIRTY = COLUMN_DIRTY + " != ''";
+        static final String SQL_WHERE_NEW = COLUMN_NEW + " = 1";
+        static final String SQL_WHERE_DIRTY = COLUMN_DIRTY + " != ''";
+        static final String SQL_WHERE_DELETED = COLUMN_DELETED + " = 1";
+        static final String SQL_WHERE_NOT_DELETED = "(" + COLUMN_DELETED + " IS NULL OR " + COLUMN_DELETED + " != 1)";
     }
 
     private interface Guid {
@@ -80,8 +87,6 @@ public class Contract {
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_DATE = "date";
         public static final String COLUMN_TYPE = "type";
-        static final String COLUMN_NEW = "new";
-        public static final String COLUMN_DELETED = "deleted";
         static final String COLUMN_CREATED_BY = "created_by";
         public static final String COLUMN_PARTICIPANTS = "participants";
 
@@ -93,18 +98,14 @@ public class Contract {
         private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
         private static final String SQL_COLUMN_DATE = COLUMN_DATE + " TEXT";
         private static final String SQL_COLUMN_TYPE = COLUMN_TYPE + " TEXT";
-        private static final String SQL_COLUMN_NEW = COLUMN_NEW + " INTEGER";
-        private static final String SQL_COLUMN_DELETED = COLUMN_DELETED + " INTEGER";
         private static final String SQL_COLUMN_CREATED_BY = COLUMN_CREATED_BY + " TEXT";
         private static final String SQL_COLUMN_PARTICIPANTS = COLUMN_PARTICIPANTS + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
         public static final String SQL_WHERE_NEW_DELETED_OR_DIRTY =
-                COLUMN_NEW + " = 1 OR " + COLUMN_DELETED + " = 1 OR " + SQL_WHERE_DIRTY;
+                SQL_WHERE_NEW + " OR " + SQL_WHERE_DELETED + " OR " + SQL_WHERE_DIRTY;
 
-        public static final String SQL_WHERE_NOT_DELETED =
-                "(" + COLUMN_DELETED + " IS NULL OR " + COLUMN_DELETED + " != 1)";
         public static final String SQL_WHERE_MINISTRY_MCC = SQL_WHERE_MINISTRY + " AND " + SQL_WHERE_MCC;
         public static final String SQL_WHERE_MINISTRY_MCC_NOT_DELETED =
                 SQL_WHERE_MINISTRY_MCC + " AND " + SQL_WHERE_NOT_DELETED;
@@ -132,7 +133,6 @@ public class Contract {
             public static final String COLUMN_PHASE = "phase";
             public static final String COLUMN_NUMBER_COMPLETED = "number_completed";
             public static final String COLUMN_DATE = "date";
-            static final String COLUMN_NEW = "new";
             public static final String COLUMN_DELETED = "deleted";
 
             static final String[] PROJECTION_ALL =
@@ -144,22 +144,17 @@ public class Contract {
             private static final String SQL_COLUMN_PHASE = COLUMN_PHASE + " INTEGER";
             private static final String SQL_COLUMN_NUMBER_COMPLETED = COLUMN_NUMBER_COMPLETED + " INTEGER";
             private static final String SQL_COLUMN_DATE = COLUMN_DATE + " TEXT";
-            private static final String SQL_COLUMN_NEW = COLUMN_NEW + " INTEGER";
             private static final String SQL_COLUMN_DELETED = COLUMN_DELETED + " INTEGER";
 
             private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
             static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
             public static final String SQL_WHERE_TRAINING_ID = COLUMN_TRAINING_ID + " = ?";
-
             public static final String SQL_WHERE_NEW_DELETED_OR_DIRTY =
-                    COLUMN_NEW + " = 1 OR " + COLUMN_DELETED + " = 1 OR " + SQL_WHERE_DIRTY;
-            public static final String SQL_WHERE_NOT_DELETED =
-                    "(" + COLUMN_DELETED + " IS NULL OR " + COLUMN_DELETED + " != 1)";
+                    SQL_WHERE_NEW + " OR " + SQL_WHERE_DELETED + " OR " + SQL_WHERE_DIRTY;
 
-            //public static final String SQL_WHERE_NOT_DELETED_AND_TRAINING_ID = SQL_WHERE_NOT_DELETED + SQL_WHERE_TRAINING_ID;
             public static final String SQL_WHERE_NOT_DELETED_AND_TRAINING_ID =
-                    "(" + COLUMN_DELETED + " IS NULL OR " + COLUMN_DELETED + " != 1 AND " + COLUMN_TRAINING_ID + "= ?)";
+                    "((" + SQL_WHERE_NOT_DELETED + ") AND " + COLUMN_TRAINING_ID + "= ?)";
 
             public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
                     .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_TRAINING_ID, SQL_COLUMN_PHASE, SQL_COLUMN_DIRTY, SQL_COLUMN_NEW,
@@ -283,7 +278,6 @@ public class Contract {
         public static final String COLUMN_SIZE = "size";
         public static final String COLUMN_SECURITY = "security";
         public static final String COLUMN_END_DATE = "end_date";
-        static final String COLUMN_NEW = "new";
         static final String COLUMN_CREATED_BY = "created_by";
 
         static final String[] PROJECTION_ALL =
@@ -302,7 +296,6 @@ public class Contract {
         private static final String SQL_COLUMN_SIZE = COLUMN_SIZE + " INTEGER";
         private static final String SQL_COLUMN_SECURITY = COLUMN_SECURITY + " INTEGER";
         private static final String SQL_COLUMN_END_DATE = COLUMN_END_DATE + " TEXT";
-        private static final String SQL_COLUMN_NEW = COLUMN_NEW + " INTEGER";
         private static final String SQL_COLUMN_CREATED_BY = COLUMN_CREATED_BY + " TEXT";
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
@@ -311,7 +304,7 @@ public class Contract {
                 "(" + COLUMN_END_DATE + " IS NULL OR " + COLUMN_END_DATE + " >= ?)";
         public static final String SQL_WHERE_MINISTRY_AND_NOT_ENDED =
                 SQL_WHERE_MINISTRY + " AND " + SQL_WHERE_NOT_ENDED;
-        public static final String SQL_WHERE_NEW_OR_DIRTY = COLUMN_NEW + " = 1 OR " + SQL_WHERE_DIRTY;
+        public static final String SQL_WHERE_NEW_OR_DIRTY = SQL_WHERE_NEW + " OR " + SQL_WHERE_DIRTY;
 
         static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_PARENT, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_NAME,
