@@ -10,4 +10,6 @@
         <item quantity="one">%1$d member</item>
         <item quantity="other">%1$d members</item>
     </plurals>
+
+    <string name="menu_map_search">Search</string>
 </resources>
