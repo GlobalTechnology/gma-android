@@ -46,6 +46,7 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
     static final int SYNCTYPE_DIRTY_TRAINING_COMPLETIONS = 13;
     static final int SYNCTYPE_SAVE_PREFERENCES = 14;
     static final int SYNCTYPE_PREFERENCES = 15;
+    static final int SYNCTYPE_DIRTY_PREFERENCES = 16;
 
     private static final Object INSTANCE_LOCK = new Object();
     private static GmaSyncAdapter INSTANCE = null;
@@ -129,6 +130,9 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                     break;
                 case SYNCTYPE_SAVE_PREFERENCES:
                     UserPreferenceSyncTasks.savePreferences(mContext, guid, extras, result);
+                    break;
+                case SYNCTYPE_DIRTY_PREFERENCES:
+                    UserPreferenceSyncTasks.syncDirtyPreferences(mContext, guid, extras, result);
                     break;
                 case SYNCTYPE_ALL:
                     syncAll(guid, extras, result);

@@ -355,6 +355,8 @@ public class Contract {
 
         private static final String SQL_WHERE_NAME = COLUMN_NAME + " = ?";
         static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_GUID + " AND " + SQL_WHERE_NAME;
+        public static final String SQL_WHERE_GUID_AND_NEW_OR_DIRTY =
+                SQL_WHERE_GUID + " AND (" + SQL_WHERE_NEW + " OR " + SQL_WHERE_DIRTY + ")";
 
         static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_GUID, SQL_COLUMN_NAME, SQL_COLUMN_VALUE,

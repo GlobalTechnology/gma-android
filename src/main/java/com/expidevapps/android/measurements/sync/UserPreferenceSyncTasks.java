@@ -7,6 +7,7 @@ import android.content.SyncResult;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.WorkerThread;
 
 import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
@@ -21,8 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+@WorkerThread
 public class UserPreferenceSyncTasks extends BaseSyncTasks {
     private static final Logger LOG = LoggerFactory.getLogger(UserPreferenceSyncTasks.class);
 
@@ -58,6 +61,49 @@ public class UserPreferenceSyncTasks extends BaseSyncTasks {
         final GmaApiClient api = GmaApiClient.getInstance(context, guid);
         final Map<String, UserPreference> prefs = api.getPreferences();
         return prefs != null && updateAllPreferences(context, guid, prefs);
+    }
+
+    static boolean syncDirtyPreferences(@NonNull final Context context, @NonNull final String guid,
+                                        @NonNull final Bundle args, @NonNull final SyncResult result)
+            throws ApiException {
+        final GmaDao dao = GmaDao.getInstance(context);
+
+        final Transaction tx = dao.newTransaction();
+        try {
+            tx.beginTransactionNonExclusive();
+
+            // load any dirty preferences
+            final List<UserPreference> dirty =
+                    dao.get(UserPreference.class, Contract.UserPreference.SQL_WHERE_GUID_AND_NEW_OR_DIRTY,
+                            bindValues(guid));
+            if (dirty.size() > 0) {
+                // send prefs to the api
+                final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+                final Map<String, UserPreference> prefs =
+                        api.updatePreferences(dirty.toArray(new UserPreference[dirty.size()]));
+                if (prefs != null) {
+                    // mark all dirty prefs as clean
+                    for (final UserPreference pref : dirty) {
+                        pref.setNew(false);
+                        pref.setDirty(null);
+                        dao.updateOrInsert(pref, new String[] {Contract.UserPreference.COLUMN_NEW,
+                                Contract.UserPreference.COLUMN_DIRTY});
+                    }
+
+                    // update the local preferences based on the response from the API
+                    updateAllPreferences(context, guid, prefs);
+                }
+            }
+
+            tx.setTransactionSuccessful();
+
+            return true;
+        } catch (final JSONException e) {
+            result.stats.numParseExceptions++;
+            return false;
+        } finally {
+            tx.close();
+        }
     }
 
     private static final String[] PROJECTION_PREFERENCE = {Contract.UserPreference.COLUMN_VALUE};

@@ -8,9 +8,11 @@ import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINK;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.WorkerThread;
 
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
 
+@WorkerThread
 class BaseSyncTasks {
     static final long HOUR_IN_MS = 60 * 60 * 1000;
     static final long DAY_IN_MS = 24 * HOUR_IN_MS;
