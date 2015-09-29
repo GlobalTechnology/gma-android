@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="menu_measurements">Measurements</string>
+    <string name="menu_measurements_personal">Personal Measurements</string>
+    <string name="menu_measurements_ministry">Ministry Measurements</string>
     <string name="title_activity_measurements">Measurements</string>
+    <string name="title_activity_measurements_personal">Personal Measurements</string>
+    <string name="title_activity_measurements_local">Ministry Measurements</string>
     <string name="title_activity_measurement_details">Measurement Details</string>
 
     <!-- Measurements Not Authorized dialog -->
