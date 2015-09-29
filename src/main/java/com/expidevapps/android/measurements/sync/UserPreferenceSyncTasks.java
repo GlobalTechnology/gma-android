@@ -8,10 +8,12 @@ import android.database.SQLException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
+import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.UserPreference;
 
+import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.db.Transaction;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,6 +44,24 @@ public class UserPreferenceSyncTasks extends BaseSyncTasks {
         }
     }
 
+    static boolean syncPreferences(@NonNull final Context context, @NonNull final String guid,
+                                   @NonNull final Bundle args, @NonNull final SyncResult result) throws ApiException {
+        // short-circuit if we aren't forcing a sync and the data isn't stale
+        final boolean force = isForced(args);
+        final GmaDao dao = GmaDao.getInstance(context);
+        if (!force && System.currentTimeMillis() - dao.getLastSyncTime(SYNC_TIME_PREFERENCES, guid) <
+                STALE_DURATION_PREFERENCES) {
+            return true;
+        }
+
+        // fetch raw data from API & process it
+        final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+        final Map<String, UserPreference> prefs = api.getPreferences();
+        return prefs != null && updateAllPreferences(context, guid, prefs);
+    }
+
+    private static final String[] PROJECTION_PREFERENCE = {Contract.UserPreference.COLUMN_VALUE};
+
     private static boolean updateAllPreferences(@NonNull final Context context, @NonNull final String guid,
                                                 @NonNull final Map<String, UserPreference> prefs) {
         // wrap entire update in a transaction
@@ -56,9 +76,6 @@ public class UserPreferenceSyncTasks extends BaseSyncTasks {
                                                      bindValues(guid))) {
                 existing.put(pref.getName(), pref);
             }
-
-            // column projections for updates
-            final String[] PROJECTION_PREFERENCE = {Contract.UserPreference.COLUMN_VALUE};
 
             // update preferences in local database
             for (final UserPreference pref : prefs.values()) {

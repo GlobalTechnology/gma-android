@@ -22,6 +22,7 @@ import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENT_TYPES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MINISTRIES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_NONE;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_PREFERENCES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_SAVE_ASSIGNMENTS;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_SAVE_PREFERENCES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_TRAININGS;
@@ -57,6 +58,14 @@ public class GmaSyncService extends ThreadedIntentService {
     public static void syncMinistries(final Context context, @NonNull final String guid, final boolean force) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_MINISTRIES);
+        intent.putExtras(baseExtras(guid, force));
+        context.startService(intent);
+    }
+
+    public static void syncPreferences(@NonNull final Context context, @NonNull final String guid,
+                                       final boolean force) {
+        final Intent intent = new Intent(context, GmaSyncService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_PREFERENCES);
         intent.putExtras(baseExtras(guid, force));
         context.startService(intent);
     }

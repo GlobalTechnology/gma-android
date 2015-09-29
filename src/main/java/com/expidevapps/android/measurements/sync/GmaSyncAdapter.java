@@ -1,5 +1,9 @@
 package com.expidevapps.android.measurements.sync;
 
+import static com.expidevapps.android.measurements.sync.BaseSyncTasks.baseExtras;
+import static com.expidevapps.android.measurements.sync.BaseSyncTasks.ministryExtras;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
+
 import android.accounts.Account;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
@@ -22,10 +26,6 @@ import java.util.List;
 
 import me.thekey.android.lib.accounts.AccountUtils;
 
-import static com.expidevapps.android.measurements.sync.BaseSyncTasks.baseExtras;
-import static com.expidevapps.android.measurements.sync.BaseSyncTasks.ministryExtras;
-import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
-
 public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
     static final String EXTRA_SYNCTYPE = GmaSyncAdapter.class.getName() + ".EXTRA_SYNCTYPE";
 
@@ -45,6 +45,7 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
     static final int SYNCTYPE_DIRTY_TRAININGS = 12;
     static final int SYNCTYPE_DIRTY_TRAINING_COMPLETIONS = 13;
     static final int SYNCTYPE_SAVE_PREFERENCES = 14;
+    static final int SYNCTYPE_PREFERENCES = 15;
 
     private static final Object INSTANCE_LOCK = new Object();
     private static GmaSyncAdapter INSTANCE = null;
@@ -122,6 +123,9 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                     break;
                 case SYNCTYPE_DIRTY_MEASUREMENTS:
                     MeasurementSyncTasks.syncDirtyMeasurements(mContext, guid, extras, result);
+                    break;
+                case SYNCTYPE_PREFERENCES:
+                    UserPreferenceSyncTasks.syncPreferences(mContext, guid, extras, result);
                     break;
                 case SYNCTYPE_SAVE_PREFERENCES:
                     UserPreferenceSyncTasks.savePreferences(mContext, guid, extras, result);

@@ -237,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
             final String ministryId = mAssignment != null ? mAssignment.getMinistryId() : Ministry.INVALID_ID;
 
             // trigger background syncing of data
+            GmaSyncService.syncPreferences(this, mGuid, force);
             GmaSyncService.syncAssignments(this, mGuid, force);
             GmaSyncService.syncMinistries(this, mGuid, force);
             GmaSyncService.syncMeasurementTypes(this, mGuid, ministryId, force);
