@@ -222,7 +222,7 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             final Training.Completion completion = new Training.Completion();
             completion.setNew(true);
             completion.setTrainingId(mTrainingId);
-            completion.setPhase(getLastLastCompletionPhase() + 1);
+            completion.setPhase(getLastCompletionPhase() + 1);
 
             if (mNewCompletionDateLabel != null) {
                 if (!mNewCompletionDateLabel.getText().toString().isEmpty()) {
@@ -365,7 +365,7 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
         }
     }
 
-    private int getLastLastCompletionPhase() {
+    /*private int getLastLastCompletionPhase() {
         if (mTraining.getCompletions().size() > 0) {
             ArrayList<Training.Completion> completionList = new ArrayList<>(mTraining.getCompletions());
             Collections.sort(completionList, new Comparator<Training.Completion>() {
@@ -384,6 +384,24 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             }
 
             return trainingCompletions.size();
+        }
+    }*/
+
+    private int getLastCompletionPhase() {
+        final GmaDao dao = GmaDao.getInstance(getActivity());
+        final List<Training.Completion> trainingCompletions = dao.get(Training.Completion.class, Contract.Training.Completion.SQL_WHERE_NOT_DELETED_AND_TRAINING_ID, bindValues(mTraining.getId()));
+
+        if (trainingCompletions.size() > 0) {
+            ArrayList<Training.Completion> completionList = new ArrayList<>(trainingCompletions);
+            Collections.sort(completionList, new Comparator<Training.Completion>() {
+                public int compare(Training.Completion completion1, Training.Completion completion2) {
+                    return completion1.getPhase() - completion2.getPhase();
+                }
+            });
+            return  completionList.get(completionList.size() - 1).getPhase();
+        }
+        else {
+            return 0;
         }
     }
 
