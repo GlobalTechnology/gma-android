@@ -848,7 +848,21 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
 
     @Nullable
     @WorkerThread
-    public Map<String, UserPreference> updatePreferences(final JSONObject json) throws ApiException {
+    public Map<String, UserPreference> updatePreferences(@NonNull final UserPreference... prefs)
+            throws ApiException, JSONException {
+        // generate JSON for these preferences
+        final JSONObject json = new JSONObject();
+        for (final UserPreference pref : prefs) {
+            json.put(pref.getName(), pref.getValue());
+        }
+
+        // issue API request
+        return updatePreferences(json);
+    }
+
+    @Nullable
+    @WorkerThread
+    public Map<String, UserPreference> updatePreferences(@NonNull final JSONObject json) throws ApiException {
         final Request request = new Request(USER_PREFERENCES);
         request.method = Method.POST;
         request.setContent(json);
