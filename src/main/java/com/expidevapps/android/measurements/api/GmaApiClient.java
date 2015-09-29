@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -19,6 +20,7 @@ import com.expidevapps.android.measurements.model.MeasurementValue;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.model.Training.Completion;
+import com.expidevapps.android.measurements.model.UserPreference;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.common.base.Objects;
 
@@ -816,26 +818,62 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
         return null;
     }
 
-    public boolean updatePreference(final JSONObject preference) throws ApiException {
+    /* END Training endpoints */
 
+    /* BEGIN User Preference endpoints */
+
+    @Nullable
+    @WorkerThread
+    public Map<String, UserPreference> getPreferences() throws ApiException {
         final Request request = new Request(USER_PREFERENCES);
-        request.method = Method.POST;
-        request.setContent(preference);
-
         HttpURLConnection conn = null;
         try {
             conn = this.sendRequest(request);
+            assert request.context != null && request.context.guid != null;
 
-            return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
-        }
-        catch (final IOException e) {
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                return UserPreference
+                        .mapFromJson(new JSONObject(IOUtils.readString(conn.getInputStream())), request.context.guid);
+            }
+        } catch (final JSONException e) {
+            LOG.error("error parsing getPreferences response", e);
+        } catch (final IOException e) {
             throw new ApiSocketException(e);
         } finally {
             IOUtils.closeQuietly(conn);
         }
+
+        return null;
     }
 
-    /* END Training endpoints */
+    @Nullable
+    @WorkerThread
+    public Map<String, UserPreference> updatePreferences(final JSONObject json) throws ApiException {
+        final Request request = new Request(USER_PREFERENCES);
+        request.method = Method.POST;
+        request.setContent(json);
+
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+            assert request.context != null && request.context.guid != null;
+
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                return UserPreference
+                        .mapFromJson(new JSONObject(IOUtils.readString(conn.getInputStream())), request.context.guid);
+            }
+        } catch (final JSONException e) {
+            LOG.error("error parsing updatePreferences response", e);
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+
+        return null;
+    }
+
+    /* END User Preference endpoints */
 
     private void saveUser(@Nullable final JSONObject user) {
         if(user != null) {

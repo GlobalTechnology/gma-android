@@ -419,7 +419,7 @@ public class MainActivity extends AppCompatActivity {
             final GmaApiClient api = GmaApiClient.getInstance(mContext, mGuid);
 
             try {
-                api.updatePreference(mSupportedStaff);
+                api.updatePreferences(mSupportedStaff);
             }
             catch (ApiException e) {
                 Log.e("ApiException", "ApiExceptin occured.");
