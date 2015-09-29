@@ -101,6 +101,12 @@ class MeasurementSyncTasks extends BaseSyncTasks {
                     dao.updateOrInsert(type, PROJECTION_SYNC_MEASUREMENT_TYPES_TYPE);
                     existing.remove(type.getPermLinkStub());
                     updatedTypes.add(type.getPermLinkStub());
+
+                    // update measurement type localizations
+                    final MeasurementTypeLocalization localization = type.getLocalization();
+                    if (localization != null) {
+                        dao.updateOrInsert(localization);
+                    }
                 }
 
                 // remove any orphaned measurement types
