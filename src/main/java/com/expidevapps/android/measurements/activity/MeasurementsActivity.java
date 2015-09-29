@@ -10,6 +10,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
@@ -134,7 +136,33 @@ public class MeasurementsActivity extends AppCompatActivity {
 
         syncAdjacentPeriods(false);
         startLoaders();
+        updateTitle();
         updateViews();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(@NonNull final Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_measurements, menu);
+
+        // display appropriate measurement type toggles
+        if (mAssignment != null) {
+            if (mType != TYPE_LOCAL && mAssignment.can(UPDATE_MINISTRY_MEASUREMENTS)) {
+                // show type options when available
+                final MenuItem item = menu.findItem(R.id.action_measurements_ministry);
+                if (item != null) {
+                    item.setVisible(true);
+                }
+            }
+            if (mType != TYPE_PERSONAL && mAssignment.can(UPDATE_PERSONAL_MEASUREMENTS)) {
+                // show type options when available
+                final MenuItem item = menu.findItem(R.id.action_measurements_personal);
+                if (item != null) {
+                    item.setVisible(true);
+                }
+            }
+        }
+
+        return true;
     }
 
     @Override
@@ -150,6 +178,19 @@ public class MeasurementsActivity extends AppCompatActivity {
         // we update the fragment here to guarantee state has been restored
         // see: http://www.androiddesignpatterns.com/2013/08/fragment-transaction-commit-state-loss.html
         loadMeasurementColumnsFragmentIfNeeded();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_measurements_ministry:
+                onChangeType(TYPE_LOCAL);
+                return true;
+            case R.id.action_measurements_personal:
+                onChangeType(TYPE_PERSONAL);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     void onLoadAssignment(@Nullable final Assignment assignment, final boolean resetting) {
@@ -172,6 +213,8 @@ public class MeasurementsActivity extends AppCompatActivity {
     void onChangeType(@ValueType final int type) {
         mType = sanitizeType(type);
 
+        updateTitle();
+        invalidateOptionsMenu();
         loadMeasurementColumnsFragmentIfNeeded();
     }
 
@@ -272,6 +315,12 @@ public class MeasurementsActivity extends AppCompatActivity {
         } else {
             return type;
         }
+    }
+
+    private void updateTitle() {
+        setTitle(mType == TYPE_PERSONAL ? R.string.title_activity_measurements_personal :
+                         mType == TYPE_LOCAL ? R.string.title_activity_measurements_local :
+                                 R.string.title_activity_measurements);
     }
 
     private void updateViews() {
