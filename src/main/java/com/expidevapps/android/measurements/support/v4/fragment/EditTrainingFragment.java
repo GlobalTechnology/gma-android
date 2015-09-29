@@ -167,9 +167,6 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             if (mTrainingName != null && mChanged[CHANGED_NAME]) {
                 updates.mTrainingName = mTrainingName.getText().toString();
             }
-            /*if (mTrainingType != null && mChanged[CHANGED_TYPE]) {
-                updates.mTrainingType = mTrainingType.getText().toString();
-            }*/
             if (mTrainingTypeSpinner != null && mChanged[CHANGED_TYPE]) {
                 final Object trainingType = mTrainingTypeSpinner.getSelectedItem();
 
@@ -364,28 +361,6 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
             mNewCompletionParticipants.clearFocus();
         }
     }
-
-    /*private int getLastLastCompletionPhase() {
-        if (mTraining.getCompletions().size() > 0) {
-            ArrayList<Training.Completion> completionList = new ArrayList<>(mTraining.getCompletions());
-            Collections.sort(completionList, new Comparator<Training.Completion>() {
-                public int compare(Training.Completion completion1, Training.Completion completion2) {
-                    return completion1.getPhase() - completion2.getPhase();
-                }
-            });
-            return  completionList.get(completionList.size() - 1).getPhase();
-        }
-        else {
-            // it may be possible there are only un-synced new training completions only
-            final GmaDao dao = GmaDao.getInstance(getActivity());
-            final List<Training.Completion> trainingCompletions = dao.get(Training.Completion.class, Contract.Training.Completion.SQL_WHERE_NOT_DELETED_AND_TRAINING_ID, bindValues(mTraining.getId()));
-            if (trainingCompletions.isEmpty()) {
-                return 0;
-            }
-
-            return trainingCompletions.size();
-        }
-    }*/
 
     private int getLastCompletionPhase() {
         final GmaDao dao = GmaDao.getInstance(getActivity());

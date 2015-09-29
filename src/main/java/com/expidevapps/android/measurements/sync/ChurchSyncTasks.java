@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
-import android.util.Log;
 
 import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
@@ -41,7 +40,7 @@ class ChurchSyncTasks extends BaseSyncTasks {
                     Contract.Church.COLUMN_CONTACT_NAME, Contract.Church.COLUMN_CONTACT_EMAIL, Contract.Church.COLUMN_CONTACT_MOBILE,
                     Contract.Church.COLUMN_JESUS_FILM_ACTIVITY, Contract.Church.COLUMN_LATITUDE, Contract.Church
                     .COLUMN_LONGITUDE, Contract.Church.COLUMN_SIZE, Contract.Church
-                    .COLUMN_DEVELOPMENT, Contract.Church.COLUMN_SECURITY};
+                    .COLUMN_DEVELOPMENT, Contract.Church.COLUMN_SECURITY, Contract.Church.COLUMN_CREATED_BY};
 
     static boolean syncChurches(@NonNull final Context context, @NonNull final String guid, @NonNull final Bundle args)
             throws ApiException {
@@ -145,7 +144,6 @@ class ChurchSyncTasks extends BaseSyncTasks {
             for (final Church church : churches) {
                 try {
                     if (church.isNew()) {
-                        Log.d("ITH", "isNew: " + church.isNew());
                         // try creating the church
                         final Church newChurch = api.createChurch(church);
 
@@ -165,7 +163,6 @@ class ChurchSyncTasks extends BaseSyncTasks {
                             result.stats.numParseExceptions++;
                         }
                     } else if (church.isDirty()) {
-                        Log.d("ITH", "isDirty: " + church.isDirty());
                         // generate dirty JSON
                         final JSONObject json = church.dirtyToJson();
 

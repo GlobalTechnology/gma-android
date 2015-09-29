@@ -38,6 +38,7 @@ public final class Constants {
     public static final String ARG_TYPE = "type";
     public static final String ARG_LOCATION = "location";
     public static final String ARG_SUPPORTED_STAFF = "supported_staff";
+    public static final String ARG_PERSON_ID = "person_id";
 
     /* common extra's */
     public static final String EXTRA_GUID = "guid";

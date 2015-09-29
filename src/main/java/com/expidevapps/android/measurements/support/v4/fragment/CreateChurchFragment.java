@@ -1,13 +1,5 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-import static com.expidevapps.android.measurements.Constants.ARG_LOCATION;
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.model.Task.ADMIN_CHURCH;
-import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.SQLException;
@@ -45,6 +37,15 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.Optional;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_LOCATION;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.ARG_PERSON_ID;
+import static com.expidevapps.android.measurements.model.Task.ADMIN_CHURCH;
+import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateChurchesBroadcast;
+
 public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     private static final int LOADER_ASSIGNMENT = 1;
 
@@ -55,6 +56,8 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
 
     @NonNull
     private String mMinistryId = Ministry.INVALID_ID;
+    @Nullable
+    private String mPersonId;
     @Nullable
     private LatLng mLocation;
     @Nullable
@@ -70,18 +73,19 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
     @InjectView(R.id.delete)
     Button mDeleteChurch;
 
-    public static Bundle buildArgs(@NonNull final String guid, @NonNull final String ministryId,
+    public static Bundle buildArgs(@NonNull final String guid, @NonNull final String ministryId, @Nullable final String personId,
                                    @NonNull final LatLng location) {
         final Bundle args = buildArgs(guid);
         args.putString(ARG_MINISTRY_ID, ministryId);
+        args.putString(ARG_PERSON_ID, personId);
         args.putParcelable(ARG_LOCATION, location);
         return args;
     }
 
-    public static CreateChurchFragment newInstance(@NonNull final String guid, @NonNull final String ministryId,
+    public static CreateChurchFragment newInstance(@NonNull final String guid, @NonNull final String ministryId, @Nullable final String personId,
                                                    @NonNull final LatLng location) {
         final CreateChurchFragment fragment = new CreateChurchFragment();
-        fragment.setArguments(buildArgs(guid, ministryId, location));
+        fragment.setArguments(buildArgs(guid, ministryId, personId, location));
         return fragment;
     }
 
@@ -94,6 +98,7 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
         final Bundle args = this.getArguments();
         if (args != null) {
             mMinistryId = BundleCompat.getString(args, ARG_MINISTRY_ID, Ministry.INVALID_ID);
+            mPersonId = BundleCompat.getString(args, ARG_PERSON_ID, null);
             mLocation = args.getParcelable(ARG_LOCATION);
         }
     }
@@ -118,6 +123,7 @@ public class CreateChurchFragment extends BaseEditChurchDialogFragment {
         final Church church = new Church();
         church.setNew(true);
         church.setMinistryId(mMinistryId);
+        church.setCreatedBy(mPersonId);
         if (mLocation != null) {
             church.setLatitude(mLocation.latitude);
             church.setLongitude(mLocation.longitude);

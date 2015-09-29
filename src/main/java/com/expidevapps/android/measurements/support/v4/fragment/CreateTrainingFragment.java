@@ -1,10 +1,5 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
-import static com.expidevapps.android.measurements.Constants.ARG_LOCATION;
-import static com.expidevapps.android.measurements.Constants.ARG_MCC;
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateTrainingBroadcast;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.SQLException;
@@ -37,12 +32,20 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.Optional;
 
+import static com.expidevapps.android.measurements.Constants.ARG_LOCATION;
+import static com.expidevapps.android.measurements.Constants.ARG_MCC;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.ARG_PERSON_ID;
+import static com.expidevapps.android.measurements.sync.BroadcastUtils.updateTrainingBroadcast;
+
 public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
     @SuppressLint("TrulyRandom")
     private static final SecureRandom RAND = new SecureRandom();
 
     @NonNull
     private String mMinistryId = Ministry.INVALID_ID;
+    @Nullable
+    private String mPersonId;
     @NonNull
     private Mcc mMcc = Mcc.UNKNOWN;
     @Nullable
@@ -58,19 +61,20 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
     @InjectView(R.id.training_delete)
     Button mDeleteTraining;
 
-    public static Bundle buildArgs(@NonNull final String guid, @NonNull final String ministryId, @NonNull final Mcc mcc,
+    public static Bundle buildArgs(@NonNull final String guid, @NonNull final String ministryId, @NonNull final Mcc mcc, @Nullable final String personId,
                                    @NonNull final LatLng location) {
         final Bundle args = buildArgs(guid);
         args.putString(ARG_MINISTRY_ID, ministryId);
         args.putString(ARG_MCC, mcc.toString());
+        args.putString(ARG_PERSON_ID, personId);
         args.putParcelable(ARG_LOCATION, location);
         return args;
     }
 
     public static CreateTrainingFragment newInstance(@NonNull final String guid, @NonNull final String ministryId,
-                                                     @NonNull final Mcc mcc, @NonNull final LatLng location) {
+                                                     @NonNull final Mcc mcc, @Nullable final String personId, @NonNull final LatLng location) {
         final CreateTrainingFragment fragment = new CreateTrainingFragment();
-        fragment.setArguments(buildArgs(guid, ministryId, mcc, location));
+        fragment.setArguments(buildArgs(guid, ministryId, mcc, personId, location));
         return fragment;
     }
 
@@ -84,10 +88,12 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
         if (args != null) {
             mMinistryId = BundleCompat.getString(args, ARG_MINISTRY_ID, Ministry.INVALID_ID);
             mMcc = Mcc.fromRaw(args.getString(ARG_MCC));
+            mPersonId = BundleCompat.getString(args, ARG_PERSON_ID, null);
             mLocation = args.getParcelable(ARG_LOCATION);
         } else {
             mMinistryId = Ministry.INVALID_ID;
             mMcc = Mcc.UNKNOWN;
+            mPersonId = null;
             mLocation = null;
         }
     }
@@ -109,6 +115,7 @@ public class CreateTrainingFragment extends BaseEditTrainingDialogFragment {
         training.setMinistryId(mMinistryId);
         training.setMcc(mMcc);
         training.setDate(mTrainingDate);
+        training.setCreatedBy(mPersonId);
         if (mLocation != null) {
             training.setLatitude(mLocation.latitude);
             training.setLongitude(mLocation.longitude);

@@ -87,7 +87,7 @@ public class Contract {
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_DATE = "date";
         public static final String COLUMN_TYPE = "type";
-        static final String COLUMN_CREATED_BY = "created_by";
+        public static final String COLUMN_CREATED_BY = "created_by";
         public static final String COLUMN_PARTICIPANTS = "participants";
 
         static final String[] PROJECTION_ALL =
@@ -283,7 +283,7 @@ public class Contract {
         public static final String COLUMN_SIZE = "size";
         public static final String COLUMN_SECURITY = "security";
         public static final String COLUMN_END_DATE = "end_date";
-        static final String COLUMN_CREATED_BY = "created_by";
+        public static final String COLUMN_CREATED_BY = "created_by";
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_ID, COLUMN_PARENT, COLUMN_MINISTRY_ID, COLUMN_NAME, COLUMN_CONTACT_NAME, COLUMN_CONTACT_EMAIL,

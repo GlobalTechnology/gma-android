@@ -41,7 +41,7 @@ class TrainingSyncTasks extends BaseSyncTasks {
     private static String[] PROJECTION_GET_TRAININGS =
             {Contract.Training.COLUMN_MINISTRY_ID, Contract.Training.COLUMN_MCC, Contract.Training.COLUMN_NAME,
                     Contract.Training.COLUMN_DATE, Contract.Training.COLUMN_TYPE, Contract.Training.COLUMN_PARTICIPANTS,
-                    Contract.Training.COLUMN_LATITUDE, Contract.Training.COLUMN_LONGITUDE};
+                    Contract.Training.COLUMN_LATITUDE, Contract.Training.COLUMN_LONGITUDE, Contract.Training.COLUMN_CREATED_BY};
 
     private static String[] PROJECTION_GET_COMPLETIONS =
             {Contract.Training.Completion.COLUMN_TRAINING_ID, Contract.Training.Completion.COLUMN_PHASE,
@@ -147,7 +147,6 @@ class TrainingSyncTasks extends BaseSyncTasks {
                 try {
                     if (training.isNew()) {
                         // try creating the training
-                        Log.d("ITH", "Training is new");
                         final Training newTraining = api.createTraining(training);
                         // update id of training
                         if (newTraining != null) {
@@ -225,13 +224,11 @@ class TrainingSyncTasks extends BaseSyncTasks {
     }
 
     static void syncTrainingCompletions(@NonNull final Context context, @NonNull final long trainingId, @NonNull final Training mTraining) {
-        Log.d("ITH", "syncTrainingCompletions called");
         final List<Training.Completion> completions = mTraining.getCompletions();
         if (completions == null) {
             return;
         }
 
-        Log.d("ITH", "syncTrainingCompletions completions found: " + completions.size());
         final GmaDao dao = GmaDao.getInstance(context);
 
         // update training completions in the database (use a transaction to avoid a race condition with updating a completion)
@@ -244,8 +241,6 @@ class TrainingSyncTasks extends BaseSyncTasks {
                     bindValues(trainingId))) {
                 currentCompletions.put(completion.getId(), completion);
             }
-            Log.d("ITH", "syncTrainingCompletions: currentCompletions size: " + currentCompletions.size());
-
             long[] ids = new long[currentCompletions.size() + completions.size()];
             int j = 0;
             for (final Training.Completion completion : completions) {
@@ -285,9 +280,6 @@ class TrainingSyncTasks extends BaseSyncTasks {
 
     static void syncDirtyTrainingCompletions(@NonNull final Context context, @NonNull final String guid,
                                              @NonNull final Bundle args, @NonNull final SyncResult result) throws ApiException {
-        Log.d("ITH", "syncDirtyTrainingCompletions() called.");
-        Log.d("ITH", "TrainingSyncTasks mGUID: " + guid);
-
         final String ministryId = args.getString(EXTRA_MINISTRY_ID);
         if (ministryId == null || ministryId.equals(Ministry.INVALID_ID)) {
             return;
@@ -298,7 +290,6 @@ class TrainingSyncTasks extends BaseSyncTasks {
             final GmaDao dao = GmaDao.getInstance(context);
             final List<Training.Completion> completions = dao.get(Training.Completion.class, Contract.Training.Completion.SQL_WHERE_NEW_DELETED_OR_DIRTY, null);
             if (completions.isEmpty()) {
-                Log.d("ITH", "syncDirtyTrainingCompletions completions: " + completions.size());
                 return;
             }
 
@@ -310,11 +301,6 @@ class TrainingSyncTasks extends BaseSyncTasks {
             for (final Training.Completion completion : completions) {
                 try {
                     if (completion.isNew()) {
-                        Log.d("ITH", "syncDirtyTrainingCompletions: completion training_id: " + completion.getTrainingId());
-                        Log.d("ITH", "syncDirtyTrainingCompletions: phase: " + completion.getPhase());
-                        Log.d("ITH", "syncDirtyTrainingCompletions: date: " + completion.getDate());
-                        Log.d("ITH", "syncDirtyTrainingCompletions: number_completed: " + completion.getNumberCompleted());
-
                         // try creating the training
                         final Training.Completion newTrainingCompletion = api.createTrainingCompletion(completion.getTrainingId(), completion);
 
@@ -324,10 +310,6 @@ class TrainingSyncTasks extends BaseSyncTasks {
                             newTrainingCompletion.setLastSynced(new Date());
                             dao.updateOrInsert(newTrainingCompletion, PROJECTION_GET_COMPLETIONS);
 
-                            // add training to list of broadcasts
-                            //broadcasts.put(ministryId, completion.getTrainingId());
-                            //broadcasts.put(ministryId, newTrainingCompletion.getTrainingId());
-
                             // increment the insert counter
                             result.stats.numInserts++;
                         } else {
@@ -335,9 +317,7 @@ class TrainingSyncTasks extends BaseSyncTasks {
                         }
                     }
                     else if (completion.isDirty()) {
-                        Log.d("ITH", "syncDirtyTrainingCompletions: completion is dirty.");
                         // generate dirty JSON
-                        //final JSONObject json = completion.dirtyToJson();
                         final JSONObject json = completion.toJson();
 
                         // update the training

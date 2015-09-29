@@ -1,21 +1,5 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-import static com.expidevapps.android.measurements.Constants.ARG_MCC;
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.PREFS_SETTINGS;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_CHURCH;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_GROUP;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_MULTIPLYING;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_PARENTS;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_TARGET;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_TRAINING;
-import static com.expidevapps.android.measurements.model.Task.CREATE_CHURCH;
-import static com.expidevapps.android.measurements.model.Task.CREATE_TRAINING;
-import static com.expidevapps.android.measurements.model.Task.VIEW_CHURCH;
-import static com.expidevapps.android.measurements.model.Task.VIEW_TRAINING;
-import static com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -85,6 +69,22 @@ import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.Optional;
+
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_MCC;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.PREFS_SETTINGS;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_CHURCH;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_GROUP;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_MULTIPLYING;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_PARENTS;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_TARGET;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_TRAINING;
+import static com.expidevapps.android.measurements.model.Task.CREATE_CHURCH;
+import static com.expidevapps.android.measurements.model.Task.CREATE_TRAINING;
+import static com.expidevapps.android.measurements.model.Task.VIEW_CHURCH;
+import static com.expidevapps.android.measurements.model.Task.VIEW_TRAINING;
+import static com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
 
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback {
     private static final int LOADER_CURRENT_ASSIGNMENT = 1;
@@ -575,7 +575,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             final FragmentManager fm = getChildFragmentManager();
             if (fm.findFragmentByTag("createChurch") == null) {
                 final CreateChurchFragment fragment =
-                        CreateChurchFragment.newInstance(mGuid, mAssignment.getMinistryId(), pos);
+                        CreateChurchFragment.newInstance(mGuid, mAssignment.getMinistryId(), mAssignment.getPersonId(), pos);
                 fragment.show(fm.beginTransaction().addToBackStack("createChurch"), "createChurch");
             }
         }
@@ -598,7 +598,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             final FragmentManager fm = getChildFragmentManager();
             if (fm.findFragmentByTag("createTraining") == null) {
                 final CreateTrainingFragment fragment =
-                        CreateTrainingFragment.newInstance(mGuid, mAssignment.getMinistryId(), mAssignment.getMcc(), pos);
+                        CreateTrainingFragment.newInstance(mGuid, mAssignment.getMinistryId(), mAssignment.getMcc(), mAssignment.getPersonId(), pos);
                 fragment.show(fm.beginTransaction().addToBackStack("createTraining"), "createTraining");
             }
         }
