@@ -135,9 +135,9 @@ public class UserPreferenceSyncTasks extends BaseSyncTasks {
                 existing.remove(pref.getName());
             }
 
-            // delete any remaining non-new preferences, we don't have them anymore
+            // delete any remaining non-new non-dirty preferences, we don't have them anymore
             for (final UserPreference pref : existing.values()) {
-                if (!pref.isNew()) {
+                if (!pref.isNew() && !pref.isDirty()) {
                     dao.delete(pref);
                 }
             }

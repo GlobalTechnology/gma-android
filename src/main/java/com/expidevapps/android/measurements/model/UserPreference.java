@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class UserPreference extends Base {
+    public static final String SUPPORTED_STAFF = "supported_staff";
+
     @NonNull
     private final String mGuid;
     @NonNull
@@ -31,9 +33,13 @@ public class UserPreference extends Base {
         while (keys.hasNext()) {
             final String key = keys.next();
             if (key != null) {
-                final UserPreference pref = new UserPreference(guid, key);
-                pref.mValue = json.getString(key);
-                prefs.put(key, pref);
+                switch (key) {
+                    case SUPPORTED_STAFF:
+                        final UserPreference pref = new UserPreference(guid, key);
+                        pref.mValue = json.getString(key);
+                        prefs.put(key, pref);
+                        break;
+                }
             }
         }
         return prefs;
