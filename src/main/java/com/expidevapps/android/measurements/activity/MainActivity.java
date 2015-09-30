@@ -408,9 +408,14 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void run() {
+            // update the preference in the database
             final GmaDao dao = GmaDao.getInstance(mContext);
             dao.updateOrInsert(mPref);
             GmaSyncService.syncDirtyPreferences(mContext, mGuid);
+
+            // broadcast that we updated the preference
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(
+                    BroadcastUtils.updatePreferencesBroadcast(mGuid, mPref.getName()));
         }
     }
 }

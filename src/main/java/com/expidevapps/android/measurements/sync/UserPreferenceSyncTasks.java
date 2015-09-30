@@ -8,6 +8,7 @@ import android.database.SQLException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
@@ -21,6 +22,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,13 +84,21 @@ public class UserPreferenceSyncTasks extends BaseSyncTasks {
                 final Map<String, UserPreference> prefs =
                         api.updatePreferences(dirty.toArray(new UserPreference[dirty.size()]));
                 if (prefs != null) {
+                    final List<String> updated = new ArrayList<>(dirty.size());
+
                     // mark all dirty prefs as clean
                     for (final UserPreference pref : dirty) {
+                        updated.add(pref.getName());
                         pref.setNew(false);
                         pref.setDirty(null);
                         dao.updateOrInsert(pref, new String[] {Contract.UserPreference.COLUMN_NEW,
                                 Contract.UserPreference.COLUMN_DIRTY});
                     }
+
+                    // send broadcasts for updated preferences
+                    final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
+                    broadcastManager.sendBroadcast(BroadcastUtils.updatePreferencesBroadcast(guid, updated.toArray(
+                            new String[updated.size()])));
 
                     // update the local preferences based on the response from the API
                     updateAllPreferences(context, guid, prefs);
@@ -124,10 +134,12 @@ public class UserPreferenceSyncTasks extends BaseSyncTasks {
             }
 
             // update preferences in local database
+            final List<String> updated = new ArrayList<>();
             for (final UserPreference pref : prefs.values()) {
                 // only update preferences that don't exist or aren't modified
                 final UserPreference current = existing.get(pref.getName());
                 if (current == null || (!current.isNew() && !current.isDirty())) {
+                    updated.add(pref.getName());
                     dao.updateOrInsert(pref, PROJECTION_PREFERENCE);
                 }
 
@@ -138,6 +150,7 @@ public class UserPreferenceSyncTasks extends BaseSyncTasks {
             // delete any remaining non-new non-dirty preferences, we don't have them anymore
             for (final UserPreference pref : existing.values()) {
                 if (!pref.isNew() && !pref.isDirty()) {
+                    updated.add(pref.getName());
                     dao.delete(pref);
                 }
             }
@@ -146,6 +159,11 @@ public class UserPreferenceSyncTasks extends BaseSyncTasks {
             dao.updateLastSyncTime(SYNC_TIME_PREFERENCES, guid);
 
             tx.setSuccessful();
+
+            // send broadcasts for updated data
+            final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
+            broadcastManager.sendBroadcast(
+                    BroadcastUtils.updatePreferencesBroadcast(guid, updated.toArray(new String[updated.size()])));
 
             return true;
         } catch (final SQLException e) {

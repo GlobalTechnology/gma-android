@@ -53,6 +53,7 @@ public final class Constants {
     public static final String EXTRA_TYPE = "type";
     public static final String EXTRA_ROLE = "role";
     public static final String EXTRA_SUPPORTED_STAFF = "supported_staff";
+    public static final String EXTRA_PREFERENCES = "prefs";
 
     /* measurements source */
     public static final String MEASUREMENTS_SOURCE = "gma-app";
