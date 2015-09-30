@@ -287,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
             if (mAssignment.can(UPDATE_PERSONAL_MEASUREMENTS) || mAssignment.can(UPDATE_MINISTRY_MEASUREMENTS)) {
                 MeasurementsActivity
                         .start(this, mAssignment.getGuid(), mAssignment.getMinistryId(), mAssignment.getMcc(),
-                               mAssignment.can(UPDATE_MINISTRY_MEASUREMENTS) ? TYPE_LOCAL : TYPE_PERSONAL, mAssignment.isSupportedStaff());
+                               mAssignment.can(UPDATE_PERSONAL_MEASUREMENTS) ? TYPE_PERSONAL : TYPE_LOCAL, mAssignment.getRole(), mAssignment.isSupportedStaff());
             } else {
                 AlertDialog alertDialog = new AlertDialog.Builder(this)
                         .setTitle(getString(R.string.title_dialog_measurements_unauthorized))

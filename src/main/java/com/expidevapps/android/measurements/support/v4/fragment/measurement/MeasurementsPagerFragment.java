@@ -17,6 +17,7 @@ import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.Contract.MeasurementVisibility;
 import com.expidevapps.android.measurements.db.GmaDao;
+import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.MeasurementType;
 import com.expidevapps.android.measurements.model.MeasurementTypeLocalization;
 import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
@@ -47,6 +48,7 @@ import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.ARG_MCC;
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
+import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
 import static com.expidevapps.android.measurements.Constants.ARG_SUPPORTED_STAFF;
 import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
 import static com.expidevapps.android.measurements.db.Contract.Base.COLUMN_ROWID;
@@ -83,6 +85,8 @@ public class MeasurementsPagerFragment extends Fragment {
     @NonNull
     private /* final */ Ministry.Mcc mMcc = Ministry.Mcc.UNKNOWN;
     @NonNull
+    private /* final */ Assignment.Role mRole = Assignment.Role.UNKNOWN;
+    @NonNull
     private /* final */ YearMonth mPeriod;
     @ValueType
     private /* final */ int mType = TYPE_NONE;
@@ -104,6 +108,7 @@ public class MeasurementsPagerFragment extends Fragment {
                                                         @NonNull final String ministryId,
                                                         @NonNull final Ministry.Mcc mcc,
                                                         @NonNull final YearMonth period,
+                                                        @NonNull final Assignment.Role role,
                                                         @ValueType final boolean supportedStaff,
                                                         @NonNull final MeasurementType.Column column) {
         final MeasurementsPagerFragment fragment = new MeasurementsPagerFragment();
@@ -113,6 +118,7 @@ public class MeasurementsPagerFragment extends Fragment {
         args.putString(ARG_GUID, guid);
         args.putString(ARG_MINISTRY_ID, ministryId);
         args.putString(ARG_MCC, mcc.toString());
+        args.putString(ARG_ROLE, role.toString());
         args.putString(ARG_PERIOD, period.toString());
         args.putString(ARG_COLUMN, column.toString());
         args.putBoolean(ARG_SUPPORTED_STAFF, supportedStaff);
@@ -134,6 +140,7 @@ public class MeasurementsPagerFragment extends Fragment {
         mGuid = args.getString(ARG_GUID);
         mMinistryId = args.getString(ARG_MINISTRY_ID);
         mMcc = Ministry.Mcc.fromRaw(args.getString(ARG_MCC));
+        mRole = Assignment.Role.fromRaw(args.getString(ARG_ROLE));
         mPeriod = YearMonth.parse(args.getString(ARG_PERIOD));
         mColumn = MeasurementType.Column.fromRaw(args.getString(ARG_COLUMN));
         mSupportedStaff = args.getBoolean(ARG_SUPPORTED_STAFF, mSupportedStaff);
@@ -174,7 +181,7 @@ public class MeasurementsPagerFragment extends Fragment {
 
     private void setupViewPager() {
         if (mPager != null) {
-            mAdapter = new MeasurementPagerAdapter(getActivity(), mType, mGuid, mMinistryId, mMcc, mPeriod);
+            mAdapter = new MeasurementPagerAdapter(getActivity(), mType, mGuid, mMinistryId, mMcc, mRole, mPeriod);
             mPager.setAdapter(mAdapter);
 
             // configure view pager indicator
@@ -254,18 +261,10 @@ public class MeasurementsPagerFragment extends Fragment {
         args.putStringArray(ARG_PROJECTION, projection);
         args.putParcelableArray(ARG_JOINS, joins.toArray(new Join[joins.size()]));
         if (mColumn != null) {
-            switch (mType) {
-                case TYPE_LOCAL:
-                    args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE + " AND " +
-                            Contract.MeasurementType.SQL_WHERE_COLUMN +
-                            (mSupportedStaff == false ? " AND " + Contract.MeasurementType.SQL_WHERE_NOT_SUPPORTED_STAFF_ONLY : ""));
-                    break;
-                case TYPE_PERSONAL:
-                    args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE + " AND " + Contract.MeasurementType.SQL_WHERE_NOT_LEADER_ONLY + " AND " +
-                            Contract.MeasurementType.SQL_WHERE_COLUMN +
-                            (mSupportedStaff == false ? " AND " + Contract.MeasurementType.SQL_WHERE_NOT_SUPPORTED_STAFF_ONLY : ""));
-                    break;
-            }
+            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE + " AND " +
+                                        Contract.MeasurementType.SQL_WHERE_COLUMN +
+                    (mRole == Assignment.Role.LEADER || mRole == Assignment.Role.ADMIN ? "" : " AND " + Contract.MeasurementType.SQL_WHERE_NOT_LEADER_ONLY) +
+                    (mSupportedStaff ? "" : " AND " + Contract.MeasurementType.SQL_WHERE_NOT_SUPPORTED_STAFF_ONLY));
             args.putStringArray(ARG_WHERE_ARGS, bindValues(mColumn));
         } else {
             args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE);
