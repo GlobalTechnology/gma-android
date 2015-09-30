@@ -139,8 +139,11 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
 
                             // get the user preference supported_staff for this session
                             final JSONObject userPreferences = json.optJSONObject("user_preferences");
-                            final String supportedStaff = userPreferences != null ? userPreferences.optString("supported_staff") : null;
 
+                            String supportedStaff = userPreferences != null ? userPreferences.optString("supported_staff") : "0";
+                            if (supportedStaff.isEmpty()) {
+                                supportedStaff = "0";
+                            }
                             // save the returned associated ministries
                             // XXX: this isn't ideal and crosses logical components, but I can't think of a cleaner way to do it currently -DF
                             GmaSyncService.saveAssignments(mContext, request.context.guid, personId,
@@ -557,9 +560,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                 return Assignment
                         .listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())), request.context.guid,
                                       request.context.session != null ? request.context.session.mPersonId : null,
-                                      request.context.session != null &&
-                                              request.context.session.mSupportedStaff != null ?
-                                              Integer.parseInt(request.context.session.mSupportedStaff) : 0);
+                                      request.context.session != null ? (request.context.session.mSupportedStaff != null ?
+                                              Integer.parseInt(request.context.session.mSupportedStaff) : 0) : 0);
             }
         } catch (final JSONException e) {
             Log.e(TAG, "error parsing getAllMinistries response", e);
