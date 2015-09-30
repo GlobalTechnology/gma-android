@@ -17,17 +17,16 @@ import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.Contract;
-import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.MeasurementType;
 import com.expidevapps.android.measurements.model.MeasurementType.Column;
 import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
+import com.expidevapps.android.measurements.support.v4.content.FilteredMeasurementTypeDaoCursorLoader;
 import com.expidevapps.android.measurements.sync.BroadcastUtils;
 
 import org.ccci.gto.android.common.db.Join;
-import org.ccci.gto.android.common.db.support.v4.content.DaoCursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
@@ -209,8 +208,7 @@ public class ColumnsListFragment extends Fragment {
                 case LOADER_COLUMNS:
                     final Context context = getActivity();
                     final CursorBroadcastReceiverLoader loader =
-                            new DaoCursorBroadcastReceiverLoader<>(context, GmaDao.getInstance(context),
-                                                                   MeasurementType.class, args);
+                            new FilteredMeasurementTypeDaoCursorLoader(context, mGuid, mMinistryId, args);
                     loader.addIntentFilter(BroadcastUtils.updateMeasurementTypesFilter());
                     return loader;
                 default:

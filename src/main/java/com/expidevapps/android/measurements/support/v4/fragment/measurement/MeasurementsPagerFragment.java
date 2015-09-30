@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.Contract.MeasurementVisibility;
-import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.MeasurementType;
 import com.expidevapps.android.measurements.model.MeasurementTypeLocalization;
@@ -25,12 +24,12 @@ import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.MinistryMeasurement;
 import com.expidevapps.android.measurements.model.PersonalMeasurement;
 import com.expidevapps.android.measurements.support.v4.adapter.MeasurementPagerAdapter;
+import com.expidevapps.android.measurements.support.v4.content.FilteredMeasurementTypeDaoCursorLoader;
 import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.viewpagerindicator.CirclePageIndicator;
 
 import org.ccci.gto.android.common.db.Join;
 import org.ccci.gto.android.common.db.Table;
-import org.ccci.gto.android.common.db.support.v4.content.DaoCursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.util.ArrayUtils;
@@ -263,8 +262,8 @@ public class MeasurementsPagerFragment extends Fragment {
         if (mColumn != null) {
             args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE + " AND " +
                                         Contract.MeasurementType.SQL_WHERE_COLUMN +
-                    (mRole == Assignment.Role.LEADER || mRole == Assignment.Role.ADMIN ? "" : " AND " + Contract.MeasurementType.SQL_WHERE_NOT_LEADER_ONLY) +
-                    (mSupportedStaff ? "" : " AND " + Contract.MeasurementType.SQL_WHERE_NOT_SUPPORTED_STAFF_ONLY));
+                    (mRole == Assignment.Role.LEADER || mRole == Assignment.Role.ADMIN ? "" :
+                            " AND " + Contract.MeasurementType.SQL_WHERE_NOT_LEADER_ONLY));
             args.putStringArray(ARG_WHERE_ARGS, bindValues(mColumn));
         } else {
             args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE);
@@ -280,10 +279,8 @@ public class MeasurementsPagerFragment extends Fragment {
         public Loader<Cursor> onCreateLoader(final int id, @Nullable final Bundle args) {
             switch (id) {
                 case LOADER_MEASUREMENTS:
-                    final Context context = getActivity();
                     final CursorBroadcastReceiverLoader loader =
-                            new DaoCursorBroadcastReceiverLoader<>(context, GmaDao.getInstance(context),
-                                                                   MeasurementType.class, args);
+                            new FilteredMeasurementTypeDaoCursorLoader(getActivity(), mGuid, mMinistryId, args);
                     loader.addIntentFilter(BroadcastUtils.updateMeasurementTypesFilter());
                     switch (mType) {
                         case TYPE_LOCAL:

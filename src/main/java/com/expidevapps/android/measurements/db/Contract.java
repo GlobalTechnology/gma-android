@@ -1,13 +1,14 @@
 package com.expidevapps.android.measurements.db;
 
+import static org.ccci.gto.android.common.db.Expression.constant;
+import static org.ccci.gto.android.common.db.Expression.field;
+
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import org.ccci.gto.android.common.db.Expression;
 import org.ccci.gto.android.common.db.Join;
 import org.ccci.gto.android.common.db.Table;
-
-import static org.ccci.gto.android.common.db.Expression.field;
 
 public class Contract {
     private Contract() {
@@ -426,10 +427,9 @@ public class Contract {
 
         static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_PERM_LINK_STUB;
         public static final String SQL_WHERE_COLUMN = SQL_PREFIX + COLUMN_COLUMN + " = ?";
-
         public static final String SQL_WHERE_NOT_LEADER_ONLY = SQL_PREFIX + COLUMN_LEADER_ONLY + " != 1";
-
-        public static final String SQL_WHERE_NOT_SUPPORTED_STAFF_ONLY = SQL_PREFIX + COLUMN_SUPPORTED_STAFF_ONLY + " != 1";
+        public static final Expression SQL_WHERE_NOT_SUPPORTED_STAFF =
+                field(TABLE, COLUMN_SUPPORTED_STAFF_ONLY).ne(constant(1));
 
         public static final String SQL_WHERE_VISIBLE =
                 "(" + MeasurementVisibility.SQL_PREFIX + MeasurementVisibility.COLUMN_VISIBLE + " = 1 OR (" +
