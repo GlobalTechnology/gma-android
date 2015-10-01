@@ -151,6 +151,9 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
     private void syncAll(@NonNull final String guid, @NonNull final Bundle extras, @NonNull final SyncResult result) {
         final boolean force = BaseSyncTasks.isForced(extras);
 
+        // sync the preferences for this user
+        dispatchSync(guid, SYNCTYPE_PREFERENCES, baseExtras(guid, force), result);
+
         // sync assignments for this user
         dispatchSync(guid, SYNCTYPE_ASSIGNMENTS, baseExtras(guid, force), result);
 
