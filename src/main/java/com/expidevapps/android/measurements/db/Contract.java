@@ -6,6 +6,7 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import org.ccci.gto.android.common.db.Expression;
+import org.ccci.gto.android.common.db.Expression.Field;
 import org.ccci.gto.android.common.db.Join;
 import org.ccci.gto.android.common.db.Table;
 
@@ -429,10 +430,8 @@ public class Contract {
         public static final String SQL_WHERE_NOT_LEADER_ONLY = SQL_PREFIX + COLUMN_LEADER_ONLY + " != 1";
         public static final Expression SQL_WHERE_NOT_SUPPORTED_STAFF = field(TABLE, COLUMN_SUPPORTED_STAFF_ONLY).ne(1);
 
-        public static final String SQL_WHERE_VISIBLE =
-                "(" + MeasurementVisibility.SQL_PREFIX + MeasurementVisibility.COLUMN_VISIBLE + " = 1 OR (" +
-                        SQL_PREFIX + COLUMN_CUSTOM + " = 0 AND " + MeasurementVisibility.SQL_PREFIX +
-                        MeasurementVisibility.COLUMN_VISIBLE + " IS NULL))";
+        public static final Expression SQL_WHERE_VISIBLE = MeasurementVisibility.FIELD_VISIBLE.eq(1)
+                .or(MeasurementVisibility.FIELD_VISIBLE.is(Expression.NULL).and(field(TABLE, COLUMN_CUSTOM).eq(0)));
 
         private static final Expression SQL_JOIN_ON_MINISTRY_MEASUREMENT = field(TABLE, COLUMN_PERM_LINK_STUB)
                 .eq(field(MinistryMeasurement.TABLE, MinistryMeasurement.COLUMN_PERM_LINK_STUB));
@@ -518,6 +517,8 @@ public class Contract {
         static final Table<MeasurementVisibility> TABLE = Table.forClass(MeasurementVisibility.class);
 
         public static final String COLUMN_VISIBLE = "visible";
+
+        private static final Field FIELD_VISIBLE = field(TABLE, COLUMN_VISIBLE);
 
         static final String SQL_COLUMN_VISIBLE = COLUMN_VISIBLE + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils

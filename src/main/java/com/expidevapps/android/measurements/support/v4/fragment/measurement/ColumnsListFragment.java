@@ -1,5 +1,16 @@
 package com.expidevapps.android.measurements.support.v4.fragment.measurement;
 
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_MCC;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
+import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
+import static com.expidevapps.android.measurements.Constants.ARG_SUPPORTED_STAFF;
+import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_DISTINCT;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_PROJECTION;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -18,7 +29,6 @@ import android.widget.TextView;
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.model.Assignment;
-import com.expidevapps.android.measurements.model.MeasurementType;
 import com.expidevapps.android.measurements.model.MeasurementType.Column;
 import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
 import com.expidevapps.android.measurements.model.Ministry;
@@ -26,7 +36,6 @@ import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.expidevapps.android.measurements.support.v4.content.FilteredMeasurementTypeDaoCursorLoader;
 import com.expidevapps.android.measurements.sync.BroadcastUtils;
 
-import org.ccci.gto.android.common.db.Join;
 import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
@@ -39,20 +48,6 @@ import java.util.EnumSet;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.Optional;
-
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-import static com.expidevapps.android.measurements.Constants.ARG_MCC;
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
-import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
-import static com.expidevapps.android.measurements.Constants.ARG_SUPPORTED_STAFF;
-import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_DISTINCT;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_JOINS;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_PROJECTION;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE;
-import static org.ccci.gto.android.common.db.Expression.raw;
 
 public class ColumnsListFragment extends Fragment {
     static final int LOADER_COLUMNS = 1;
@@ -186,17 +181,11 @@ public class ColumnsListFragment extends Fragment {
         manager.initLoader(LOADER_COLUMNS, getLoaderArgsColumns(), mLoaderCallbacksCursor);
     }
 
-    private static final Join<MeasurementType, Contract.MeasurementVisibility> JOIN_MEASUREMENT_VISIBILITY =
-            Contract.MeasurementType.JOIN_MEASUREMENT_VISIBILITY.type("LEFT");
-
     @NonNull
     private Bundle getLoaderArgsColumns() {
-        final Bundle args = new Bundle(4);
+        final Bundle args = new Bundle(2);
         args.putBoolean(ARG_DISTINCT, true);
-        args.putParcelableArray(ARG_JOINS, new Join[] {JOIN_MEASUREMENT_VISIBILITY
-                .andOn(raw(Contract.MeasurementVisibility.SQL_WHERE_MINISTRY, mMinistryId))});
         args.putStringArray(ARG_PROJECTION, new String[] {Contract.MeasurementType.COLUMN_COLUMN});
-        args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE);
         return args;
     }
 

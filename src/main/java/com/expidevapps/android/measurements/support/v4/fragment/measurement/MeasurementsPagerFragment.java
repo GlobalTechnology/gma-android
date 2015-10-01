@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.Contract;
-import com.expidevapps.android.measurements.db.Contract.MeasurementVisibility;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.MeasurementType;
 import com.expidevapps.android.measurements.model.MeasurementTypeLocalization;
@@ -202,8 +201,6 @@ public class MeasurementsPagerFragment extends Fragment {
             Contract.MeasurementType.JOIN_PERSONAL_MEASUREMENT.type("LEFT");
     private static final Join<MeasurementType, MinistryMeasurement> JOIN_MINISTRY_MEASUREMENT =
             Contract.MeasurementType.JOIN_MINISTRY_MEASUREMENT.type("LEFT");
-    private static final Join<MeasurementType, MeasurementVisibility> JOIN_MEASUREMENT_VISIBILITY =
-            Contract.MeasurementType.JOIN_MEASUREMENT_VISIBILITY.type("LEFT");
 
     @NonNull
     private Bundle getLoaderArgsMeasurements() {
@@ -214,10 +211,6 @@ public class MeasurementsPagerFragment extends Fragment {
         final StringBuilder name = new StringBuilder("COALESCE(");
         final ArrayList<Join<MeasurementType, ?>> joins = new ArrayList<>();
         String[] projection = PROJECTION_BASE;
-
-        // add visibility join
-        joins.add(JOIN_MEASUREMENT_VISIBILITY
-                          .andOn(field(MeasurementVisibility.class, COLUMN_MINISTRY_ID).eq(literal(mMinistryId))));
 
         // add joins & projections based on measurement type
         switch (mType) {
@@ -260,13 +253,10 @@ public class MeasurementsPagerFragment extends Fragment {
         args.putStringArray(ARG_PROJECTION, projection);
         args.putParcelableArray(ARG_JOINS, joins.toArray(new Join[joins.size()]));
         if (mColumn != null) {
-            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE + " AND " +
-                                        Contract.MeasurementType.SQL_WHERE_COLUMN +
+            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_COLUMN +
                     (mRole == Assignment.Role.LEADER || mRole == Assignment.Role.ADMIN ? "" :
                             " AND " + Contract.MeasurementType.SQL_WHERE_NOT_LEADER_ONLY));
             args.putStringArray(ARG_WHERE_ARGS, bindValues(mColumn));
-        } else {
-            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE);
         }
         args.putString(ARG_ORDER_BY, Contract.MeasurementType.COLUMN_SORT_ORDER);
 
