@@ -43,6 +43,8 @@ import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
 import static com.expidevapps.android.measurements.Constants.EXTRA_ROLE;
 import static com.expidevapps.android.measurements.Constants.EXTRA_SUPPORTED_STAFF;
 import static com.expidevapps.android.measurements.Constants.EXTRA_TYPE;
+import static com.expidevapps.android.measurements.model.Measurement.SHOW_ALL;
+import static com.expidevapps.android.measurements.model.Measurement.SHOW_FAVOURITE;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
@@ -83,6 +85,8 @@ public class MeasurementsActivity extends AppCompatActivity {
     private YearMonth mPeriod = NOW;
     @ValueType
     boolean mSupportedStaff = false;
+
+    private int mShowMeasurement = SHOW_ALL;
 
     public static void start(@NonNull final Context context, @NonNull final String guid,
                              @NonNull final String ministryId, @NonNull final Mcc mcc, @ValueType final int type, @NonNull final Assignment.Role role,
@@ -167,6 +171,22 @@ public class MeasurementsActivity extends AppCompatActivity {
                     item.setVisible(true);
                 }
             }
+
+            if (mShowMeasurement == SHOW_ALL) {
+                // show favourite options when available
+                final MenuItem item = menu.findItem(R.id.action_show_favourite_measurements);
+                if (item != null) {
+                    item.setVisible(true);
+                }
+            }
+
+            if (mShowMeasurement == SHOW_FAVOURITE) {
+                // show favourite options when available
+                final MenuItem item = menu.findItem(R.id.action_show_all_measurements);
+                if (item != null) {
+                    item.setVisible(true);
+                }
+            }
         }
 
         return true;
@@ -196,6 +216,12 @@ public class MeasurementsActivity extends AppCompatActivity {
             case R.id.action_measurements_personal:
                 onChangeType(TYPE_PERSONAL);
                 return true;
+            case R.id.action_show_favourite_measurements:
+                onChangeFeavouriteFilter(SHOW_FAVOURITE);
+                return true;
+            case R.id.action_show_all_measurements:
+                onChangeFeavouriteFilter(SHOW_ALL);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -221,6 +247,12 @@ public class MeasurementsActivity extends AppCompatActivity {
         mType = sanitizeType(type);
 
         updateTitle();
+        invalidateOptionsMenu();
+        loadMeasurementColumnsFragmentIfNeeded();
+    }
+
+    void onChangeFeavouriteFilter(final int showMeasurement) {
+        mShowMeasurement = showMeasurement;
         invalidateOptionsMenu();
         loadMeasurementColumnsFragmentIfNeeded();
     }
@@ -351,7 +383,7 @@ public class MeasurementsActivity extends AppCompatActivity {
         final Fragment existing = fm.findFragmentByTag(TAG_FRAGMENT_MEASUREMENT_COLUMNS);
         if (existing instanceof ColumnsListFragment) {
             final ColumnsListFragment fragment = (ColumnsListFragment) existing;
-            if (mType == fragment.getType() && mPeriod.equals(fragment.getPeriod())) {
+            if (mType == fragment.getType() && mPeriod.equals(fragment.getPeriod()) && mShowMeasurement == fragment.getShowMeasurement()) {
                 // no need to update the fragment
                 return;
             }
@@ -359,7 +391,7 @@ public class MeasurementsActivity extends AppCompatActivity {
 
         // create a new ColumnsListFragment
         // XXX: we use commitAllowingStateLoss because we already prevent state loss by checking
-        final ColumnsListFragment fragment = ColumnsListFragment.newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, mRole, mSupportedStaff);
+        final ColumnsListFragment fragment = ColumnsListFragment.newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, mRole, mSupportedStaff, mShowMeasurement);
         fm.beginTransaction().replace(R.id.frame_content, fragment, TAG_FRAGMENT_MEASUREMENT_COLUMNS)
                 .commitAllowingStateLoss();
     }

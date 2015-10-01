@@ -3,6 +3,8 @@
     <string name="menu_measurements">Measurements</string>
     <string name="menu_measurements_personal">Personal Measurements</string>
     <string name="menu_measurements_ministry">Ministry Measurements</string>
+    <string name="menu_show_favourite_measurements">Favourite Measurements</string>
+    <string name="menu_show_all_measurements">All Measurements</string>
     <string name="title_activity_measurements">Measurements</string>
     <string name="title_activity_measurements_personal">Personal Measurements</string>
     <string name="title_activity_measurements_local">Ministry Measurements</string>
@@ -31,4 +33,7 @@
 
     <string name="label_measurement_details_breakdown_local">Local</string>
     <string name="label_measurement_details_breakdown_you">You</string>
+
+    <string name="label_make_measurement_favourite">Add Favourite</string>
+    <string name="label_make_measurement_non_favourite">Remove Favourite</string>
 </resources>

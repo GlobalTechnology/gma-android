@@ -380,10 +380,12 @@ public class Contract {
         public static final String COLUMN_SUPPORTED_STAFF_ONLY = "supported_staff_only";
         public static final String COLUMN_LEADER_ONLY = "leader_only";
 
+        public static final String COLUMN_FAVOURITE = "favourite";
+
         static final String[] PROJECTION_ALL =
                 {COLUMN_PERM_LINK_STUB, COLUMN_PERSONAL_ID, COLUMN_LOCAL_ID, COLUMN_TOTAL_ID, COLUMN_NAME,
                         COLUMN_DESCRIPTION, COLUMN_SECTION, COLUMN_SECTION, COLUMN_COLUMN, COLUMN_CUSTOM,
-                        COLUMN_SORT_ORDER, COLUMN_SUPPORTED_STAFF_ONLY, COLUMN_LEADER_ONLY};
+                        COLUMN_SORT_ORDER, COLUMN_SUPPORTED_STAFF_ONLY, COLUMN_LEADER_ONLY, COLUMN_FAVOURITE};
 
         private static final String SQL_COLUMN_PERSONAL_ID = COLUMN_PERSONAL_ID + " TEXT";
         private static final String SQL_COLUMN_LOCAL_ID = COLUMN_LOCAL_ID + " TEXT";
@@ -396,16 +398,19 @@ public class Contract {
         private static final String SQL_COLUMN_SORT_ORDER = COLUMN_SORT_ORDER + " INTEGER";
         private static final String SQL_COLUMN_SUPPORTED_STAFF_ONLY = COLUMN_SUPPORTED_STAFF_ONLY + " INTEGER";
         private static final String SQL_COLUMN_LEADER_ONLY = COLUMN_LEADER_ONLY + " INTEGER";
+        private static final String SQL_COLUMN_FAVOURITE = COLUMN_FAVOURITE + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_PERM_LINK_STUB + ")";
 
         public static final String SQL_PREFIX = TABLE_NAME + ".";
 
-        static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_PERM_LINK_STUB;
+        public static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_PERM_LINK_STUB;
         public static final String SQL_WHERE_COLUMN = SQL_PREFIX + COLUMN_COLUMN + " = ?";
 
         public static final String SQL_WHERE_NOT_LEADER_ONLY = SQL_PREFIX + COLUMN_LEADER_ONLY + " != 1";
 
         public static final String SQL_WHERE_NOT_SUPPORTED_STAFF_ONLY = SQL_PREFIX + COLUMN_SUPPORTED_STAFF_ONLY + " != 1";
+
+        public static final String SQL_WHERE_FAVOURITE = SQL_PREFIX + COLUMN_FAVOURITE + " == 1";
 
         public static final String SQL_WHERE_VISIBLE =
                 "(" + MeasurementVisibility.SQL_PREFIX + MeasurementVisibility.COLUMN_VISIBLE + " = 1 OR (" +
@@ -433,7 +438,7 @@ public class Contract {
                 TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_PERSONAL_ID, SQL_COLUMN_LOCAL_ID,
                         SQL_COLUMN_TOTAL_ID, SQL_COLUMN_NAME, SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_DESCRIPTION,
                         SQL_COLUMN_SECTION, SQL_COLUMN_COLUMN, SQL_COLUMN_CUSTOM, SQL_COLUMN_SORT_ORDER, SQL_COLUMN_SUPPORTED_STAFF_ONLY,
-                        SQL_COLUMN_LEADER_ONLY, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
+                        SQL_COLUMN_LEADER_ONLY, SQL_COLUMN_FAVOURITE, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
         @Deprecated
@@ -455,6 +460,8 @@ public class Contract {
         static final String SQL_V47_ALTER_SUPPORTED_STAFF_ONLY = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_SUPPORTED_STAFF_ONLY;
         @Deprecated
         static final String SQL_V48_ALTER_LEADER_ONLY = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_LEADER_ONLY;
+        @Deprecated
+        static final String SQL_V50_ALTER_FAVOURITE = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_FAVOURITE;
 
     }
 

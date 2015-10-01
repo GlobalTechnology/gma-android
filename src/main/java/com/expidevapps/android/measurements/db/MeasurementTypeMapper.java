@@ -54,6 +54,9 @@ public class MeasurementTypeMapper extends BaseMapper<MeasurementType> {
             case Contract.MeasurementType.COLUMN_SUPPORTED_STAFF_ONLY:
                 values.put(field, type.isSupportedStaffOnly());
                 break;
+            case Contract.MeasurementType.COLUMN_FAVOURITE:
+                values.put(field, type.isFavourite());
+                break;
             default:
                 super.mapField(values, field, type);
                 break;
@@ -84,7 +87,7 @@ public class MeasurementTypeMapper extends BaseMapper<MeasurementType> {
         type.setSortOrder(getInt(c, Contract.MeasurementType.COLUMN_SORT_ORDER, DEFAULT_SORT_ORDER));
         type.setLeaderOnly(getBool(c, Contract.MeasurementType.COLUMN_LEADER_ONLY, DEFAULT_LEADER_ONLY));
         type.setSupportedStaffOnly(getBool(c, Contract.MeasurementType.COLUMN_SUPPORTED_STAFF_ONLY, DEFAULT_SUPPORTED_STAFF_ONLY));
-
+        type.setFavourite(getBool(c, Contract.MeasurementType.COLUMN_FAVOURITE, false));
         return type;
     }
 }

@@ -49,13 +49,18 @@ import static com.expidevapps.android.measurements.Constants.ARG_MCC;
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
 import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
+import static com.expidevapps.android.measurements.Constants.ARG_SHOW_MEASUREMENT;
 import static com.expidevapps.android.measurements.Constants.ARG_SUPPORTED_STAFF;
 import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
 import static com.expidevapps.android.measurements.db.Contract.Base.COLUMN_ROWID;
 import static com.expidevapps.android.measurements.db.Contract.MeasurementPermLink.COLUMN_PERM_LINK_STUB;
+import static com.expidevapps.android.measurements.db.Contract.MeasurementType.COLUMN_FAVOURITE;
 import static com.expidevapps.android.measurements.db.Contract.MeasurementType.COLUMN_LEADER_ONLY;
+import static com.expidevapps.android.measurements.db.Contract.MeasurementType.COLUMN_SUPPORTED_STAFF_ONLY;
 import static com.expidevapps.android.measurements.db.Contract.MeasurementTypeLocalization.COLUMN_LOCALE;
 import static com.expidevapps.android.measurements.db.Contract.MinistryId.COLUMN_MINISTRY_ID;
+import static com.expidevapps.android.measurements.model.Measurement.SHOW_ALL;
+import static com.expidevapps.android.measurements.model.Measurement.SHOW_FAVOURITE;
 import static com.expidevapps.android.measurements.model.MeasurementType.ARG_COLUMN;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
@@ -92,6 +97,7 @@ public class MeasurementsPagerFragment extends Fragment {
     private /* final */ int mType = TYPE_NONE;
     @ValueType
     private boolean mSupportedStaff = false;
+    private int mShowMeasurement = SHOW_ALL;
 
     @Nullable
     @Optional
@@ -110,6 +116,7 @@ public class MeasurementsPagerFragment extends Fragment {
                                                         @NonNull final YearMonth period,
                                                         @NonNull final Assignment.Role role,
                                                         @ValueType final boolean supportedStaff,
+                                                        final int showMeasurement,
                                                         @NonNull final MeasurementType.Column column) {
         final MeasurementsPagerFragment fragment = new MeasurementsPagerFragment();
 
@@ -122,6 +129,7 @@ public class MeasurementsPagerFragment extends Fragment {
         args.putString(ARG_PERIOD, period.toString());
         args.putString(ARG_COLUMN, column.toString());
         args.putBoolean(ARG_SUPPORTED_STAFF, supportedStaff);
+        args.putInt(ARG_SHOW_MEASUREMENT, showMeasurement);
         fragment.setArguments(args);
 
         return fragment;
@@ -144,6 +152,7 @@ public class MeasurementsPagerFragment extends Fragment {
         mPeriod = YearMonth.parse(args.getString(ARG_PERIOD));
         mColumn = MeasurementType.Column.fromRaw(args.getString(ARG_COLUMN));
         mSupportedStaff = args.getBoolean(ARG_SUPPORTED_STAFF, mSupportedStaff);
+        mShowMeasurement = args.getInt(ARG_SHOW_MEASUREMENT, mShowMeasurement);
     }
 
     @Override
@@ -198,7 +207,7 @@ public class MeasurementsPagerFragment extends Fragment {
         manager.initLoader(LOADER_MEASUREMENTS, getLoaderArgsMeasurements(), mLoaderCallbacksCursor);
     }
 
-    private static final String[] PROJECTION_BASE = {COLUMN_ROWID, COLUMN_PERM_LINK_STUB, COLUMN_LEADER_ONLY};
+    private static final String[] PROJECTION_BASE = {COLUMN_ROWID, COLUMN_PERM_LINK_STUB, COLUMN_LEADER_ONLY, COLUMN_SUPPORTED_STAFF_ONLY, COLUMN_FAVOURITE};
     private static final Join<MeasurementType, PersonalMeasurement> JOIN_PERSONAL_MEASUREMENT =
             Contract.MeasurementType.JOIN_PERSONAL_MEASUREMENT.type("LEFT");
     private static final Join<MeasurementType, MinistryMeasurement> JOIN_MINISTRY_MEASUREMENT =
@@ -263,6 +272,7 @@ public class MeasurementsPagerFragment extends Fragment {
         if (mColumn != null) {
             args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE + " AND " +
                                         Contract.MeasurementType.SQL_WHERE_COLUMN +
+                    (mShowMeasurement == SHOW_FAVOURITE ? " AND " + Contract.MeasurementType.SQL_WHERE_FAVOURITE : "") +
                     (mRole == Assignment.Role.LEADER || mRole == Assignment.Role.ADMIN ? "" : " AND " + Contract.MeasurementType.SQL_WHERE_NOT_LEADER_ONLY) +
                     (mSupportedStaff ? "" : " AND " + Contract.MeasurementType.SQL_WHERE_NOT_SUPPORTED_STAFF_ONLY));
             args.putStringArray(ARG_WHERE_ARGS, bindValues(mColumn));

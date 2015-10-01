@@ -59,17 +59,29 @@
 
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
         android:layout_toStartOf="@id/valueLayout"
         android:layout_toLeftOf="@id/valueLayout"
-        android:layout_centerVertical="true"
-        android:gravity="center_vertical|center_horizontal"
         android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:textAppearance="@style/TextAppearance.GMA.Measurements.Measurement.Name"
-        tools:text="Measurement Name"/>
+        android:layout_marginRight="16dp">
 
+        <CheckBox
+            android:id="@+id/favourite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/label_make_measurement_favourite" />
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_centerVertical="true"
+            android:textAppearance="@style/TextAppearance.GMA.Measurements.Measurement.Name"
+            tools:text="Measurement Name"/>
+    </RelativeLayout>
 </RelativeLayout>

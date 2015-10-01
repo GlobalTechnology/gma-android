@@ -63,9 +63,10 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
      * 47: 2015-09-24
      * 48: 2015-09-24
      * 49: 2015-09-25
+     * 50: 2015-09-30
      */
     private static final String DATABASE_NAME = "gcm_data.db";
-    private static final int DATABASE_VERSION = 49;
+    private static final int DATABASE_VERSION = 50;
 
     private static final Object LOCK_INSTANCE = new Object();
     private static GmaDatabase INSTANCE;
@@ -230,6 +231,9 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
                         break;
                     case 49:
                         db.execSQL(Contract.Assignment.SQL_V49_ALTER_SUPPORTED_STAFF);
+                        break;
+                    case 50:
+                        db.execSQL(Contract.MeasurementType.SQL_V50_ALTER_FAVOURITE);
                         break;
                     default:
                         // unrecognized version

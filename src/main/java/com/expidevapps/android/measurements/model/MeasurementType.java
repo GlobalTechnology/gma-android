@@ -117,6 +117,8 @@ public class MeasurementType extends Base {
     @Nullable
     private MeasurementTypeLocalization mLocalization;
 
+    private boolean favourite = false;
+
     public MeasurementType(@NonNull final String permLinkStub) {
         this.permLinkStub = permLinkStub;
     }
@@ -275,5 +277,13 @@ public class MeasurementType extends Base {
 
     public void setLocalization(@Nullable final MeasurementTypeLocalization localization) {
         mLocalization = localization;
+    }
+
+    public boolean isFavourite() {
+        return this.favourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        this.favourite = favourite;
     }
 }
