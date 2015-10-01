@@ -271,7 +271,6 @@ public class MeasurementsPagerFragment extends Fragment {
                 case LOADER_MEASUREMENTS:
                     final CursorBroadcastReceiverLoader loader =
                             new FilteredMeasurementTypeDaoCursorLoader(getActivity(), mGuid, mMinistryId, args);
-                    loader.addIntentFilter(BroadcastUtils.updateMeasurementTypesFilter());
                     switch (mType) {
                         case TYPE_LOCAL:
                             loader.addIntentFilter(

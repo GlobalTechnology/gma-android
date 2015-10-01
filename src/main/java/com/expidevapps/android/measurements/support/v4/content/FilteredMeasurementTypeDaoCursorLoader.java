@@ -51,6 +51,9 @@ public class FilteredMeasurementTypeDaoCursorLoader extends DaoCursorBroadcastRe
         receiver.addValues(UserPreference.SUPPORTED_STAFF);
         mPrefsHelper = new BroadcastReceiverLoaderHelper(this, receiver);
         mPrefsHelper.addIntentFilter(BroadcastUtils.updatePreferencesFilter(mGuid));
+
+        // monitor for changed measurement types
+        addIntentFilter(BroadcastUtils.updateMeasurementTypesFilter());
     }
 
     /* BEGIN lifecycle */

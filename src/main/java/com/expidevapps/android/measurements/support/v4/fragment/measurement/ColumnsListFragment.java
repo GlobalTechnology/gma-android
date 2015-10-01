@@ -11,7 +11,6 @@ import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_N
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_DISTINCT;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_PROJECTION;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -34,11 +33,9 @@ import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.expidevapps.android.measurements.support.v4.content.FilteredMeasurementTypeDaoCursorLoader;
-import com.expidevapps.android.measurements.sync.BroadcastUtils;
 
 import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
-import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.util.ViewCompat;
 import org.ccci.gto.android.common.widget.AccordionView;
 import org.joda.time.YearMonth;
@@ -195,11 +192,7 @@ public class ColumnsListFragment extends Fragment {
         public Loader<Cursor> onCreateLoader(final int id, @Nullable final Bundle args) {
             switch (id) {
                 case LOADER_COLUMNS:
-                    final Context context = getActivity();
-                    final CursorBroadcastReceiverLoader loader =
-                            new FilteredMeasurementTypeDaoCursorLoader(context, mGuid, mMinistryId, args);
-                    loader.addIntentFilter(BroadcastUtils.updateMeasurementTypesFilter());
-                    return loader;
+                    return new FilteredMeasurementTypeDaoCursorLoader(getActivity(), mGuid, mMinistryId, args);
                 default:
                     return null;
             }
