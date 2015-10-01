@@ -128,20 +128,20 @@ class AssignmentSyncTasks extends BaseSyncTasks {
             dao.updateLastSyncTime(SYNC_TIME_ASSIGNMENTS, guid);
 
             tx.setSuccessful();
-
-            // send broadcasts for updated data
-            final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
-            broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast(guid));
-            if (assignments.isEmpty()) {
-                broadcastManager.sendBroadcast(BroadcastUtils.noAssignmentsBroadcast(guid));
-            }
-
-            return true;
         } catch (final SQLException e) {
             LOG.debug("error updating assignments", e);
             return false;
         } finally {
             tx.end();
         }
+
+        // send broadcasts for updated data
+        final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
+        broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast(guid));
+        if (assignments.isEmpty()) {
+            broadcastManager.sendBroadcast(BroadcastUtils.noAssignmentsBroadcast(guid));
+        }
+
+        return true;
     }
 }
