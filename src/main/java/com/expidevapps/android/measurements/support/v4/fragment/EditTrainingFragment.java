@@ -363,6 +363,7 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
     }
 
     private int getLastCompletionPhase() {
+        //TODO: we shouldn't be accessing the database on the UI/Main thread, it may lead to the UI freezing
         final GmaDao dao = GmaDao.getInstance(getActivity());
         final List<Training.Completion> trainingCompletions = dao.get(Training.Completion.class, Contract.Training.Completion.SQL_WHERE_NOT_DELETED_AND_TRAINING_ID, bindValues(mTraining.getId()));
 
