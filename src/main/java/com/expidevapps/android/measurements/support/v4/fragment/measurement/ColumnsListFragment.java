@@ -4,8 +4,6 @@ import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.ARG_MCC;
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
-import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
-import static com.expidevapps.android.measurements.Constants.ARG_SUPPORTED_STAFF;
 import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_DISTINCT;
@@ -27,7 +25,6 @@ import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.Contract;
-import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.MeasurementType.Column;
 import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
 import com.expidevapps.android.measurements.model.Ministry;
@@ -67,26 +64,19 @@ public class ColumnsListFragment extends Fragment {
     @NonNull
     private /* final */ Mcc mMcc = Mcc.UNKNOWN;
     @NonNull
-    private /* final */ Assignment.Role mRole = Assignment.Role.UNKNOWN;
-    @NonNull
     private /* final */ YearMonth mPeriod;
-    @ValueType
-    private boolean mSupportedStaff = false;
 
     public static ColumnsListFragment newInstance(@ValueType final int type, @NonNull final String guid,
                                                   @NonNull final String ministryId, @NonNull final Mcc mcc,
-                                                  @NonNull final YearMonth period, @NonNull final Assignment.Role role,
-                                                  @ValueType final boolean supportedStaff) {
+                                                  @NonNull final YearMonth period) {
         final ColumnsListFragment fragment = new ColumnsListFragment();
 
         final Bundle args = new Bundle();
         args.putInt(ARG_TYPE, type);
         args.putString(ARG_GUID, guid);
         args.putString(ARG_MINISTRY_ID, ministryId);
-        args.putString(ARG_ROLE, role.toString());
         args.putString(ARG_MCC, mcc.toString());
         args.putString(ARG_PERIOD, period.toString());
-        args.putBoolean(ARG_SUPPORTED_STAFF, supportedStaff);
         fragment.setArguments(args);
 
         return fragment;
@@ -115,9 +105,7 @@ public class ColumnsListFragment extends Fragment {
         mGuid = args.getString(ARG_GUID);
         mMinistryId = args.getString(ARG_MINISTRY_ID);
         mMcc = Mcc.fromRaw(args.getString(ARG_MCC));
-        mRole = Assignment.Role.fromRaw(args.getString(ARG_ROLE));
         mPeriod = YearMonth.parse(args.getString(ARG_PERIOD));
-        mSupportedStaff = args.getBoolean(ARG_SUPPORTED_STAFF, mSupportedStaff);
     }
 
     @Override
@@ -330,7 +318,7 @@ public class ColumnsListFragment extends Fragment {
                 final Fragment fragment = fm.findFragmentById(holder.mPagerId);
                 if (fragment == null || oldColumn != holder.mColumn) {
                     fm.beginTransaction().replace(holder.mPagerId, MeasurementsPagerFragment
-                            .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, mRole, mSupportedStaff, holder.mColumn)).commit();
+                            .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, holder.mColumn)).commit();
                 }
             }
         }

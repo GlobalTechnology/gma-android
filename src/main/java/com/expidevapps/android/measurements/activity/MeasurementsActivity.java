@@ -40,8 +40,6 @@ import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
 import static com.expidevapps.android.measurements.Constants.EXTRA_MCC;
 import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
-import static com.expidevapps.android.measurements.Constants.EXTRA_ROLE;
-import static com.expidevapps.android.measurements.Constants.EXTRA_SUPPORTED_STAFF;
 import static com.expidevapps.android.measurements.Constants.EXTRA_TYPE;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
@@ -66,8 +64,6 @@ public class MeasurementsActivity extends AppCompatActivity {
     private /* final */ String mMinistryId = Ministry.INVALID_ID;
     @NonNull
     private /* final */ Mcc mMcc = Mcc.UNKNOWN;
-    @NonNull
-    private /* final */ Assignment.Role mRole = Assignment.Role.UNKNOWN;
 
     @Optional
     @Nullable
@@ -81,34 +77,28 @@ public class MeasurementsActivity extends AppCompatActivity {
     private int mType = TYPE_NONE;
     @NonNull
     private YearMonth mPeriod = NOW;
-    @ValueType
-    boolean mSupportedStaff = false;
 
     public static void start(@NonNull final Context context, @NonNull final String guid,
-                             @NonNull final String ministryId, @NonNull final Mcc mcc, @ValueType final int type, @NonNull final Assignment.Role role,
-                             @ValueType final boolean supportedStaff) {
-        start(context, guid, ministryId, mcc, type, role, supportedStaff, null);
+                             @NonNull final String ministryId, @NonNull final Mcc mcc, @ValueType final int type) {
+        start(context, guid, ministryId, mcc, type, null);
     }
 
     public static void start(@NonNull final Context context, @NonNull final String guid,
                              @NonNull final String ministryId, @NonNull final Mcc mcc, @ValueType final int type,
-                             @NonNull final Assignment.Role role, @ValueType final boolean supportedStaff, @Nullable final YearMonth period) {
+                             @Nullable final YearMonth period) {
         final Intent intent = new Intent(context, MeasurementsActivity.class);
-        populateIntent(intent, guid, ministryId, mcc, type, role, supportedStaff, period);
+        populateIntent(intent, guid, ministryId, mcc, type, period);
         context.startActivity(intent);
     }
 
     public static void populateIntent(@NonNull final Intent intent, @NonNull final String guid,
                                       @NonNull final String ministryId, @NonNull final Mcc mcc,
-                                      @ValueType final int type, @NonNull final Assignment.Role role,
-                                      @ValueType final boolean supportedStaff, @Nullable final YearMonth period) {
+                                      @ValueType final int type, @Nullable final YearMonth period) {
         intent.putExtra(EXTRA_TYPE, type);
         intent.putExtra(EXTRA_GUID, guid);
         intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
         intent.putExtra(EXTRA_MCC, mcc.toString());
         intent.putExtra(EXTRA_PERIOD, (period != null ? period : NOW).toString());
-        intent.putExtra(EXTRA_SUPPORTED_STAFF, supportedStaff);
-        intent.putExtra(EXTRA_ROLE, role.toString());
     }
 
     /* BEGIN lifecycle */
@@ -129,8 +119,6 @@ public class MeasurementsActivity extends AppCompatActivity {
         mMinistryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
         mMcc = Mcc.fromRaw(intent.getStringExtra(EXTRA_MCC));
         mPeriod = YearMonth.parse(intent.getStringExtra(EXTRA_PERIOD));
-        mSupportedStaff = intent.getBooleanExtra(EXTRA_SUPPORTED_STAFF, false);
-        mRole = Assignment.Role.fromRaw(intent.getStringExtra(EXTRA_ROLE));
 
         // load savedState
         if (savedState != null) {
@@ -138,7 +126,6 @@ public class MeasurementsActivity extends AppCompatActivity {
             if (savedState.containsKey(EXTRA_PERIOD)) {
                 mPeriod = YearMonth.parse(savedState.getString(EXTRA_PERIOD));
             }
-            mSupportedStaff = savedState.getBoolean(EXTRA_SUPPORTED_STAFF, mSupportedStaff);
         }
 
         syncAdjacentPeriods(false);
@@ -358,8 +345,8 @@ public class MeasurementsActivity extends AppCompatActivity {
         }
 
         // create a new ColumnsListFragment
-        // XXX: we use commitAllowingStateLoss because we already prevent state loss by checking
-        final ColumnsListFragment fragment = ColumnsListFragment.newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, mRole, mSupportedStaff);
+        // XXX: we use commitAllowingStateLoss because we already prevent state loss by checking mPaused
+        final ColumnsListFragment fragment = ColumnsListFragment.newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod);
         fm.beginTransaction().replace(R.id.frame_content, fragment, TAG_FRAGMENT_MEASUREMENT_COLUMNS)
                 .commitAllowingStateLoss();
     }
