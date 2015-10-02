@@ -233,19 +233,17 @@ public class Contract {
         public static final String COLUMN_ROLE = "team_role";
         public static final String COLUMN_ID = "assignment_id";
         public static final String COLUMN_PERSON_ID = "person_id";
-        public static final String COLUMN_SUPPORTED_STAFF = "supported_staff";
 
         static final String[] PROJECTION_ALL =
-                {COLUMN_GUID, COLUMN_PERSON_ID, COLUMN_SUPPORTED_STAFF, COLUMN_ID, COLUMN_ROLE, COLUMN_MINISTRY_ID, COLUMN_MCC,
+                {COLUMN_GUID, COLUMN_PERSON_ID, COLUMN_ID, COLUMN_ROLE, COLUMN_MINISTRY_ID, COLUMN_MCC,
                         COLUMN_LAST_SYNCED};
         public static final String[] PROJECTION_API_GET_ASSIGNMENT =
-                {COLUMN_ID, COLUMN_ROLE, COLUMN_PERSON_ID, COLUMN_SUPPORTED_STAFF, COLUMN_LAST_SYNCED};
+                {COLUMN_ID, COLUMN_ROLE, COLUMN_PERSON_ID, COLUMN_LAST_SYNCED};
         public static final String[] PROJECTION_API_CREATE_ASSIGNMENT = PROJECTION_API_GET_ASSIGNMENT;
 
         private static final String SQL_COLUMN_ROLE = COLUMN_ROLE + " TEXT";
         private static final String SQL_COLUMN_ID = COLUMN_ID + " TEXT";
         private static final String SQL_COLUMN_PERSON_ID = COLUMN_PERSON_ID + " TEXT";
-        private static final String SQL_COLUMN_SUPPORTED_STAFF = COLUMN_SUPPORTED_STAFF + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_GUID + "," + COLUMN_MINISTRY_ID + ")";
         private static final String SQL_FOREIGN_KEY_MINISTRIES =
                 "FOREIGN KEY(" + COLUMN_MINISTRY_ID + ") REFERENCES " + Ministry.TABLE_NAME + "(" +
@@ -258,16 +256,13 @@ public class Contract {
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_GUID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_ID,
-                        SQL_COLUMN_ROLE, SQL_COLUMN_MCC, SQL_COLUMN_PERSON_ID, SQL_COLUMN_SUPPORTED_STAFF, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY,
+                        SQL_COLUMN_ROLE, SQL_COLUMN_MCC, SQL_COLUMN_PERSON_ID, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY,
                         SQL_FOREIGN_KEY_MINISTRIES}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
         @Deprecated
         static final String SQL_V46_ALTER_PERSON_ID =
                 "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_PERSON_ID;
-        @Deprecated
-        static final String SQL_V49_ALTER_SUPPORTED_STAFF =
-                "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_SUPPORTED_STAFF;
     }
 
     public static final class Church extends Base implements MinistryId, Location {

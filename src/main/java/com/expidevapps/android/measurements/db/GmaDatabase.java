@@ -231,7 +231,6 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
                         db.execSQL(Contract.MeasurementType.SQL_V48_ALTER_LEADER_ONLY);
                         break;
                     case 49:
-                        db.execSQL(Contract.Assignment.SQL_V49_ALTER_SUPPORTED_STAFF);
                         break;
                     case 50:
                         db.execSQL(Contract.UserPreference.SQL_CREATE_TABLE);
