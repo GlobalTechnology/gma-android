@@ -1,6 +1,7 @@
 package com.expidevapps.android.measurements.support.v4.content;
 
 import static com.expidevapps.android.measurements.Constants.EXTRA_PREFERENCES;
+import static com.expidevapps.android.measurements.model.Task.VIEW_ADMIN_ONLY_MEASUREMENTS;
 import static org.ccci.gto.android.common.db.Expression.raw;
 
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.support.annotation.Nullable;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.Contract.MeasurementVisibility;
 import com.expidevapps.android.measurements.db.GmaDao;
+import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.MeasurementType;
 import com.expidevapps.android.measurements.model.UserPreference;
 import com.expidevapps.android.measurements.sync.BroadcastUtils;
@@ -52,7 +54,10 @@ public class FilteredMeasurementTypeDaoCursorLoader extends DaoCursorBroadcastRe
         mPrefsHelper = new BroadcastReceiverLoaderHelper(this, receiver);
         mPrefsHelper.addIntentFilter(BroadcastUtils.updatePreferencesFilter(mGuid));
 
-        // monitor for changed measurement types
+        // listen for assignment updates
+        addIntentFilter(BroadcastUtils.updateAssignmentsFilter(mGuid));
+
+        // listen for changed measurement types
         addIntentFilter(BroadcastUtils.updateMeasurementTypesFilter());
     }
 
@@ -94,6 +99,12 @@ public class FilteredMeasurementTypeDaoCursorLoader extends DaoCursorBroadcastRe
         final Boolean value = pref != null ? pref.getValueAsBoolean() : null;
         if (value == null || !value) {
             where = where.and(Contract.MeasurementType.SQL_WHERE_NOT_SUPPORTED_STAFF);
+        }
+
+        // take user's role into account for leader only measurements
+        final Assignment assignment = mDao.find(Assignment.class, mGuid, mMinistryId);
+        if (assignment == null || !assignment.can(VIEW_ADMIN_ONLY_MEASUREMENTS)) {
+            where = where.and(raw(Contract.MeasurementType.SQL_WHERE_NOT_LEADER_ONLY));
         }
 
         // return generated where clause

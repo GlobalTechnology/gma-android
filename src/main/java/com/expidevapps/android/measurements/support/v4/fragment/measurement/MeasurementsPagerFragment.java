@@ -253,9 +253,7 @@ public class MeasurementsPagerFragment extends Fragment {
         args.putStringArray(ARG_PROJECTION, projection);
         args.putParcelableArray(ARG_JOINS, joins.toArray(new Join[joins.size()]));
         if (mColumn != null) {
-            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_COLUMN +
-                    (mRole == Assignment.Role.LEADER || mRole == Assignment.Role.ADMIN ? "" :
-                            " AND " + Contract.MeasurementType.SQL_WHERE_NOT_LEADER_ONLY));
+            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_COLUMN);
             args.putStringArray(ARG_WHERE_ARGS, bindValues(mColumn));
         }
         args.putString(ARG_ORDER_BY, Contract.MeasurementType.COLUMN_SORT_ORDER);

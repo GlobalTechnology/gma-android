@@ -285,6 +285,8 @@ public class Assignment extends Base implements Cloneable {
                 return isAdmin() || isLeader() || isMember() || isSelfAssigned();
             case UPDATE_MINISTRY_MEASUREMENTS:
                 return isLeadership();
+            case VIEW_ADMIN_ONLY_MEASUREMENTS:
+                return isLeadership();
             default:
                 return false;
         }
