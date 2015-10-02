@@ -355,7 +355,7 @@ public class EditTrainingFragment extends BaseEditTrainingDialogFragment {
 
     private void resetNewCompletionView() {
         if (mNewCompletionParticipants != null) {
-            mNewCompletionDate = new LocalDate().now();
+            mNewCompletionDate = LocalDate.now();
             mNewCompletionDateLabel.setText("");
             mNewCompletionParticipants.setText("");
             mNewCompletionParticipants.clearFocus();
