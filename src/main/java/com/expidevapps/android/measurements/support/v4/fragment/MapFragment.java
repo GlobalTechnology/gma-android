@@ -202,7 +202,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.fragment_find_ministry, menu);
+        inflater.inflate(R.menu.fragment_map, menu);
         // configure the search view
         setupSearchView(menu);
     }
