@@ -370,8 +370,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         }
     }
 
-    private void changeMapLocation(@NonNull Address address) {
-        if (address != null) {
+    private void changeMapLocation(@Nullable Address address) {
+        if (mMap != null && address != null) {
             LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
 
             CameraUpdate update = CameraUpdateFactory.newLatLng(latLng);
@@ -854,8 +854,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     }
 
     private final class SearchLocationTask extends AsyncTask<String, Void, Address> {
-
-        @NonNull
+        @Nullable
         @Override
         protected Address doInBackground(@NonNull final String... params) {
             Address targetAddress = null;
@@ -875,7 +874,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         }
 
         @Override
-        protected void onPostExecute(@NonNull final Address address) {
+        protected void onPostExecute(@Nullable final Address address) {
             super.onPostExecute(address);
             changeMapLocation(address);
         }
