@@ -48,6 +48,9 @@
 -keepnames class * implements android.os.Parcelable {
     public static final ** CREATOR;
 }
+# GPS workaround for: https://code.google.com/p/android-developer-preview/issues/detail?id=3001
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.android.gms.**
 
 
 # Joda Time
