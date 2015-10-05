@@ -1,9 +1,27 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_MCC;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.PREFS_SETTINGS;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_CHURCH;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_GROUP;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_MULTIPLYING;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_PARENTS;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_TARGET;
+import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_TRAINING;
+import static com.expidevapps.android.measurements.model.Task.CREATE_CHURCH;
+import static com.expidevapps.android.measurements.model.Task.CREATE_TRAINING;
+import static com.expidevapps.android.measurements.model.Task.VIEW_CHURCH;
+import static com.expidevapps.android.measurements.model.Task.VIEW_TRAINING;
+import static com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
+
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
@@ -12,6 +30,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v4.util.LongSparseArray;
 import android.support.v4.view.MenuItemCompat;
@@ -70,23 +89,9 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.Optional;
 
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-import static com.expidevapps.android.measurements.Constants.ARG_MCC;
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.PREFS_SETTINGS;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_CHURCH;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_GROUP;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_MULTIPLYING;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_PARENTS;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_CHURCH_TARGET;
-import static com.expidevapps.android.measurements.Constants.PREF_MAP_LAYER_TRAINING;
-import static com.expidevapps.android.measurements.model.Task.CREATE_CHURCH;
-import static com.expidevapps.android.measurements.model.Task.CREATE_TRAINING;
-import static com.expidevapps.android.measurements.model.Task.VIEW_CHURCH;
-import static com.expidevapps.android.measurements.model.Task.VIEW_TRAINING;
-import static com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
-
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback {
+    private static final int PERMISSION_REQUEST_LOCATION = 1;
+
     private static final int LOADER_CURRENT_ASSIGNMENT = 1;
     private static final int LOADER_CHURCHES = 2;
     private static final int LOADER_TRAININGS = 3;
@@ -323,6 +328,18 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     }
 
     @Override
+    public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions,
+                                           @NonNull final int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_LOCATION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    enableMyLocationLayer(false);
+                }
+                break;
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.reset(this);
@@ -459,14 +476,27 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
             mMap.setOnInfoWindowClickListener(mClusterManager);
             mMap.setOnMarkerDragListener(mClusterManager.getMarkerManager());
             mMap.setOnMapLongClickListener(new MapLongClickListener());
-            mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMapToolbarEnabled(false);
+            enableMyLocationLayer(true);
 
             loadVisibleMapLayers();
             updateMapLocation();
             updateMapMarkers();
 
             mMapInitialized = true;
+        }
+    }
+
+    private void enableMyLocationLayer(final boolean prompt) {
+        if (mMap != null) {
+            // enable My Location layer, depends on location permissions
+            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                mMap.setMyLocationEnabled(true);
+            } else if (prompt) {
+                requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                                   PERMISSION_REQUEST_LOCATION);
+            }
         }
     }
 
