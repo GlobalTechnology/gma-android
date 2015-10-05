@@ -76,6 +76,7 @@ android {
 
     buildTypes {
         debug {
+            multiDexEnabled true
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
 
@@ -139,8 +140,8 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'com.android.support:support-v4:22.2.0'
-    compile 'com.google.android.gms:play-services-analytics:7.8.0'
-    compile 'com.google.android.gms:play-services-maps:7.8.0'
+    compile 'com.google.android.gms:play-services-analytics:8.1.0'
+    compile 'com.google.android.gms:play-services-maps:8.1.0'
     compile 'com.google.guava:guava:18.0'
     compile 'com.google.maps.android:android-maps-utils:0.3.4'
 
@@ -166,7 +167,9 @@ dependencies {
     compile 'com.viewpagerindicator:library:2.4.2-SNAPSHOT'
     compile 'net.danlew:android.joda:2.8.2'
 
-    debugCompile 'com.facebook.stetho:stetho:1.1.1'
+    debugCompile 'com.android.support:multidex:1.0.1'
+    debugCompile 'com.facebook.stetho:stetho:1.2.0'
+    debugCompile 'com.facebook.stetho:stetho-js-rhino:1.2.0'
 }
 
 apply from: 'maven_publish.gradle'
