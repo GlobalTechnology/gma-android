@@ -40,6 +40,8 @@ android {
         minSdkVersion 10
         targetSdkVersion 23
 
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
         buildConfigField "long", "THEKEY_CLIENTID", "7439283632057308L"
         buildConfigField "int", "GMA_API_VERSION", "4"
         buildConfigField "String", "GOOGLE_ANALYTICS_CLIENT_ID", "\"UA-29919940-7\""
@@ -96,7 +98,6 @@ android {
 
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             if(signingConfigs.demo.storeFile.exists()) {
                 signingConfig signingConfigs.demo
             }
@@ -107,7 +108,6 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             if(signingConfigs.release.storeFile.exists()) {
                 signingConfig signingConfigs.release
             }
