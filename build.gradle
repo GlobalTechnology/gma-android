@@ -51,6 +51,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
+    dexOptions {
+        incremental true
+        javaMaxHeapSize "4g"
+    }
     lintOptions {
         warning 'MissingTranslation'
     }
