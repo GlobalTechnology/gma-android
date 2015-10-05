@@ -1,7 +1,6 @@
 package com.expidevapps.android.measurements.api;
 
 import static com.expidevapps.android.measurements.Constants.MEASUREMENTS_SOURCE;
-import static com.expidevapps.android.measurements.Constants.PREFS_USER;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -147,7 +146,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                             // XXX: this isn't ideal and crosses logical components, but I can't think of a cleaner way to do it currently -DF
                             GmaSyncService.saveAssignments(mContext, request.context.guid, personId,
                                                            json.optJSONArray("assignments"));
-                            saveUser(user);
 
                             // create session object
                             return new Session(json.optString("session_ticket", null), cookies, personId,
@@ -874,21 +872,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
     }
 
     /* END User Preference endpoints */
-
-    private void saveUser(@Nullable final JSONObject user) {
-        if(user != null) {
-            String persionId = user.optString("person_id", null);
-            SharedPreferences.Editor editor = mContext.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE).edit();
-            editor.putString(PREF_PERSON_ID, persionId);
-            editor.apply();
-        }
-    }
-
-    public static String getUserId(@NonNull final Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_USER, Context.MODE_PRIVATE);
-        String persionId = prefs.getString(PREF_PERSON_ID, null);
-        return persionId;
-    }
 
     static final class Request extends AbstractTheKeyApi.Request<ExecutionContext<Session>, Session> {
         Request(@NonNull final String path) {
