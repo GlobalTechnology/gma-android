@@ -34,6 +34,6 @@
     <string name="label_measurement_details_breakdown_local">Local</string>
     <string name="label_measurement_details_breakdown_you">You</string>
 
-    <string name="label_make_measurement_favourite">Add Favourite</string>
-    <string name="label_make_measurement_non_favourite">Remove Favourite</string>
+    <string name="menu_add_measurement_favourite">Add Favourite</string>
+    <string name="menu_measurement_non_favourite">Remove Favourite</string>
 </resources>
