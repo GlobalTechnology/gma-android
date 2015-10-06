@@ -55,19 +55,12 @@
 
 # Joda Time
 -dontwarn org.joda.time.tz.ZoneInfoCompiler
--dontwarn org.joda.convert.FromString
--dontwarn org.joda.convert.ToString
 
 
 # newrelic settings
 -keep class com.newrelic.** { *; }
 -dontwarn com.newrelic.**
 -keepattributes Exceptions, Signature, InnerClasses
-
-
-# The Key API
--dontwarn javax.annotation.**
--dontwarn org.slf4j.**
 
 
 # Strip out SLF4J logging
