@@ -18,7 +18,7 @@ apply plugin: 'newrelic'
 apply from: 'versioning.gradle'
 
 group 'org.ccci.gto.android'
-version '0.8.12-SNAPSHOT'
+version '0.8.12-RC1'
 
 android {
     compileSdkVersion 23
@@ -143,12 +143,12 @@ dependencies {
 
     compile 'com.jakewharton:butterknife:6.1.0'
 
-    compile 'me.thekey.android:thekey-lib-accountmanager:1.1.0-SNAPSHOT'
+    compile 'me.thekey.android:thekey-lib-accountmanager:1.1.0'
 
-    compile 'org.ccci.gto.android:gto-support-api:0.7.0-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-core:0.7.0-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-db:0.7.0-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-recyclerview:0.7.0-SNAPSHOT'
+    compile 'org.ccci.gto.android:gto-support-api:0.7.0'
+    compile 'org.ccci.gto.android:gto-support-core:0.7.0'
+    compile 'org.ccci.gto.android:gto-support-db:0.7.0'
+    compile 'org.ccci.gto.android:gto-support-recyclerview:0.7.0'
 
     compile 'org.slf4j:slf4j-api:1.7.12'
     compile 'org.slf4j:slf4j-android:1.7.12'
