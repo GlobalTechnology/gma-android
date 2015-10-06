@@ -79,6 +79,10 @@ android {
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
 
+            lintOptions {
+                warning 'InvalidPackage'
+            }
+
             buildConfigField "String", "GMA_API_BASE_URI", "\"https://stage-measurements.global-registry.org/\""
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AAfd80ddf74e333f27c92d3f89f125be5cecf9c532\""
             buildConfigField "int", "GMA_API_VERSION", "5"
