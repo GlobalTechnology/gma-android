@@ -1,5 +1,18 @@
 package com.expidevapps.android.measurements.activity;
 
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
+import static com.expidevapps.android.measurements.Constants.EXTRA_MCC;
+import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
+import static com.expidevapps.android.measurements.Constants.EXTRA_TYPE;
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
+import static com.expidevapps.android.measurements.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
+import static com.expidevapps.android.measurements.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,19 +46,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.Optional;
-
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
-import static com.expidevapps.android.measurements.Constants.EXTRA_MCC;
-import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
-import static com.expidevapps.android.measurements.Constants.EXTRA_TYPE;
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
-import static com.expidevapps.android.measurements.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
-import static com.expidevapps.android.measurements.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
 
 public class MeasurementsActivity extends AppCompatActivity {
     private static final String TAG_FRAGMENT_MEASUREMENT_COLUMNS = "measurementColumns";
@@ -208,7 +208,7 @@ public class MeasurementsActivity extends AppCompatActivity {
         mType = sanitizeType(type);
 
         updateTitle();
-        invalidateOptionsMenu();
+        supportInvalidateOptionsMenu();
         loadMeasurementColumnsFragmentIfNeeded();
     }
 
