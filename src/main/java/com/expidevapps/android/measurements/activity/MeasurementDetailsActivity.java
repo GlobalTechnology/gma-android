@@ -13,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.expidevapps.android.measurements.R;
-import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.fragment.measurement.MeasurementDetailsFragment;
@@ -22,7 +21,6 @@ import org.joda.time.YearMonth;
 
 import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
 import static com.expidevapps.android.measurements.Constants.EXTRA_MCC;
-import static com.expidevapps.android.measurements.Constants.EXTRA_ROLE;
 import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
 import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINK;
@@ -41,27 +39,24 @@ public class MeasurementDetailsActivity extends AppCompatActivity {
     @NonNull
     private /* final */ Ministry.Mcc mMcc;
     @NonNull
-    private /* final */ Assignment.Role mRole;
-    @NonNull
     private /* final */ String mPermLink;
     @NonNull
     private /* final */ YearMonth mPeriod;
 
     public static void start(@NonNull final Context context, @NonNull final String guid,
-                             @NonNull final String ministryId, @NonNull final Ministry.Mcc mcc, @NonNull final Assignment.Role role,
+                             @NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
                              @NonNull final String permLink, @NonNull final YearMonth period) {
         final Intent intent = new Intent(context, MeasurementDetailsActivity.class);
-        populateIntent(intent, guid, ministryId, mcc, role, permLink, period);
+        populateIntent(intent, guid, ministryId, mcc, permLink, period);
         context.startActivity(intent);
     }
 
     public static void populateIntent(@NonNull final Intent intent, @NonNull final String guid,
-                                      @NonNull final String ministryId, @NonNull final Ministry.Mcc mcc, @NonNull final Assignment.Role role,
+                                      @NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
                                       @NonNull final String permLink, @NonNull final YearMonth period) {
         intent.putExtra(EXTRA_GUID, guid);
         intent.putExtra(EXTRA_MINISTRY_ID, ministryId);
         intent.putExtra(EXTRA_MCC, mcc.toString());
-        intent.putExtra(EXTRA_ROLE, role.toString());
         intent.putExtra(EXTRA_PERMLINK, permLink);
         intent.putExtra(EXTRA_PERIOD, period.toString());
     }
@@ -79,7 +74,6 @@ public class MeasurementDetailsActivity extends AppCompatActivity {
         mGuid = intent.getStringExtra(EXTRA_GUID);
         mMinistryId = intent.getStringExtra(EXTRA_MINISTRY_ID);
         mMcc = Ministry.Mcc.fromRaw(intent.getStringExtra(EXTRA_MCC));
-        mRole = Assignment.Role.fromRaw(intent.getStringExtra(EXTRA_ROLE));
         mPermLink = intent.getStringExtra(EXTRA_PERMLINK);
         mPeriod = YearMonth.parse(intent.getStringExtra(EXTRA_PERIOD));
 
@@ -98,7 +92,7 @@ public class MeasurementDetailsActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 final Intent upIntent = NavUtils.getParentActivityIntent(this);
-                MeasurementsActivity.populateIntent(upIntent, mGuid, mMinistryId, mMcc, TYPE_NONE, mRole, false, mPeriod);
+                MeasurementsActivity.populateIntent(upIntent, mGuid, mMinistryId, mMcc, TYPE_NONE, mPeriod);
 
                 if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
                     // This activity is NOT part of this app's task, so create a new task

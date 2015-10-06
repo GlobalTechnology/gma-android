@@ -15,30 +15,25 @@ buildscript {
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'newrelic'
+apply from: 'versioning.gradle'
 
 group 'org.ccci.gto.android'
-version '0.8.12-SNAPSHOT'
-
-def generateVersionCode(version) {
-    def code = 0;
-    version.replaceAll('[^0-9\\.]','').split('\\.').each{
-        code = (1000 * code) + Integer.valueOf(it);
-    }
-    return code;
-}
+version '0.8.13-SNAPSHOT'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion '22.0.1'
+    compileSdkVersion 23
+    buildToolsVersion '23.0.1'
 
     defaultConfig {
         applicationId "com.expidevapps.android.measurements"
 
         versionName project.version
-        versionCode generateVersionCode(project.version)
+        versionCode buildVersionCode()
 
         minSdkVersion 10
-        targetSdkVersion 22
+        targetSdkVersion 23
+
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
         buildConfigField "long", "THEKEY_CLIENTID", "7439283632057308L"
         buildConfigField "int", "GMA_API_VERSION", "4"
@@ -50,6 +45,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
+    }
+    dexOptions {
+        incremental true
+        javaMaxHeapSize "4g"
     }
     lintOptions {
         warning 'MissingTranslation'
@@ -76,8 +75,13 @@ android {
 
     buildTypes {
         debug {
+            multiDexEnabled true
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
+
+            lintOptions {
+                warning 'InvalidPackage'
+            }
 
             buildConfigField "String", "GMA_API_BASE_URI", "\"https://stage-measurements.global-registry.org/\""
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AAfd80ddf74e333f27c92d3f89f125be5cecf9c532\""
@@ -91,7 +95,6 @@ android {
 
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             if(signingConfigs.demo.storeFile.exists()) {
                 signingConfig signingConfigs.demo
             }
@@ -102,7 +105,6 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             if(signingConfigs.release.storeFile.exists()) {
                 signingConfig signingConfigs.release
             }
@@ -127,20 +129,16 @@ repositories {
         name "maven.gcx.org"
         url "https://maven.gcx.org/"
     }
-    // This is a temporary workaround until ViewPagerIndicator is distributed as an aar
-    maven {
-        url 'https://github.com/Dahlgren/vpi-aar/raw/master/'
-    }
     maven { url 'https://jitpack.io' }
     maven { url 'https://maven.fabric.io/public' }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.android.support:recyclerview-v7:22.2.0'
-    compile 'com.android.support:support-v4:22.2.0'
-    compile 'com.google.android.gms:play-services-analytics:7.8.0'
-    compile 'com.google.android.gms:play-services-maps:7.8.0'
+    compile 'com.android.support:appcompat-v7:23.0.1'
+    compile 'com.android.support:recyclerview-v7:23.0.1'
+    compile 'com.android.support:support-v4:23.0.1'
+    compile 'com.google.android.gms:play-services-analytics:8.1.0'
+    compile 'com.google.android.gms:play-services-maps:8.1.0'
     compile 'com.google.guava:guava:18.0'
     compile 'com.google.maps.android:android-maps-utils:0.3.4'
 
@@ -149,13 +147,12 @@ dependencies {
 
     compile 'com.jakewharton:butterknife:6.1.0'
 
-    compile 'me.thekey.android:thekey-api:1.0.0'
-    compile 'me.thekey.android:thekey-lib:1.0.0'
+    compile 'me.thekey.android:thekey-lib-accountmanager:1.1.0'
 
-    compile 'org.ccci.gto.android:gto-support-api:0.7.0-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-core:0.7.0-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-db:0.7.0-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-recyclerview:0.7.0-SNAPSHOT'
+    compile 'org.ccci.gto.android:gto-support-api:0.7.0'
+    compile 'org.ccci.gto.android:gto-support-core:0.7.0'
+    compile 'org.ccci.gto.android:gto-support-db:0.7.0'
+    compile 'org.ccci.gto.android:gto-support-recyclerview:0.7.0'
 
     compile 'org.slf4j:slf4j-api:1.7.12'
     compile 'org.slf4j:slf4j-android:1.7.12'
@@ -163,10 +160,12 @@ dependencies {
     compile 'com.github.machinarius:preferencefragment:0.1.1'
     compile 'com.github.PhilJay:MPAndroidChart:v2.1.0'
     compile 'com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.6.2'
-    compile 'com.viewpagerindicator:library:2.4.2-SNAPSHOT'
+    compile 'com.github.frett.ViewPagerIndicator:library:c954a2a44f'
     compile 'net.danlew:android.joda:2.8.2'
 
-    debugCompile 'com.facebook.stetho:stetho:1.1.1'
+    debugCompile 'com.android.support:multidex:1.0.1'
+    debugCompile 'com.facebook.stetho:stetho:1.2.0'
+    debugCompile 'com.facebook.stetho:stetho-js-rhino:1.2.0'
 }
 
 apply from: 'maven_publish.gradle'

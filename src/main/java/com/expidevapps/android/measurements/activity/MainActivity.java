@@ -14,25 +14,22 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.expidevapps.android.measurements.R;
-import com.expidevapps.android.measurements.api.GmaApiClient;
+import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.model.UserPreference;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader;
 import com.expidevapps.android.measurements.support.v4.fragment.MapFragment;
 import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 
-import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.util.AsyncTaskCompat;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
@@ -86,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
     }
 
@@ -237,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
             final String ministryId = mAssignment != null ? mAssignment.getMinistryId() : Ministry.INVALID_ID;
 
             // trigger background syncing of data
+            GmaSyncService.syncPreferences(this, mGuid, force);
             GmaSyncService.syncAssignments(this, mGuid, force);
             GmaSyncService.syncMinistries(this, mGuid, force);
             GmaSyncService.syncMeasurementTypes(this, mGuid, ministryId, force);
@@ -250,34 +248,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setSupportedStaff() {
-        if (mGuid != null && mAssignment != null) {
-            new AlertDialog.Builder(this).setTitle(R.string.title_dialog_profile_set_supported_staff).setMessage(
-                    R.string.text_profile_supported_staff_message).setPositiveButton(R.string.btn_profile_no, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    try {
-                        JSONObject json = new JSONObject();
-                        json.put("supported_staff", "0");
+        if (mGuid != null) {
+            final UserPreference pref = new UserPreference(mGuid, UserPreference.SUPPORTED_STAFF);
+            pref.trackingChanges(true);
 
-                        AsyncTaskCompat.execute(new UpdatePreferenceRunnable(getApplicationContext(), mGuid, json));
-                    } catch (final JSONException e) {
-                        Log.e("JSONException", "JSONException occurred.");
-                    }
-                    dialog.dismiss();
-                }
-            }).setNegativeButton(R.string.btn_profile_yes, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    try {
-                        JSONObject json = new JSONObject();
-                        json.put("supported_staff", "1");
-
-                        AsyncTaskCompat.execute(new UpdatePreferenceRunnable(getApplicationContext(), mGuid, json));
-                    } catch (final JSONException e) {
-                        Log.e("JSONException", "JSONException occurred.");
-                    }
-                    dialog.dismiss();
-                }
-            }).show();
+            new AlertDialog.Builder(this).setTitle(R.string.title_dialog_profile_set_supported_staff)
+                    .setMessage(R.string.text_profile_supported_staff_message)
+                    .setPositiveButton(R.string.btn_profile_yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            pref.setValue(true);
+                            AsyncTaskCompat.execute(new UpdatePreferenceRunnable(MainActivity.this, mGuid, pref));
+                            dialog.dismiss();
+                        }
+                    })
+                    .setNegativeButton(R.string.btn_profile_no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            pref.setValue(false);
+                            AsyncTaskCompat.execute(new UpdatePreferenceRunnable(MainActivity.this, mGuid, pref));
+                            dialog.dismiss();
+                        }
+                    }).show();
         }
     }
 
@@ -287,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
             if (mAssignment.can(UPDATE_PERSONAL_MEASUREMENTS) || mAssignment.can(UPDATE_MINISTRY_MEASUREMENTS)) {
                 MeasurementsActivity
                         .start(this, mAssignment.getGuid(), mAssignment.getMinistryId(), mAssignment.getMcc(),
-                               mAssignment.can(UPDATE_PERSONAL_MEASUREMENTS) ? TYPE_PERSONAL : TYPE_LOCAL, mAssignment.getRole(), mAssignment.isSupportedStaff());
+                               mAssignment.can(UPDATE_PERSONAL_MEASUREMENTS) ? TYPE_PERSONAL : TYPE_LOCAL);
             } else {
                 AlertDialog alertDialog = new AlertDialog.Builder(this)
                         .setTitle(getString(R.string.title_dialog_measurements_unauthorized))
@@ -400,30 +391,31 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class UpdatePreferenceRunnable implements Runnable {
+    static class UpdatePreferenceRunnable implements Runnable {
         @NonNull
         private final Context mContext;
         @NonNull
         private final String mGuid;
         @NonNull
-        private final JSONObject mSupportedStaff;
+        private final UserPreference mPref;
 
-        UpdatePreferenceRunnable(@NonNull final Context context, @NonNull final String guid, @NonNull final JSONObject supportedStaff) {
-            mContext = context;
+        UpdatePreferenceRunnable(@NonNull final Context context, @NonNull final String guid,
+                                 @NonNull final UserPreference pref) {
+            mContext = context.getApplicationContext();
             mGuid = guid;
-            mSupportedStaff = supportedStaff;
+            mPref = pref;
         }
 
         @Override
         public void run() {
-            final GmaApiClient api = GmaApiClient.getInstance(mContext, mGuid);
+            // update the preference in the database
+            final GmaDao dao = GmaDao.getInstance(mContext);
+            dao.updateOrInsert(mPref);
+            GmaSyncService.syncDirtyPreferences(mContext, mGuid);
 
-            try {
-                api.updatePreference(mSupportedStaff);
-            }
-            catch (ApiException e) {
-                Log.e("ApiException", "ApiExceptin occured.");
-            }
+            // broadcast that we updated the preference
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(
+                    BroadcastUtils.updatePreferencesBroadcast(mGuid, mPref.getName()));
         }
     }
 }

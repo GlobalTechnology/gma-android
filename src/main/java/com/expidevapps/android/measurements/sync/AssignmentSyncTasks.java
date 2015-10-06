@@ -33,7 +33,6 @@ class AssignmentSyncTasks extends BaseSyncTasks {
 
     static final String EXTRA_ASSIGNMENTS = AssignmentSyncTasks.class.getName() + ".EXTRA_ASSIGNMENTS";
     static final String EXTRA_PERSON_ID = AssignmentSyncTasks.class.getName() + ".EXTRA_PERSON_ID";
-    static final String EXTRA_SUPPORTED_STAFF = AssignmentSyncTasks.class.getName() + ".EXTRA_SUPPORTED_STAFF";
 
     private static final String SYNC_TIME_ASSIGNMENTS = "last_synced.assignments";
 
@@ -59,10 +58,9 @@ class AssignmentSyncTasks extends BaseSyncTasks {
                                 @NonNull final Bundle args, @NonNull final SyncResult result) {
         final String raw = args.getString(EXTRA_ASSIGNMENTS);
         final String personId = args.getString(EXTRA_PERSON_ID);
-        final int supportedStaff = args.getInt(EXTRA_SUPPORTED_STAFF, 0);
         if (raw != null) {
             try {
-                updateAllAssignments(context, guid, Assignment.listFromJson(new JSONArray(raw), guid, personId, supportedStaff));
+                updateAllAssignments(context, guid, Assignment.listFromJson(new JSONArray(raw), guid, personId));
             } catch (final JSONException e) {
                 result.stats.numParseExceptions++;
             }
@@ -86,7 +84,7 @@ class AssignmentSyncTasks extends BaseSyncTasks {
 
             // column projections for updates
             final String[] PROJECTION_ASSIGNMENT = {Contract.Assignment.COLUMN_ROLE, Contract.Assignment.COLUMN_ID,
-                    Contract.Assignment.COLUMN_PERSON_ID, Contract.Assignment.COLUMN_SUPPORTED_STAFF, Contract.Assignment.COLUMN_LAST_SYNCED};
+                    Contract.Assignment.COLUMN_PERSON_ID, Contract.Assignment.COLUMN_LAST_SYNCED};
             final String[] PROJECTION_MINISTRY =
                     {Contract.Ministry.COLUMN_NAME, Contract.Ministry.COLUMN_MIN_CODE, Contract.Ministry.COLUMN_MCCS,
                             Contract.Ministry.COLUMN_LATITUDE, Contract.Ministry.COLUMN_LONGITUDE,
@@ -130,20 +128,20 @@ class AssignmentSyncTasks extends BaseSyncTasks {
             dao.updateLastSyncTime(SYNC_TIME_ASSIGNMENTS, guid);
 
             tx.setSuccessful();
-
-            // send broadcasts for updated data
-            final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
-            broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast(guid));
-            if (assignments.isEmpty()) {
-                broadcastManager.sendBroadcast(BroadcastUtils.noAssignmentsBroadcast(guid));
-            }
-
-            return true;
         } catch (final SQLException e) {
             LOG.debug("error updating assignments", e);
             return false;
         } finally {
             tx.end();
         }
+
+        // send broadcasts for updated data
+        final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
+        broadcastManager.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast(guid));
+        if (assignments.isEmpty()) {
+            broadcastManager.sendBroadcast(BroadcastUtils.noAssignmentsBroadcast(guid));
+        }
+
+        return true;
     }
 }

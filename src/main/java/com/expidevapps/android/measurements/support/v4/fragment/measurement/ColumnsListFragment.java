@@ -1,6 +1,16 @@
 package com.expidevapps.android.measurements.support.v4.fragment.measurement;
 
-import android.content.Context;
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+import static com.expidevapps.android.measurements.Constants.ARG_MCC;
+import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
+import static com.expidevapps.android.measurements.Constants.ARG_SHOW_MEASUREMENT;
+import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
+import static com.expidevapps.android.measurements.model.Measurement.SHOW_ALL;
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_DISTINCT;
+import static org.ccci.gto.android.common.db.AbstractDao.ARG_PROJECTION;
+
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,20 +27,14 @@ import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.Contract;
-import com.expidevapps.android.measurements.db.GmaDao;
-import com.expidevapps.android.measurements.model.Assignment;
-import com.expidevapps.android.measurements.model.MeasurementType;
 import com.expidevapps.android.measurements.model.MeasurementType.Column;
 import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
-import com.expidevapps.android.measurements.sync.BroadcastUtils;
+import com.expidevapps.android.measurements.support.v4.content.FilteredMeasurementTypeDaoCursorLoader;
 
-import org.ccci.gto.android.common.db.Join;
-import org.ccci.gto.android.common.db.support.v4.content.DaoCursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
-import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.util.ViewCompat;
 import org.ccci.gto.android.common.widget.AccordionView;
 import org.joda.time.YearMonth;
@@ -40,22 +44,6 @@ import java.util.EnumSet;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.Optional;
-
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
-import static com.expidevapps.android.measurements.Constants.ARG_MCC;
-import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
-import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
-import static com.expidevapps.android.measurements.Constants.ARG_SHOW_MEASUREMENT;
-import static com.expidevapps.android.measurements.Constants.ARG_SUPPORTED_STAFF;
-import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
-import static com.expidevapps.android.measurements.model.Measurement.SHOW_ALL;
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_DISTINCT;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_JOINS;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_PROJECTION;
-import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE;
-import static org.ccci.gto.android.common.db.Expression.raw;
 
 public class ColumnsListFragment extends Fragment {
     static final int LOADER_COLUMNS = 1;
@@ -78,28 +66,21 @@ public class ColumnsListFragment extends Fragment {
     @NonNull
     private /* final */ Mcc mMcc = Mcc.UNKNOWN;
     @NonNull
-    private /* final */ Assignment.Role mRole = Assignment.Role.UNKNOWN;
-    @NonNull
     private /* final */ YearMonth mPeriod;
-    @ValueType
-    private boolean mSupportedStaff = false;
 
     private int mShowMeasurement = SHOW_ALL;
 
     public static ColumnsListFragment newInstance(@ValueType final int type, @NonNull final String guid,
                                                   @NonNull final String ministryId, @NonNull final Mcc mcc,
-                                                  @NonNull final YearMonth period, @NonNull final Assignment.Role role,
-                                                  @ValueType final boolean supportedStaff, final int showMeasurement) {
+                                                  @NonNull final YearMonth period, final int showMeasurement) {
         final ColumnsListFragment fragment = new ColumnsListFragment();
 
         final Bundle args = new Bundle();
         args.putInt(ARG_TYPE, type);
         args.putString(ARG_GUID, guid);
         args.putString(ARG_MINISTRY_ID, ministryId);
-        args.putString(ARG_ROLE, role.toString());
         args.putString(ARG_MCC, mcc.toString());
         args.putString(ARG_PERIOD, period.toString());
-        args.putBoolean(ARG_SUPPORTED_STAFF, supportedStaff);
         args.putInt(ARG_SHOW_MEASUREMENT, showMeasurement);
         fragment.setArguments(args);
 
@@ -133,9 +114,7 @@ public class ColumnsListFragment extends Fragment {
         mGuid = args.getString(ARG_GUID);
         mMinistryId = args.getString(ARG_MINISTRY_ID);
         mMcc = Mcc.fromRaw(args.getString(ARG_MCC));
-        mRole = Assignment.Role.fromRaw(args.getString(ARG_ROLE));
         mPeriod = YearMonth.parse(args.getString(ARG_PERIOD));
-        mSupportedStaff = args.getBoolean(ARG_SUPPORTED_STAFF, mSupportedStaff);
         mShowMeasurement = args.getInt(ARG_SHOW_MEASUREMENT, mShowMeasurement);
     }
 
@@ -197,17 +176,11 @@ public class ColumnsListFragment extends Fragment {
         manager.initLoader(LOADER_COLUMNS, getLoaderArgsColumns(), mLoaderCallbacksCursor);
     }
 
-    private static final Join<MeasurementType, Contract.MeasurementVisibility> JOIN_MEASUREMENT_VISIBILITY =
-            Contract.MeasurementType.JOIN_MEASUREMENT_VISIBILITY.type("LEFT");
-
     @NonNull
     private Bundle getLoaderArgsColumns() {
-        final Bundle args = new Bundle(4);
+        final Bundle args = new Bundle(2);
         args.putBoolean(ARG_DISTINCT, true);
-        args.putParcelableArray(ARG_JOINS, new Join[] {JOIN_MEASUREMENT_VISIBILITY
-                .andOn(raw(Contract.MeasurementVisibility.SQL_WHERE_MINISTRY, mMinistryId))});
         args.putStringArray(ARG_PROJECTION, new String[] {Contract.MeasurementType.COLUMN_COLUMN});
-        args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE);
         return args;
     }
 
@@ -217,12 +190,7 @@ public class ColumnsListFragment extends Fragment {
         public Loader<Cursor> onCreateLoader(final int id, @Nullable final Bundle args) {
             switch (id) {
                 case LOADER_COLUMNS:
-                    final Context context = getActivity();
-                    final CursorBroadcastReceiverLoader loader =
-                            new DaoCursorBroadcastReceiverLoader<>(context, GmaDao.getInstance(context),
-                                                                   MeasurementType.class, args);
-                    loader.addIntentFilter(BroadcastUtils.updateMeasurementTypesFilter());
-                    return loader;
+                    return new FilteredMeasurementTypeDaoCursorLoader(getActivity(), mGuid, mMinistryId, args);
                 default:
                     return null;
             }
@@ -360,7 +328,8 @@ public class ColumnsListFragment extends Fragment {
                 final Fragment fragment = fm.findFragmentById(holder.mPagerId);
                 if (fragment == null || oldColumn != holder.mColumn) {
                     fm.beginTransaction().replace(holder.mPagerId, MeasurementsPagerFragment
-                            .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, mRole, mSupportedStaff, mShowMeasurement, holder.mColumn)).commit();
+                            .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, mShowMeasurement, holder.mColumn))
+                            .commit();
                 }
             }
         }

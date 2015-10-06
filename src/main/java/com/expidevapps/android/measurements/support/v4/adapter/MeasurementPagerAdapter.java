@@ -1,5 +1,8 @@
 package com.expidevapps.android.measurements.support.v4.adapter;
 
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -20,7 +23,6 @@ import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.activity.MeasurementDetailsActivity;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
-import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.MeasurementType;
 import com.expidevapps.android.measurements.model.MeasurementValue;
 import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
@@ -42,9 +44,6 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.Optional;
 
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
-
 public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
     @NonNull
     private final Context mContext;
@@ -60,8 +59,6 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
     @NonNull
     private final Mcc mMcc;
     @NonNull
-    private final Assignment.Role mRole;
-    @NonNull
     private final YearMonth mPeriod;
 
     // we cache changed values to prevent display glitches when updates haven't hit the db yet
@@ -74,7 +71,7 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
 
     public MeasurementPagerAdapter(@NonNull final Context context, @ValueType final int type,
                                    @NonNull final String guid, @NonNull final String ministryId, @NonNull final Mcc mcc,
-                                   @NonNull final Assignment.Role role, @NonNull final YearMonth period) {
+                                   @NonNull final YearMonth period) {
         mContext = context;
         mDao = GmaDao.getInstance(context);
 
@@ -82,7 +79,6 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
         mGuid = guid;
         mMinistryId = ministryId;
         mMcc = mcc;
-        mRole = role;
         mPeriod = period;
     }
 
@@ -258,7 +254,7 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
         @OnClick(R.id.value)
         void onClickValue() {
             if (mPermLink != null) {
-                MeasurementDetailsActivity.start(mContext, mGuid, mMinistryId, mMcc, mRole, mPermLink, mPeriod);
+                MeasurementDetailsActivity.start(mContext, mGuid, mMinistryId, mMcc, mPermLink, mPeriod);
             }
         }
 

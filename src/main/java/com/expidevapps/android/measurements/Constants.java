@@ -19,9 +19,6 @@ public final class Constants {
     public static final String PREF_MAP_LAYER_CHURCH_MULTIPLYING = "map.layer.church.multiplying";
     public static final String PREF_MAP_LAYER_CHURCH_PARENTS = "map.layer.church.parents";
 
-    public static final String PREFS_USER = "user";
-    public static final String PREF_PERSON_ID = "person_id";
-
     @NonNull
     public static String PREFS_SETTINGS(@NonNull final String guid) {
         return PREFS_SETTINGS + "_" + guid;
@@ -37,9 +34,7 @@ public final class Constants {
     public static final String ARG_PERIOD = "period";
     public static final String ARG_TYPE = "type";
     public static final String ARG_LOCATION = "location";
-    public static final String ARG_SUPPORTED_STAFF = "supported_staff";
     public static final String ARG_PERSON_ID = "person_id";
-    public static final String ARG_ROLE = "role";
     public static final String ARG_SHOW_MEASUREMENT = "show_measurement";
 
     /* common extra's */
@@ -52,8 +47,7 @@ public final class Constants {
     public static final String EXTRA_PERMLINKS = "perm_links";
     public static final String EXTRA_TRAINING_IDS = "training_ids";
     public static final String EXTRA_TYPE = "type";
-    public static final String EXTRA_ROLE = "role";
-    public static final String EXTRA_SUPPORTED_STAFF = "supported_staff";
+    public static final String EXTRA_PREFERENCES = "prefs";
 
     /* measurements source */
     public static final String MEASUREMENTS_SOURCE = "gma-app";

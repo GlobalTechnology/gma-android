@@ -1,62 +1,14 @@
 package com.expidevapps.android.measurements.support.v4.fragment.measurement;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v4.view.ViewPager;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import com.expidevapps.android.measurements.R;
-import com.expidevapps.android.measurements.db.Contract;
-import com.expidevapps.android.measurements.db.Contract.MeasurementVisibility;
-import com.expidevapps.android.measurements.db.GmaDao;
-import com.expidevapps.android.measurements.model.Assignment;
-import com.expidevapps.android.measurements.model.MeasurementType;
-import com.expidevapps.android.measurements.model.MeasurementTypeLocalization;
-import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
-import com.expidevapps.android.measurements.model.Ministry;
-import com.expidevapps.android.measurements.model.MinistryMeasurement;
-import com.expidevapps.android.measurements.model.PersonalMeasurement;
-import com.expidevapps.android.measurements.support.v4.adapter.MeasurementPagerAdapter;
-import com.expidevapps.android.measurements.sync.BroadcastUtils;
-import com.viewpagerindicator.CirclePageIndicator;
-
-import org.ccci.gto.android.common.db.Join;
-import org.ccci.gto.android.common.db.Table;
-import org.ccci.gto.android.common.db.support.v4.content.DaoCursorBroadcastReceiverLoader;
-import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
-import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
-import org.ccci.gto.android.common.util.ArrayUtils;
-import org.ccci.gto.android.common.util.LocaleCompat;
-import org.joda.time.YearMonth;
-
-import java.util.ArrayList;
-import java.util.Locale;
-
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.Optional;
-
 import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.ARG_MCC;
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
-import static com.expidevapps.android.measurements.Constants.ARG_ROLE;
 import static com.expidevapps.android.measurements.Constants.ARG_SHOW_MEASUREMENT;
-import static com.expidevapps.android.measurements.Constants.ARG_SUPPORTED_STAFF;
 import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
 import static com.expidevapps.android.measurements.db.Contract.Base.COLUMN_ROWID;
 import static com.expidevapps.android.measurements.db.Contract.MeasurementPermLink.COLUMN_PERM_LINK_STUB;
 import static com.expidevapps.android.measurements.db.Contract.MeasurementType.COLUMN_FAVOURITE;
-import static com.expidevapps.android.measurements.db.Contract.MeasurementType.COLUMN_LEADER_ONLY;
-import static com.expidevapps.android.measurements.db.Contract.MeasurementType.COLUMN_SUPPORTED_STAFF_ONLY;
 import static com.expidevapps.android.measurements.db.Contract.MeasurementTypeLocalization.COLUMN_LOCALE;
 import static com.expidevapps.android.measurements.db.Contract.MinistryId.COLUMN_MINISTRY_ID;
 import static com.expidevapps.android.measurements.model.Measurement.SHOW_ALL;
@@ -75,6 +27,46 @@ import static org.ccci.gto.android.common.db.Expression.field;
 import static org.ccci.gto.android.common.db.Expression.literal;
 import static org.ccci.gto.android.common.db.Expression.raw;
 
+import android.database.Cursor;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import com.expidevapps.android.measurements.R;
+import com.expidevapps.android.measurements.db.Contract;
+import com.expidevapps.android.measurements.model.MeasurementType;
+import com.expidevapps.android.measurements.model.MeasurementTypeLocalization;
+import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
+import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.model.MinistryMeasurement;
+import com.expidevapps.android.measurements.model.PersonalMeasurement;
+import com.expidevapps.android.measurements.support.v4.adapter.MeasurementPagerAdapter;
+import com.expidevapps.android.measurements.support.v4.content.FilteredMeasurementTypeDaoCursorLoader;
+import com.expidevapps.android.measurements.sync.BroadcastUtils;
+import com.viewpagerindicator.CirclePageIndicator;
+
+import org.ccci.gto.android.common.db.Join;
+import org.ccci.gto.android.common.db.Table;
+import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
+import org.ccci.gto.android.common.util.ArrayUtils;
+import org.ccci.gto.android.common.util.LocaleCompat;
+import org.joda.time.YearMonth;
+
+import java.util.ArrayList;
+import java.util.Locale;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.Optional;
+
 public class MeasurementsPagerFragment extends Fragment {
     static final int LOADER_MEASUREMENTS = 1;
 
@@ -90,13 +82,9 @@ public class MeasurementsPagerFragment extends Fragment {
     @NonNull
     private /* final */ Ministry.Mcc mMcc = Ministry.Mcc.UNKNOWN;
     @NonNull
-    private /* final */ Assignment.Role mRole = Assignment.Role.UNKNOWN;
-    @NonNull
     private /* final */ YearMonth mPeriod;
     @ValueType
     private /* final */ int mType = TYPE_NONE;
-    @ValueType
-    private boolean mSupportedStaff = false;
     private int mShowMeasurement = SHOW_ALL;
 
     @Nullable
@@ -113,10 +101,7 @@ public class MeasurementsPagerFragment extends Fragment {
     public static MeasurementsPagerFragment newInstance(@ValueType final int type, @NonNull final String guid,
                                                         @NonNull final String ministryId,
                                                         @NonNull final Ministry.Mcc mcc,
-                                                        @NonNull final YearMonth period,
-                                                        @NonNull final Assignment.Role role,
-                                                        @ValueType final boolean supportedStaff,
-                                                        final int showMeasurement,
+                                                        @NonNull final YearMonth period, final int showMeasurement,
                                                         @NonNull final MeasurementType.Column column) {
         final MeasurementsPagerFragment fragment = new MeasurementsPagerFragment();
 
@@ -125,10 +110,8 @@ public class MeasurementsPagerFragment extends Fragment {
         args.putString(ARG_GUID, guid);
         args.putString(ARG_MINISTRY_ID, ministryId);
         args.putString(ARG_MCC, mcc.toString());
-        args.putString(ARG_ROLE, role.toString());
         args.putString(ARG_PERIOD, period.toString());
         args.putString(ARG_COLUMN, column.toString());
-        args.putBoolean(ARG_SUPPORTED_STAFF, supportedStaff);
         args.putInt(ARG_SHOW_MEASUREMENT, showMeasurement);
         fragment.setArguments(args);
 
@@ -148,10 +131,8 @@ public class MeasurementsPagerFragment extends Fragment {
         mGuid = args.getString(ARG_GUID);
         mMinistryId = args.getString(ARG_MINISTRY_ID);
         mMcc = Ministry.Mcc.fromRaw(args.getString(ARG_MCC));
-        mRole = Assignment.Role.fromRaw(args.getString(ARG_ROLE));
         mPeriod = YearMonth.parse(args.getString(ARG_PERIOD));
         mColumn = MeasurementType.Column.fromRaw(args.getString(ARG_COLUMN));
-        mSupportedStaff = args.getBoolean(ARG_SUPPORTED_STAFF, mSupportedStaff);
         mShowMeasurement = args.getInt(ARG_SHOW_MEASUREMENT, mShowMeasurement);
     }
 
@@ -190,7 +171,7 @@ public class MeasurementsPagerFragment extends Fragment {
 
     private void setupViewPager() {
         if (mPager != null) {
-            mAdapter = new MeasurementPagerAdapter(getActivity(), mType, mGuid, mMinistryId, mMcc, mRole, mPeriod);
+            mAdapter = new MeasurementPagerAdapter(getActivity(), mType, mGuid, mMinistryId, mMcc, mPeriod);
             mPager.setAdapter(mAdapter);
 
             // configure view pager indicator
@@ -207,13 +188,11 @@ public class MeasurementsPagerFragment extends Fragment {
         manager.initLoader(LOADER_MEASUREMENTS, getLoaderArgsMeasurements(), mLoaderCallbacksCursor);
     }
 
-    private static final String[] PROJECTION_BASE = {COLUMN_ROWID, COLUMN_PERM_LINK_STUB, COLUMN_LEADER_ONLY, COLUMN_SUPPORTED_STAFF_ONLY, COLUMN_FAVOURITE};
+    private static final String[] PROJECTION_BASE = {COLUMN_ROWID, COLUMN_PERM_LINK_STUB, COLUMN_FAVOURITE};
     private static final Join<MeasurementType, PersonalMeasurement> JOIN_PERSONAL_MEASUREMENT =
             Contract.MeasurementType.JOIN_PERSONAL_MEASUREMENT.type("LEFT");
     private static final Join<MeasurementType, MinistryMeasurement> JOIN_MINISTRY_MEASUREMENT =
             Contract.MeasurementType.JOIN_MINISTRY_MEASUREMENT.type("LEFT");
-    private static final Join<MeasurementType, MeasurementVisibility> JOIN_MEASUREMENT_VISIBILITY =
-            Contract.MeasurementType.JOIN_MEASUREMENT_VISIBILITY.type("LEFT");
 
     @NonNull
     private Bundle getLoaderArgsMeasurements() {
@@ -224,10 +203,6 @@ public class MeasurementsPagerFragment extends Fragment {
         final StringBuilder name = new StringBuilder("COALESCE(");
         final ArrayList<Join<MeasurementType, ?>> joins = new ArrayList<>();
         String[] projection = PROJECTION_BASE;
-
-        // add visibility join
-        joins.add(JOIN_MEASUREMENT_VISIBILITY
-                          .andOn(field(MeasurementVisibility.class, COLUMN_MINISTRY_ID).eq(literal(mMinistryId))));
 
         // add joins & projections based on measurement type
         switch (mType) {
@@ -270,14 +245,9 @@ public class MeasurementsPagerFragment extends Fragment {
         args.putStringArray(ARG_PROJECTION, projection);
         args.putParcelableArray(ARG_JOINS, joins.toArray(new Join[joins.size()]));
         if (mColumn != null) {
-            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE + " AND " +
-                                        Contract.MeasurementType.SQL_WHERE_COLUMN +
-                    (mShowMeasurement == SHOW_FAVOURITE ? " AND " + Contract.MeasurementType.SQL_WHERE_FAVOURITE : "") +
-                    (mRole == Assignment.Role.LEADER || mRole == Assignment.Role.ADMIN ? "" : " AND " + Contract.MeasurementType.SQL_WHERE_NOT_LEADER_ONLY) +
-                    (mSupportedStaff ? "" : " AND " + Contract.MeasurementType.SQL_WHERE_NOT_SUPPORTED_STAFF_ONLY));
+            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_COLUMN +
+                    (mShowMeasurement == SHOW_FAVOURITE ? " AND " + Contract.MeasurementType.SQL_WHERE_FAVOURITE : ""));
             args.putStringArray(ARG_WHERE_ARGS, bindValues(mColumn));
-        } else {
-            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_VISIBLE);
         }
         args.putString(ARG_ORDER_BY, Contract.MeasurementType.COLUMN_SORT_ORDER);
 
@@ -290,11 +260,8 @@ public class MeasurementsPagerFragment extends Fragment {
         public Loader<Cursor> onCreateLoader(final int id, @Nullable final Bundle args) {
             switch (id) {
                 case LOADER_MEASUREMENTS:
-                    final Context context = getActivity();
                     final CursorBroadcastReceiverLoader loader =
-                            new DaoCursorBroadcastReceiverLoader<>(context, GmaDao.getInstance(context),
-                                                                   MeasurementType.class, args);
-                    loader.addIntentFilter(BroadcastUtils.updateMeasurementTypesFilter());
+                            new FilteredMeasurementTypeDaoCursorLoader(getActivity(), mGuid, mMinistryId, args);
                     switch (mType) {
                         case TYPE_LOCAL:
                             loader.addIntentFilter(

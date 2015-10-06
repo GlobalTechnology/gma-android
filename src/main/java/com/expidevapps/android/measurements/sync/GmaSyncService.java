@@ -1,5 +1,33 @@
 package com.expidevapps.android.measurements.sync;
 
+import static com.expidevapps.android.measurements.BuildConfig.ACCOUNT_TYPE;
+import static com.expidevapps.android.measurements.BuildConfig.SYNC_AUTHORITY;
+import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
+import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
+import static com.expidevapps.android.measurements.sync.AssignmentSyncTasks.EXTRA_ASSIGNMENTS;
+import static com.expidevapps.android.measurements.sync.AssignmentSyncTasks.EXTRA_PERSON_ID;
+import static com.expidevapps.android.measurements.sync.BaseSyncTasks.baseExtras;
+import static com.expidevapps.android.measurements.sync.BaseSyncTasks.measurementExtras;
+import static com.expidevapps.android.measurements.sync.BaseSyncTasks.ministryExtras;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.EXTRA_SYNCTYPE;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_ASSIGNMENTS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_CHURCHES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_CHURCHES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_MEASUREMENTS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_PREFERENCES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_TRAININGS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_TRAINING_COMPLETIONS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENTS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENT_DETAILS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENT_TYPES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MINISTRIES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_NONE;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_PREFERENCES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_SAVE_ASSIGNMENTS;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_SAVE_PREFERENCES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_TRAININGS;
+import static com.expidevapps.android.measurements.sync.UserPreferenceSyncTasks.EXTRA_PREFERENCES;
+
 import android.accounts.Account;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -15,33 +43,9 @@ import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import org.ccci.gto.android.common.app.ThreadedIntentService;
 import org.joda.time.YearMonth;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import me.thekey.android.lib.accounts.AccountUtils;
-
-import static com.expidevapps.android.measurements.BuildConfig.ACCOUNT_TYPE;
-import static com.expidevapps.android.measurements.BuildConfig.SYNC_AUTHORITY;
-import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
-import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
-import static com.expidevapps.android.measurements.sync.AssignmentSyncTasks.EXTRA_ASSIGNMENTS;
-import static com.expidevapps.android.measurements.sync.AssignmentSyncTasks.EXTRA_PERSON_ID;
-import static com.expidevapps.android.measurements.sync.AssignmentSyncTasks.EXTRA_SUPPORTED_STAFF;
-import static com.expidevapps.android.measurements.sync.BaseSyncTasks.baseExtras;
-import static com.expidevapps.android.measurements.sync.BaseSyncTasks.measurementExtras;
-import static com.expidevapps.android.measurements.sync.BaseSyncTasks.ministryExtras;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.EXTRA_SYNCTYPE;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_ASSIGNMENTS;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_CHURCHES;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_CHURCHES;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_MEASUREMENTS;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_TRAININGS;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_TRAINING_COMPLETIONS;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENTS;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENT_DETAILS;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENT_TYPES;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MINISTRIES;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_NONE;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_SAVE_ASSIGNMENTS;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_TRAININGS;
 
 public class GmaSyncService extends ThreadedIntentService {
     @NonNull
@@ -58,6 +62,30 @@ public class GmaSyncService extends ThreadedIntentService {
         context.startService(intent);
     }
 
+    public static void syncPreferences(@NonNull final Context context, @NonNull final String guid,
+                                       final boolean force) {
+        final Intent intent = new Intent(context, GmaSyncService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_PREFERENCES);
+        intent.putExtras(baseExtras(guid, force));
+        context.startService(intent);
+    }
+
+    public static void savePreferences(@NonNull final Context context, @NonNull final String guid,
+                                       @Nullable final JSONObject preferences) {
+        final Intent intent = new Intent(context, GmaSyncService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_SAVE_PREFERENCES);
+        intent.putExtras(baseExtras(guid, false));
+        intent.putExtra(EXTRA_PREFERENCES, preferences != null ? preferences.toString() : null);
+        context.startService(intent);
+    }
+
+    public static void syncDirtyPreferences(@NonNull final Context context, @NonNull final String guid) {
+        final Intent intent = new Intent(context, GmaSyncService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_DIRTY_PREFERENCES);
+        intent.putExtras(baseExtras(guid, false));
+        context.startService(intent);
+    }
+
     public static void syncAssignments(@NonNull final Context context, @NonNull final String guid,
                                        final boolean force) {
         final Intent intent = new Intent(context, GmaSyncService.class);
@@ -67,12 +95,11 @@ public class GmaSyncService extends ThreadedIntentService {
     }
 
     public static void saveAssignments(@NonNull final Context context, @NonNull final String guid,
-                                       @Nullable final String personId, final int supportedStaff, @Nullable final JSONArray assignments) {
+                                       @Nullable final String personId, @Nullable final JSONArray assignments) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_SAVE_ASSIGNMENTS);
         intent.putExtras(baseExtras(guid, false));
         intent.putExtra(EXTRA_PERSON_ID, personId);
-        intent.putExtra(EXTRA_SUPPORTED_STAFF, supportedStaff);
         intent.putExtra(EXTRA_ASSIGNMENTS, assignments != null ? assignments.toString() : null);
         context.startService(intent);
     }
@@ -110,7 +137,6 @@ public class GmaSyncService extends ThreadedIntentService {
     public static void syncDirtyTrainingCompletions(@NonNull final Context context, @NonNull final String ministryId, @NonNull final String guid) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_DIRTY_TRAINING_COMPLETIONS);
-        //intent.putExtras(baseExtras(guid, false));
         intent.putExtras(ministryExtras(guid, ministryId, false));
         context.startService(intent);
     }

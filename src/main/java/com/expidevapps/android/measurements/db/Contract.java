@@ -1,13 +1,14 @@
 package com.expidevapps.android.measurements.db;
 
+import static org.ccci.gto.android.common.db.Expression.field;
+
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import org.ccci.gto.android.common.db.Expression;
+import org.ccci.gto.android.common.db.Expression.Field;
 import org.ccci.gto.android.common.db.Join;
 import org.ccci.gto.android.common.db.Table;
-
-import static org.ccci.gto.android.common.db.Expression.field;
 
 public class Contract {
     private Contract() {
@@ -232,19 +233,17 @@ public class Contract {
         public static final String COLUMN_ROLE = "team_role";
         public static final String COLUMN_ID = "assignment_id";
         public static final String COLUMN_PERSON_ID = "person_id";
-        public static final String COLUMN_SUPPORTED_STAFF = "supported_staff";
 
         static final String[] PROJECTION_ALL =
-                {COLUMN_GUID, COLUMN_PERSON_ID, COLUMN_SUPPORTED_STAFF, COLUMN_ID, COLUMN_ROLE, COLUMN_MINISTRY_ID, COLUMN_MCC,
+                {COLUMN_GUID, COLUMN_PERSON_ID, COLUMN_ID, COLUMN_ROLE, COLUMN_MINISTRY_ID, COLUMN_MCC,
                         COLUMN_LAST_SYNCED};
         public static final String[] PROJECTION_API_GET_ASSIGNMENT =
-                {COLUMN_ID, COLUMN_ROLE, COLUMN_PERSON_ID, COLUMN_SUPPORTED_STAFF, COLUMN_LAST_SYNCED};
+                {COLUMN_ID, COLUMN_ROLE, COLUMN_PERSON_ID, COLUMN_LAST_SYNCED};
         public static final String[] PROJECTION_API_CREATE_ASSIGNMENT = PROJECTION_API_GET_ASSIGNMENT;
 
         private static final String SQL_COLUMN_ROLE = COLUMN_ROLE + " TEXT";
         private static final String SQL_COLUMN_ID = COLUMN_ID + " TEXT";
         private static final String SQL_COLUMN_PERSON_ID = COLUMN_PERSON_ID + " TEXT";
-        private static final String SQL_COLUMN_SUPPORTED_STAFF = COLUMN_SUPPORTED_STAFF + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_GUID + "," + COLUMN_MINISTRY_ID + ")";
         private static final String SQL_FOREIGN_KEY_MINISTRIES =
                 "FOREIGN KEY(" + COLUMN_MINISTRY_ID + ") REFERENCES " + Ministry.TABLE_NAME + "(" +
@@ -257,16 +256,13 @@ public class Contract {
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_GUID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_ID,
-                        SQL_COLUMN_ROLE, SQL_COLUMN_MCC, SQL_COLUMN_PERSON_ID, SQL_COLUMN_SUPPORTED_STAFF, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY,
+                        SQL_COLUMN_ROLE, SQL_COLUMN_MCC, SQL_COLUMN_PERSON_ID, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY,
                         SQL_FOREIGN_KEY_MINISTRIES}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
         @Deprecated
         static final String SQL_V46_ALTER_PERSON_ID =
                 "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_PERSON_ID;
-        @Deprecated
-        static final String SQL_V49_ALTER_SUPPORTED_STAFF =
-                "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_SUPPORTED_STAFF;
     }
 
     public static final class Church extends Base implements MinistryId, Location {
@@ -340,6 +336,30 @@ public class Contract {
                 " " + SQL_COLUMN_JESUS_FILM_ACTIVITY;
     }
 
+    public static final class UserPreference extends Base implements Guid {
+        public static final String TABLE_NAME = "userPreferences";
+
+        static final String COLUMN_NAME = "name";
+        public static final String COLUMN_VALUE = "value";
+
+        static final String[] PROJECTION_ALL =
+                {COLUMN_ROWID, COLUMN_GUID, COLUMN_NAME, COLUMN_VALUE, COLUMN_NEW, COLUMN_DIRTY};
+
+        private static final String SQL_COLUMN_NAME = COLUMN_NAME + " TEXT";
+        private static final String SQL_COLUMN_VALUE = COLUMN_VALUE + " TEXT";
+        private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_GUID + "," + COLUMN_NAME + ")";
+
+        private static final String SQL_WHERE_NAME = COLUMN_NAME + " = ?";
+        static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_GUID + " AND " + SQL_WHERE_NAME;
+        public static final String SQL_WHERE_GUID_AND_NEW_OR_DIRTY =
+                SQL_WHERE_GUID + " AND (" + SQL_WHERE_NEW + " OR " + SQL_WHERE_DIRTY + ")";
+
+        static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
+                .join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_GUID, SQL_COLUMN_NAME, SQL_COLUMN_VALUE,
+                        COLUMN_NEW, COLUMN_DIRTY, SQL_PRIMARY_KEY}) + ")";
+        static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
+
     ///////////////////////////////////////////////////////////////
     //              Measurement Contracts                       //
     //////////////////////////////////////////////////////////////
@@ -405,17 +425,13 @@ public class Contract {
 
         public static final String SQL_WHERE_PRIMARY_KEY = SQL_WHERE_PERM_LINK_STUB;
         public static final String SQL_WHERE_COLUMN = SQL_PREFIX + COLUMN_COLUMN + " = ?";
-
         public static final String SQL_WHERE_NOT_LEADER_ONLY = SQL_PREFIX + COLUMN_LEADER_ONLY + " != 1";
+        public static final Expression SQL_WHERE_NOT_SUPPORTED_STAFF = field(TABLE, COLUMN_SUPPORTED_STAFF_ONLY).ne(1);
 
-        public static final String SQL_WHERE_NOT_SUPPORTED_STAFF_ONLY = SQL_PREFIX + COLUMN_SUPPORTED_STAFF_ONLY + " != 1";
+        public static final Expression SQL_WHERE_VISIBLE = MeasurementVisibility.FIELD_VISIBLE.eq(1)
+                .or(MeasurementVisibility.FIELD_VISIBLE.is(Expression.NULL).and(field(TABLE, COLUMN_CUSTOM).eq(0)));
 
         public static final String SQL_WHERE_FAVOURITE = SQL_PREFIX + COLUMN_FAVOURITE + " == 1";
-
-        public static final String SQL_WHERE_VISIBLE =
-                "(" + MeasurementVisibility.SQL_PREFIX + MeasurementVisibility.COLUMN_VISIBLE + " = 1 OR (" +
-                        SQL_PREFIX + COLUMN_CUSTOM + " = 0 AND " + MeasurementVisibility.SQL_PREFIX +
-                        MeasurementVisibility.COLUMN_VISIBLE + " IS NULL))";
 
         private static final Expression SQL_JOIN_ON_MINISTRY_MEASUREMENT = field(TABLE, COLUMN_PERM_LINK_STUB)
                 .eq(field(MinistryMeasurement.TABLE, MinistryMeasurement.COLUMN_PERM_LINK_STUB));
@@ -461,8 +477,8 @@ public class Contract {
         @Deprecated
         static final String SQL_V48_ALTER_LEADER_ONLY = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_LEADER_ONLY;
         @Deprecated
-        static final String SQL_V50_ALTER_FAVOURITE = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_FAVOURITE;
-
+        static final String SQL_V51_ALTER_FAVOURITE =
+                "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_FAVOURITE;
     }
 
     public static final class MeasurementTypeLocalization extends Base implements MinistryId, MeasurementPermLink {
@@ -503,6 +519,8 @@ public class Contract {
         static final Table<MeasurementVisibility> TABLE = Table.forClass(MeasurementVisibility.class);
 
         public static final String COLUMN_VISIBLE = "visible";
+
+        private static final Field FIELD_VISIBLE = field(TABLE, COLUMN_VISIBLE);
 
         static final String SQL_COLUMN_VISIBLE = COLUMN_VISIBLE + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils
