@@ -7,15 +7,24 @@
     android:minHeight="190dp"
     tools:background="#ffffff">
 
+    <ImageView
+        android:id="@+id/page_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/ic_more" >
+
+    </ImageView>
     <RelativeLayout
         android:id="@+id/valueLayout"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:layout_marginRight="16dp"
-        android:layout_marginEnd="16dp">
+        android:layout_toLeftOf="@id/page_menu"
+        android:layout_centerVertical="true">
 
         <ImageView
             android:id="@+id/valueBg"
@@ -67,14 +76,6 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp">
 
-        <CheckBox
-            android:id="@+id/favourite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
-            android:text="@string/label_make_measurement_favourite" />
         <TextView
             android:id="@+id/name"
             android:layout_width="match_parent"

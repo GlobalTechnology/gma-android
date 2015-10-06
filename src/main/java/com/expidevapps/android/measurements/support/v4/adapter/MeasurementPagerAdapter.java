@@ -7,11 +7,13 @@ import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.LongSparseArray;
+import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
@@ -37,7 +39,6 @@ import org.joda.time.YearMonth;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import butterknife.Optional;
 
@@ -131,11 +132,7 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
         if (holder.mNameView != null) {
             holder.mNameView.setText(holder.mName);
         }
-        if (holder.mFavouriteView != null) {
-            holder.mFavouriteView.setChecked(holder.mFavourite);
-            holder.mFavouriteView.setText(holder.mFavourite ? mContext.getResources().getString(R.string.label_make_measurement_non_favourite) :
-                    mContext.getResources().getString(R.string.label_make_measurement_favourite));
-        }
+
         holder.updateValueView();
     }
 
@@ -155,10 +152,6 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
 
         @Optional
         @Nullable
-        @InjectView(R.id.favourite)
-        CheckBox mFavouriteView;
-        @Optional
-        @Nullable
         @InjectView(R.id.name)
         TextView mNameView;
         @Optional
@@ -173,6 +166,10 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
         @Nullable
         @InjectView(R.id.decrement)
         View mDecrementView;
+        @Optional
+        @Nullable
+        @InjectView(R.id.page_menu)
+        ImageView mPageMenu;
 
         @Nullable
         String mPermLink;
@@ -266,11 +263,45 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
         }
 
         @Optional
-        @OnCheckedChanged(R.id.favourite)
-        void onChecked(boolean checked) {
-            mFavouriteView.setText(checked ? mContext.getResources().getString(R.string.label_make_measurement_non_favourite) :
-                    mContext.getResources().getString(R.string.label_make_measurement_favourite));
-            updateFavourite(checked ? 1 : 0, mPermLink);
+        @OnClick(R.id.page_menu)
+        void onClick() {
+            PopupMenu popup = new PopupMenu(mContext, mPageMenu);
+            //Inflating the Popup using xml file
+            popup.getMenuInflater().inflate(R.menu.menu_measurements_popup, popup.getMenu());
+
+            if (mFavourite == true) {
+                final MenuItem menuItem = popup.getMenu().findItem(R.id.action_remove_favourite);
+                if (menuItem != null) {
+                    menuItem.setVisible(true);
+                }
+
+            }
+            else {
+                final MenuItem menuItem = popup.getMenu().findItem(R.id.action_add_favourite);
+                if (menuItem != null) {
+                    menuItem.setVisible(true);
+                }
+            }
+
+            //registering popup with OnMenuItemClickListener
+            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                public boolean onMenuItemClick(MenuItem item) {
+                    switch(item.getItemId()) {
+                        case R.id.action_add_favourite:
+                            mFavourite = true;
+                            updateFavourite(1, mPermLink);
+                            return true;
+                        case R.id.action_remove_favourite:
+                            mFavourite = false;
+                            updateFavourite(0, mPermLink);
+                            return true;
+                        default:
+                            return false;
+                    }
+                }
+            });
+
+            popup.show(); //showing popup menu
         }
     }
 
