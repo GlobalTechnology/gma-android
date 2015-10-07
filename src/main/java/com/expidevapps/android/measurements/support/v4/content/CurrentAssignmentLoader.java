@@ -8,6 +8,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
@@ -52,15 +53,18 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
             assignment = initActiveAssignment();
         }
 
-        // load the associated ministry if required
-        if (assignment != null && mLoadMinistry) {
-            loadMinistry(assignment);
-        }
+        // do some additional processing if we have an assignment
+        if (assignment != null) {
+            // load the associated ministry if required
+            if (mLoadMinistry) {
+                loadMinistry(assignment);
+            }
 
-        // validate MCC when possible
-        if (assignment != null && assignment.getMinistry() != null &&
-                !assignment.getMinistry().getMccs().contains(assignment.getMcc())) {
-            updateMcc(assignment);
+            // set an MCC if a valid one is not already selected
+            if (assignment.getMcc() == Ministry.Mcc.UNKNOWN || (assignment.getMinistry() != null &&
+                    !assignment.getMinistry().getMccs().contains(assignment.getMcc()))) {
+                updateMcc(assignment);
+            }
         }
 
         // return the assignment
@@ -113,7 +117,8 @@ public class CurrentAssignmentLoader extends AsyncTaskBroadcastReceiverSharedPre
                 mDao.update(assignment, new String[] {Contract.Assignment.COLUMN_MCC});
 
                 // broadcast the MCC update
-                getContext().sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast(mGuid));
+                final LocalBroadcastManager bm = LocalBroadcastManager.getInstance(getContext());
+                bm.sendBroadcast(BroadcastUtils.updateAssignmentsBroadcast(mGuid));
             }
         }
     }
