@@ -1,5 +1,11 @@
 package com.expidevapps.android.measurements.activity;
 
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
+import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
+import static com.expidevapps.android.measurements.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
+import static com.expidevapps.android.measurements.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
+import static com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,6 +27,7 @@ import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.expidevapps.android.measurements.model.UserPreference;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader;
@@ -35,12 +42,6 @@ import me.thekey.android.TheKey;
 import me.thekey.android.lib.TheKeyImpl;
 import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
 import me.thekey.android.lib.support.v4.content.AttributesLoader;
-
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
-import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
-import static com.expidevapps.android.measurements.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
-import static com.expidevapps.android.measurements.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
-import static com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader.ARG_LOAD_MINISTRY;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = this.getClass().getSimpleName();
@@ -274,7 +275,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void goToMeasurements(MenuItem menuItem)
     {
-        if (mAssignment != null) {
+        if (mAssignment != null && !mAssignment.getMinistryId().equals(Ministry.INVALID_ID) &&
+                mAssignment.getMcc() != Mcc.UNKNOWN) {
             if (mAssignment.can(UPDATE_PERSONAL_MEASUREMENTS) || mAssignment.can(UPDATE_MINISTRY_MEASUREMENTS)) {
                 MeasurementsActivity
                         .start(this, mAssignment.getGuid(), mAssignment.getMinistryId(), mAssignment.getMcc(),
