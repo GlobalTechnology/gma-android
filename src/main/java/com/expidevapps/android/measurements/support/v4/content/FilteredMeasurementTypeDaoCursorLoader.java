@@ -1,6 +1,8 @@
 package com.expidevapps.android.measurements.support.v4.content;
 
+import static com.expidevapps.android.measurements.Constants.ARG_FAVORITES_ONLY;
 import static com.expidevapps.android.measurements.Constants.EXTRA_PREFERENCES;
+import static com.expidevapps.android.measurements.db.Contract.MeasurementType.JOIN_FAVORITE_MEASUREMENT;
 import static com.expidevapps.android.measurements.model.Task.VIEW_ADMIN_ONLY_MEASUREMENTS;
 import static org.ccci.gto.android.common.db.Expression.raw;
 
@@ -10,10 +12,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.expidevapps.android.measurements.db.Contract;
+import com.expidevapps.android.measurements.db.Contract.FavoriteMeasurement;
 import com.expidevapps.android.measurements.db.Contract.MeasurementVisibility;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.MeasurementType;
+import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.expidevapps.android.measurements.model.UserPreference;
 import com.expidevapps.android.measurements.sync.BroadcastUtils;
 
@@ -24,7 +28,9 @@ import org.ccci.gto.android.common.db.Table;
 import org.ccci.gto.android.common.db.support.v4.content.DaoCursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.support.v4.content.BroadcastReceiverLoaderHelper;
 import org.ccci.gto.android.common.support.v4.content.LoaderBroadcastReceiver;
-import org.ccci.gto.android.common.util.ArrayUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * This CursorLoader will filter returned MeasurementTypes on a ministries visibility and user's role
@@ -38,13 +44,19 @@ public class FilteredMeasurementTypeDaoCursorLoader extends DaoCursorBroadcastRe
     @NonNull
     private final String mMinistryId;
     @NonNull
+    private final Mcc mMcc;
+    private final boolean mFavoritesOnly;
+    @NonNull
     private final BroadcastReceiverLoaderHelper mPrefsHelper;
 
     public FilteredMeasurementTypeDaoCursorLoader(@NonNull final Context context, @NonNull final String guid,
-                                                  @NonNull final String ministryId, @Nullable final Bundle args) {
+                                                  @NonNull final String ministryId, @NonNull final Mcc mcc,
+                                                  @Nullable final Bundle args) {
         super(context, GmaDao.getInstance(context), Table.forClass(MeasurementType.class), args);
         mGuid = guid;
         mMinistryId = ministryId;
+        mMcc = mcc;
+        mFavoritesOnly = args != null && args.getBoolean(ARG_FAVORITES_ONLY, false);
 
         // configure preference change broadcast helper
         final IntersectingStringsBroadcastReceiver receiver = new IntersectingStringsBroadcastReceiver();
@@ -59,6 +71,9 @@ public class FilteredMeasurementTypeDaoCursorLoader extends DaoCursorBroadcastRe
 
         // listen for changed measurement types
         addIntentFilter(BroadcastUtils.updateMeasurementTypesFilter());
+
+        // listen for updated favorite measurements
+        addIntentFilter(BroadcastUtils.updateFavoriteMeasurementsFilter(mGuid, mMinistryId, mMcc));
     }
 
     /* BEGIN lifecycle */
@@ -81,8 +96,14 @@ public class FilteredMeasurementTypeDaoCursorLoader extends DaoCursorBroadcastRe
     @Override
     @SuppressWarnings("unchecked")
     public Join<MeasurementType, ?>[] getJoins() {
-        return ArrayUtils.merge(Join.class, super.getJoins(), new Join[] {JOIN_MEASUREMENT_VISIBILITY
-                .andOn(raw(Contract.MeasurementVisibility.SQL_WHERE_MINISTRY, mMinistryId))});
+        final ArrayList<Join<MeasurementType, ?>> joins = new ArrayList<>(8);
+        Collections.addAll(joins, super.getJoins());
+        joins.add(JOIN_MEASUREMENT_VISIBILITY.andOn(MeasurementVisibility.SQL_WHERE_MINISTRY.args(mMinistryId)));
+
+        // always include favorite measurements, use join type to filter favorites only
+        joins.add(JOIN_FAVORITE_MEASUREMENT.type(!mFavoritesOnly ? "LEFT" : "")
+                          .andOn(FavoriteMeasurement.SQL_WHERE_GUID_MINISTRY_MCC.args(mGuid, mMinistryId, mMcc)));
+        return joins.toArray(new Join[joins.size()]);
     }
 
     @Nullable

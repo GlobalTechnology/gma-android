@@ -1,14 +1,14 @@
 package com.expidevapps.android.measurements.activity;
 
+import static com.expidevapps.android.measurements.Constants.ARG_FAVORITES_ONLY;
 import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.EXTRA_FAVORITES_ONLY;
 import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
 import static com.expidevapps.android.measurements.Constants.EXTRA_MCC;
 import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
 import static com.expidevapps.android.measurements.Constants.EXTRA_TYPE;
-import static com.expidevapps.android.measurements.model.Measurement.SHOW_ALL;
-import static com.expidevapps.android.measurements.model.Measurement.SHOW_FAVOURITE;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
@@ -17,6 +17,7 @@ import static com.expidevapps.android.measurements.model.Task.UPDATE_PERSONAL_ME
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -36,6 +37,7 @@ import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.content.AssignmentLoader;
+import com.expidevapps.android.measurements.support.v4.content.FilteredMeasurementTypeDaoCursorLoader;
 import com.expidevapps.android.measurements.support.v4.fragment.measurement.ColumnsListFragment;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 
@@ -54,8 +56,10 @@ public class MeasurementsActivity extends AppCompatActivity {
     private static final YearMonth NOW = YearMonth.now();
 
     private static final int LOADER_ASSIGNMENT = 1;
+    private static final int LOADER_FAVORITE_MEASUREMENTS = 2;
 
     private final AssignmentLoaderCallbacks mLoaderCallbacksAssignment = new AssignmentLoaderCallbacks();
+    private final CursorLoaderCallbacks mLoaderCallbacksCursor = new CursorLoaderCallbacks();
 
     @NonNull
     private /* final */ GoogleAnalyticsManager mGoogleAnalytics;
@@ -79,8 +83,9 @@ public class MeasurementsActivity extends AppCompatActivity {
     private int mType = TYPE_NONE;
     @NonNull
     private YearMonth mPeriod = NOW;
-
-    private int mShowMeasurement = SHOW_ALL;
+    private boolean mFavoritesOnly = true;
+    @Nullable
+    private Cursor mFavorites;
 
     public static void start(@NonNull final Context context, @NonNull final String guid,
                              @NonNull final String ministryId, @NonNull final Mcc mcc, @ValueType final int type) {
@@ -127,6 +132,7 @@ public class MeasurementsActivity extends AppCompatActivity {
         // load savedState
         if (savedState != null) {
             mType = savedState.getInt(EXTRA_TYPE, mType);
+            mFavoritesOnly = savedState.getBoolean(EXTRA_FAVORITES_ONLY, mFavoritesOnly);
             if (savedState.containsKey(EXTRA_PERIOD)) {
                 mPeriod = YearMonth.parse(savedState.getString(EXTRA_PERIOD));
             }
@@ -158,21 +164,20 @@ public class MeasurementsActivity extends AppCompatActivity {
                     item.setVisible(true);
                 }
             }
+        }
 
-            if (mShowMeasurement == SHOW_ALL) {
-                // show favourite options when available
-                final MenuItem item = menu.findItem(R.id.action_show_favourite_measurements);
-                if (item != null) {
-                    item.setVisible(true);
-                }
+        if (!mFavoritesOnly && (mFavorites == null || mFavorites.getCount() > 0)) {
+            // show favorite options when available
+            final MenuItem item = menu.findItem(R.id.action_show_favorite_measurements);
+            if (item != null) {
+                item.setVisible(true);
             }
-
-            if (mShowMeasurement == SHOW_FAVOURITE) {
-                // show favourite options when available
-                final MenuItem item = menu.findItem(R.id.action_show_all_measurements);
-                if (item != null) {
-                    item.setVisible(true);
-                }
+        }
+        if (mFavoritesOnly) {
+            // show favorite options when available
+            final MenuItem item = menu.findItem(R.id.action_show_all_measurements);
+            if (item != null) {
+                item.setVisible(true);
             }
         }
 
@@ -203,11 +208,11 @@ public class MeasurementsActivity extends AppCompatActivity {
             case R.id.action_measurements_personal:
                 onChangeType(TYPE_PERSONAL);
                 return true;
-            case R.id.action_show_favourite_measurements:
-                onChangeFeavouriteFilter(SHOW_FAVOURITE);
+            case R.id.action_show_favorite_measurements:
+                onChangeFavoritesOnly(true);
                 return true;
             case R.id.action_show_all_measurements:
-                onChangeFeavouriteFilter(SHOW_ALL);
+                onChangeFavoritesOnly(false);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -230,6 +235,13 @@ public class MeasurementsActivity extends AppCompatActivity {
         }
     }
 
+    void onLoadFavorites(@Nullable final Cursor cursor) {
+        mFavorites = cursor;
+
+        // update favorites only flag based on it's state and if there are actually favorites available
+        onChangeFavoritesOnly(mFavoritesOnly && (mFavorites == null || mFavorites.getCount() > 0));
+    }
+
     void onChangeType(@ValueType final int type) {
         mType = sanitizeType(type);
 
@@ -238,9 +250,10 @@ public class MeasurementsActivity extends AppCompatActivity {
         loadMeasurementColumnsFragmentIfNeeded();
     }
 
-    void onChangeFeavouriteFilter(final int showMeasurement) {
-        mShowMeasurement = showMeasurement;
-        invalidateOptionsMenu();
+    void onChangeFavoritesOnly(final boolean favoritesOnly) {
+        mFavoritesOnly = favoritesOnly;
+
+        supportInvalidateOptionsMenu();
         loadMeasurementColumnsFragmentIfNeeded();
     }
 
@@ -290,6 +303,7 @@ public class MeasurementsActivity extends AppCompatActivity {
     protected void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(EXTRA_TYPE, mType);
+        outState.putBoolean(EXTRA_FAVORITES_ONLY, mFavoritesOnly);
         outState.putString(EXTRA_PERIOD, mPeriod.toString());
     }
 
@@ -304,11 +318,13 @@ public class MeasurementsActivity extends AppCompatActivity {
     private void startLoaders() {
         final LoaderManager manager = getSupportLoaderManager();
 
-        final Bundle args = new Bundle(2);
+        final Bundle args = new Bundle(3);
         args.putString(ARG_GUID, mGuid);
         args.putString(ARG_MINISTRY_ID, mMinistryId);
+        args.putBoolean(ARG_FAVORITES_ONLY, mFavoritesOnly);
 
         manager.initLoader(LOADER_ASSIGNMENT, args, mLoaderCallbacksAssignment);
+        manager.initLoader(LOADER_FAVORITE_MEASUREMENTS, args, mLoaderCallbacksCursor);
     }
 
     private void syncAdjacentPeriods(final boolean force) {
@@ -370,7 +386,8 @@ public class MeasurementsActivity extends AppCompatActivity {
         final Fragment existing = fm.findFragmentByTag(TAG_FRAGMENT_MEASUREMENT_COLUMNS);
         if (existing instanceof ColumnsListFragment) {
             final ColumnsListFragment fragment = (ColumnsListFragment) existing;
-            if (mType == fragment.getType() && mPeriod.equals(fragment.getPeriod()) && mShowMeasurement == fragment.getShowMeasurement()) {
+            if (mType == fragment.getType() && mPeriod.equals(fragment.getPeriod()) &&
+                    mFavoritesOnly == fragment.isFavoritesOnly()) {
                 // no need to update the fragment
                 return;
             }
@@ -379,7 +396,7 @@ public class MeasurementsActivity extends AppCompatActivity {
         // create a new ColumnsListFragment
         // XXX: we use commitAllowingStateLoss because we already prevent state loss by checking mPaused
         final ColumnsListFragment fragment =
-                ColumnsListFragment.newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, mShowMeasurement);
+                ColumnsListFragment.newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, mFavoritesOnly);
         fm.beginTransaction().replace(R.id.frame_content, fragment, TAG_FRAGMENT_MEASUREMENT_COLUMNS)
                 .commitAllowingStateLoss();
     }
@@ -412,6 +429,28 @@ public class MeasurementsActivity extends AppCompatActivity {
                     break;
                 default:
                     super.onLoaderReset(loader);
+            }
+        }
+    }
+
+    private class CursorLoaderCallbacks extends SimpleLoaderCallbacks<Cursor> {
+        @Nullable
+        @Override
+        public Loader<Cursor> onCreateLoader(final int id, @Nullable final Bundle args) {
+            switch (id) {
+                case LOADER_FAVORITE_MEASUREMENTS:
+                    return new FilteredMeasurementTypeDaoCursorLoader(MeasurementsActivity.this, mGuid, mMinistryId,
+                                                                      mMcc, args);
+                default:
+                    return null;
+            }
+        }
+
+        public void onLoadFinished(@NonNull final Loader<Cursor> loader, @Nullable final Cursor cursor) {
+            switch (loader.getId()) {
+                case LOADER_FAVORITE_MEASUREMENTS:
+                    onLoadFavorites(cursor);
+                    break;
             }
         }
     }

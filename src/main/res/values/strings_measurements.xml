@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="menu_measurements">Measurements</string>
-    <string name="menu_measurements_personal">Personal Measurements</string>
-    <string name="menu_measurements_ministry">Ministry Measurements</string>
-    <string name="menu_show_favourite_measurements">Favourite Measurements</string>
-    <string name="menu_show_all_measurements">All Measurements</string>
     <string name="title_activity_measurements">Measurements</string>
     <string name="title_activity_measurements_personal">Personal Measurements</string>
     <string name="title_activity_measurements_local">Ministry Measurements</string>
     <string name="title_activity_measurement_details">Measurement Details</string>
+
+    <string name="menu_measurements">Measurements</string>
+    <string name="menu_measurements_personal">Personal Measurements</string>
+    <string name="menu_measurements_ministry">Ministry Measurements</string>
+    <string name="menu_measurements_favorites">Favorite Measurements</string>
+    <string name="menu_measurements_all">All Measurements</string>
+    <string name="menu_measurements_add_favorite">Add Favorite</string>
+    <string name="menu_measurements_remove_favorite">Remove Favorite</string>
 
     <!-- Measurements Not Authorized dialog -->
     <eat-comment />
@@ -33,7 +36,4 @@
 
     <string name="label_measurement_details_breakdown_local">Local</string>
     <string name="label_measurement_details_breakdown_you">You</string>
-
-    <string name="menu_add_measurement_favourite">Add Favourite</string>
-    <string name="menu_measurement_non_favourite">Remove Favourite</string>
 </resources>

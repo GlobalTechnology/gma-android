@@ -1,18 +1,15 @@
 package com.expidevapps.android.measurements.support.v4.fragment.measurement;
 
+import static com.expidevapps.android.measurements.Constants.ARG_FAVORITES_ONLY;
 import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.ARG_MCC;
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
-import static com.expidevapps.android.measurements.Constants.ARG_SHOW_MEASUREMENT;
 import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
 import static com.expidevapps.android.measurements.db.Contract.Base.COLUMN_ROWID;
 import static com.expidevapps.android.measurements.db.Contract.MeasurementPermLink.COLUMN_PERM_LINK_STUB;
-import static com.expidevapps.android.measurements.db.Contract.MeasurementType.COLUMN_FAVOURITE;
 import static com.expidevapps.android.measurements.db.Contract.MeasurementTypeLocalization.COLUMN_LOCALE;
 import static com.expidevapps.android.measurements.db.Contract.MinistryId.COLUMN_MINISTRY_ID;
-import static com.expidevapps.android.measurements.model.Measurement.SHOW_ALL;
-import static com.expidevapps.android.measurements.model.Measurement.SHOW_FAVOURITE;
 import static com.expidevapps.android.measurements.model.MeasurementType.ARG_COLUMN;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
@@ -23,8 +20,8 @@ import static org.ccci.gto.android.common.db.AbstractDao.ARG_PROJECTION;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE_ARGS;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
+import static org.ccci.gto.android.common.db.Expression.bind;
 import static org.ccci.gto.android.common.db.Expression.field;
-import static org.ccci.gto.android.common.db.Expression.literal;
 import static org.ccci.gto.android.common.db.Expression.raw;
 
 import android.database.Cursor;
@@ -57,6 +54,7 @@ import org.ccci.gto.android.common.db.Table;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.util.ArrayUtils;
+import org.ccci.gto.android.common.util.BundleCompat;
 import org.ccci.gto.android.common.util.LocaleCompat;
 import org.joda.time.YearMonth;
 
@@ -85,7 +83,7 @@ public class MeasurementsPagerFragment extends Fragment {
     private /* final */ YearMonth mPeriod;
     @ValueType
     private /* final */ int mType = TYPE_NONE;
-    private int mShowMeasurement = SHOW_ALL;
+    private /* final */ boolean mFavoritesOnly;
 
     @Nullable
     @Optional
@@ -101,8 +99,9 @@ public class MeasurementsPagerFragment extends Fragment {
     public static MeasurementsPagerFragment newInstance(@ValueType final int type, @NonNull final String guid,
                                                         @NonNull final String ministryId,
                                                         @NonNull final Ministry.Mcc mcc,
-                                                        @NonNull final YearMonth period, final int showMeasurement,
-                                                        @NonNull final MeasurementType.Column column) {
+                                                        @NonNull final YearMonth period,
+                                                        @NonNull final MeasurementType.Column column,
+                                                        final boolean favoritesOnly) {
         final MeasurementsPagerFragment fragment = new MeasurementsPagerFragment();
 
         final Bundle args = new Bundle();
@@ -112,7 +111,7 @@ public class MeasurementsPagerFragment extends Fragment {
         args.putString(ARG_MCC, mcc.toString());
         args.putString(ARG_PERIOD, period.toString());
         args.putString(ARG_COLUMN, column.toString());
-        args.putInt(ARG_SHOW_MEASUREMENT, showMeasurement);
+        args.putBoolean(ARG_FAVORITES_ONLY, favoritesOnly);
         fragment.setArguments(args);
 
         return fragment;
@@ -129,11 +128,11 @@ public class MeasurementsPagerFragment extends Fragment {
         final Bundle args = this.getArguments();
         mType = args.getInt(ARG_TYPE, TYPE_NONE);
         mGuid = args.getString(ARG_GUID);
-        mMinistryId = args.getString(ARG_MINISTRY_ID);
+        mMinistryId = BundleCompat.getString(args, ARG_MINISTRY_ID, Ministry.INVALID_ID);
         mMcc = Ministry.Mcc.fromRaw(args.getString(ARG_MCC));
         mPeriod = YearMonth.parse(args.getString(ARG_PERIOD));
         mColumn = MeasurementType.Column.fromRaw(args.getString(ARG_COLUMN));
-        mShowMeasurement = args.getInt(ARG_SHOW_MEASUREMENT, mShowMeasurement);
+        mFavoritesOnly = args.getBoolean(ARG_FAVORITES_ONLY, false);
     }
 
     @Override
@@ -188,7 +187,8 @@ public class MeasurementsPagerFragment extends Fragment {
         manager.initLoader(LOADER_MEASUREMENTS, getLoaderArgsMeasurements(), mLoaderCallbacksCursor);
     }
 
-    private static final String[] PROJECTION_BASE = {COLUMN_ROWID, COLUMN_PERM_LINK_STUB, COLUMN_FAVOURITE};
+    private static final String[] PROJECTION_BASE = {COLUMN_ROWID, COLUMN_PERM_LINK_STUB,
+            Contract.FavoriteMeasurement.SQL_PREFIX + Contract.FavoriteMeasurement.COLUMN_FAVORITE};
     private static final Join<MeasurementType, PersonalMeasurement> JOIN_PERSONAL_MEASUREMENT =
             Contract.MeasurementType.JOIN_PERSONAL_MEASUREMENT.type("LEFT");
     private static final Join<MeasurementType, MinistryMeasurement> JOIN_MINISTRY_MEASUREMENT =
@@ -197,6 +197,7 @@ public class MeasurementsPagerFragment extends Fragment {
     @NonNull
     private Bundle getLoaderArgsMeasurements() {
         final Bundle args = new Bundle(5);
+        args.putBoolean(ARG_FAVORITES_ONLY, mFavoritesOnly);
 
         // build dynamic query parts
         final Table<MeasurementType> base = Table.forClass(MeasurementType.class);
@@ -233,8 +234,8 @@ public class MeasurementsPagerFragment extends Fragment {
             name.append(alias).append('.').append(Contract.MeasurementTypeLocalization.COLUMN_NAME).append(',');
             joins.add(Join.create(base, table).type("LEFT")
                               .on(field(base, COLUMN_PERM_LINK_STUB).eq(field(table, COLUMN_PERM_LINK_STUB)))
-                              .andOn(field(table, COLUMN_MINISTRY_ID).eq(literal(mMinistryId)))
-                              .andOn(field(table, COLUMN_LOCALE).eq(literal(locale))));
+                              .andOn(field(table, COLUMN_MINISTRY_ID).eq(bind(mMinistryId)))
+                              .andOn(field(table, COLUMN_LOCALE).eq(bind(locale))));
             i++;
         }
         name.append(Contract.MeasurementType.SQL_PREFIX).append(Contract.MeasurementType.COLUMN_NAME).append(") AS ")
@@ -245,8 +246,7 @@ public class MeasurementsPagerFragment extends Fragment {
         args.putStringArray(ARG_PROJECTION, projection);
         args.putParcelableArray(ARG_JOINS, joins.toArray(new Join[joins.size()]));
         if (mColumn != null) {
-            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_COLUMN +
-                    (mShowMeasurement == SHOW_FAVOURITE ? " AND " + Contract.MeasurementType.SQL_WHERE_FAVOURITE : ""));
+            args.putString(ARG_WHERE, Contract.MeasurementType.SQL_WHERE_COLUMN);
             args.putStringArray(ARG_WHERE_ARGS, bindValues(mColumn));
         }
         args.putString(ARG_ORDER_BY, Contract.MeasurementType.COLUMN_SORT_ORDER);
@@ -261,7 +261,7 @@ public class MeasurementsPagerFragment extends Fragment {
             switch (id) {
                 case LOADER_MEASUREMENTS:
                     final CursorBroadcastReceiverLoader loader =
-                            new FilteredMeasurementTypeDaoCursorLoader(getActivity(), mGuid, mMinistryId, args);
+                            new FilteredMeasurementTypeDaoCursorLoader(getActivity(), mGuid, mMinistryId, mMcc, args);
                     switch (mType) {
                         case TYPE_LOCAL:
                             loader.addIntentFilter(

@@ -5,31 +5,30 @@ import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_P
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.activity.MeasurementDetailsActivity;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
-import com.expidevapps.android.measurements.model.MeasurementType;
 import com.expidevapps.android.measurements.model.MeasurementValue;
 import com.expidevapps.android.measurements.model.MeasurementValue.ValueType;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.expidevapps.android.measurements.model.MinistryMeasurement;
 import com.expidevapps.android.measurements.model.PersonalMeasurement;
 import com.expidevapps.android.measurements.support.v4.adapter.MeasurementPagerAdapter.ViewHolder;
+import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
 
 import org.ccci.gto.android.common.db.util.CursorUtils;
@@ -67,7 +66,9 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
     @NonNull
     private final LongSparseArray<Boolean> mDirty = new LongSparseArray<>();
     @NonNull
-    private final LongSparseArray<Boolean> mFavourites = new LongSparseArray<>();
+    private final LongSparseArray<Boolean> mFavorites = new LongSparseArray<>();
+    @NonNull
+    private final LongSparseArray<Boolean> mDirtyFavorites = new LongSparseArray<>();
 
     public MeasurementPagerAdapter(@NonNull final Context context, @ValueType final int type,
                                    @NonNull final String guid, @NonNull final String ministryId, @NonNull final Mcc mcc,
@@ -105,6 +106,16 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
 
                     // update dirty flag based on Cursor value and cached value
                     mDirty.put(id, value != mValues.get(id));
+
+                    // set the favorite flag if it's not currently set or isn't dirty
+                    final boolean favorite =
+                            CursorUtils.getBool(c, Contract.FavoriteMeasurement.COLUMN_FAVORITE, false);
+                    if (mFavorites.get(id) == null || !mDirtyFavorites.get(id, false)) {
+                        mFavorites.put(id, favorite);
+                    }
+
+                    // update dirty favorite flag based on Cursor value and cached value
+                    mDirtyFavorites.put(id, favorite != mFavorites.get(id, false));
                 }
             }
         }
@@ -122,7 +133,6 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
         super.onBindViewHolder(holder, c);
         holder.mPermLink = CursorUtils.getString(c, Contract.MeasurementType.COLUMN_PERM_LINK_STUB, null);
         holder.mName = CursorUtils.getString(c, Contract.MeasurementType.COLUMN_NAME, null);
-        holder.mFavourite = CursorUtils.getBool(c, Contract.MeasurementType.COLUMN_FAVOURITE, false);
 
         // update views
         if (holder.mNameView != null) {
@@ -162,17 +172,11 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
         @Nullable
         @InjectView(R.id.decrement)
         View mDecrementView;
-        @Optional
-        @Nullable
-        @InjectView(R.id.page_menu)
-        ImageView mPageMenu;
 
         @Nullable
         String mPermLink;
         @Nullable
         String mName;
-
-        boolean mFavourite;
 
         @Nullable
         MeasurementValue mValue = null;
@@ -202,23 +206,42 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
 
             // update the backing measurement
             final MeasurementValue value = getValue();
-
             if (value != null) {
-                AsyncTaskCompat.execute(new UpdateDeltaRunnable(mContext, mDao, mGuid, value, delta));
+                AsyncTaskCompat.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        // store the delta change in the local database
+                        mDao.updateMeasurementValueDelta(value, delta);
+
+                        // trigger a sync of dirty measurements
+                        GmaSyncService.syncDirtyMeasurements(mContext, mGuid, mMinistryId, mMcc, mPeriod);
+                    }
+                });
             }
 
             // update the value view
             updateValueView();
         }
 
-        private void updateFavourite(final int favourite, final String permLink) {
+        private void updateFavorite(final boolean favorite) {
             final long id = getId();
-            mFavourites.put(id, favourite > 0);
+            mFavorites.put(id, favorite);
+            mDirtyFavorites.put(id, true);
 
             // update favourite status of measurement
-            final MeasurementValue value = getValue();
-            if (value != null) {
-                AsyncTaskCompat.execute(new UpdateFavouriteRunnable(mDao, permLink, favourite > 0));
+            if (mPermLink != null) {
+                final String permLink = mPermLink;
+                AsyncTaskCompat.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        // store updated favorite measurement flag
+                        mDao.setFavoriteMeasurement(mGuid, mMinistryId, mMcc, permLink, favorite);
+
+                        // broadcast that the favorite measurements have changed
+                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(
+                                BroadcastUtils.updateFavoriteMeasurementsBroadcast(mGuid, mMinistryId, mMcc, permLink));
+                    }
+                });
             }
         }
 
@@ -240,19 +263,19 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
 
         @Optional
         @OnClick(R.id.increment)
-        void onIncrementValue() {
+        void incrementValue() {
             updateValueDelta(1);
         }
 
         @Optional
         @OnClick(R.id.decrement)
-        void onDecrementValue() {
+        void decrementValue() {
             updateValueDelta(-1);
         }
 
         @Optional
         @OnClick(R.id.value)
-        void onClickValue() {
+        void showDetails() {
             if (mPermLink != null) {
                 MeasurementDetailsActivity.start(mContext, mGuid, mMinistryId, mMcc, mPermLink, mPeriod);
             }
@@ -260,20 +283,19 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
 
         @Optional
         @OnClick(R.id.page_menu)
-        void onClick() {
-            PopupMenu popup = new PopupMenu(mContext, mPageMenu);
-            //Inflating the Popup using xml file
-            popup.getMenuInflater().inflate(R.menu.menu_measurements_popup, popup.getMenu());
+        void showPopupMenu(@NonNull final View view) {
+            final PopupMenu popup = new PopupMenu(mContext, view);
 
-            if (mFavourite == true) {
-                final MenuItem menuItem = popup.getMenu().findItem(R.id.action_remove_favourite);
+            // load and customize menu
+            final Menu menu = popup.getMenu();
+            popup.getMenuInflater().inflate(R.menu.menu_measurements_popup, menu);
+            if (mFavorites.get(getId(), false)) {
+                final MenuItem menuItem = menu.findItem(R.id.action_remove_favorite);
                 if (menuItem != null) {
                     menuItem.setVisible(true);
                 }
-
-            }
-            else {
-                final MenuItem menuItem = popup.getMenu().findItem(R.id.action_add_favourite);
+            } else {
+                final MenuItem menuItem = menu.findItem(R.id.action_add_favorite);
                 if (menuItem != null) {
                     menuItem.setVisible(true);
                 }
@@ -283,13 +305,11 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
             popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 public boolean onMenuItemClick(MenuItem item) {
                     switch(item.getItemId()) {
-                        case R.id.action_add_favourite:
-                            mFavourite = true;
-                            updateFavourite(1, mPermLink);
+                        case R.id.action_add_favorite:
+                            updateFavorite(true);
                             return true;
-                        case R.id.action_remove_favourite:
-                            mFavourite = false;
-                            updateFavourite(0, mPermLink);
+                        case R.id.action_remove_favorite:
+                            updateFavorite(false);
                             return true;
                         default:
                             return false;
@@ -297,68 +317,8 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
                 }
             });
 
-            popup.show(); //showing popup menu
-        }
-    }
-
-    private static final class UpdateDeltaRunnable implements Runnable {
-        @NonNull
-        private final Context mContext;
-        @NonNull
-        private final GmaDao mDao;
-        @NonNull
-        private final String mGuid;
-        @NonNull
-        private final MeasurementValue mValue;
-        private final int mDelta;
-
-        public UpdateDeltaRunnable(@NonNull final Context context, @NonNull final GmaDao dao,
-                                   @NonNull final String guid, @NonNull final MeasurementValue value, final int delta) {
-            mContext = context;
-            mDao = dao;
-            mGuid = guid;
-            mValue = value;
-            mDelta = delta;
-        }
-
-        @Override
-        public void run() {
-            // store the delta change in the local database
-            mDao.updateMeasurementValueDelta(mValue, mDelta);
-
-            // trigger a sync of dirty measurements
-            GmaSyncService.syncDirtyMeasurements(mContext, mGuid, mValue.getMinistryId(), mValue.getMcc(),
-                                                 mValue.getPeriod());
-        }
-    }
-
-    private static final class UpdateFavouriteRunnable implements Runnable {
-        @NonNull
-        private final GmaDao mDao;
-        @NonNull
-        private final String mPermLink;
-        private final boolean mFavourite;
-
-        public UpdateFavouriteRunnable(@NonNull final GmaDao dao,
-                                   @NonNull final String  permLink, final boolean favourite) {
-            mDao = dao;
-            mPermLink = permLink;
-            mFavourite = favourite;
-        }
-
-        @Override
-        public void run() {
-            try {
-                final MeasurementType measurementType = mDao.find(MeasurementType.class, mPermLink);
-                if (measurementType == null) {
-                    return;
-                }
-                measurementType.setFavourite(mFavourite);
-                mDao.update(measurementType, new String[]{Contract.MeasurementType.COLUMN_FAVOURITE});
-            }
-            catch (final SQLException e) {
-                Log.d("SQLException", "error updating measurementType", e);
-            }
+            // show popup menu
+            popup.show();
         }
     }
 }

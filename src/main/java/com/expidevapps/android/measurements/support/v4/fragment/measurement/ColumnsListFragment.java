@@ -1,12 +1,11 @@
 package com.expidevapps.android.measurements.support.v4.fragment.measurement;
 
+import static com.expidevapps.android.measurements.Constants.ARG_FAVORITES_ONLY;
 import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.ARG_MCC;
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
-import static com.expidevapps.android.measurements.Constants.ARG_SHOW_MEASUREMENT;
 import static com.expidevapps.android.measurements.Constants.ARG_TYPE;
-import static com.expidevapps.android.measurements.model.Measurement.SHOW_ALL;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_NONE;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_DISTINCT;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_PROJECTION;
@@ -35,6 +34,7 @@ import com.expidevapps.android.measurements.support.v4.content.FilteredMeasureme
 
 import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
+import org.ccci.gto.android.common.util.BundleCompat;
 import org.ccci.gto.android.common.util.ViewCompat;
 import org.ccci.gto.android.common.widget.AccordionView;
 import org.joda.time.YearMonth;
@@ -67,12 +67,11 @@ public class ColumnsListFragment extends Fragment {
     private /* final */ Mcc mMcc = Mcc.UNKNOWN;
     @NonNull
     private /* final */ YearMonth mPeriod;
-
-    private int mShowMeasurement = SHOW_ALL;
+    private /* final */ boolean mFavoritesOnly;
 
     public static ColumnsListFragment newInstance(@ValueType final int type, @NonNull final String guid,
                                                   @NonNull final String ministryId, @NonNull final Mcc mcc,
-                                                  @NonNull final YearMonth period, final int showMeasurement) {
+                                                  @NonNull final YearMonth period, final boolean favoritesOnly) {
         final ColumnsListFragment fragment = new ColumnsListFragment();
 
         final Bundle args = new Bundle();
@@ -81,7 +80,7 @@ public class ColumnsListFragment extends Fragment {
         args.putString(ARG_MINISTRY_ID, ministryId);
         args.putString(ARG_MCC, mcc.toString());
         args.putString(ARG_PERIOD, period.toString());
-        args.putInt(ARG_SHOW_MEASUREMENT, showMeasurement);
+        args.putBoolean(ARG_FAVORITES_ONLY, favoritesOnly);
         fragment.setArguments(args);
 
         return fragment;
@@ -97,8 +96,8 @@ public class ColumnsListFragment extends Fragment {
         return mPeriod;
     }
 
-    public int getShowMeasurement() {
-        return mShowMeasurement;
+    public boolean isFavoritesOnly() {
+        return mFavoritesOnly;
     }
 
     /* BEGIN lifecycle */
@@ -112,10 +111,10 @@ public class ColumnsListFragment extends Fragment {
         final Bundle args = this.getArguments();
         mType = args.getInt(ARG_TYPE, mType);
         mGuid = args.getString(ARG_GUID);
-        mMinistryId = args.getString(ARG_MINISTRY_ID);
+        mMinistryId = BundleCompat.getString(args, ARG_MINISTRY_ID, Ministry.INVALID_ID);
         mMcc = Mcc.fromRaw(args.getString(ARG_MCC));
         mPeriod = YearMonth.parse(args.getString(ARG_PERIOD));
-        mShowMeasurement = args.getInt(ARG_SHOW_MEASUREMENT, mShowMeasurement);
+        mFavoritesOnly = args.getBoolean(ARG_FAVORITES_ONLY, false);
     }
 
     @Override
@@ -178,7 +177,8 @@ public class ColumnsListFragment extends Fragment {
 
     @NonNull
     private Bundle getLoaderArgsColumns() {
-        final Bundle args = new Bundle(2);
+        final Bundle args = new Bundle(3);
+        args.putBoolean(ARG_FAVORITES_ONLY, mFavoritesOnly);
         args.putBoolean(ARG_DISTINCT, true);
         args.putStringArray(ARG_PROJECTION, new String[] {Contract.MeasurementType.COLUMN_COLUMN});
         return args;
@@ -190,7 +190,7 @@ public class ColumnsListFragment extends Fragment {
         public Loader<Cursor> onCreateLoader(final int id, @Nullable final Bundle args) {
             switch (id) {
                 case LOADER_COLUMNS:
-                    return new FilteredMeasurementTypeDaoCursorLoader(getActivity(), mGuid, mMinistryId, args);
+                    return new FilteredMeasurementTypeDaoCursorLoader(getActivity(), mGuid, mMinistryId, mMcc, args);
                 default:
                     return null;
             }
@@ -328,7 +328,7 @@ public class ColumnsListFragment extends Fragment {
                 final Fragment fragment = fm.findFragmentById(holder.mPagerId);
                 if (fragment == null || oldColumn != holder.mColumn) {
                     fm.beginTransaction().replace(holder.mPagerId, MeasurementsPagerFragment
-                            .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, mShowMeasurement, holder.mColumn))
+                            .newInstance(mType, mGuid, mMinistryId, mMcc, mPeriod, holder.mColumn, mFavoritesOnly))
                             .commit();
                 }
             }

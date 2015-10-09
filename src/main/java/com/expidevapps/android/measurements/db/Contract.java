@@ -559,7 +559,7 @@ public class Contract {
 
         public static final String SQL_PREFIX = TABLE_NAME + ".";
 
-        public static final String SQL_WHERE_MINISTRY = SQL_PREFIX + MinistryId.SQL_WHERE_MINISTRY;
+        public static final Expression SQL_WHERE_MINISTRY = FIELD_MINISTRY_ID.eq(bind());
 
         static final String SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
                 TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_PERM_LINK_STUB,

@@ -16,16 +16,16 @@
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/action_show_favourite_measurements"
-        android:title="@string/menu_show_favourite_measurements"
+        android:id="@+id/action_show_favorite_measurements"
+        android:title="@string/menu_measurements_favorites"
         android:orderInCategory="2"
         android:visible="false"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/action_show_all_measurements"
-        android:title="@string/menu_show_all_measurements"
-        android:orderInCategory="2"
+        android:title="@string/menu_measurements_all"
+        android:orderInCategory="3"
         android:visible="false"
         app:showAsAction="never"/>
 

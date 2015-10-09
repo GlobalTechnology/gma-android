@@ -33,6 +33,8 @@ public final class BroadcastUtils {
     private static final String ACTION_UPDATE_CHURCHES = GmaSyncService.class.getName() + ".ACTION_UPDATE_CHURCHES";
     private static final String ACTION_UPDATE_MINISTRIES = GmaSyncService.class.getName() + ".ACTION_UPDATE_MINISTRIES";
     private static final String ACTION_UPDATE_TRAINING = GmaSyncService.class.getName() + ".ACTION_UPDATE_TRAINING";
+    private static final String ACTION_UPDATE_FAVORITE_MEASUREMENTS =
+            GmaSyncService.class.getName() + ".ACTION_UPDATE_FAVORITE_MEASUREMENTS";
     private static final String ACTION_UPDATE_MEASUREMENT_TYPES =
             GmaSyncService.class.getName() + ".ACTION_UPDATE_MEASUREMENT_TYPES";
     private static final String ACTION_UPDATE_MEASUREMENT_VALUES =
@@ -86,9 +88,11 @@ public final class BroadcastUtils {
         return trainingUriBuilder().appendPath(ministryId.toUpperCase(Locale.US)).build();
     }
 
-    private static Uri measurementsUri()
-    {
-        return URI_MEASUREMENTS;
+    /* BEGIN measurement uri generation */
+
+    private static Uri measurementsUri(@NonNull final String guid, @NonNull final String ministryId,
+                                       @NonNull final Mcc mcc) {
+        return URI_MEASUREMENTS.buildUpon().appendPath(guid).appendPath(ministryId).appendPath(mcc.toString()).build();
     }
 
     private static Uri.Builder measurementsUriBuilder(@NonNull final String ministryId, @NonNull final Mcc mcc,
@@ -117,6 +121,8 @@ public final class BroadcastUtils {
                                        @NonNull final String permLink) {
         return measurementsUriBuilder(ministryId, mcc, period, guid).appendPath(permLink).build();
     }
+
+    /* END measurement uri generation */
 
     private static Uri preferencesUri(@NonNull final String guid) {
         return URI_PREFERENCES.buildUpon().appendPath(guid.toUpperCase(Locale.US)).build();
@@ -197,6 +203,14 @@ public final class BroadcastUtils {
     }
 
     /* BEGIN Measurement broadcasts */
+
+    public static Intent updateFavoriteMeasurementsBroadcast(@NonNull final String guid,
+                                                             @NonNull final String ministryId, @NonNull final Mcc mcc,
+                                                             @NonNull final String... permLinks) {
+        final Intent intent = new Intent(ACTION_UPDATE_FAVORITE_MEASUREMENTS, measurementsUri(guid, ministryId, mcc));
+        intent.putExtra(EXTRA_PERMLINKS, permLinks);
+        return intent;
+    }
 
     public static Intent updateMeasurementTypesBroadcast(@NonNull final String... permLinks) {
         final Intent intent = new Intent(ACTION_UPDATE_MEASUREMENT_TYPES);
@@ -320,6 +334,14 @@ public final class BroadcastUtils {
                                                               @NonNull final String permLink) {
         final IntentFilter filter = new IntentFilter(ACTION_UPDATE_MEASUREMENT_DETAILS);
         addDataUri(filter, measurementsUri(ministryId, mcc, period, guid, permLink), PatternMatcher.PATTERN_LITERAL);
+        return filter;
+    }
+
+    public static IntentFilter updateFavoriteMeasurementsFilter(@NonNull final String guid,
+                                                                @NonNull final String ministryId,
+                                                                @NonNull final Mcc mcc) {
+        final IntentFilter filter = new IntentFilter(ACTION_UPDATE_FAVORITE_MEASUREMENTS);
+        addDataUri(filter, measurementsUri(guid, ministryId, mcc), PatternMatcher.PATTERN_LITERAL);
         return filter;
     }
 

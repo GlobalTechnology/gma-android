@@ -327,7 +327,8 @@ public class GmaDao extends AbstractDao
             tx.beginTransactionNonExclusive();
 
             // clear out pre-existing visibility
-            db.delete(table, Contract.MeasurementVisibility.SQL_WHERE_MINISTRY, bindValues(ministryId));
+            delete(Contract.MeasurementVisibility.class,
+                   Contract.MeasurementVisibility.SQL_WHERE_MINISTRY.args(ministryId));
 
             // create base ContentValues
             final ContentValues values = new ContentValues();
