@@ -44,8 +44,6 @@ import me.thekey.android.lib.content.TheKeyBroadcastReceiver;
 import me.thekey.android.lib.support.v4.content.AttributesLoader;
 
 public class MainActivity extends AppCompatActivity {
-    private final String TAG = this.getClass().getSimpleName();
-
     private static final int LOADER_THEKEY_ATTRIBUTES = 1;
     private static final int LOADER_CURRENT_ASSIGNMENT = 6;
 
