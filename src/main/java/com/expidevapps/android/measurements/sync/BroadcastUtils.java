@@ -44,9 +44,6 @@ public final class BroadcastUtils {
     private static final String ACTION_UPDATE_PREFERENCES =
             UserPreferenceSyncTasks.class.getName() + ".ACTION_UPDATE_PREFERENCES";
 
-    public static final String ACTION_START = BroadcastUtils.class.getName() + ".ACTION_START";
-    public static final String ACTION_RUNNING = BroadcastUtils.class.getName() + ".ACTION_RUNNING";
-
     private static Uri assignmentsUri() {
         return URI_ASSIGNMENTS;
     }
@@ -143,16 +140,6 @@ public final class BroadcastUtils {
         if (path != null) {
             filter.addDataPath(path, type);
         }
-    }
-
-    public static Intent startBroadcast()
-    {
-        return new Intent(ACTION_START);
-    }
-
-    public static Intent runningBroadcast()
-    {
-        return new Intent(ACTION_RUNNING);
     }
 
     /* BEGIN Assignment broadcasts */
