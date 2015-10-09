@@ -403,6 +403,8 @@ public class Contract {
 
         public static final String COLUMN_FAVOURITE = "favourite";
 
+        private static final Field FIELD_PERM_LINK_STUB = field(TABLE, COLUMN_PERM_LINK_STUB);
+
         static final String[] PROJECTION_ALL =
                 {COLUMN_PERM_LINK_STUB, COLUMN_PERSONAL_ID, COLUMN_LOCAL_ID, COLUMN_TOTAL_ID, COLUMN_NAME,
                         COLUMN_DESCRIPTION, COLUMN_SECTION, COLUMN_SECTION, COLUMN_COLUMN, COLUMN_CUSTOM,
@@ -434,22 +436,18 @@ public class Contract {
 
         public static final String SQL_WHERE_FAVOURITE = SQL_PREFIX + COLUMN_FAVOURITE + " == 1";
 
-        private static final Expression SQL_JOIN_ON_MINISTRY_MEASUREMENT = field(TABLE, COLUMN_PERM_LINK_STUB)
-                .eq(field(MinistryMeasurement.TABLE, MinistryMeasurement.COLUMN_PERM_LINK_STUB));
-        private static final Expression SQL_JOIN_ON_PERSONAL_MEASUREMENT = field(TABLE, COLUMN_PERM_LINK_STUB)
-                .eq(field(PersonalMeasurement.TABLE, PersonalMeasurement.COLUMN_PERM_LINK_STUB));
-        private static final Expression SQL_JOIN_ON_MEASUREMENT_VISIBILITY = field(TABLE, COLUMN_PERM_LINK_STUB)
-                .eq(field(MeasurementVisibility.TABLE, MeasurementVisibility.COLUMN_PERM_LINK_STUB));
-
         public static final Join<com.expidevapps.android.measurements.model.MeasurementType, com.expidevapps.android.measurements.model.MinistryMeasurement>
                 JOIN_MINISTRY_MEASUREMENT = Join.create(TABLE, MinistryMeasurement.TABLE)
-                .on(SQL_JOIN_ON_MINISTRY_MEASUREMENT);
+                .on(FIELD_PERM_LINK_STUB.eq(MinistryMeasurement.FIELD_PERM_LINK_STUB));
         public static final Join<com.expidevapps.android.measurements.model.MeasurementType, com.expidevapps.android.measurements.model.PersonalMeasurement>
                 JOIN_PERSONAL_MEASUREMENT = Join.create(MeasurementType.TABLE, PersonalMeasurement.TABLE)
-                .on(SQL_JOIN_ON_PERSONAL_MEASUREMENT);
+                .on(FIELD_PERM_LINK_STUB.eq(PersonalMeasurement.FIELD_PERM_LINK_STUB));
         public static final Join<com.expidevapps.android.measurements.model.MeasurementType, MeasurementVisibility>
                 JOIN_MEASUREMENT_VISIBILITY = Join.create(TABLE, MeasurementVisibility.TABLE)
-                .on(SQL_JOIN_ON_MEASUREMENT_VISIBILITY);
+                .on(FIELD_PERM_LINK_STUB.eq(MeasurementVisibility.FIELD_PERM_LINK_STUB));
+        public static final Join<com.expidevapps.android.measurements.model.MeasurementType, FavoriteMeasurement>
+                JOIN_FAVORITE_MEASUREMENT = Join.create(TABLE, FavoriteMeasurement.TABLE)
+                .on(FIELD_PERM_LINK_STUB.eq(FavoriteMeasurement.FIELD_PERM_LINK_STUB));
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_PERSONAL_ID, SQL_COLUMN_LOCAL_ID,
@@ -551,6 +549,8 @@ public class Contract {
 
         public static final String COLUMN_VISIBLE = "visible";
 
+        private static final Field FIELD_MINISTRY_ID = field(TABLE, COLUMN_MINISTRY_ID);
+        private static final Field FIELD_PERM_LINK_STUB = field(TABLE, COLUMN_PERM_LINK_STUB);
         private static final Field FIELD_VISIBLE = field(TABLE, COLUMN_VISIBLE);
 
         static final String SQL_COLUMN_VISIBLE = COLUMN_VISIBLE + " INTEGER";
@@ -581,6 +581,8 @@ public class Contract {
         static final String TABLE_NAME = "localMeasurements";
         private static final Table<com.expidevapps.android.measurements.model.MinistryMeasurement> TABLE =
                 Table.forClass(com.expidevapps.android.measurements.model.MinistryMeasurement.class);
+
+        private static final Field FIELD_PERM_LINK_STUB = field(TABLE, COLUMN_PERM_LINK_STUB);
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD, COLUMN_VALUE, COLUMN_DELTA,
@@ -629,6 +631,8 @@ public class Contract {
         static final String TABLE_NAME = "personalMeasurements";
         private static final Table<com.expidevapps.android.measurements.model.PersonalMeasurement> TABLE =
                 Table.forClass(com.expidevapps.android.measurements.model.PersonalMeasurement.class);
+
+        private static final Field FIELD_PERM_LINK_STUB = field(TABLE, COLUMN_PERM_LINK_STUB);
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD, COLUMN_VALUE,
