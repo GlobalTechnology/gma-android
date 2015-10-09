@@ -149,10 +149,10 @@ dependencies {
 
     compile 'me.thekey.android:thekey-lib-accountmanager:1.1.0'
 
-    compile 'org.ccci.gto.android:gto-support-api:0.7.0'
-    compile 'org.ccci.gto.android:gto-support-core:0.7.0'
-    compile 'org.ccci.gto.android:gto-support-db:0.7.0'
-    compile 'org.ccci.gto.android:gto-support-recyclerview:0.7.0'
+    compile 'org.ccci.gto.android:gto-support-api:0.7.1-SNAPSHOT'
+    compile 'org.ccci.gto.android:gto-support-core:0.7.1-SNAPSHOT'
+    compile 'org.ccci.gto.android:gto-support-db:0.7.1-SNAPSHOT'
+    compile 'org.ccci.gto.android:gto-support-recyclerview:0.7.1-SNAPSHOT'
 
     compile 'org.slf4j:slf4j-api:1.7.12'
     compile 'org.slf4j:slf4j-android:1.7.12'

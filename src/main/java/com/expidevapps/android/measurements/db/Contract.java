@@ -1,5 +1,6 @@
 package com.expidevapps.android.measurements.db;
 
+import static org.ccci.gto.android.common.db.Expression.bind;
 import static org.ccci.gto.android.common.db.Expression.field;
 
 import android.provider.BaseColumns;
@@ -512,6 +513,36 @@ public class Contract {
         static final String SQL_V45_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_MINISTRY_ID,
                         SQL_COLUMN_LOCALE, SQL_COLUMN_NAME, SQL_COLUMN_DESCRIPTION, SQL_PRIMARY_KEY}) + ");";
+    }
+
+    public static final class FavoriteMeasurement extends Base implements Guid, MinistryId, Mcc, MeasurementPermLink {
+        static final String TABLE_NAME = "favoriteMeasurements";
+        static final Table<FavoriteMeasurement> TABLE = Table.forClass(FavoriteMeasurement.class);
+
+        public static final String COLUMN_FAVORITE = "favorite";
+
+        public static final Field FIELD_GUID = field(TABLE, COLUMN_GUID);
+        public static final Field FIELD_MINISTRY_ID = field(TABLE, COLUMN_MINISTRY_ID);
+        public static final Field FIELD_MCC = field(TABLE, COLUMN_MCC);
+        static final Field FIELD_PERM_LINK_STUB = field(TABLE, COLUMN_PERM_LINK_STUB);
+        public static final Field FIELD_FAVORITE = field(TABLE, COLUMN_FAVORITE);
+
+        private static final String SQL_COLUMN_FAVORITE = COLUMN_FAVORITE + " INTEGER";
+
+        private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils.join(",", new Object[] {COLUMN_GUID,
+                COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB}) + ")";
+
+        public static final String SQL_PREFIX = TABLE_NAME + ".";
+
+        public static final Expression SQL_WHERE_GUID_MINISTRY_MCC =
+                FIELD_GUID.eq(bind()).and(FIELD_MINISTRY_ID.eq(bind())).and(FIELD_MCC.eq(bind()));
+        static final Expression SQL_WHERE_PRIMARY_KEY = FIELD_GUID.eq(bind()).and(FIELD_MINISTRY_ID.eq(bind()))
+                .and(FIELD_MCC.eq(bind())).and(FIELD_PERM_LINK_STUB.eq(bind()));
+
+        static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils.join(",", new Object[] {
+                SQL_COLUMN_ROWID, SQL_COLUMN_GUID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_MCC, SQL_COLUMN_PERM_LINK_STUB,
+                SQL_COLUMN_FAVORITE, SQL_PRIMARY_KEY}) + ");";
+        static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
     public static final class MeasurementVisibility extends Base implements MinistryId, MeasurementPermLink {

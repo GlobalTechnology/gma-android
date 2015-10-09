@@ -14,6 +14,7 @@ import com.expidevapps.android.measurements.model.MeasurementType;
 import com.expidevapps.android.measurements.model.MeasurementTypeLocalization;
 import com.expidevapps.android.measurements.model.MeasurementValue;
 import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.expidevapps.android.measurements.model.MinistryMeasurement;
 import com.expidevapps.android.measurements.model.PersonalMeasurement;
 import com.expidevapps.android.measurements.model.Training;
@@ -79,6 +80,8 @@ public class GmaDao extends AbstractDao
             return Contract.MeasurementTypeLocalization.TABLE_NAME;
         } else if (Contract.MeasurementVisibility.class.equals(clazz)) {
             return Contract.MeasurementVisibility.TABLE_NAME;
+        } else if (Contract.FavoriteMeasurement.class.equals(clazz)) {
+            return Contract.FavoriteMeasurement.TABLE_NAME;
         } else if (MinistryMeasurement.class.equals(clazz)) {
             return Contract.MinistryMeasurement.TABLE_NAME;
         } else if (PersonalMeasurement.class.equals(clazz)) {
@@ -347,6 +350,32 @@ public class GmaDao extends AbstractDao
             tx.setSuccessful();
         } finally {
             tx.end();
+        }
+    }
+
+    public void setFavoriteMeasurement(@NonNull final String guid, @NonNull final String ministryId,
+                                       @NonNull final Mcc mcc, @NonNull final String permLink, final boolean favorite) {
+        if (favorite) {
+            final String table = getTable(Contract.FavoriteMeasurement.class);
+            final ContentValues values = new ContentValues(5);
+            values.put(Contract.FavoriteMeasurement.COLUMN_GUID, guid);
+            values.put(Contract.FavoriteMeasurement.COLUMN_MINISTRY_ID, ministryId);
+            values.put(Contract.FavoriteMeasurement.COLUMN_MCC, mcc.toString());
+            values.put(Contract.FavoriteMeasurement.COLUMN_PERM_LINK_STUB, permLink);
+            values.put(Contract.FavoriteMeasurement.COLUMN_FAVORITE, true);
+
+            final SQLiteDatabase db = getWritableDatabase();
+            final Transaction tx = new Transaction(db);
+            try {
+                tx.beginTransactionNonExclusive();
+                db.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+                tx.setSuccessful();
+            } finally {
+                tx.end();
+            }
+        } else {
+            delete(Contract.FavoriteMeasurement.class,
+                   Contract.FavoriteMeasurement.SQL_WHERE_PRIMARY_KEY.args(guid, ministryId, mcc, permLink));
         }
     }
 }
