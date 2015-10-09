@@ -240,7 +240,6 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
                         db.execSQL(Contract.UserPreference.SQL_CREATE_TABLE);
                         break;
                     case 51:
-                        db.execSQL(Contract.MeasurementType.SQL_V51_ALTER_FAVOURITE);
                         break;
                     case 52:
                         db.execSQL(Contract.FavoriteMeasurement.SQL_CREATE_TABLE);

@@ -12,9 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Measurement extends Base {
-    public static final int SHOW_ALL = 0;
-    public static final int SHOW_FAVOURITE = 1;
-
     @Nullable
     private MeasurementType type;
     @Nullable

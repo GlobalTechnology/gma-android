@@ -401,14 +401,12 @@ public class Contract {
         public static final String COLUMN_SUPPORTED_STAFF_ONLY = "supported_staff_only";
         public static final String COLUMN_LEADER_ONLY = "leader_only";
 
-        public static final String COLUMN_FAVOURITE = "favourite";
-
         private static final Field FIELD_PERM_LINK_STUB = field(TABLE, COLUMN_PERM_LINK_STUB);
 
         static final String[] PROJECTION_ALL =
                 {COLUMN_PERM_LINK_STUB, COLUMN_PERSONAL_ID, COLUMN_LOCAL_ID, COLUMN_TOTAL_ID, COLUMN_NAME,
                         COLUMN_DESCRIPTION, COLUMN_SECTION, COLUMN_SECTION, COLUMN_COLUMN, COLUMN_CUSTOM,
-                        COLUMN_SORT_ORDER, COLUMN_SUPPORTED_STAFF_ONLY, COLUMN_LEADER_ONLY, COLUMN_FAVOURITE};
+                        COLUMN_SORT_ORDER, COLUMN_SUPPORTED_STAFF_ONLY, COLUMN_LEADER_ONLY};
 
         private static final String SQL_COLUMN_PERSONAL_ID = COLUMN_PERSONAL_ID + " TEXT";
         private static final String SQL_COLUMN_LOCAL_ID = COLUMN_LOCAL_ID + " TEXT";
@@ -421,7 +419,6 @@ public class Contract {
         private static final String SQL_COLUMN_SORT_ORDER = COLUMN_SORT_ORDER + " INTEGER";
         private static final String SQL_COLUMN_SUPPORTED_STAFF_ONLY = COLUMN_SUPPORTED_STAFF_ONLY + " INTEGER";
         private static final String SQL_COLUMN_LEADER_ONLY = COLUMN_LEADER_ONLY + " INTEGER";
-        private static final String SQL_COLUMN_FAVOURITE = COLUMN_FAVOURITE + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + COLUMN_PERM_LINK_STUB + ")";
 
         public static final String SQL_PREFIX = TABLE_NAME + ".";
@@ -433,8 +430,6 @@ public class Contract {
 
         public static final Expression SQL_WHERE_VISIBLE = MeasurementVisibility.FIELD_VISIBLE.eq(1)
                 .or(MeasurementVisibility.FIELD_VISIBLE.is(Expression.NULL).and(field(TABLE, COLUMN_CUSTOM).eq(0)));
-
-        public static final String SQL_WHERE_FAVOURITE = SQL_PREFIX + COLUMN_FAVOURITE + " == 1";
 
         public static final Join<com.expidevapps.android.measurements.model.MeasurementType, com.expidevapps.android.measurements.model.MinistryMeasurement>
                 JOIN_MINISTRY_MEASUREMENT = Join.create(TABLE, MinistryMeasurement.TABLE)
@@ -453,7 +448,7 @@ public class Contract {
                 TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_PERSONAL_ID, SQL_COLUMN_LOCAL_ID,
                         SQL_COLUMN_TOTAL_ID, SQL_COLUMN_NAME, SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_DESCRIPTION,
                         SQL_COLUMN_SECTION, SQL_COLUMN_COLUMN, SQL_COLUMN_CUSTOM, SQL_COLUMN_SORT_ORDER, SQL_COLUMN_SUPPORTED_STAFF_ONLY,
-                        SQL_COLUMN_LEADER_ONLY, SQL_COLUMN_FAVOURITE, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
+                        SQL_COLUMN_LEADER_ONLY, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
         @Deprecated
@@ -475,9 +470,6 @@ public class Contract {
         static final String SQL_V47_ALTER_SUPPORTED_STAFF_ONLY = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_SUPPORTED_STAFF_ONLY;
         @Deprecated
         static final String SQL_V48_ALTER_LEADER_ONLY = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_LEADER_ONLY;
-        @Deprecated
-        static final String SQL_V51_ALTER_FAVOURITE =
-                "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_FAVOURITE;
     }
 
     public static final class MeasurementTypeLocalization extends Base implements MinistryId, MeasurementPermLink {
