@@ -195,7 +195,7 @@ public class MeasurementPagerAdapter extends CursorPagerAdapter<ViewHolder> {
 
         void updateValueView() {
             if (mValueView != null) {
-                mValueView.setText(Integer.toString(mValues.get(getId(), 0)));
+                mValueView.setText(String.format("%d", mValues.get(getId(), 0)));
             }
         }
 
