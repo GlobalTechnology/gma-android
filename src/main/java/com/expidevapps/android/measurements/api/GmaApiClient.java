@@ -61,7 +61,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
     private static final Logger LOG = LoggerFactory.getLogger(GmaApiClient.class);
     private final String TAG = getClass().getSimpleName();
 
-    public static final int V2 = 2;
     public static final int V4 = 4;
     public static final int V5 = 5;
 
