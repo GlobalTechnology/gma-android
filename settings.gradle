@@ -1,1 +1,2 @@
+include ':measurements-app'
 rootProject.name='gma'
