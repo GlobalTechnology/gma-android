@@ -1,0 +1,39 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.2.3'
+    }
+}
+
+apply from: 'versioning.gradle'
+
+version '0.8.13-SNAPSHOT'
+
+subprojects {
+    group 'org.ccci.gto.android'
+    version rootProject.version
+
+    repositories {
+        mavenLocal()
+        jcenter()
+        maven {
+            name "maven.gcx.org"
+            url "https://maven.gcx.org/"
+            credentials {
+                username gcxMavenRepositoryUsername
+                password gcxMavenRepositoryPassword
+            }
+        }
+    }
+
+    apply from: "$rootProject.projectDir/maven_publish.gradle"
+    afterEvaluate { project ->
+        artifacts {
+            archives artifactSourcesJar
+            archives artifactJavadocJar
+        }
+    }
+}

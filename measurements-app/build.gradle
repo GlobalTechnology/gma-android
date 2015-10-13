@@ -15,10 +15,8 @@ buildscript {
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'newrelic'
-apply from: 'versioning.gradle'
 
 group 'org.ccci.gto.android'
-version '0.8.13-SNAPSHOT'
 
 android {
     compileSdkVersion 23
