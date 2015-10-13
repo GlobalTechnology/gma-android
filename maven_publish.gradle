@@ -11,8 +11,6 @@ uploadArchives {
             }
 
             pom.project {
-                artifactId POM_ARTIFACT_ID
-
                 scm {
                     connection POM_SCM_CONNECTION
                     developerConnection POM_SCM_CONNECTION

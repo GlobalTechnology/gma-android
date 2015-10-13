@@ -165,24 +165,17 @@ dependencies {
     debugCompile 'com.facebook.stetho:stetho-js-rhino:1.2.0'
 }
 
-apply from: 'maven_publish.gradle'
 afterEvaluate { project ->
     artifacts {
-        archives(file("build/outputs/mapping/release/mapping.txt")) {
-            classifier 'mapping'
-            type 'txt'
-            builtBy proguardRelease
-        }
-        archives(file("build/outputs/apk/gma-demo.apk")) {
+        archives(file("build/outputs/apk/measurements-app-demo.apk")) {
             classifier 'demo'
             type 'apk'
             builtBy assembleDemo
         }
         archives(file("build/outputs/mapping/demo/mapping.txt")) {
-            classifier 'demo-mapping'
-            type 'txt'
+            classifier 'demo'
+            type 'map'
             builtBy proguardDemo
         }
-        archives artifactSourcesJar
     }
 }
