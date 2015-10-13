@@ -1,2 +1,2 @@
-include ':measurements-app'
-rootProject.name='gma'
+rootProject.name='measurements-gma'
+include ':measurements-app', ':measurements-model'
