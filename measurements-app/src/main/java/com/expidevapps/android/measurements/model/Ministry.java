@@ -3,8 +3,6 @@ package com.expidevapps.android.measurements.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.expidevapps.android.measurements.BuildConfig;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,15 +30,6 @@ public class Ministry extends Location implements Serializable {
     public static final String JSON_LMI_HIDE = "lmi_hide";
     public static final String JSON_LOCATION = "location";
     public static final String JSON_LOCATION_ZOOM = "location_zoom";
-
-    @Deprecated
-    private static final String JSON_HAS_DS = "has_ds";
-    @Deprecated
-    private static final String JSON_HAS_GCM = "has_gcm";
-    @Deprecated
-    private static final String JSON_HAS_LLM = "has_llm";
-    @Deprecated
-    private static final String JSON_HAS_SLM = "has_slm";
 
     public enum Mcc {
         UNKNOWN(""), SLM(JSON_MCC_SLM), LLM(JSON_MCC_LLM), DS(JSON_MCC_DS), GCM(JSON_MCC_GCM);
@@ -106,21 +95,6 @@ public class Ministry extends Location implements Serializable {
         if (mccs != null) {
             for (int i = 0; i < mccs.length(); i++) {
                 ministry.mccs.add(Mcc.fromRaw(mccs.getString(i)));
-            }
-        }
-        // parse legacy has_{mcc} flags if we don't have an mccs array
-        else if (BuildConfig.GMA_API_VERSION < 4) {
-            if (json.optBoolean(JSON_HAS_DS, false)) {
-                ministry.mccs.add(Mcc.DS);
-            }
-            if (json.optBoolean(JSON_HAS_GCM, false)) {
-                ministry.mccs.add(Mcc.GCM);
-            }
-            if (json.optBoolean(JSON_HAS_LLM, false)) {
-                ministry.mccs.add(Mcc.LLM);
-            }
-            if (json.optBoolean(JSON_HAS_SLM, false)) {
-                ministry.mccs.add(Mcc.SLM);
             }
         }
 

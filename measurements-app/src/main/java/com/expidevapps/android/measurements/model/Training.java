@@ -3,8 +3,6 @@ package com.expidevapps.android.measurements.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.expidevapps.android.measurements.BuildConfig;
-
 import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,8 +15,6 @@ import java.util.List;
 public class Training extends Location implements Cloneable {
     public static final long INVALID_ID = -1;
 
-    @Deprecated
-    private static final String JSON_ID_V2 = "Id";
     private static final String JSON_ID = "id";
     private static final String JSON_NAME = "name";
     private static final String JSON_MINISTRY_ID = "ministry_id";
@@ -84,12 +80,7 @@ public class Training extends Location implements Cloneable {
     public static Training fromJson(@NonNull final JSONObject json) throws JSONException {
         final Training training = new Training();
 
-        if (BuildConfig.GMA_API_VERSION < 4) {
-            training.id = json.getLong(JSON_ID_V2);
-        } else {
-            training.id = json.getLong(JSON_ID);
-        }
-
+        training.id = json.getLong(JSON_ID);
         training.ministryId = json.getString(JSON_MINISTRY_ID);
         training.name = json.getString(JSON_NAME);
         training.type = json.getString(JSON_TYPE);
@@ -241,8 +232,6 @@ public class Training extends Location implements Cloneable {
     public static class Completion extends Base {
         public static final long INVALID_ID = -1;
 
-        @Deprecated
-        private static final String JSON_ID_V2 = "Id";
         private static final String JSON_ID = "id";
         private static final String JSON_TRAINING_ID = "training_id";
         private static final String JSON_PHASE = "phase";
@@ -284,16 +273,12 @@ public class Training extends Location implements Cloneable {
         public static Completion fromJson(final long trainingId, @NonNull final JSONObject json) throws JSONException {
             final Completion completion = new Completion();
 
-            if (BuildConfig.GMA_API_VERSION < 4) {
-                completion.id = json.getLong(JSON_ID_V2);
-            } else {
-                completion.id = json.getLong(JSON_ID);
-            }
-
+            completion.id = json.getLong(JSON_ID);
             completion.trainingId = trainingId;
             completion.phase = json.getInt(JSON_PHASE);
             completion.numberCompleted = json.getInt(JSON_NUMBER_COMPLETED);
             completion.date = LocalDate.parse(json.getString(JSON_DATE));
+
             return completion;
         }
 
