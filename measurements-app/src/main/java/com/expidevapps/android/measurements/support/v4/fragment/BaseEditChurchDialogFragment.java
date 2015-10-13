@@ -1,5 +1,7 @@
 package com.expidevapps.android.measurements.support.v4.fragment;
 
+import static com.expidevapps.android.measurements.Constants.ARG_GUID;
+
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.model.Church;
 import com.expidevapps.android.measurements.model.Church.Development;
+import com.expidevapps.android.measurements.util.ModelUtils;
 
 import java.util.EnumSet;
 
@@ -26,8 +29,6 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
 import butterknife.Optional;
-
-import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 
 public abstract class BaseEditChurchDialogFragment extends DialogFragment {
     @Optional
@@ -225,7 +226,7 @@ public abstract class BaseEditChurchDialogFragment extends DialogFragment {
 
     protected void updateIcon(@NonNull final Development state) {
         if (mIconView != null) {
-            mIconView.setImageResource(state.image);
+            mIconView.setImageResource(ModelUtils.getIcon(state));
         }
     }
 }

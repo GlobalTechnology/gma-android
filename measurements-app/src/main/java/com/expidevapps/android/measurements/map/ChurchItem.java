@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Church;
+import com.expidevapps.android.measurements.util.ModelUtils;
 
 public class ChurchItem extends GmaItem<Church> {
     public ChurchItem(@Nullable final Assignment assignment, @NonNull final Church obj) {
@@ -32,6 +33,6 @@ public class ChurchItem extends GmaItem<Church> {
     @DrawableRes
     @Override
     public int getItemImage() {
-        return mObj.getDevelopment().image;
+        return ModelUtils.getIcon(mObj.getDevelopment());
     }
 }

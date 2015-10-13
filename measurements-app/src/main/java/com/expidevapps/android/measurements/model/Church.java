@@ -1,11 +1,9 @@
 package com.expidevapps.android.measurements.model;
 
-import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.expidevapps.android.measurements.R;
 import com.google.common.base.Objects;
 
 import org.joda.time.LocalDate;
@@ -26,18 +24,13 @@ public class Church extends Location implements Cloneable {
     private static final int DEVELOPMENT_MULTIPLYING_CHURCH = 5;
 
     public enum Development {
-        UNKNOWN(DEVELOPMENT_UNKNOWN, R.drawable.ic_church_church),
-        TARGET(DEVELOPMENT_TARGET, R.drawable.ic_church_target), GROUP(DEVELOPMENT_GROUP, R.drawable.ic_church_group),
-        CHURCH(DEVELOPMENT_CHURCH, R.drawable.ic_church_church),
-        MULTIPLYING_CHURCH(DEVELOPMENT_MULTIPLYING_CHURCH, R.drawable.ic_church_multiplying);
+        UNKNOWN(DEVELOPMENT_UNKNOWN), TARGET(DEVELOPMENT_TARGET), GROUP(DEVELOPMENT_GROUP), CHURCH(DEVELOPMENT_CHURCH),
+        MULTIPLYING_CHURCH(DEVELOPMENT_MULTIPLYING_CHURCH);
 
         public final int id;
-        @DrawableRes
-        public final int image;
 
-        Development(final int id, int image) {
+        Development(final int id) {
             this.id = id;
-            this.image = image;
         }
 
         @NonNull
