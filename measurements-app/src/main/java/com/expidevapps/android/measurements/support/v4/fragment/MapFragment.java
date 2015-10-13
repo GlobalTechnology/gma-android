@@ -66,6 +66,7 @@ import com.expidevapps.android.measurements.support.v4.content.ChurchesLoader;
 import com.expidevapps.android.measurements.support.v4.content.CurrentAssignmentLoader;
 import com.expidevapps.android.measurements.support.v4.content.TrainingsLoader;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
+import com.expidevapps.android.measurements.util.ModelUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
@@ -258,14 +259,14 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         final LatLng newLocation;
         final int newZoom;
         if (oldMinistry != null) {
-            oldLocation = oldMinistry.getLocation();
+            oldLocation = ModelUtils.getLocation(oldMinistry);
             oldZoom = oldMinistry.getLocationZoom();
         } else {
             oldLocation = null;
             oldZoom = 0;
         }
         if (mMinistry != null) {
-            newLocation = mMinistry.getLocation();
+            newLocation = ModelUtils.getLocation(mMinistry);
             newZoom = mMinistry.getLocationZoom();
         } else {
             newLocation = null;
@@ -564,7 +565,8 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
 
     private void updateMapLocation() {
         if (mMap != null && mMinistry != null && mMinistry.hasLocation()) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mMinistry.getLocation(), mMinistry.getLocationZoom()));
+            mMap.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(ModelUtils.getLocation(mMinistry), mMinistry.getLocationZoom()));
         }
     }
 

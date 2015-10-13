@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Location;
+import com.expidevapps.android.measurements.util.ModelUtils;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
@@ -24,7 +25,7 @@ public abstract class GmaItem<T extends Location> implements ClusterItem {
         mAssignment = assignment;
         mObj = obj;
 
-        final LatLng location = mObj.getLocation();
+        final LatLng location = ModelUtils.getLocation(mObj);
         if (location == null) {
             throw new IllegalStateException("Location object needs to have a location to be rendered");
         }

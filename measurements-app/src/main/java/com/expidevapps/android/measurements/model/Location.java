@@ -3,8 +3,6 @@ package com.expidevapps.android.measurements.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -54,11 +52,6 @@ public abstract class Location extends Base {
         }
 
         this.longitude = longitude;
-    }
-
-    @Nullable
-    public final LatLng getLocation() {
-        return hasLocation() ? new LatLng(latitude, longitude) : null;
     }
 
     @NonNull
