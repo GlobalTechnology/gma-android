@@ -2,7 +2,6 @@ package com.expidevapps.android.measurements.model;
 
 import static com.expidevapps.android.measurements.Constants.INVALID_STRING_RES;
 import static com.expidevapps.android.measurements.Constants.MEASUREMENTS_SOURCE;
-import static com.expidevapps.android.measurements.api.GmaApiClient.V4;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_TOTAL;
@@ -31,6 +30,8 @@ import java.util.List;
 
 public class MeasurementDetails extends Base {
     private static final Logger LOG = LoggerFactory.getLogger(MeasurementDetails.class);
+
+    private static final int API_V4 = 4;
 
     private static final String JSON_HISTORY_TOTAL = "total";
     private static final String JSON_HISTORY_LOCAL = "local";
@@ -275,7 +276,7 @@ public class MeasurementDetails extends Base {
 
         final JSONObject json = getJson();
         if (json != null) {
-            if (this.version >= V4) {
+            if (this.version >= API_V4) {
                 for (final int type : new int[] {TYPE_LOCAL, TYPE_PERSONAL, TYPE_TOTAL}) {
                     // extract the history for the current measurement type
                     final JSONObject history;
