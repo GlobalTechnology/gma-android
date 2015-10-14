@@ -55,6 +55,8 @@ public class MeasurementDetails extends Base {
     private final YearMonth period;
 
     @Nullable
+    private String mSource;
+    @Nullable
     private String rawJson;
     @Nullable
     private JSONObject json;
@@ -110,6 +112,15 @@ public class MeasurementDetails extends Base {
 
     public YearMonth getPeriod() {
         return period;
+    }
+
+    @Nullable
+    public String getSource() {
+        return mSource;
+    }
+
+    public void setSource(@Nullable final String source) {
+        mSource = source;
     }
 
     @Nullable

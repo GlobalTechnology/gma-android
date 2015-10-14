@@ -1,5 +1,7 @@
 package com.expidevapps.android.measurements.db;
 
+import static com.expidevapps.android.measurements.db.Contract.MeasurementDetails.COLUMN_SOURCE;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
@@ -30,7 +32,8 @@ public class MeasurementDetailsMapper extends BaseMapper<MeasurementDetails> {
                 values.put(field, details.getPeriod().toString());
                 break;
             case Contract.MeasurementDetails.COLUMN_JSON:
-                // JSON and version are linked to each other internally, so persist them atomically
+                // JSON, source and version are linked to each other internally, so persist them atomically
+                values.put(COLUMN_SOURCE, details.getSource());
                 values.put(Contract.MeasurementDetails.COLUMN_JSON, details.getRawJson());
                 values.put(Contract.MeasurementDetails.COLUMN_VERSION, details.getVersion());
                 break;
@@ -56,8 +59,11 @@ public class MeasurementDetailsMapper extends BaseMapper<MeasurementDetails> {
     @Override
     public MeasurementDetails toObject(@NonNull final Cursor c) {
         final MeasurementDetails details = super.toObject(c);
+
+        details.setSource(getString(c, COLUMN_SOURCE, null));
         details.setJson(getString(c, Contract.MeasurementDetails.COLUMN_JSON, null),
                         getInt(c, Contract.MeasurementDetails.COLUMN_VERSION, 0));
+
         return details;
     }
 }

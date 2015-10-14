@@ -67,9 +67,10 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
      * v0.8.12
      * 51: 2015-09-30
      * 52: 2015-10-06
+     * 53: 2015-10-14
      */
     private static final String DATABASE_NAME = "gcm_data.db";
-    private static final int DATABASE_VERSION = 52;
+    private static final int DATABASE_VERSION = 53;
 
     private static final Object LOCK_INSTANCE = new Object();
     private static GmaDatabase INSTANCE;
@@ -166,7 +167,7 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
                         db.execSQL(Contract.MinistryMeasurement.SQL_V27_UPDATE_PERMLINKSTUB);
                         break;
                     case 28:
-                        db.execSQL(Contract.MeasurementDetails.SQL_CREATE_TABLE);
+                        db.execSQL(Contract.MeasurementDetails.SQL_V28_CREATE_TABLE);
                         break;
                     case 29:
                         db.execSQL(Contract.LegacyTables.SQL_DELETE_MEASUREMENTS_TABLE);
@@ -243,6 +244,10 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
                         break;
                     case 52:
                         db.execSQL(Contract.FavoriteMeasurement.SQL_CREATE_TABLE);
+                        break;
+                    case 53:
+                        db.execSQL(Contract.MeasurementDetails.SQL_V53_ALTER_SOURCE);
+                        db.execSQL(Contract.MeasurementDetails.SQL_V53_UPDATE_SOURCE);
                         break;
                     default:
                         // unrecognized version

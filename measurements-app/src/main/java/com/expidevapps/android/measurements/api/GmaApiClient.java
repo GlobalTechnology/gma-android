@@ -474,6 +474,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                 if (request.context != null && request.context.guid != null) {
                     final MeasurementDetails details =
                             new MeasurementDetails(request.context.guid, ministryId, mcc, permLink, period);
+                    details.setSource(MEASUREMENTS_SOURCE);
                     details.setJson(new JSONObject(IOUtils.readString(conn.getInputStream())),
                                     BuildConfig.GMA_API_VERSION);
                     return details;

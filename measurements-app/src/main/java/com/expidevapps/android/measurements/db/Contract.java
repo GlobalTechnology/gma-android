@@ -676,18 +676,18 @@ public class Contract {
         static final String TABLE_NAME = "measurementDetails";
 
         public static final String COLUMN_JSON = "json";
+        static final String COLUMN_SOURCE = "source";
         static final String COLUMN_VERSION = "jsonVersion";
 
         static final String[] PROJECTION_ALL =
-                {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD, COLUMN_JSON,
-                        COLUMN_VERSION, COLUMN_LAST_SYNCED};
+                {COLUMN_GUID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD, COLUMN_SOURCE,
+                        COLUMN_JSON, COLUMN_VERSION, COLUMN_LAST_SYNCED};
 
+        private static final String SQL_COLUMN_SOURCE = COLUMN_SOURCE + " TEXT";
         private static final String SQL_COLUMN_JSON = COLUMN_JSON + " TEXT";
         private static final String SQL_COLUMN_VERSION = COLUMN_VERSION + " INTEGER";
         private static final String SQL_PRIMARY_KEY = "UNIQUE(" + TextUtils.join(",", new Object[] {COLUMN_GUID,
                 COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_PERM_LINK_STUB, COLUMN_PERIOD}) + ")";
-
-        private static final String SQL_PREFIX = TABLE_NAME + ".";
 
         static final String SQL_WHERE_PRIMARY_KEY =
                 SQL_WHERE_GUID + " AND " + SQL_WHERE_MINISTRY + " AND " + SQL_WHERE_MCC + " AND " +
@@ -695,8 +695,20 @@ public class Contract {
 
         public static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
                 TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_GUID, SQL_COLUMN_MINISTRY_ID,
-                        SQL_COLUMN_MCC, SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_PERIOD, SQL_COLUMN_JSON,
-                        SQL_COLUMN_VERSION, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ");";
+                        SQL_COLUMN_MCC, SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_PERIOD, SQL_COLUMN_SOURCE,
+                        SQL_COLUMN_JSON, SQL_COLUMN_VERSION, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+
+        @Deprecated
+         static final String SQL_V28_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" +
+                TextUtils.join(",", new Object[] {SQL_COLUMN_ROWID, SQL_COLUMN_GUID, SQL_COLUMN_MINISTRY_ID,
+                        SQL_COLUMN_MCC, SQL_COLUMN_PERM_LINK_STUB, SQL_COLUMN_PERIOD, SQL_COLUMN_JSON,
+                        SQL_COLUMN_VERSION, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
+        @Deprecated
+         static final String SQL_V53_ALTER_SOURCE =
+                "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_SOURCE;
+        @Deprecated
+         static final String SQL_V53_UPDATE_SOURCE =
+                "UPDATE " + TABLE_NAME + " SET " + COLUMN_SOURCE + " = 'gma-app'";
     }
 }
