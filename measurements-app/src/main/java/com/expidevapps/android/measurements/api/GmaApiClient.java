@@ -1,7 +1,5 @@
 package com.expidevapps.android.measurements.api;
 
-import static com.expidevapps.android.measurements.Constants.MEASUREMENTS_SOURCE;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
@@ -81,21 +79,25 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
     private static final SimpleArrayMap<GenericKey, GmaApiClient> INSTANCES = new SimpleArrayMap<>();
 
     private final int mApiVersion;
+    @NonNull
+    private final String mSource;
 
     private GmaApiClient(@NonNull final Context context, @NonNull final String apiUri, final int apiVersion,
-                         @Nullable final String guid) {
+                         @NonNull final String source, @Nullable final String guid) {
         super(context, TheKeyImpl.getInstance(context), apiUri + (apiUri.endsWith("/") ? "v" : "/v") + apiVersion + "/",
               "gma_api_sessions", guid);
         mApiVersion = apiVersion;
+        mSource = source;
     }
 
     @NonNull
     public static GmaApiClient getInstance(@NonNull final Context context, @NonNull final String apiUri,
-                                           final int apiVersion, @NonNull final String guid) {
-        final GenericKey key = new GenericKey(apiUri, apiVersion, guid);
+                                           final int apiVersion, @NonNull final String source,
+                                           @NonNull final String guid) {
+        final GenericKey key = new GenericKey(apiUri, apiVersion, source, guid);
         synchronized (INSTANCES) {
             if (!INSTANCES.containsKey(key)) {
-                INSTANCES.put(key, new GmaApiClient(context.getApplicationContext(), apiUri, apiVersion, guid));
+                INSTANCES.put(key, new GmaApiClient(context.getApplicationContext(), apiUri, apiVersion, source, guid));
             }
 
             return INSTANCES.get(key);
@@ -104,13 +106,14 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
 
     @NonNull
     public static GmaApiClient getInstance(@NonNull final Context context, @NonNull final String apiUri,
-                                           @NonNull final String guid) {
-        return getInstance(context, apiUri, BuildConfig.GMA_API_VERSION, guid);
+                                           @NonNull final String source, @NonNull final String guid) {
+        return getInstance(context, apiUri, BuildConfig.GMA_API_VERSION, source, guid);
     }
 
     @NonNull
-    public static GmaApiClient getInstance(@NonNull final Context context, @NonNull final String guid) {
-        return getInstance(context, BuildConfig.GMA_API_BASE_URI, guid);
+    public static GmaApiClient getInstance(@NonNull final Context context, @NonNull final String source,
+                                           @NonNull final String guid) {
+        return getInstance(context, BuildConfig.GMA_API_BASE_URI, source, guid);
     }
 
     @Nullable
@@ -429,7 +432,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
 
         // build request
         final Request request = new Request(MEASUREMENTS);
-        request.params.add(param("source", MEASUREMENTS_SOURCE));
+        request.params.add(param("source", mSource));
         request.params.add(param("ministry_id", ministryId));
         request.params.add(param("mcc", mcc));
         request.params.add(param("period", period.toString()));
@@ -482,7 +485,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                 if (request.context != null && request.context.guid != null) {
                     final MeasurementDetails details =
                             new MeasurementDetails(request.context.guid, ministryId, mcc, permLink, period);
-                    details.setSource(MEASUREMENTS_SOURCE);
+                    details.setSource(mSource);
                     details.setJson(new JSONObject(IOUtils.readString(conn.getInputStream())), mApiVersion);
                     return details;
                 }
@@ -510,7 +513,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
         try {
             final JSONArray json = new JSONArray();
             for (final MeasurementValue value : measurements) {
-                json.put(value.toUpdateJson(MEASUREMENTS_SOURCE));
+                json.put(value.toUpdateJson(mSource));
             }
             request.setContent(json);
         } catch (final JSONException e) {

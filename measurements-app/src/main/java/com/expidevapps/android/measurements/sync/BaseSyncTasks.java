@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 
 import com.expidevapps.android.measurements.BuildConfig;
+import com.expidevapps.android.measurements.Constants;
 import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
 
@@ -54,7 +55,8 @@ class BaseSyncTasks {
 
     @NonNull
     static GmaApiClient getApi(@NonNull final Context context, @NonNull final String guid) {
-        return GmaApiClient.getInstance(context, BuildConfig.GMA_API_BASE_URI, BuildConfig.GMA_API_VERSION, guid);
+        return GmaApiClient.getInstance(context, BuildConfig.GMA_API_BASE_URI, BuildConfig.GMA_API_VERSION,
+                                        Constants.MEASUREMENTS_SOURCE, guid);
     }
 
     static boolean isForced(@NonNull final Bundle extras) {
