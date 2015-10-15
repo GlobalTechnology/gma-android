@@ -9,7 +9,6 @@ import android.support.v4.util.SimpleArrayMap;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.expidevapps.android.measurements.BuildConfig;
 import com.expidevapps.android.measurements.api.GmaApiClient.Request;
 import com.expidevapps.android.measurements.api.GmaApiClient.Session;
 import com.expidevapps.android.measurements.model.Assignment;

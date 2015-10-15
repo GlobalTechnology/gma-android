@@ -128,7 +128,7 @@ repositories {
 }
 
 dependencies {
-    compile project(':measurements-model')
+    compile project(':measurements-api')
     compile 'com.android.support:appcompat-v7:23.0.1'
     compile 'com.android.support:recyclerview-v7:23.0.1'
     compile group: 'com.google.android.gms', name: 'play-services-analytics', version: versionPlayServices
@@ -140,18 +140,17 @@ dependencies {
 
     compile 'com.jakewharton:butterknife:6.1.0'
 
-    compile 'me.thekey.android:thekey-lib-accountmanager:1.1.0'
+    compile group: 'me.thekey.android', name: 'thekey-lib-accountmanager', version: versionTheKey
 
-    compile 'org.ccci.gto.android:gto-support-api:0.7.1-SNAPSHOT'
     compile 'org.ccci.gto.android:gto-support-db:0.7.1-SNAPSHOT'
     compile 'org.ccci.gto.android:gto-support-recyclerview:0.7.1-SNAPSHOT'
-
-    debugCompile group: 'org.slf4j', name: 'slf4j-android', version: versionSLF4J
 
     compile 'com.github.machinarius:preferencefragment:0.1.1'
     compile 'com.github.PhilJay:MPAndroidChart:v2.1.0'
     compile 'com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.6.2'
     compile 'com.github.frett.ViewPagerIndicator:library:c954a2a44f'
+
+    debugCompile group: 'org.slf4j', name: 'slf4j-android', version: versionSLF4J
 
     debugCompile 'com.android.support:multidex:1.0.1'
     debugCompile 'com.facebook.stetho:stetho:1.2.0'
