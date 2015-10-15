@@ -1,5 +1,9 @@
 package com.expidevapps.android.measurements.sync;
 
+import static com.expidevapps.android.measurements.Constants.ARG_MCC;
+import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
+
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
@@ -25,10 +29,6 @@ import org.json.JSONObject;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import static com.expidevapps.android.measurements.Constants.ARG_MCC;
-import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
-import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 class TrainingSyncTasks extends BaseSyncTasks {
     private static final String SYNC_TIME_TRAININGS = "last_synced.trainings";
@@ -69,7 +69,7 @@ class TrainingSyncTasks extends BaseSyncTasks {
             }
         }
         // short-circuit if we fail to fetch trainings from the api
-        final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+        final GmaApiClient api = getApi(context, guid);
         final List<Training> trainings = api.getTrainings(ministryId, mcc);
         if (trainings == null) {
             return;
@@ -142,7 +142,7 @@ class TrainingSyncTasks extends BaseSyncTasks {
             final Multimap<String, Long> broadcasts = HashMultimap.create();
 
             // process all trainings that are dirty
-            final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+            final GmaApiClient api = getApi(context, guid);
             for (final Training training : trainings) {
                 try {
                     if (training.isNew()) {
@@ -297,7 +297,7 @@ class TrainingSyncTasks extends BaseSyncTasks {
             final Multimap<String, Long> broadcasts = HashMultimap.create();
 
             // process all training completions that are dirty
-            final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+            final GmaApiClient api = getApi(context, guid);
             for (final Training.Completion completion : completions) {
                 try {
                     if (completion.isNew()) {

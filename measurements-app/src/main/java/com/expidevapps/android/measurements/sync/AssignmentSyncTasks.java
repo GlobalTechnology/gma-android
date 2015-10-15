@@ -1,5 +1,7 @@
 package com.expidevapps.android.measurements.sync;
 
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
+
 import android.content.Context;
 import android.content.SyncResult;
 import android.database.SQLException;
@@ -26,8 +28,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
-
 class AssignmentSyncTasks extends BaseSyncTasks {
     private static final Logger LOG = LoggerFactory.getLogger(AssignmentSyncTasks.class);
 
@@ -49,7 +49,7 @@ class AssignmentSyncTasks extends BaseSyncTasks {
         }
 
         // fetch raw data from API & process it
-        final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+        final GmaApiClient api = getApi(context, guid);
         final List<Assignment> assignments = api.getAssignments();
         return assignments != null && AssignmentSyncTasks.updateAllAssignments(context, guid, assignments);
     }

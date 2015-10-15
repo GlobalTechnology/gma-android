@@ -30,7 +30,7 @@ class MinistrySyncTasks extends BaseSyncTasks {
         if (force ||
                 System.currentTimeMillis() - dao.getLastSyncTime(SYNC_TIME_MINISTRIES) > STALE_DURATION_MINISTRIES) {
             // refresh the list of ministries if the load is being forced
-            final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+            final GmaApiClient api = getApi(context, guid);
             final List<Ministry> ministries = api.getMinistries();
 
             // only update the saved ministries if we received any back

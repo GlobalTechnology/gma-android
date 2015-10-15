@@ -60,7 +60,7 @@ public class UserPreferenceSyncTasks extends BaseSyncTasks {
         }
 
         // fetch raw data from API & process it
-        final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+        final GmaApiClient api = getApi(context, guid);
         final Map<String, UserPreference> prefs = api.getPreferences();
         return prefs != null && updateAllPreferences(context, guid, prefs);
     }
@@ -80,7 +80,7 @@ public class UserPreferenceSyncTasks extends BaseSyncTasks {
                             bindValues(guid));
             if (dirty.size() > 0) {
                 // send prefs to the api
-                final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+                final GmaApiClient api = getApi(context, guid);
                 final Map<String, UserPreference> prefs =
                         api.updatePreferences(dirty.toArray(new UserPreference[dirty.size()]));
                 if (prefs != null) {

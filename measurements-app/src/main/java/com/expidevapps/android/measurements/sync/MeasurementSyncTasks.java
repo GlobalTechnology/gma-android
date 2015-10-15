@@ -1,5 +1,14 @@
 package com.expidevapps.android.measurements.sync;
 
+import static com.expidevapps.android.measurements.BuildConfig.GMA_API_VERSION;
+import static com.expidevapps.android.measurements.Constants.ARG_MCC;
+import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
+import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
+import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINK;
+import static com.expidevapps.android.measurements.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
+import static com.expidevapps.android.measurements.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
+
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
@@ -36,15 +45,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import static com.expidevapps.android.measurements.BuildConfig.GMA_API_VERSION;
-import static com.expidevapps.android.measurements.Constants.ARG_MCC;
-import static com.expidevapps.android.measurements.Constants.ARG_PERIOD;
-import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
-import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINK;
-import static com.expidevapps.android.measurements.model.Task.UPDATE_MINISTRY_MEASUREMENTS;
-import static com.expidevapps.android.measurements.model.Task.UPDATE_PERSONAL_MEASUREMENTS;
-import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 class MeasurementSyncTasks extends BaseSyncTasks {
     private static final String SYNC_TIME_MEASUREMENT_TYPES = "last_synced.measurement.types";
@@ -89,7 +89,7 @@ class MeasurementSyncTasks extends BaseSyncTasks {
         final GmaDao dao = GmaDao.getInstance(context);
         if (force || System.currentTimeMillis() - dao.getLastSyncTime(SYNC_TIME_MEASUREMENT_TYPES, ministryId, locale) >
                 STALE_DURATION_MEASUREMENT_TYPES) {
-            final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+            final GmaApiClient api = getApi(context, guid);
             final List<MeasurementType> types = api.getMeasurementTypes(ministryId, locale);
             if (types != null) {
                 final List<String> updatedTypes = new ArrayList<>();
@@ -160,7 +160,7 @@ class MeasurementSyncTasks extends BaseSyncTasks {
         }
 
         // fetch the requested measurements from the api
-        final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+        final GmaApiClient api = getApi(context, guid);
         final List<Measurement> measurements = api.getMeasurements(ministryId, mcc, period);
         if (measurements != null) {
             saveMeasurements(context, guid, ministryId, mcc, period, measurements, true);
@@ -188,7 +188,7 @@ class MeasurementSyncTasks extends BaseSyncTasks {
 
         // synchronize on updating this ministry, mcc & period
         final GmaDao dao = GmaDao.getInstance(context);
-        final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+        final GmaApiClient api = getApi(context, guid);
         synchronized (ThreadUtils.getLock(LOCK_DIRTY_MEASUREMENTS, new GenericKey(guid, ministryId, mcc, period))) {
             // get the current assignment
             final Assignment assignment = dao.find(Assignment.class, guid, ministryId);
@@ -304,7 +304,7 @@ class MeasurementSyncTasks extends BaseSyncTasks {
         }
 
         // fetch details from the API
-        final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+        final GmaApiClient api = getApi(context, guid);
         final MeasurementDetails details = api.getMeasurementDetails(ministryId, mcc, permLink, period);
         if (details != null) {
             details.setLastSynced();

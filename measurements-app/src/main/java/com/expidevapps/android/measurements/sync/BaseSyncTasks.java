@@ -6,10 +6,13 @@ import static com.expidevapps.android.measurements.Constants.EXTRA_MCC;
 import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINK;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 
+import com.expidevapps.android.measurements.BuildConfig;
+import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
 
 @WorkerThread
@@ -47,6 +50,11 @@ class BaseSyncTasks {
         final Bundle extras = ministryExtras(guid, ministryId, mcc, force);
         extras.putString(EXTRA_PERMLINK, permLink);
         return extras;
+    }
+
+    @NonNull
+    static GmaApiClient getApi(@NonNull final Context context, @NonNull final String guid) {
+        return GmaApiClient.getInstance(context, BuildConfig.GMA_API_BASE_URI, BuildConfig.GMA_API_VERSION, guid);
     }
 
     static boolean isForced(@NonNull final Bundle extras) {

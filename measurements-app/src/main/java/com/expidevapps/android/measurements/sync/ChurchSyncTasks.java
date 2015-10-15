@@ -1,5 +1,8 @@
 package com.expidevapps.android.measurements.sync;
 
+import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
+import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
+
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
@@ -24,9 +27,6 @@ import org.json.JSONObject;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
-import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 class ChurchSyncTasks extends BaseSyncTasks {
     private static final String SYNC_TIME_CHURCHES = "last_synced.churches";
@@ -59,7 +59,7 @@ class ChurchSyncTasks extends BaseSyncTasks {
         }
 
         // short-circuit if we fail to fetch churches
-        final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+        final GmaApiClient api = getApi(context, guid);
         final List<Church> churches = api.getChurches(ministryId);
         if (churches == null) {
             return false;
@@ -140,7 +140,7 @@ class ChurchSyncTasks extends BaseSyncTasks {
             final Multimap<String, Long> broadcasts = HashMultimap.create();
 
             // process all churches that are dirty
-            final GmaApiClient api = GmaApiClient.getInstance(context, guid);
+            final GmaApiClient api = getApi(context, guid);
             for (final Church church : churches) {
                 try {
                     if (church.isNew()) {

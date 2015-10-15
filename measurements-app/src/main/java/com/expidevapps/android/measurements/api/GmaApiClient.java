@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
+import android.support.v4.util.SimpleArrayMap;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -31,6 +32,7 @@ import org.ccci.gto.android.common.api.AbstractTheKeyApi;
 import org.ccci.gto.android.common.api.AbstractTheKeyApi.ExecutionContext;
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.api.ApiSocketException;
+import org.ccci.gto.android.common.util.GenericKey;
 import org.ccci.gto.android.common.util.IOUtils;
 import org.ccci.gto.android.common.util.LocaleCompat;
 import org.ccci.gto.android.common.util.SharedPreferencesUtils;
@@ -76,22 +78,39 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
     private static final String TRAINING_COMPLETION = "training_completion";
     private static final String USER_PREFERENCES = "user_preferences";
 
-    private static final Map<String, GmaApiClient> INSTANCES = new HashMap<>();
+    private static final SimpleArrayMap<GenericKey, GmaApiClient> INSTANCES = new SimpleArrayMap<>();
 
-    private GmaApiClient(final Context context, final String guid) {
-        super(context, TheKeyImpl.getInstance(context),
-              BuildConfig.GMA_API_BASE_URI + "v" + BuildConfig.GMA_API_VERSION + "/", "gma_api_sessions", guid);
+    private final int mApiVersion;
+
+    private GmaApiClient(@NonNull final Context context, @NonNull final String apiUri, final int apiVersion,
+                         @Nullable final String guid) {
+        super(context, TheKeyImpl.getInstance(context), apiUri + (apiUri.endsWith("/") ? "v" : "/v") + apiVersion + "/",
+              "gma_api_sessions", guid);
+        mApiVersion = apiVersion;
+    }
+
+    @NonNull
+    public static GmaApiClient getInstance(@NonNull final Context context, @NonNull final String apiUri,
+                                           final int apiVersion, @NonNull final String guid) {
+        final GenericKey key = new GenericKey(apiUri, apiVersion, guid);
+        synchronized (INSTANCES) {
+            if (!INSTANCES.containsKey(key)) {
+                INSTANCES.put(key, new GmaApiClient(context.getApplicationContext(), apiUri, apiVersion, guid));
+            }
+
+            return INSTANCES.get(key);
+        }
+    }
+
+    @NonNull
+    public static GmaApiClient getInstance(@NonNull final Context context, @NonNull final String apiUri,
+                                           @NonNull final String guid) {
+        return getInstance(context, apiUri, BuildConfig.GMA_API_VERSION, guid);
     }
 
     @NonNull
     public static GmaApiClient getInstance(@NonNull final Context context, @NonNull final String guid) {
-        synchronized (INSTANCES) {
-            if (!INSTANCES.containsKey(guid)) {
-                INSTANCES.put(guid, new GmaApiClient(context.getApplicationContext(), guid));
-            }
-
-            return INSTANCES.get(guid);
-        }
+        return getInstance(context, BuildConfig.GMA_API_BASE_URI, guid);
     }
 
     @Nullable
@@ -464,8 +483,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                     final MeasurementDetails details =
                             new MeasurementDetails(request.context.guid, ministryId, mcc, permLink, period);
                     details.setSource(MEASUREMENTS_SOURCE);
-                    details.setJson(new JSONObject(IOUtils.readString(conn.getInputStream())),
-                                    BuildConfig.GMA_API_VERSION);
+                    details.setJson(new JSONObject(IOUtils.readString(conn.getInputStream())), mApiVersion);
                     return details;
                 }
             }
