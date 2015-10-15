@@ -23,7 +23,6 @@ import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.model.Training.Completion;
 import com.expidevapps.android.measurements.model.UserPreference;
-import com.expidevapps.android.measurements.sync.GmaSyncService;
 import com.google.common.base.Objects;
 
 import org.ccci.gto.android.common.api.AbstractApi.Request.MediaType;
@@ -135,16 +134,6 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                             // get the user's person_id for this session
                             final JSONObject user = json.optJSONObject("user");
                             final String personId = user != null ? user.optString("person_id") : null;
-
-                            // save the user preferences
-                            // XXX: not ideal and crosses logical components, but there currently isn't a cleaner way to persist this data
-                            final JSONObject userPreferences = json.optJSONObject("user_preferences");
-                            GmaSyncService.savePreferences(mContext, request.context.guid, userPreferences);
-
-                            // save the returned associated ministries
-                            // XXX: this isn't ideal and crosses logical components, but I can't think of a cleaner way to do it currently -DF
-                            GmaSyncService.saveAssignments(mContext, request.context.guid, personId,
-                                                           json.optJSONArray("assignments"));
 
                             // create session object
                             return new Session(json.optString("session_ticket", null), cookies, personId,
