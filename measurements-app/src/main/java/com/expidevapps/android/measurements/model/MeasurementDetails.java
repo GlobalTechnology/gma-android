@@ -1,7 +1,6 @@
 package com.expidevapps.android.measurements.model;
 
 import static com.expidevapps.android.measurements.Constants.INVALID_STRING_RES;
-import static com.expidevapps.android.measurements.Constants.MEASUREMENTS_SOURCE;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_TOTAL;
@@ -341,17 +340,18 @@ public class MeasurementDetails extends Base {
                 final Iterator<String> keys = localJson.keys();
                 while (keys.hasNext()) {
                     final String key = keys.next();
+
+                    // skip the total value
+                    if ("total".equals(key)) {
+                        continue;
+                    }
+
+                    // add a row for this key => value, replacing our own source with "Local"
                     final int value = localJson.optInt(key, 0);
-                    switch (key) {
-                        case MEASUREMENTS_SOURCE:
-                            data.add(new SimpleBreakdown(R.string.label_measurement_details_breakdown_local, value));
-                            break;
-                        case "total":
-//                            this.localTotal = value;
-                            break;
-                        default:
-                            data.add(new SimpleBreakdown(key, value));
-                            break;
+                    if (key.equals(mSource)) {
+                        data.add(new SimpleBreakdown(R.string.label_measurement_details_breakdown_local, value));
+                    } else {
+                        data.add(new SimpleBreakdown(key, value));
                     }
                 }
 
@@ -372,8 +372,8 @@ public class MeasurementDetails extends Base {
         if (json != null) {
             raw = parseAssignmentBreakdown(json.optJSONArray(JSON_BREAKDOWN_TEAM));
             final JSONObject selfJson = json.optJSONObject(JSON_BREAKDOWN_SELF);
-            if (selfJson != null) {
-                me = selfJson.optInt(MEASUREMENTS_SOURCE, 0);
+            if (selfJson != null && mSource != null) {
+                me = selfJson.optInt(mSource, 0);
             } else {
                 me = 0;
             }
