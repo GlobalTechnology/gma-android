@@ -2,8 +2,6 @@ package com.expidevapps.android.measurements.model;
 
 import android.support.annotation.NonNull;
 
-import com.expidevapps.android.measurements.model.Ministry;
-
 import org.joda.time.YearMonth;
 import org.json.JSONException;
 import org.json.JSONObject;

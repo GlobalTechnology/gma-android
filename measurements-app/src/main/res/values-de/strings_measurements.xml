@@ -18,6 +18,4 @@
     <string name="label_measurement_details_breakdown_section_subministries">Unterämter/Teams</string>
     <string name="label_measurement_details_breakdown_section_selfassigned">Selbsternannte Mitglieder</string>
     <string name="label_measurement_details_breakdown_section_split">Maßnahmen aufschlüsseln</string>
-    <string name="label_measurement_details_breakdown_local">Regional</string>
-    <string name="label_measurement_details_breakdown_you">Ich</string>
 </resources>

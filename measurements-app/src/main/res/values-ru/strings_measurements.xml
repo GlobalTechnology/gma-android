@@ -18,6 +18,4 @@
     <string name="label_measurement_details_breakdown_section_subministries">Миссионерские организации / команды нижнего уровня</string>
     <string name="label_measurement_details_breakdown_section_selfassigned">Самопровозглашенные участники</string>
     <string name="label_measurement_details_breakdown_section_split">Раздельные показатели</string>
-    <string name="label_measurement_details_breakdown_local">Локальные данные</string>
-    <string name="label_measurement_details_breakdown_you">Вы</string>
 </resources>

@@ -18,6 +18,4 @@
     <string name="label_measurement_details_breakdown_section_subministries">فروع الكهنوت/الفرق</string>
     <string name="label_measurement_details_breakdown_section_selfassigned">الأعضاء المعينون ذاتيا</string>
     <string name="label_measurement_details_breakdown_section_split">تقسيم القياسات</string>
-    <string name="label_measurement_details_breakdown_local">محلي</string>
-    <string name="label_measurement_details_breakdown_you">أنت</string>
 </resources>

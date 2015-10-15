@@ -18,6 +18,4 @@
     <string name="label_measurement_details_breakdown_section_subministries">Sous-ministères/Équipes</string>
     <string name="label_measurement_details_breakdown_section_selfassigned">Membres à horaire libre</string>
     <string name="label_measurement_details_breakdown_section_split">Mesures divisées</string>
-    <string name="label_measurement_details_breakdown_local">Local</string>
-    <string name="label_measurement_details_breakdown_you">Vous</string>
 </resources>

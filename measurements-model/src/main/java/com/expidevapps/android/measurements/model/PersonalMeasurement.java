@@ -3,9 +3,6 @@ package com.expidevapps.android.measurements.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.expidevapps.android.measurements.model.Assignment;
-import com.expidevapps.android.measurements.model.Ministry;
-
 import org.joda.time.YearMonth;
 import org.json.JSONException;
 import org.json.JSONObject;

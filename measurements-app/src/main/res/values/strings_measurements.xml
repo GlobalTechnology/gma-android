@@ -33,7 +33,4 @@
     <string name="label_measurement_details_breakdown_section_subministries">Sub-Ministries / Teams</string>
     <string name="label_measurement_details_breakdown_section_selfassigned">Self Assigned Members</string>
     <string name="label_measurement_details_breakdown_section_split">Split Measurements</string>
-
-    <string name="label_measurement_details_breakdown_local">Local</string>
-    <string name="label_measurement_details_breakdown_you">You</string>
 </resources>

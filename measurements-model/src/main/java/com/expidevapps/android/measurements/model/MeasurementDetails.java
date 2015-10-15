@@ -1,6 +1,5 @@
 package com.expidevapps.android.measurements.model;
 
-import static com.expidevapps.android.measurements.Constants.INVALID_STRING_RES;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_LOCAL;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_PERSONAL;
 import static com.expidevapps.android.measurements.model.MeasurementValue.TYPE_TOTAL;
@@ -9,7 +8,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 
-import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableTable;
@@ -29,6 +27,9 @@ import java.util.List;
 
 public class MeasurementDetails extends Base {
     private static final Logger LOG = LoggerFactory.getLogger(MeasurementDetails.class);
+
+    @StringRes
+    private static final int INVALID_STRING_RES = 0;
 
     private static final int API_V4 = 4;
 

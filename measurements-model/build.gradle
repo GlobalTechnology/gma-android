@@ -5,8 +5,10 @@ android {
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 10
         targetSdkVersion 23
+
+        consumerProguardFiles 'proguard-rules.txt'
     }
 
     compileOptions {
@@ -16,5 +18,11 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-annotations:23.0.1'
+    compile group: 'com.android.support', name: 'support-v4', version: versionAndroidSupport
+
+    compile group: 'org.ccci.gto.android', name: 'gto-support-core', version: versionGtoAndroidSupport
+
+    compile group: 'com.google.guava', name: 'guava', version: versionGuava
+    compile group: 'net.danlew', name: 'android.joda', version: versionJodaTime
+    compile group: 'org.slf4j', name: 'slf4j-api', version: versionSLF4J
 }

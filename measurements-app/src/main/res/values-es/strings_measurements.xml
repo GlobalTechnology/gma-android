@@ -18,6 +18,4 @@
     <string name="label_measurement_details_breakdown_section_subministries">Subministerios / Equipos</string>
     <string name="label_measurement_details_breakdown_section_selfassigned">Miembros autoasignados</string>
     <string name="label_measurement_details_breakdown_section_split">Mediciones divididas</string>
-    <string name="label_measurement_details_breakdown_local">Local</string>
-    <string name="label_measurement_details_breakdown_you">Tú</string>
 </resources>

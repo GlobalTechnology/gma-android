@@ -18,6 +18,4 @@
     <string name="label_measurement_details_breakdown_section_subministries">सब-मिनिस्ट्रीज़/टीम्स</string>
     <string name="label_measurement_details_breakdown_section_selfassigned">स्वनियुक्त सदस्य</string>
     <string name="label_measurement_details_breakdown_section_split">विभाजित मापन</string>
-    <string name="label_measurement_details_breakdown_local">स्थानीय</string>
-    <string name="label_measurement_details_breakdown_you">आप</string>
 </resources>

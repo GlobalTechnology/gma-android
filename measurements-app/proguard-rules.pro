@@ -53,10 +53,6 @@
 -dontwarn com.google.android.gms.**
 
 
-# Joda Time
--dontwarn org.joda.time.tz.ZoneInfoCompiler
-
-
 # newrelic settings
 -keep class com.newrelic.** { *; }
 -dontwarn com.newrelic.**
