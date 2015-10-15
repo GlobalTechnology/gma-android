@@ -14,7 +14,7 @@ apply from: 'versioning.gradle'
 version '0.8.13-SNAPSHOT'
 
 subprojects {
-    group 'org.ccci.gto.android'
+    group 'com.expidevapps.android'
     version rootProject.version
 
     repositories {
