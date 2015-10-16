@@ -7,12 +7,14 @@ import android.database.sqlite.SQLiteException;
 import android.support.annotation.NonNull;
 
 import com.crashlytics.android.Crashlytics;
-import com.expidevapps.android.measurements.BuildConfig;
 import com.google.common.base.Throwables;
 
+import org.ccci.gto.android.common.app.ApplicationUtils;
 import org.ccci.gto.android.common.db.WalSQLiteOpenHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.fabric.sdk.android.Fabric;
 
 public class GmaDatabase extends WalSQLiteOpenHelper {
     private static final Logger LOG = LoggerFactory.getLogger(GmaDatabase.class);
@@ -75,8 +77,12 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
     private static final Object LOCK_INSTANCE = new Object();
     private static GmaDatabase INSTANCE;
 
+    @NonNull
+    private final Context mContext;
+
     private GmaDatabase(@NonNull final Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        mContext = context;
     }
 
     @NonNull
@@ -261,9 +267,9 @@ public class GmaDatabase extends WalSQLiteOpenHelper {
             LOG.error("error upgrading database", e);
 
             // report (or rethrow) exception
-            if (BuildConfig.DEBUG) {
+            if (ApplicationUtils.isDebuggable(mContext)) {
                 throw Throwables.propagate(e);
-            } else {
+            } else if (Fabric.isInitialized() && Crashlytics.getInstance() != null) {
                 Crashlytics.logException(e);
             }
 
