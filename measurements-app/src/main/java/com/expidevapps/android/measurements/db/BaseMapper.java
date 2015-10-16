@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.expidevapps.android.measurements.model.Base;
-import com.expidevapps.android.measurements.util.CursorUtils;
 
 import org.ccci.gto.android.common.db.AbstractMapper;
 import org.joda.time.LocalDate;

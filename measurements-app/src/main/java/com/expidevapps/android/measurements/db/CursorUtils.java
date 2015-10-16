@@ -1,4 +1,4 @@
-package com.expidevapps.android.measurements.util;
+package com.expidevapps.android.measurements.db;
 
 import static org.ccci.gto.android.common.db.util.CursorUtils.getString;
 
