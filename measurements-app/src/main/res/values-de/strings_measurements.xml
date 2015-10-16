@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="menu_measurements">Maßnahmen</string>
     <string name="title_activity_measurements">Maßnahmen</string>
+    <string name="title_activity_measurements_personal">Persönliche Maßnahmen</string>
+    <string name="title_activity_measurements_local">Pfarrei-Maßnahmen</string>
     <string name="title_activity_measurement_details">Maßnahmen-Infos</string>
+    <string name="menu_measurements">Maßnahmen</string>
+    <string name="menu_measurements_personal">Persönliche Maßnahmen</string>
+    <string name="menu_measurements_ministry">Pfarrei-Maßnahmen</string>
+    <string name="menu_measurements_favorites">Favorisierte Maßnahmen</string>
+    <string name="menu_measurements_all">Alle Maßnahmen</string>
+    <string name="menu_measurements_add_favorite">Favorit hinzufügen</string>
+    <string name="menu_measurements_remove_favorite">Favorit entfernen</string>
     <!-- Measurements Not Authorized dialog -->
     <string name="title_dialog_measurements_unauthorized">Blockiert</string>
     <string name="text_dialog_measurements_unauthorized">Sie sind nicht berechtigt, Maßnahmen dieses Amts zu sehen</string>

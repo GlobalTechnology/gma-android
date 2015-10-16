@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_settings">Setări</string>
+    <string name="title_activity_settings">Setări</string>
+    <!-- Strings related to Settings -->
+    <string name="pref_category_active_ministry">Misiune activă</string>
+    <string name="pref_category_map_layer">Niveluri hartă</string>
+    <!-- Ministry preference strings -->
+    <string name="pref_title_ministry_team_text">Misiune/echipă</string>
+    <string name="pref_summary_ministry_none_set">Nicio misiune selectată</string>
+    <string name="pref_summary_ministry_none_available">Nicio misiune disponibilă</string>
+    <!-- MCC preference strings -->
+    <string name="pref_summary_mcc_none_set">Niciun MCC selectat</string>
+    <string name="pref_summary_mcc_none_available">Niciun MCC disponibil</string>
+    <!-- Map preferences -->
+    <string name="pref_title_map_layer_church_parents">Relații cu biserica părinte</string>
+    <string name="pref_title_map_layer_church_target">Ținte</string>
+    <string name="pref_title_map_layer_church_group">Grupuri</string>
+    <string name="pref_title_map_layer_church_church">Biserici</string>
+    <string name="pref_title_map_layer_church_multiplying">Multiplicare biserici</string>
+    <string name="pref_title_map_layer_training">Activități de instruire</string>
+</resources>

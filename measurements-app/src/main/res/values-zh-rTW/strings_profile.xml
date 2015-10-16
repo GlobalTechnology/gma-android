@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_profile_supported_staff">支援員工</string>
+    <string name="title_dialog_profile_set_supported_staff">支援員工</string>
+    <string name="text_profile_supported_staff_message">您想以支援員工身份加入現有宗教組織／團體嗎？</string>
+    <string name="btn_profile_yes">是</string>
+    <string name="btn_profile_no">否</string>
+</resources>

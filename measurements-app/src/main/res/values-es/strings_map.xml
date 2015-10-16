@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_dialog_map_create_item">Crear nueva/o</string>
+    <string name="title_dialog_map_create_item_unauthorized">No tienes permiso para crear una nueva iglesia o ministerio.</string>
     <string name="btn_dialog_map_create_church">Iglesia</string>
     <string name="btn_dialog_map_create_training">Entrenamiento</string>
     <string name="label_marker_map_no_name">(sin nombre)</string>
@@ -8,4 +9,5 @@
         <item quantity="one">%1$d miembro</item>
         <item quantity="other">%1$d miembros</item>
     </plurals>
+    <string name="menu_map_search">Buscar</string>
 </resources>

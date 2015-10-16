@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_join_ministry">Alăturare misiune</string>
+    <string name="title_activity_join_ministry">Alăturare misiune</string>
+    <string name="menu_ministry_search">Căutare</string>
+    <string name="label_join_ministry_ministry">Misiune/echipă</string>
+    <string name="btn_join_ministry_join">Alăturați-vă</string>
+</resources>

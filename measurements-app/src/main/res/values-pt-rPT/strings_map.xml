@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_map_create_item">Criar Novo</string>
+    <string name="title_dialog_map_create_item_unauthorized">Não tem permissão para criar uma nova Igreja ou Formação</string>
+    <string name="btn_dialog_map_create_church">Igreja</string>
+    <string name="btn_dialog_map_create_training">Formação</string>
+    <string name="label_marker_map_no_name">(sem nome)</string>
+    <plurals name="text_marker_map_church_snippet">
+        <item quantity="one">%1$d membro</item>
+        <item quantity="other">%1$d membros</item>
+    </plurals>
+    <string name="menu_map_search">Procurar</string>
+</resources>

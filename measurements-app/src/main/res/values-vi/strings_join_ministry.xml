@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_join_ministry">Tham gia Đoàn mục sư</string>
+    <string name="title_activity_join_ministry">Tham gia Đoàn mục sư</string>
+    <string name="menu_ministry_search">Tìm kiếm</string>
+    <string name="label_join_ministry_ministry">Đoàn mục sư / Đội</string>
+    <string name="btn_join_ministry_join">Tham gia</string>
+</resources>

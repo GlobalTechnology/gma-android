@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_training_create">สร้างการฝึกอบรมใหม่</string>
+    <string name="title_dialog_training_delete">ลบการฝึกอบรมหรือไม่</string>
+    <string name="text_dialog_training_delete_confirm">แน่ใจหรือไม่ว่าต้องการลบการฝึกอบรมนี้</string>
+    <string name="title_dialog_training_completion_delete">ลบการสำเร็จการฝึกอบรมหรือไม่</string>
+    <string name="text_dialog_training_completion_delete_confirm">แน่ใจหรือไม่ว่าต้องการลบการสำเร็จการฝึกอบรม</string>
+    <!-- Training Dialog tabs-->
+    <string name="tab_training_training">การฝึกอบรม</string>
+    <string name="tab_training_stages">ขั้นตอน</string>
+    <!-- Training Details Fragment-->
+    <string name="label_training_name">ชื่อ</string>
+    <string name="label_training_type">ประเภทการฝึกอบรม</string>
+    <string name="label_training_date">วันที่</string>
+    <string name="label_training_participants">ผู้เข้าร่วม</string>
+    <string name="label_training_stage">ขั้นตอน</string>
+    <string name="label_training_stage_date">วันที่</string>
+    <string name="label_training_stage_participants">ผู้เข้าร่วม</string>
+    <string name="btn_training_add_stage">เพิ่มขั้นตอน</string>
+    <string name="btn_training_create">สร้าง</string>
+</resources>

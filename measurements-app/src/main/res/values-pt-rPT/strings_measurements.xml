@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_measurements">Medidas</string>
+    <string name="title_activity_measurements_personal">Medidas Pessoais</string>
+    <string name="title_activity_measurements_local">Medidas do Ministério</string>
+    <string name="title_activity_measurement_details">Detalhes de Medidas</string>
+    <string name="menu_measurements">Medidas</string>
+    <string name="menu_measurements_personal">Medidas Pessoais</string>
+    <string name="menu_measurements_ministry">Medidas do Ministério</string>
+    <string name="menu_measurements_favorites">Medidas Favoritas</string>
+    <string name="menu_measurements_all">Todas as Medidas</string>
+    <string name="menu_measurements_add_favorite">Adicionar Favorito</string>
+    <string name="menu_measurements_remove_favorite">Remover Favorito</string>
+    <!-- Measurements Not Authorized dialog -->
+    <string name="title_dialog_measurements_unauthorized">Bloqueado</string>
+    <string name="text_dialog_measurements_unauthorized">Não tem permissão para ver as medidas para este ministério</string>
+    <!-- Measurement accordion sections -->
+    <string name="label_measurements_column_faith">Ações de Fé</string>
+    <string name="label_measurements_column_fruit">Fruto</string>
+    <string name="label_measurements_column_outcomes">Resultados</string>
+    <string name="label_measurements_column_other">Outros</string>
+    <!-- Measurement details breakdown sections -->
+    <string name="label_measurement_details_breakdown_section_total">Total</string>
+    <string name="label_measurement_details_breakdown_section_local">Equipa Local</string>
+    <string name="label_measurement_details_breakdown_section_team">Membros da Equipa</string>
+    <string name="label_measurement_details_breakdown_section_subministries">Sub-Ministérios / Equipas</string>
+    <string name="label_measurement_details_breakdown_section_selfassigned">Membros Autopropostos</string>
+    <string name="label_measurement_details_breakdown_section_split">Dividir Medidas</string>
+</resources>

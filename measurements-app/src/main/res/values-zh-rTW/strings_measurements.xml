@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_measurements">指標</string>
+    <string name="title_activity_measurements_personal">個人指標</string>
+    <string name="title_activity_measurements_local">服務指標</string>
+    <string name="title_activity_measurement_details">指標詳情</string>
+    <string name="menu_measurements">指標</string>
+    <string name="menu_measurements_personal">個人指標</string>
+    <string name="menu_measurements_ministry">服務指標</string>
+    <string name="menu_measurements_favorites">最愛指標</string>
+    <string name="menu_measurements_all">所有指標</string>
+    <string name="menu_measurements_add_favorite">添加最愛</string>
+    <string name="menu_measurements_remove_favorite">移除最愛</string>
+    <!-- Measurements Not Authorized dialog -->
+    <string name="title_dialog_measurements_unauthorized">封鎖</string>
+    <string name="text_dialog_measurements_unauthorized">您不能檢視此教會的指標</string>
+    <!-- Measurement accordion sections -->
+    <string name="label_measurements_column_faith">信仰活動</string>
+    <string name="label_measurements_column_fruit">水果</string>
+    <string name="label_measurements_column_outcomes">結果</string>
+    <string name="label_measurements_column_other">其他</string>
+    <!-- Measurement details breakdown sections -->
+    <string name="label_measurement_details_breakdown_section_total">全部</string>
+    <string name="label_measurement_details_breakdown_section_local">本地團體</string>
+    <string name="label_measurement_details_breakdown_section_team">團體成員</string>
+    <string name="label_measurement_details_breakdown_section_subministries">屬下教會／團體</string>
+    <string name="label_measurement_details_breakdown_section_selfassigned">自行調配的成員</string>
+    <string name="label_measurement_details_breakdown_section_split">分拆指標</string>
+</resources>

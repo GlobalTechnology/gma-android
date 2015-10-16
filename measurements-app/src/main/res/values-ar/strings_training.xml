@@ -3,11 +3,19 @@
     <string name="title_dialog_training_create">إنشاء تدريب جديد</string>
     <string name="title_dialog_training_delete">هل تريد حذف التدريب؟</string>
     <string name="text_dialog_training_delete_confirm">هل أنت متأكد من أنك تريد حذف هذا التدريب؟</string>
+    <string name="title_dialog_training_completion_delete">هل تريد حذف تكملة التدريب؟</string>
+    <string name="text_dialog_training_completion_delete_confirm">هل أنت متأكد من أنك تريد حذف تكملة هذا التدريب؟</string>
     <!-- Training Dialog tabs-->
+    <string name="tab_training_training">التدريب</string>
+    <string name="tab_training_stages">المراحل</string>
     <!-- Training Details Fragment-->
     <string name="label_training_name">الاسم</string>
     <string name="label_training_type">نوع التدريب</string>
     <string name="label_training_date">التاريخ</string>
     <string name="label_training_participants">المشاركون</string>
+    <string name="label_training_stage">مرحلة</string>
+    <string name="label_training_stage_date">التاريخ</string>
+    <string name="label_training_stage_participants">المشاركون</string>
+    <string name="btn_training_add_stage">إضافة مرحلة</string>
     <string name="btn_training_create">إنشاء</string>
 </resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="text_login_welcome">歡迎來到GMA，請先登入。</string>
+    <string name="btn_login">登入</string>
+    <string name="menu_logout">登出</string>
+    <string name="title_dialog_logout">登出</string>
+    <string name="text_logout_message">您確定要登出嗎？</string>
+</resources>

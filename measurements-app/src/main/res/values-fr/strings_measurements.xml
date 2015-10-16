@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="menu_measurements">Mesures</string>
     <string name="title_activity_measurements">Mesures</string>
+    <string name="title_activity_measurements_personal">Mesures personnelles</string>
+    <string name="title_activity_measurements_local">Mesures du ministère</string>
     <string name="title_activity_measurement_details">Détails de mesures</string>
+    <string name="menu_measurements">Mesures</string>
+    <string name="menu_measurements_personal">Mesures personnelles</string>
+    <string name="menu_measurements_ministry">Mesures du ministère</string>
+    <string name="menu_measurements_favorites">Mesures favorites</string>
+    <string name="menu_measurements_all">Toutes les mesures</string>
+    <string name="menu_measurements_add_favorite">Ajouter aux favoris</string>
+    <string name="menu_measurements_remove_favorite">Supprimer des favoris</string>
     <!-- Measurements Not Authorized dialog -->
     <string name="title_dialog_measurements_unauthorized">Bloqué</string>
     <string name="text_dialog_measurements_unauthorized">Vous n\'avez pas l\'autorisation de voir les mesures pour ce ministère</string>

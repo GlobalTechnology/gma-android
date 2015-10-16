@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="menu_measurements">मापन</string>
     <string name="title_activity_measurements">मापन</string>
+    <string name="title_activity_measurements_personal">निजी मापन</string>
+    <string name="title_activity_measurements_local">मिनिस्ट्री मापन</string>
     <string name="title_activity_measurement_details">मापन विवरण</string>
+    <string name="menu_measurements">मापन</string>
+    <string name="menu_measurements_personal">निजी मापन</string>
+    <string name="menu_measurements_ministry">मिनिस्ट्री मापन</string>
+    <string name="menu_measurements_favorites">पसंदीदा मापन</string>
+    <string name="menu_measurements_all">सभी मापन</string>
+    <string name="menu_measurements_add_favorite">पसंदीदा जोडें</string>
+    <string name="menu_measurements_remove_favorite">पसंदीदा हटाएं</string>
     <!-- Measurements Not Authorized dialog -->
     <string name="title_dialog_measurements_unauthorized">अवरोधित</string>
     <string name="text_dialog_measurements_unauthorized">आप इस मिनिस्ट्री के मापन देखने के लिए अधिकृत नहीं हैं</string>

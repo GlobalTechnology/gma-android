@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_church_create">新建教会</string>
+    <string name="title_dialog_church_delete">删除教会？</string>
+    <string name="text_dialog_church_delete_confirm">确定要删除该教会吗？</string>
+    <string name="label_church_name">姓名</string>
+    <string name="label_church_contact_name">联系姓名</string>
+    <string name="label_church_contact_email">联系电邮</string>
+    <string name="label_church_contact_mobile">联系电话</string>
+    <string name="label_church_jesus_film_activity">《耶稣大电影》活动</string>
+    <string name="label_church_ministry">事工</string>
+    <string name="opt_church_jesus_film_activity_yes">是</string>
+    <string name="opt_church_jesus_film_activity_no">否</string>
+    <string name="alrt_church_jesus_film_required">请注明是否为《耶稣大电影》活动。</string>
+    <string name="label_church_development">类型</string>
+    <string name="label_church_security">安全</string>
+    <string name="label_church_size">规模</string>
+    <string name="btn_church_create">创建</string>
+</resources>

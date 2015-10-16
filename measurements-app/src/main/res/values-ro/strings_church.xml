@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_church_create">Creare biserică nouă</string>
+    <string name="title_dialog_church_delete">Ștergeți biserica?</string>
+    <string name="text_dialog_church_delete_confirm">Sigur doriţi să ștergeți biserica?</string>
+    <string name="label_church_name">Nume</string>
+    <string name="label_church_contact_name">Nume persoană de contact</string>
+    <string name="label_church_contact_email">E-mail persoană de contact</string>
+    <string name="label_church_contact_mobile">Telefon mobil persoană de contact</string>
+    <string name="label_church_jesus_film_activity">Activitate JESUS film</string>
+    <string name="label_church_ministry">Misiune</string>
+    <string name="opt_church_jesus_film_activity_yes">Da</string>
+    <string name="opt_church_jesus_film_activity_no">Nu</string>
+    <string name="alrt_church_jesus_film_required">Indicați dacă a fost o activitate JESUS Film.</string>
+    <string name="label_church_development">Tip</string>
+    <string name="label_church_security">Securitate</string>
+    <string name="label_church_size">Dimensiune</string>
+    <string name="btn_church_create">Creare</string>
+</resources>

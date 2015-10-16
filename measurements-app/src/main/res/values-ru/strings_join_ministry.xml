@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="menu_join_ministry">Вступить в новую миссионерскую организацию</string>
+    <string name="menu_join_ministry">Вступить в миссию</string>
     <string name="title_activity_join_ministry">Вступить в миссионерскую организацию</string>
     <string name="menu_ministry_search">Поиск</string>
     <string name="label_join_ministry_ministry">Миссионерская организация/команда</string>

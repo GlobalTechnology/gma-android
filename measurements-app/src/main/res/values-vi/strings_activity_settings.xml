@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_settings">Thiết lập</string>
+    <string name="title_activity_settings">Thiết lập</string>
+    <!-- Strings related to Settings -->
+    <string name="pref_category_active_ministry">Đoàn mục sư đang hoạt động</string>
+    <string name="pref_category_map_layer">Các lớp Bản đồ</string>
+    <!-- Ministry preference strings -->
+    <string name="pref_title_ministry_team_text">Đoàn mục sư/Đội</string>
+    <string name="pref_summary_ministry_none_set">Không chọn đoàn mục sư nào</string>
+    <string name="pref_summary_ministry_none_available">Không có sẵn đoàn mục sư nào</string>
+    <!-- MCC preference strings -->
+    <string name="pref_summary_mcc_none_set">Không lựa chọn MCC nào</string>
+    <string name="pref_summary_mcc_none_available">Không có sẵn MCCs nào</string>
+    <!-- Map preferences -->
+    <string name="pref_title_map_layer_church_parents">Quan hệ với Nhà thờ Cha</string>
+    <string name="pref_title_map_layer_church_target">Mục tiêu</string>
+    <string name="pref_title_map_layer_church_group">Nhóm</string>
+    <string name="pref_title_map_layer_church_church">Các nhà thờ</string>
+    <string name="pref_title_map_layer_church_multiplying">Nhân rộng Nhà thờ</string>
+    <string name="pref_title_map_layer_training">Các hoạt động đào tạo</string>
+</resources>

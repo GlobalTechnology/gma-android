@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="text_login_welcome">ยินดีต้อนรับสู่ GMA คลิกลงชื่อเข้าใช้งานเพื่อเริ่มงาน</string>
+    <string name="btn_login">ลงชื่อเข้าใช้งาน</string>
+    <string name="menu_logout">ออกจากระบบ</string>
+    <string name="title_dialog_logout">ออกจากระบบ</string>
+    <string name="text_logout_message">แน่ใจหรือไม่ว่าต้องการออกจากระบบ</string>
+</resources>

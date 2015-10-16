@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_dialog_map_create_item">إنشاء جديد</string>
+    <string name="title_dialog_map_create_item_unauthorized">لا يُسمح لك بإنشاء كنسية أو تدريب جديدين</string>
     <string name="btn_dialog_map_create_church">كنيسة</string>
     <string name="btn_dialog_map_create_training">تدريب</string>
     <string name="label_marker_map_no_name">(لا يوجد اسم)</string>
@@ -12,4 +13,5 @@
         <item quantity="two">%1$d عضوان</item>
         <item quantity="zero">%1$d عضو</item>
     </plurals>
+    <string name="menu_map_search">بحث</string>
 </resources>

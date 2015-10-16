@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="text_login_welcome">Bine ați venit la GMA, faceți clic pe Conectare pentru a începe.</string>
+    <string name="btn_login">Conectare</string>
+    <string name="menu_logout">Deconectare</string>
+    <string name="title_dialog_logout">Deconectare</string>
+    <string name="text_logout_message">Sigur doriţi să vă deconectați?</string>
+</resources>

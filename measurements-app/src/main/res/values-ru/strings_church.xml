@@ -7,6 +7,11 @@
     <string name="label_church_contact_name">Контактное лицо</string>
     <string name="label_church_contact_email">Контактный адрес эл. почты</string>
     <string name="label_church_contact_mobile">Контактный телефон</string>
+    <string name="label_church_jesus_film_activity">Работа с JESUS Film</string>
+    <string name="label_church_ministry">Миссия</string>
+    <string name="opt_church_jesus_film_activity_yes">Да</string>
+    <string name="opt_church_jesus_film_activity_no">Нет</string>
+    <string name="alrt_church_jesus_film_required">Укажите, если это была работа с JESUS Film.</string>
     <string name="label_church_development">Тип</string>
     <string name="label_church_security">Безопасность</string>
     <string name="label_church_size">Размер</string>

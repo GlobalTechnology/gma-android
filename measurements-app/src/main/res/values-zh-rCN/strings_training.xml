@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_training_create">新建培训</string>
+    <string name="title_dialog_training_delete">删除培训？</string>
+    <string name="text_dialog_training_delete_confirm">确定要删除该培训吗？</string>
+    <string name="title_dialog_training_completion_delete">删除完工培训？</string>
+    <string name="text_dialog_training_completion_delete_confirm">确定要删除该完工培训？</string>
+    <!-- Training Dialog tabs-->
+    <string name="tab_training_training">培训</string>
+    <string name="tab_training_stages">阶段</string>
+    <!-- Training Details Fragment-->
+    <string name="label_training_name">姓名</string>
+    <string name="label_training_type">培训类型</string>
+    <string name="label_training_date">日期</string>
+    <string name="label_training_participants">参与者</string>
+    <string name="label_training_stage">阶段</string>
+    <string name="label_training_stage_date">日期</string>
+    <string name="label_training_stage_participants">参与者</string>
+    <string name="btn_training_add_stage">添加阶段</string>
+    <string name="btn_training_create">创建</string>
+</resources>

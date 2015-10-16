@@ -13,7 +13,7 @@
     <string name="pref_summary_mcc_none_set">कोई एमसीसी चयनित नहीं</string>
     <string name="pref_summary_mcc_none_available">कोई एमसीसी उपलब्ध नहीं</string>
     <!-- Map preferences -->
-    <string name="pref_title_map_layer_church_parents">चर्च के गणमान्य</string>
+    <string name="pref_title_map_layer_church_parents">पालक चर्च सम्बन्ध</string>
     <string name="pref_title_map_layer_church_target">लक्ष्य</string>
     <string name="pref_title_map_layer_church_group">ग्रुप्स</string>
     <string name="pref_title_map_layer_church_church">चर्चेस</string>

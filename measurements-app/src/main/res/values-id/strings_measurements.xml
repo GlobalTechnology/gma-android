@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_measurements">Pengukuran</string>
+    <string name="title_activity_measurements_personal">Pengukuran Pribadi</string>
+    <string name="title_activity_measurements_local">Pengukuran Pelayanan</string>
+    <string name="title_activity_measurement_details">Rincian Pengukuran</string>
+    <string name="menu_measurements">Pengukuran</string>
+    <string name="menu_measurements_personal">Pengukuran Pribadi</string>
+    <string name="menu_measurements_ministry">Pengukuran Pelayanan</string>
+    <string name="menu_measurements_favorites">Pengukuran Favorit</string>
+    <string name="menu_measurements_all">Semua Pengukuran</string>
+    <string name="menu_measurements_add_favorite">Tambah Favorit</string>
+    <string name="menu_measurements_remove_favorite">Hapus Favorit</string>
+    <!-- Measurements Not Authorized dialog -->
+    <string name="title_dialog_measurements_unauthorized">Diblokir</string>
+    <string name="text_dialog_measurements_unauthorized">Anda tidak diizinkan untuk melihat pengukuran untuk pelayanan ini</string>
+    <!-- Measurement accordion sections -->
+    <string name="label_measurements_column_faith">Tindakan Iman</string>
+    <string name="label_measurements_column_fruit">Buah</string>
+    <string name="label_measurements_column_outcomes">Hasil</string>
+    <string name="label_measurements_column_other">Lainnya</string>
+    <!-- Measurement details breakdown sections -->
+    <string name="label_measurement_details_breakdown_section_total">Total</string>
+    <string name="label_measurement_details_breakdown_section_local">Tim Lokal</string>
+    <string name="label_measurement_details_breakdown_section_team">Anggota Tim</string>
+    <string name="label_measurement_details_breakdown_section_subministries">Sub-Pelayanan / Tim</string>
+    <string name="label_measurement_details_breakdown_section_selfassigned">Anggota Penugasan Otomatis</string>
+    <string name="label_measurement_details_breakdown_section_split">Pisahkan  Pengukuran</string>
+</resources>

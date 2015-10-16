@@ -10,8 +10,10 @@
     <string name="pref_summary_ministry_none_set">لم يتم تحديد أي كهنوت</string>
     <string name="pref_summary_ministry_none_available">لا يوجد أي كهنوت</string>
     <!-- MCC preference strings -->
+    <string name="pref_summary_mcc_none_set">لم يتم تحديد MCC</string>
+    <string name="pref_summary_mcc_none_available">MCCs غير توفرة</string>
     <!-- Map preferences -->
-    <string name="pref_title_map_layer_church_parents">آباء الكنيسة</string>
+    <string name="pref_title_map_layer_church_parents">علاقات الكنيسة الرئيسية</string>
     <string name="pref_title_map_layer_church_target">الأهداف</string>
     <string name="pref_title_map_layer_church_group">المجموعات</string>
     <string name="pref_title_map_layer_church_church">الكنائس</string>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_map_create_item">新建</string>
+    <string name="title_dialog_map_create_item_unauthorized">您不可以新建教会或培训。</string>
+    <string name="btn_dialog_map_create_church">教会</string>
+    <string name="btn_dialog_map_create_training">培训</string>
+    <string name="label_marker_map_no_name">（无姓名）</string>
+    <plurals name="text_marker_map_church_snippet">
+        <item quantity="other">%1$d 成员</item>
+    </plurals>
+    <string name="menu_map_search">搜索</string>
+</resources>

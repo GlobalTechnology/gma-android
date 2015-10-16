@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_dialog_map_create_item">Создать</string>
+    <string name="title_dialog_map_create_item_unauthorized">Вы не можете создать новую церковь или обучение.</string>
     <string name="btn_dialog_map_create_church">Церковь</string>
     <string name="btn_dialog_map_create_training">Тренировка</string>
     <string name="label_marker_map_no_name">(без имени)</string>
@@ -10,4 +11,5 @@
         <item quantity="few">%1$d члена</item>
         <item quantity="many">%1$d членов</item>
     </plurals>
+    <string name="menu_map_search">Поиск</string>
 </resources>

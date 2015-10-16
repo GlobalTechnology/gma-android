@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_settings">ድባቦች</string>
+    <string name="title_activity_settings">ድባቦች</string>
+    <!-- Strings related to Settings -->
+    <string name="pref_category_active_ministry">እንቅስቃሴ ያለው ሚንስቴር</string>
+    <string name="pref_category_map_layer">የካርታ ተደራቢዎች</string>
+    <!-- Ministry preference strings -->
+    <string name="pref_title_ministry_team_text">ሚንስቴር/ቡድን</string>
+    <string name="pref_summary_ministry_none_set">ማንም ሚንስቴር አልተመረጠም</string>
+    <string name="pref_summary_ministry_none_available">ማንም ሚንስቴሮች ሊገኙ አልቻሉም</string>
+    <!-- MCC preference strings -->
+    <string name="pref_summary_mcc_none_set">ማንም MCC አልተመረጠም</string>
+    <string name="pref_summary_mcc_none_available">ማንም MCCs ሊገኙ አልቻሉም</string>
+    <!-- Map preferences -->
+    <string name="pref_title_map_layer_church_parents">የዋናው ቤተክርስቲያን ግንኙነቶች</string>
+    <string name="pref_title_map_layer_church_target">አላማዎች</string>
+    <string name="pref_title_map_layer_church_group">ምድቦች</string>
+    <string name="pref_title_map_layer_church_church">ቤተክርስቲያኖች</string>
+    <string name="pref_title_map_layer_church_multiplying">የሚባዙ ቤተክርስቲያኖች</string>
+    <string name="pref_title_map_layer_training">የስልጠና እንቅስቃሴዎች</string>
+</resources>

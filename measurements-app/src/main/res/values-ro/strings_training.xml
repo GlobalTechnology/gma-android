@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_training_create">Creare sesiune de instruire nouă</string>
+    <string name="title_dialog_training_delete">Ștergere instruire?</string>
+    <string name="text_dialog_training_delete_confirm">Sigur doriți să ștergeți instruirea?</string>
+    <string name="title_dialog_training_completion_delete">Ștergeți Finalizare instruire?</string>
+    <string name="text_dialog_training_completion_delete_confirm">Sigur doriți să ștergeți Finalizarea instruire?</string>
+    <!-- Training Dialog tabs-->
+    <string name="tab_training_training">Instruire</string>
+    <string name="tab_training_stages">Etape</string>
+    <!-- Training Details Fragment-->
+    <string name="label_training_name">Nume</string>
+    <string name="label_training_type">Tip instruire</string>
+    <string name="label_training_date">Data</string>
+    <string name="label_training_participants">Participanți</string>
+    <string name="label_training_stage">Etapă</string>
+    <string name="label_training_stage_date">Data</string>
+    <string name="label_training_stage_participants">Participanți</string>
+    <string name="btn_training_add_stage">Adăugare etapă</string>
+    <string name="btn_training_create">Creare</string>
+</resources>

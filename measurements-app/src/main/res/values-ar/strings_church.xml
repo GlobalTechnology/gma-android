@@ -7,6 +7,11 @@
     <string name="label_church_contact_name">اسم جهة الاتصال</string>
     <string name="label_church_contact_email">بريد جهة الاتصال الالكتروني</string>
     <string name="label_church_contact_mobile">رقم جوال جهة الاتصال</string>
+    <string name="label_church_jesus_film_activity">نشاط JESUS Film</string>
+    <string name="label_church_ministry">كهنوت</string>
+    <string name="opt_church_jesus_film_activity_yes">نعم</string>
+    <string name="opt_church_jesus_film_activity_no">لا</string>
+    <string name="alrt_church_jesus_film_required">الرجاء تحديد ما إن كان هذا نشاط JESUS Film</string>
     <string name="label_church_development">النوع</string>
     <string name="label_church_security">الأمن</string>
     <string name="label_church_size">الحجم</string>

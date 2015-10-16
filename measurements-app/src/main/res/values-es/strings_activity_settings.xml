@@ -13,7 +13,7 @@
     <string name="pref_summary_mcc_none_set">No hay MCC seleccionado</string>
     <string name="pref_summary_mcc_none_available">No hay MCC disponible</string>
     <!-- Map preferences -->
-    <string name="pref_title_map_layer_church_parents">Padres de iglesia</string>
+    <string name="pref_title_map_layer_church_parents">Relaciones de Padres de iglesia</string>
     <string name="pref_title_map_layer_church_target">Objetivos</string>
     <string name="pref_title_map_layer_church_group">Grupos</string>
     <string name="pref_title_map_layer_church_church">Iglesias</string>

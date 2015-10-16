@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="menu_measurements">قياسات</string>
     <string name="title_activity_measurements">قياسات</string>
+    <string name="title_activity_measurements_personal">قياسات شخصية</string>
+    <string name="title_activity_measurements_local">قياسات خاصة بالكهنوت</string>
     <string name="title_activity_measurement_details">تفاصيل القياسات</string>
+    <string name="menu_measurements">قياسات</string>
+    <string name="menu_measurements_personal">قياسات شخصية</string>
+    <string name="menu_measurements_ministry">قياسات خاصة بالكهنوت</string>
+    <string name="menu_measurements_favorites">قياسات مفضلة</string>
+    <string name="menu_measurements_all">جميع القياسات</string>
+    <string name="menu_measurements_add_favorite">إضافة مفضلة</string>
+    <string name="menu_measurements_remove_favorite">حذف مفضلة</string>
     <!-- Measurements Not Authorized dialog -->
     <string name="title_dialog_measurements_unauthorized">محجوب</string>
     <string name="text_dialog_measurements_unauthorized">لا يسمح لك برؤية القياسات لهذا الكهنوت</string>

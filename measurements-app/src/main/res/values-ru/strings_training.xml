@@ -3,11 +3,19 @@
     <string name="title_dialog_training_create">Создать тренировку</string>
     <string name="title_dialog_training_delete">Удалить тренировку?</string>
     <string name="text_dialog_training_delete_confirm">Вы действительно хотите удалить эту тренировку?</string>
+    <string name="title_dialog_training_completion_delete">Удаление завершенного обучения</string>
+    <string name="text_dialog_training_completion_delete_confirm">Вы действительно хотите удалить это завершенное обучение?</string>
     <!-- Training Dialog tabs-->
+    <string name="tab_training_training">Обучение</string>
+    <string name="tab_training_stages">Этапы</string>
     <!-- Training Details Fragment-->
     <string name="label_training_name">Имя</string>
     <string name="label_training_type">Тип тренировки</string>
     <string name="label_training_date">Дата</string>
     <string name="label_training_participants">Участники</string>
+    <string name="label_training_stage">Этап</string>
+    <string name="label_training_stage_date">Дата</string>
+    <string name="label_training_stage_participants">Участники</string>
+    <string name="btn_training_add_stage">Добавить этап</string>
     <string name="btn_training_create">Создать</string>
 </resources>

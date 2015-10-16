@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="text_login_welcome">እንኳን ወደ GMA በደህና መጡ፣ ለመጀመር መግባትን ይጫኑ።</string>
+    <string name="btn_login">መግባት</string>
+    <string name="menu_logout">መውጣት</string>
+    <string name="title_dialog_logout">መውጣት</string>
+    <string name="text_logout_message">እርግጠኛ ነዎት መውጣት ይፈልጋሉ?</string>
+</resources>

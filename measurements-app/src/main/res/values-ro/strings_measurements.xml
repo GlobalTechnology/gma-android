@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_measurements">Măsurători</string>
+    <string name="title_activity_measurements_personal">Măsurători personale</string>
+    <string name="title_activity_measurements_local">Măsurători misiune</string>
+    <string name="title_activity_measurement_details">Detalii măsurătoare</string>
+    <string name="menu_measurements">Măsurători</string>
+    <string name="menu_measurements_personal">Măsurători personale</string>
+    <string name="menu_measurements_ministry">Măsurători misiune</string>
+    <string name="menu_measurements_favorites">Măsurători preferate</string>
+    <string name="menu_measurements_all">Toate măsurătorile</string>
+    <string name="menu_measurements_add_favorite">Adăugare preferat</string>
+    <string name="menu_measurements_remove_favorite">Eliminare preferat</string>
+    <!-- Measurements Not Authorized dialog -->
+    <string name="title_dialog_measurements_unauthorized">Blocat</string>
+    <string name="text_dialog_measurements_unauthorized">Nu aveți permisiunea să vedeți măsurătorile pentru această misiune</string>
+    <!-- Measurement accordion sections -->
+    <string name="label_measurements_column_faith">Acțiuni de credință</string>
+    <string name="label_measurements_column_fruit">Roade</string>
+    <string name="label_measurements_column_outcomes">Rezultate</string>
+    <string name="label_measurements_column_other">Alta</string>
+    <!-- Measurement details breakdown sections -->
+    <string name="label_measurement_details_breakdown_section_total">Total</string>
+    <string name="label_measurement_details_breakdown_section_local">Echipa locală</string>
+    <string name="label_measurement_details_breakdown_section_team">Membri echipă</string>
+    <string name="label_measurement_details_breakdown_section_subministries">Sub-misiuni/echipe</string>
+    <string name="label_measurement_details_breakdown_section_selfassigned">Membrii auto numiți</string>
+    <string name="label_measurement_details_breakdown_section_split">Măsurători divizate</string>
+</resources>

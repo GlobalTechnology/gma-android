@@ -13,7 +13,7 @@
     <string name="pref_summary_mcc_none_set">Нет выбранных MCC</string>
     <string name="pref_summary_mcc_none_available">Нет доступных MCC</string>
     <!-- Map preferences -->
-    <string name="pref_title_map_layer_church_parents">Отцы церкви</string>
+    <string name="pref_title_map_layer_church_parents">Связи с вышестоящими церквями</string>
     <string name="pref_title_map_layer_church_target">Цели</string>
     <string name="pref_title_map_layer_church_group">Группы</string>
     <string name="pref_title_map_layer_church_church">Церкви</string>

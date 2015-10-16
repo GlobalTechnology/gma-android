@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_settings">การตั้งค่า</string>
+    <string name="title_activity_settings">การตั้งค่า</string>
+    <!-- Strings related to Settings -->
+    <string name="pref_category_active_ministry">พันธกิจปฏิบัติการ</string>
+    <string name="pref_category_map_layer">ชั้นแผนที่</string>
+    <!-- Ministry preference strings -->
+    <string name="pref_title_ministry_team_text">พันธกิจ/ทีม</string>
+    <string name="pref_summary_ministry_none_set">ไม่มีพันธกิจถูกเลือก</string>
+    <string name="pref_summary_ministry_none_available">ไม่พันธกิจว่าง</string>
+    <!-- MCC preference strings -->
+    <string name="pref_summary_mcc_none_set">ไม่มี MCC ถูกเลือก</string>
+    <string name="pref_summary_mcc_none_available">ไม่มี MCCs ว่าง</string>
+    <!-- Map preferences -->
+    <string name="pref_title_map_layer_church_parents">ความสัมพันธ์กับโบสถ์หลัก</string>
+    <string name="pref_title_map_layer_church_target">เป้าหมาย</string>
+    <string name="pref_title_map_layer_church_group">กลุ่ม</string>
+    <string name="pref_title_map_layer_church_church">โบสถ์</string>
+    <string name="pref_title_map_layer_church_multiplying">โบสถ์ทวีคูณ</string>
+    <string name="pref_title_map_layer_training">กิจกรรมฝึกอบรม</string>
+</resources>
