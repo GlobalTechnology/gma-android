@@ -147,7 +147,7 @@ dependencies {
 
     compile 'com.github.machinarius:preferencefragment:0.1.1'
     compile 'com.github.PhilJay:MPAndroidChart:v2.1.0'
-    compile 'com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.6.2'
+    compile 'com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.8.1'
     compile 'com.github.frett.ViewPagerIndicator:library:c954a2a44f'
 
     debugCompile group: 'org.slf4j', name: 'slf4j-android', version: versionSLF4J
