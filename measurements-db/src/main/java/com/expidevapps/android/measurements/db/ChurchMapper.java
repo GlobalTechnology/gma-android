@@ -23,7 +23,7 @@ import com.expidevapps.android.measurements.model.Church.Development;
 import com.expidevapps.android.measurements.model.Church.Security;
 import com.expidevapps.android.measurements.model.Ministry;
 
-public class ChurchMapper extends LocationMapper<Church> {
+class ChurchMapper extends LocationMapper<Church> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
                             @NonNull final Church church) {

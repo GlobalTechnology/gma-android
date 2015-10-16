@@ -34,7 +34,7 @@ public class Contract {
         static final String SQL_WHERE_NOT_DELETED = "(" + COLUMN_DELETED + " IS NULL OR " + COLUMN_DELETED + " != 1)";
     }
 
-    private interface Guid {
+    interface Guid {
         String COLUMN_GUID = "guid";
 
         String SQL_COLUMN_GUID = COLUMN_GUID + " TEXT NOT NULL DEFAULT ''";
@@ -50,7 +50,7 @@ public class Contract {
         String SQL_WHERE_MINISTRY = COLUMN_MINISTRY_ID + " = ?";
     }
 
-    private interface Mcc {
+    interface Mcc {
         String COLUMN_MCC = "mcc";
 
         String SQL_COLUMN_MCC = COLUMN_MCC + " TEXT NOT NULL DEFAULT ''";
@@ -378,7 +378,7 @@ public class Contract {
                         COLUMN_PERM_LINK_STUB + ", 1,7) = 'custom_'";
     }
 
-    private interface Period {
+    interface Period {
         String COLUMN_PERIOD = "period";
         String SQL_COLUMN_PERIOD = COLUMN_PERIOD + " TEXT";
         String SQL_WHERE_PERIOD = COLUMN_PERIOD + " = ?";

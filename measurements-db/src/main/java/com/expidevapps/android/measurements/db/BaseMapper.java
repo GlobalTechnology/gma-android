@@ -1,6 +1,8 @@
 package com.expidevapps.android.measurements.db;
 
 import static com.expidevapps.android.measurements.db.Contract.Base.COLUMN_DELETED;
+import static com.expidevapps.android.measurements.db.Contract.Base.COLUMN_DIRTY;
+import static com.expidevapps.android.measurements.db.Contract.Base.COLUMN_LAST_SYNCED;
 import static com.expidevapps.android.measurements.db.Contract.Base.COLUMN_NEW;
 
 import android.content.ContentValues;
@@ -14,20 +16,20 @@ import org.ccci.gto.android.common.db.AbstractMapper;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonth;
 
-public abstract class BaseMapper<T extends Base> extends AbstractMapper<T> {
+abstract class BaseMapper<T extends Base> extends AbstractMapper<T> {
     @Override
     protected void mapField(@NonNull ContentValues values, @NonNull String field, @NonNull T obj) {
         switch (field) {
             case COLUMN_NEW:
                 values.put(field, obj.isNew());
                 break;
-            case Contract.Base.COLUMN_DIRTY:
+            case COLUMN_DIRTY:
                 values.put(field, obj.getDirty());
                 break;
             case COLUMN_DELETED:
                 values.put(field, obj.isDeleted());
                 break;
-            case Contract.Base.COLUMN_LAST_SYNCED:
+            case COLUMN_LAST_SYNCED:
                 values.put(field, obj.getLastSynced());
                 break;
             default:
@@ -40,10 +42,12 @@ public abstract class BaseMapper<T extends Base> extends AbstractMapper<T> {
     @Override
     public T toObject(@NonNull Cursor c) {
         final T obj = super.toObject(c);
+
         obj.setNew(getBool(c, COLUMN_NEW, false));
-        obj.setDirty(getString(c, Contract.Base.COLUMN_DIRTY, null));
+        obj.setDirty(getString(c, COLUMN_DIRTY, null));
         obj.setDeleted(getBool(c, COLUMN_DELETED, false));
-        obj.setLastSynced(this.getLong(c, Contract.Base.COLUMN_LAST_SYNCED, 0));
+        obj.setLastSynced(getLong(c, COLUMN_LAST_SYNCED, 0));
+
         return obj;
     }
 

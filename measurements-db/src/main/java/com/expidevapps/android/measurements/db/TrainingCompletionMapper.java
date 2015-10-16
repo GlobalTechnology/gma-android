@@ -9,7 +9,7 @@ import com.expidevapps.android.measurements.model.Training.Completion;
 
 import org.joda.time.LocalDate;
 
-public class TrainingCompletionMapper extends BaseMapper<Completion> {
+ class TrainingCompletionMapper extends BaseMapper<Completion> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
                             @NonNull final Completion completion) {

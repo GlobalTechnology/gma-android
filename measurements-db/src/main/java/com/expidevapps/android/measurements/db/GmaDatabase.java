@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import io.fabric.sdk.android.Fabric;
 
-public class GmaDatabase extends WalSQLiteOpenHelper {
+class GmaDatabase extends WalSQLiteOpenHelper {
     private static final Logger LOG = LoggerFactory.getLogger(GmaDatabase.class);
 
     /*

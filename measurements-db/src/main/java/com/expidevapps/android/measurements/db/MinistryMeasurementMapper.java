@@ -1,25 +1,27 @@
 package com.expidevapps.android.measurements.db;
 
+import static com.expidevapps.android.measurements.db.Contract.Mcc.COLUMN_MCC;
+import static com.expidevapps.android.measurements.db.Contract.MeasurementPermLink.COLUMN_PERM_LINK_STUB;
+import static com.expidevapps.android.measurements.db.Contract.MinistryId.COLUMN_MINISTRY_ID;
+import static com.expidevapps.android.measurements.db.Contract.Period.COLUMN_PERIOD;
+import static com.expidevapps.android.measurements.model.MeasurementType.INVALID_PERM_LINK_STUB;
+
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
-import com.expidevapps.android.measurements.model.MeasurementType;
 import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.expidevapps.android.measurements.model.MinistryMeasurement;
 
 import org.joda.time.YearMonth;
 
-public class MinistryMeasurementMapper extends MeasurementValueMapper<MinistryMeasurement> {
+class MinistryMeasurementMapper extends MeasurementValueMapper<MinistryMeasurement> {
     @NonNull
     @Override
     protected MinistryMeasurement newObject(@NonNull final Cursor c) {
-        final String permLink =
-                getNonNullString(c, Contract.MinistryMeasurement.COLUMN_PERM_LINK_STUB, MeasurementType.INVALID_PERM_LINK_STUB);
-        final String ministryId = getNonNullString(c, Contract.MinistryMeasurement.COLUMN_MINISTRY_ID,
-                                                   Ministry.INVALID_ID);
-        final Ministry.Mcc mcc = Ministry.Mcc.fromRaw(getString(c, Contract.MinistryMeasurement.COLUMN_MCC));
-        final YearMonth period = getNonNullYearMonth(c, Contract.MinistryMeasurement.COLUMN_PERIOD,
-                                                     YearMonth.now());
-        return new MinistryMeasurement(ministryId, mcc, permLink, period);
+        return new MinistryMeasurement(getNonNullString(c, COLUMN_MINISTRY_ID, Ministry.INVALID_ID),
+                                       Mcc.fromRaw(getString(c, COLUMN_MCC)),
+                                       getNonNullString(c, COLUMN_PERM_LINK_STUB, INVALID_PERM_LINK_STUB),
+                                       getNonNullYearMonth(c, COLUMN_PERIOD, YearMonth.now()));
     }
 }

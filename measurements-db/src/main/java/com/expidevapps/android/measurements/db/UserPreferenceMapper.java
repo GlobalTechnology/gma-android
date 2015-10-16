@@ -10,7 +10,7 @@ import android.support.annotation.NonNull;
 
 import com.expidevapps.android.measurements.model.UserPreference;
 
-public class UserPreferenceMapper extends BaseMapper<UserPreference> {
+class UserPreferenceMapper extends BaseMapper<UserPreference> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
                             @NonNull final UserPreference pref) {
@@ -40,7 +40,9 @@ public class UserPreferenceMapper extends BaseMapper<UserPreference> {
     @Override
     public UserPreference toObject(@NonNull Cursor c) {
         final UserPreference pref = super.toObject(c);
+
         pref.setValue(getString(c, COLUMN_VALUE, null));
+
         return pref;
     }
 }

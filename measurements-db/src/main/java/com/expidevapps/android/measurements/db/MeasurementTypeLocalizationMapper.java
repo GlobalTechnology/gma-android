@@ -18,7 +18,7 @@ import org.ccci.gto.android.common.util.LocaleCompat;
 
 import java.util.Locale;
 
-public class MeasurementTypeLocalizationMapper extends BaseMapper<MeasurementTypeLocalization> {
+class MeasurementTypeLocalizationMapper extends BaseMapper<MeasurementTypeLocalization> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
                             @NonNull final MeasurementTypeLocalization localization) {

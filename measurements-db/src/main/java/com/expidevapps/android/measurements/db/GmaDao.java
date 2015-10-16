@@ -1,5 +1,7 @@
 package com.expidevapps.android.measurements.db;
 
+import static org.ccci.gto.android.common.db.util.CursorUtils.getLong;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -25,13 +27,11 @@ import org.ccci.gto.android.common.db.AbstractDao;
 import org.ccci.gto.android.common.db.Mapper;
 import org.ccci.gto.android.common.db.Query;
 import org.ccci.gto.android.common.db.Transaction;
-import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.util.ArrayUtils;
 
 import java.util.Collection;
 
-public class GmaDao extends AbstractDao
-{
+public class GmaDao extends AbstractDao {
     private static final Object instanceLock = new Object();
     private static GmaDao instance;
 
@@ -269,7 +269,7 @@ public class GmaDao extends AbstractDao
                 getCursor(Query.select(Contract.LastSync.class).projection(Contract.LastSync.COLUMN_LAST_SYNCED).where(
                         Contract.LastSync.SQL_WHERE_KEY, JOINER_KEY.join(key)));
         if (c.moveToFirst()) {
-            return CursorUtils.getLong(c, Contract.LastSync.COLUMN_LAST_SYNCED, 0);
+            return getLong(c, Contract.LastSync.COLUMN_LAST_SYNCED, 0);
         }
         return 0;
     }

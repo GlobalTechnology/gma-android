@@ -1,5 +1,14 @@
 package com.expidevapps.android.measurements.db;
 
+import static com.expidevapps.android.measurements.db.Contract.Mcc.COLUMN_MCC;
+import static com.expidevapps.android.measurements.db.Contract.MinistryId.COLUMN_MINISTRY_ID;
+import static com.expidevapps.android.measurements.db.Contract.Training.COLUMN_CREATED_BY;
+import static com.expidevapps.android.measurements.db.Contract.Training.COLUMN_DATE;
+import static com.expidevapps.android.measurements.db.Contract.Training.COLUMN_ID;
+import static com.expidevapps.android.measurements.db.Contract.Training.COLUMN_NAME;
+import static com.expidevapps.android.measurements.db.Contract.Training.COLUMN_PARTICIPANTS;
+import static com.expidevapps.android.measurements.db.Contract.Training.COLUMN_TYPE;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
@@ -9,34 +18,34 @@ import com.expidevapps.android.measurements.model.Training;
 
 import org.joda.time.LocalDate;
 
-public class TrainingMapper extends LocationMapper<Training> {
+class TrainingMapper extends LocationMapper<Training> {
     @Override
     protected void mapField(@NonNull final ContentValues values, @NonNull final String field,
                             @NonNull final Training training) {
         switch (field) {
-            case Contract.Training.COLUMN_ID:
+            case COLUMN_ID:
                 values.put(field, training.getId());
                 break;
-            case Contract.Training.COLUMN_MINISTRY_ID:
+            case COLUMN_MINISTRY_ID:
                 values.put(field, training.getMinistryId());
                 break;
-            case Contract.Training.COLUMN_NAME:
+            case COLUMN_NAME:
                 values.put(field, training.getName());
                 break;
-            case Contract.Training.COLUMN_DATE:
+            case COLUMN_DATE:
                 final LocalDate date = training.getDate();
                 values.put(field, date != null ? date.toString() : null);
                 break;
-            case Contract.Training.COLUMN_TYPE:
+            case COLUMN_TYPE:
                 values.put(field, training.getType());
                 break;
-            case Contract.Training.COLUMN_MCC:
+            case COLUMN_MCC:
                 values.put(field, training.getMcc().toString());
                 break;
-            case Contract.Training.COLUMN_PARTICIPANTS:
+            case COLUMN_PARTICIPANTS:
                 values.put(field, training.getParticipants());
                 break;
-            case Contract.Training.COLUMN_CREATED_BY:
+            case COLUMN_CREATED_BY:
                 values.put(field, training.getCreatedBy());
                 break;
             default:
@@ -55,14 +64,16 @@ public class TrainingMapper extends LocationMapper<Training> {
     @Override
     public Training toObject(@NonNull final Cursor c) {
         final Training training = super.toObject(c);
-        training.setId(getLong(c, Contract.Training.COLUMN_ID, Training.INVALID_ID));
-        training.setMinistryId(getNonNullString(c, Contract.Training.COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
-        training.setName(this.getString(c, Contract.Training.COLUMN_NAME, null));
-        training.setDate(getLocalDate(c, Contract.Training.COLUMN_DATE, null));
-        training.setType(this.getString(c, Contract.Training.COLUMN_TYPE, null));
-        training.setMcc(this.getString(c, Contract.Training.COLUMN_MCC, null));
-        training.setParticipants(this.getInt(c, Contract.Training.COLUMN_PARTICIPANTS, 0));
-        training.setCreatedBy(this.getString(c, Contract.Training.COLUMN_CREATED_BY, null));
+
+        training.setId(getLong(c, COLUMN_ID, Training.INVALID_ID));
+        training.setMinistryId(getNonNullString(c, COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
+        training.setName(getString(c, COLUMN_NAME, null));
+        training.setDate(getLocalDate(c, COLUMN_DATE, null));
+        training.setType(getString(c, COLUMN_TYPE, null));
+        training.setMcc(getString(c, COLUMN_MCC, null));
+        training.setParticipants(getInt(c, COLUMN_PARTICIPANTS, 0));
+        training.setCreatedBy(getString(c, COLUMN_CREATED_BY, null));
+
         return training;
     }
 }
