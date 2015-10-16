@@ -28,6 +28,7 @@ subprojects {
                 password gcxMavenRepositoryPassword
             }
         }
+        maven { url 'https://maven.fabric.io/public' }
     }
 
     apply from: "$rootProject.projectDir/maven_publish.gradle"

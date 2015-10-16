@@ -1,13 +1,13 @@
 package com.expidevapps.android.measurements.db;
 
+import static com.expidevapps.android.measurements.db.Contract.Assignment.COLUMN_PERSON_ID;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.expidevapps.android.measurements.model.Assignment;
 import com.expidevapps.android.measurements.model.Ministry;
-
-import static com.expidevapps.android.measurements.db.Contract.Assignment.COLUMN_PERSON_ID;
 
 public class AssignmentMapper extends BaseMapper<Assignment> {
     @Override
