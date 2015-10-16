@@ -3,10 +3,10 @@ apply plugin: 'maven'
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: "https://maven.gcx.org/artifactory/android-release") {
+            repository(url: gcxMavenRepositoryDeploy) {
                 authentication(userName: gcxMavenRepositoryUsername, password: gcxMavenRepositoryPassword)
             }
-            snapshotRepository(url: "https://maven.gcx.org/artifactory/android-snapshot") {
+            snapshotRepository(url: gcxMavenRepositorySnapshotDeploy) {
                 authentication(userName: gcxMavenRepositoryUsername, password: gcxMavenRepositoryPassword)
             }
 
