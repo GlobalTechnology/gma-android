@@ -129,8 +129,9 @@ repositories {
 
 dependencies {
     compile project(':measurements-api')
-    compile 'com.android.support:appcompat-v7:23.0.1'
-    compile 'com.android.support:recyclerview-v7:23.0.1'
+
+    compile group: 'com.android.support', name: 'appcompat-v7', version: versionAndroidSupport
+    compile group: 'com.android.support', name: 'recyclerview-v7', version: versionAndroidSupport
     compile group: 'com.google.android.gms', name: 'play-services-analytics', version: versionPlayServices
     compile group: 'com.google.android.gms', name: 'play-services-maps', version: versionPlayServices
     compile 'com.google.maps.android:android-maps-utils:0.3.4'
@@ -142,8 +143,8 @@ dependencies {
 
     compile group: 'me.thekey.android', name: 'thekey-lib-accountmanager', version: versionTheKey
 
-    compile 'org.ccci.gto.android:gto-support-db:0.7.1-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-recyclerview:0.7.1-SNAPSHOT'
+    compile group: 'org.ccci.gto.android', name: 'gto-support-db', version: versionGtoAndroidSupport
+    compile group: 'org.ccci.gto.android', name: 'gto-support-recyclerview', version: versionGtoAndroidSupport
 
     compile 'com.github.machinarius:preferencefragment:0.1.1'
     compile 'com.github.PhilJay:MPAndroidChart:v2.1.0'
