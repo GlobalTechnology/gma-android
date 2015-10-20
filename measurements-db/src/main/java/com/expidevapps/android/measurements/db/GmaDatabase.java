@@ -103,7 +103,8 @@ class GmaDatabase extends WalSQLiteOpenHelper {
 
             db.execSQL(Contract.Ministry.SQL_CREATE_TABLE);
             db.execSQL(Contract.Assignment.SQL_CREATE_TABLE);
-            createTrainingTables(db);
+            db.execSQL(Contract.Training.SQL_CREATE_TABLE);
+            db.execSQL(Contract.Training.Completion.SQL_CREATE_TABLE);
             db.execSQL(Contract.Church.SQL_CREATE_TABLE);
             db.execSQL(Contract.MeasurementType.SQL_CREATE_TABLE);
             db.execSQL(Contract.MeasurementTypeLocalization.SQL_CREATE_TABLE);
@@ -317,12 +318,6 @@ class GmaDatabase extends WalSQLiteOpenHelper {
         } finally {
             db.endTransaction();
         }
-    }
-
-    private void createTrainingTables(SQLiteDatabase db)
-    {
-        db.execSQL(Contract.Training.SQL_CREATE_TABLE);
-        db.execSQL(Contract.Training.Completion.SQL_CREATE_TABLE);
     }
 
     private void deleteAllTables(SQLiteDatabase db)
