@@ -21,6 +21,8 @@ android {
 dependencies {
     compile project(':measurements-model')
 
+    compile group: 'com.crashlytics.sdk.android', name: 'crashlytics', version: versionCrashlytics
+
     compile group: 'me.thekey.android', name: 'thekey-lib', version: versionTheKey
 
     compile group: 'org.ccci.gto.android', name: 'gto-support-api', version: versionGtoAndroidSupport

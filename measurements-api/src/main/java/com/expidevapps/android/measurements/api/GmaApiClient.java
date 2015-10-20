@@ -8,6 +8,7 @@ import android.support.annotation.WorkerThread;
 import android.support.v4.util.SimpleArrayMap;
 import android.text.TextUtils;
 
+import com.crashlytics.android.Crashlytics;
 import com.expidevapps.android.measurements.api.GmaApiClient.Request;
 import com.expidevapps.android.measurements.api.GmaApiClient.Session;
 import com.expidevapps.android.measurements.model.Assignment;
@@ -51,6 +52,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import io.fabric.sdk.android.Fabric;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.TheKeyImpl;
 
@@ -169,6 +171,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
         } catch (final TheKeySocketException | IOException e) {
             throw new ApiSocketException(e);
         } catch (final JSONException e) {
+            reportJSONException(request, e);
             LOG.debug("invalid json for getToken", e);
         } finally {
             IOUtils.closeQuietly(conn);
@@ -228,6 +231,16 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
         return param(name, value.raw);
     }
 
+    private void reportJSONException(@NonNull final Request request, @NonNull final JSONException e) {
+        // log JSON exception in Crashlytics
+        if (Fabric.isInitialized() && Crashlytics.getInstance() != null) {
+            if (request.context != null && request.context.url != null) {
+                Crashlytics.setString("url", request.context.url.toString());
+            }
+            Crashlytics.logException(e);
+        }
+    }
+
     /* API methods */
 
     @NonNull
@@ -267,6 +280,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                 return Ministry.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
+            reportJSONException(request, e);
             LOG.error("error parsing getMinistries response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
@@ -303,6 +317,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                 return Church.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
+            reportJSONException(request, e);
             LOG.error("error parsing getChurches response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
@@ -335,6 +350,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                 return Church.fromJson(new JSONObject(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
+            reportJSONException(request, e);
             LOG.error("error parsing createChurch response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
@@ -402,6 +418,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                         .listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())), ministryId);
             }
         } catch (final JSONException e) {
+            reportJSONException(request, e);
             LOG.error("error parsing getMeasurementTypes response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
@@ -447,6 +464,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                         new JSONArray(IOUtils.readString(conn.getInputStream())), guid, ministryId, mcc, period);
             }
         } catch (final JSONException e) {
+            reportJSONException(request, e);
             LOG.error("error parsing getMeasurements response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
@@ -488,6 +506,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                 }
             }
         } catch (final JSONException e) {
+            reportJSONException(request, e);
             LOG.error("error parsing getMeasurementDetails JSON response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
@@ -538,6 +557,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
 
     /* END measurement methods */
 
+    /* BEGIN Assignment endpoints */
+
     @Nullable
     public List<Assignment> getAssignments() throws ApiException {
         return this.getAssignments(false);
@@ -563,6 +584,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                                       request.context.session != null ? request.context.session.mPersonId : null);
             }
         } catch (final JSONException e) {
+            reportJSONException(request, e);
             LOG.error("error parsing getAllMinistries response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
@@ -606,6 +628,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
         } catch (final IOException e) {
             throw new ApiSocketException(e);
         } catch (final JSONException e) {
+            reportJSONException(request, e);
             LOG.error("invalid response json for createAssignment", e);
         } finally {
             IOUtils.closeQuietly(conn);
@@ -613,6 +636,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
 
         return null;
     }
+
+    /* END Assignment endpoints */
 
     /* BEGIN Training endpoints */
 
@@ -647,6 +672,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                 return Training.listFromJson(new JSONArray(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
+            reportJSONException(request, e);
             LOG.error("error parsing getTrainings response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
@@ -679,6 +705,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                 return Training.fromJson(new JSONObject(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
+            reportJSONException(request, e);
             LOG.error("error parsing createTraining response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
@@ -752,6 +779,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                 return Completion.fromJson(trainingId, new JSONObject(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
+            reportJSONException(request, e);
             LOG.error("error parsing createTraining response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
@@ -799,6 +827,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                 return Completion.fromJson(trainingId, new JSONObject(IOUtils.readString(conn.getInputStream())));
             }
         } catch (final JSONException e) {
+            reportJSONException(request, e);
             LOG.error("error parsing createTraining response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
