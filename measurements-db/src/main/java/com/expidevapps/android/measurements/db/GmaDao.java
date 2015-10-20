@@ -32,9 +32,6 @@ import org.ccci.gto.android.common.util.ArrayUtils;
 import java.util.Collection;
 
 public class GmaDao extends AbstractDao {
-    private static final Object instanceLock = new Object();
-    private static GmaDao instance;
-
     private static final Mapper<Assignment> ASSIGNMENT_MAPPER = new AssignmentMapper();
     private static final Mapper<Ministry> MINISTRY_MAPPER = new MinistryMapper();
     private static final Mapper<MeasurementType> MEASUREMENT_TYPE_MAPPER = new MeasurementTypeMapper();
@@ -48,22 +45,22 @@ public class GmaDao extends AbstractDao {
     private static final Mapper<Training.Completion> TRAINING_COMPLETION_MAPPER = new TrainingCompletionMapper();
     private static final Mapper<UserPreference> PREFERENCE_MAPPER = new UserPreferenceMapper();
 
-    private GmaDao(final Context context)
-    {
+    private static final Object LOCK_INSTANCE = new Object();
+    private static GmaDao INSTANCE;
+
+    private GmaDao(@NonNull final Context context) {
         super(GmaDatabase.getInstance(context));
     }
 
-    public static GmaDao getInstance(Context context)
-    {
-        synchronized(instanceLock)
-        {
-            if(instance == null)
-            {
-                instance = new GmaDao(context.getApplicationContext());
+    @NonNull
+    public static GmaDao getInstance(@NonNull final Context context) {
+        synchronized (LOCK_INSTANCE) {
+            if (INSTANCE == null) {
+                INSTANCE = new GmaDao(context.getApplicationContext());
             }
         }
 
-        return instance;
+        return INSTANCE;
     }
 
     @NonNull
