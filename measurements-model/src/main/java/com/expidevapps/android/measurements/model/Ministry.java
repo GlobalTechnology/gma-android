@@ -28,7 +28,6 @@ public class Ministry extends Location {
     private static final String JSON_MCC_GCM = "gcm";
     public static final String JSON_LMI_SHOW = "lmi_show";
     public static final String JSON_LMI_HIDE = "lmi_hide";
-    public static final String JSON_LOCATION = "location";
     public static final String JSON_LOCATION_ZOOM = "location_zoom";
 
     public enum Mcc {

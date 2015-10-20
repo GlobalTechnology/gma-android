@@ -33,6 +33,9 @@ public abstract class Base {
         this.lastSynced = base.lastSynced;
     }
 
+    void populateFromJson(@NonNull final JSONObject json) throws JSONException {
+    }
+
     public final void setNew(final boolean state) {
         mNew = state;
     }

@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public abstract class Location extends Base {
+    public static final String JSON_LOCATION = "location";
     public static final String JSON_LATITUDE = "latitude";
     public static final String JSON_LONGITUDE = "longitude";
 
@@ -20,6 +21,22 @@ public abstract class Location extends Base {
         super(location);
         this.latitude = location.latitude;
         this.longitude = location.longitude;
+    }
+
+    @Override
+    void populateFromJson(@NonNull final JSONObject json) throws JSONException {
+        super.populateFromJson(json);
+
+        // parse the latitude & longitude
+        final JSONObject location = json.optJSONObject(JSON_LOCATION);
+        if (location != null) {
+            // ministries and stories nest latitude and longitude in location node
+            latitude = location.optDouble(JSON_LATITUDE, latitude);
+            longitude = location.optDouble(JSON_LONGITUDE, longitude);
+        }
+        // default to latitude and longitude at the root level
+        latitude = json.optDouble(JSON_LATITUDE, latitude);
+        longitude = json.optDouble(JSON_LONGITUDE, longitude);
     }
 
     public boolean canEdit(@Nullable final Assignment assignment) {
