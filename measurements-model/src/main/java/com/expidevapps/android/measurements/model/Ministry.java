@@ -35,26 +35,38 @@ public class Ministry extends Location implements Serializable {
         UNKNOWN(""), SLM(JSON_MCC_SLM), LLM(JSON_MCC_LLM), DS(JSON_MCC_DS), GCM(JSON_MCC_GCM);
 
         @NonNull
+        public final String mJson;
+        @NonNull
+        @Deprecated
         public final String raw;
 
-        Mcc(@NonNull final String raw) {
-            this.raw = raw;
+        Mcc(@NonNull final String json) {
+            mJson = json;
+            this.raw = json;
         }
 
         @NonNull
+        @Deprecated
         public static Mcc fromRaw(@Nullable final String raw) {
-            switch (raw != null ? raw.toLowerCase(Locale.US) : "") {
-                case JSON_MCC_SLM:
-                    return SLM;
-                case JSON_MCC_LLM:
-                    return LLM;
-                case JSON_MCC_DS:
-                    return DS;
-                case JSON_MCC_GCM:
-                    return GCM;
-                default:
-                    return UNKNOWN;
+            return fromJson(raw);
+        }
+
+        @NonNull
+        public static Mcc fromJson(@Nullable final String json) {
+            if (json != null) {
+                switch (json.toLowerCase(Locale.US)) {
+                    case JSON_MCC_SLM:
+                        return SLM;
+                    case JSON_MCC_LLM:
+                        return LLM;
+                    case JSON_MCC_DS:
+                        return DS;
+                    case JSON_MCC_GCM:
+                        return GCM;
+                }
             }
+
+            return UNKNOWN;
         }
     }
 

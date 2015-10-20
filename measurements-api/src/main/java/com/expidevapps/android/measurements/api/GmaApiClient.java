@@ -228,7 +228,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
                 throw new AssertionError("param(name, Mcc.UNKNOWN) is invalid");
             }
         }
-        return param(name, value.raw);
+        return param(name, value.mJson);
     }
 
     private void reportJSONException(@NonNull final Request request, @NonNull final JSONException e) {
