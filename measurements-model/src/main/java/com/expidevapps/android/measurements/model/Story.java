@@ -37,10 +37,10 @@ public class Story extends Location {
     public enum Privacy {
         PUBLIC(JSON_PRIVACY_PUBLIC), TEAM(JSON_PRIVACY_TEAM);
 
-        private static final Privacy DEFAULT = PUBLIC;
+        public static final Privacy DEFAULT = PUBLIC;
 
         @NonNull
-        private final String mJson;
+        public final String mJson;
 
         Privacy(@NonNull final String json) {
             mJson = json;
@@ -66,7 +66,7 @@ public class Story extends Location {
         public static final State DEFAULT = DRAFT;
 
         @Nullable
-        private final String mJson;
+        public final String mJson;
 
         State(@Nullable final String json) {
             mJson = json;

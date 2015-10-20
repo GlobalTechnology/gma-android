@@ -19,6 +19,7 @@ import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.expidevapps.android.measurements.model.MinistryMeasurement;
 import com.expidevapps.android.measurements.model.PersonalMeasurement;
+import com.expidevapps.android.measurements.model.Story;
 import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.model.UserPreference;
 import com.google.common.base.Joiner;
@@ -43,6 +44,7 @@ public class GmaDao extends AbstractDao {
     private static final Mapper<Church> CHURCH_MAPPER = new ChurchMapper();
     private static final Mapper<Training> TRAINING_MAPPER = new TrainingMapper();
     private static final Mapper<Training.Completion> TRAINING_COMPLETION_MAPPER = new TrainingCompletionMapper();
+    private static final Mapper<Story> STORY_MAPPER = new StoryMapper();
     private static final Mapper<UserPreference> PREFERENCE_MAPPER = new UserPreferenceMapper();
 
     private static final Object LOCK_INSTANCE = new Object();
@@ -91,6 +93,8 @@ public class GmaDao extends AbstractDao {
             return Contract.Training.TABLE_NAME;
         } else if (Training.Completion.class.equals(clazz)) {
             return Contract.Training.Completion.TABLE_NAME;
+        } else if (Story.class.equals(clazz)) {
+            return Contract.Story.TABLE_NAME;
         } else if (Contract.LastSync.class.equals(clazz)) {
             return Contract.LastSync.TABLE_NAME;
         } else if (UserPreference.class.equals(clazz)) {
@@ -123,6 +127,8 @@ public class GmaDao extends AbstractDao {
             return Contract.Training.PROJECTION_ALL;
         } else if (Training.Completion.class.equals(clazz)) {
             return Contract.Training.Completion.PROJECTION_ALL;
+        } else if (Story.class.equals(clazz)) {
+            return Contract.Story.PROJECTION_ALL;
         } else if (UserPreference.class.equals(clazz)) {
             return Contract.UserPreference.PROJECTION_ALL;
         }
@@ -155,6 +161,8 @@ public class GmaDao extends AbstractDao {
             return (Mapper<T>) TRAINING_MAPPER;
         } else if (Training.Completion.class.equals(clazz)) {
             return (Mapper<T>) TRAINING_COMPLETION_MAPPER;
+        } else if (Story.class.equals(clazz)) {
+            return (Mapper<T>) STORY_MAPPER;
         } else if (UserPreference.class.equals(clazz)) {
             return (Mapper<T>) PREFERENCE_MAPPER;
         }
@@ -199,6 +207,9 @@ public class GmaDao extends AbstractDao {
         } else if (MeasurementDetails.class.equals(clazz)) {
             keyLength = 5;
             where = Contract.MeasurementDetails.SQL_WHERE_PRIMARY_KEY;
+        } else if (Story.class.equals(clazz)) {
+            keyLength = 1;
+            where = Contract.Story.SQL_WHERE_PRIMARY_KEY;
         } else if (UserPreference.class.equals(clazz)) {
             keyLength = 2;
             where = Contract.UserPreference.SQL_WHERE_PRIMARY_KEY;
@@ -251,6 +262,8 @@ public class GmaDao extends AbstractDao {
             return getPrimaryKeyWhere(Training.class, ((Training) obj).getId());
         } else if (obj instanceof Training.Completion) {
             return getPrimaryKeyWhere(Training.Completion.class, ((Training.Completion) obj).getId());
+        } else if (obj instanceof Story) {
+            return getPrimaryKeyWhere(Story.class, ((Story) obj).getId());
         } else if (obj instanceof UserPreference) {
             final UserPreference pref = (UserPreference) obj;
             return getPrimaryKeyWhere(UserPreference.class, pref.getGuid(), pref.getName());

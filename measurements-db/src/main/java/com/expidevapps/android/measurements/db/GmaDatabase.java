@@ -70,9 +70,11 @@ class GmaDatabase extends WalSQLiteOpenHelper {
      * 51: 2015-09-30
      * 52: 2015-10-06
      * 53: 2015-10-14
+     * v1.0.0
+     * 54: 2015-10-20
      */
     private static final String DATABASE_NAME = "gcm_data.db";
-    private static final int DATABASE_VERSION = 53;
+    private static final int DATABASE_VERSION = 54;
 
     private static final Object LOCK_INSTANCE = new Object();
     private static GmaDatabase INSTANCE;
@@ -113,6 +115,7 @@ class GmaDatabase extends WalSQLiteOpenHelper {
             db.execSQL(Contract.MeasurementDetails.SQL_CREATE_TABLE);
             db.execSQL(Contract.MeasurementVisibility.SQL_CREATE_TABLE);
             db.execSQL(Contract.FavoriteMeasurement.SQL_CREATE_TABLE);
+            db.execSQL(Contract.Story.SQL_CREATE_TABLE);
             db.execSQL(Contract.UserPreference.SQL_CREATE_TABLE);
             db.execSQL(Contract.LastSync.SQL_CREATE_TABLE);
 
@@ -256,6 +259,9 @@ class GmaDatabase extends WalSQLiteOpenHelper {
                         db.execSQL(Contract.MeasurementDetails.SQL_V53_ALTER_SOURCE);
                         db.execSQL(Contract.MeasurementDetails.SQL_V53_UPDATE_SOURCE);
                         break;
+                    case 54:
+                        db.execSQL(Contract.Story.SQL_V54_CREATE_TABLE);
+                        break;
                     default:
                         // unrecognized version
                         throw new SQLiteException("Unrecognized database version");
@@ -299,6 +305,7 @@ class GmaDatabase extends WalSQLiteOpenHelper {
             db.execSQL(Contract.MinistryMeasurement.SQL_DELETE_TABLE);
             db.execSQL(Contract.PersonalMeasurement.SQL_DELETE_TABLE);
             db.execSQL(Contract.MeasurementDetails.SQL_DELETE_TABLE);
+            db.execSQL(Contract.Story.SQL_DELETE_TABLE);
             deleteAllTables(db);
 
             // delete any orphaned legacy tables

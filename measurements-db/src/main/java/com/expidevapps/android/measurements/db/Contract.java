@@ -337,6 +337,50 @@ public class Contract {
                 " " + SQL_COLUMN_JESUS_FILM_ACTIVITY;
     }
 
+    public static final class Story extends Base implements MinistryId, Mcc, Location {
+        private static final Table<com.expidevapps.android.measurements.model.Story> TABLE =
+                Table.forClass(com.expidevapps.android.measurements.model.Story.class);
+        static final String TABLE_NAME = "stories";
+
+        static final String COLUMN_ID = _ID;
+        static final String COLUMN_TITLE = "title";
+        static final String COLUMN_CONTENT = "content";
+        static final String COLUMN_PRIVACY = "privacy";
+        static final String COLUMN_STATE = "state";
+        static final String COLUMN_CREATED = "created";
+        static final String COLUMN_CREATED_BY = "createdBy";
+
+        static final String[] PROJECTION_ALL =
+                {COLUMN_ID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_TITLE, COLUMN_CONTENT, COLUMN_LATITUDE,
+                        COLUMN_LONGITUDE, COLUMN_PRIVACY, COLUMN_STATE, COLUMN_CREATED, COLUMN_CREATED_BY, COLUMN_NEW,
+                        COLUMN_DIRTY};
+
+        private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
+        private static final String SQL_COLUMN_TITLE = COLUMN_TITLE + " TEXT";
+        private static final String SQL_COLUMN_CONTENT = COLUMN_CONTENT + " TEXT";
+        private static final String SQL_COLUMN_PRIVACY = COLUMN_PRIVACY + " TEXT";
+        private static final String SQL_COLUMN_STATE = COLUMN_STATE + " TEXT";
+        private static final String SQL_COLUMN_CREATED = COLUMN_CREATED + " TEXT";
+        private static final String SQL_COLUMN_CREATED_BY = COLUMN_CREATED_BY + " TEXT";
+        private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
+
+        static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
+
+        static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
+                .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_MCC, SQL_COLUMN_TITLE,
+                        SQL_COLUMN_CONTENT, SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE, SQL_COLUMN_PRIVACY,
+                        SQL_COLUMN_STATE, SQL_COLUMN_CREATED, SQL_COLUMN_CREATED_BY, SQL_COLUMN_NEW, SQL_COLUMN_DIRTY,
+                        SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
+        static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+
+        @Deprecated
+        static final String SQL_V54_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
+                .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_MCC, SQL_COLUMN_TITLE,
+                        SQL_COLUMN_CONTENT, SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE, SQL_COLUMN_PRIVACY,
+                        SQL_COLUMN_STATE, SQL_COLUMN_CREATED, SQL_COLUMN_CREATED_BY, SQL_COLUMN_NEW, SQL_COLUMN_DIRTY,
+                        SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
+    }
+
     public static final class UserPreference extends Base implements Guid {
         public static final String TABLE_NAME = "userPreferences";
 
