@@ -8,13 +8,12 @@
         app:showAsAction="never"/>
     <item android:id="@+id/action_supported_staff"
         android:title="@string/menu_profile_supported_staff"
-        android:orderInCategory="1"
+        android:orderInCategory="2"
         app:showAsAction="never"/>
     <item android:id="@+id/action_measurements"
         android:title="@string/menu_measurements"
-          android:orderInCategory="2"
-          app:showAsAction="never"
-          android:onClick="goToMeasurements" />
+        android:orderInCategory="3"
+        app:showAsAction="never"/>
     <item android:id="@+id/action_settings" android:title="@string/menu_settings"
         android:orderInCategory="100" app:showAsAction="never" />
     <item

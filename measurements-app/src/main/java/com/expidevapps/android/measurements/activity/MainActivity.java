@@ -133,6 +133,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_supported_staff:
                 setSupportedStaff();
                 return true;
+            case R.id.action_measurements:
+                showMeasurements();
+                return true;
             case R.id.action_settings:
                 if (mGuid != null) {
                     SettingsActivity.start(this, mGuid);
@@ -271,8 +274,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void goToMeasurements(MenuItem menuItem)
-    {
+    private void showMeasurements() {
         if (mAssignment != null && !mAssignment.getMinistryId().equals(Ministry.INVALID_ID) &&
                 mAssignment.getMcc() != Mcc.UNKNOWN) {
             if (mAssignment.can(UPDATE_PERSONAL_MEASUREMENTS) || mAssignment.can(UPDATE_MINISTRY_MEASUREMENTS)) {
@@ -280,22 +282,20 @@ public class MainActivity extends AppCompatActivity {
                         .start(this, mAssignment.getGuid(), mAssignment.getMinistryId(), mAssignment.getMcc(),
                                mAssignment.can(UPDATE_PERSONAL_MEASUREMENTS) ? TYPE_PERSONAL : TYPE_LOCAL);
             } else {
-                AlertDialog alertDialog = new AlertDialog.Builder(this)
+                new AlertDialog.Builder(this)
                         .setTitle(getString(R.string.title_dialog_measurements_unauthorized))
                         .setMessage(getString(R.string.text_dialog_measurements_unauthorized))
-                        .setNeutralButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+                        .setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
                             }
                         })
-                        .create();
-
-                alertDialog.show();
+                        .create().show();
             }
         }
     }
 
-    public void logout() {
+    private void logout() {
         if (mGuid != null) {
             new AlertDialog.Builder(this).setTitle(R.string.title_dialog_logout).setMessage(
                     R.string.text_logout_message).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
