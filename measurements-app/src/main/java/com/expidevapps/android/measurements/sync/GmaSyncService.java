@@ -4,8 +4,6 @@ import static com.expidevapps.android.measurements.BuildConfig.ACCOUNT_TYPE;
 import static com.expidevapps.android.measurements.BuildConfig.SYNC_AUTHORITY;
 import static com.expidevapps.android.measurements.Constants.EXTRA_GUID;
 import static com.expidevapps.android.measurements.Constants.EXTRA_PERIOD;
-import static com.expidevapps.android.measurements.sync.AssignmentSyncTasks.EXTRA_ASSIGNMENTS;
-import static com.expidevapps.android.measurements.sync.AssignmentSyncTasks.EXTRA_PERSON_ID;
 import static com.expidevapps.android.measurements.sync.BaseSyncTasks.baseExtras;
 import static com.expidevapps.android.measurements.sync.BaseSyncTasks.measurementExtras;
 import static com.expidevapps.android.measurements.sync.BaseSyncTasks.ministryExtras;
@@ -23,10 +21,7 @@ import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MINISTRIES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_NONE;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_PREFERENCES;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_SAVE_ASSIGNMENTS;
-import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_SAVE_PREFERENCES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_TRAININGS;
-import static com.expidevapps.android.measurements.sync.UserPreferenceSyncTasks.EXTRA_PREFERENCES;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
@@ -42,8 +37,6 @@ import com.expidevapps.android.measurements.model.Ministry.Mcc;
 
 import org.ccci.gto.android.common.app.ThreadedIntentService;
 import org.joda.time.YearMonth;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import me.thekey.android.lib.accounts.AccountUtils;
 
@@ -70,15 +63,6 @@ public class GmaSyncService extends ThreadedIntentService {
         context.startService(intent);
     }
 
-    public static void savePreferences(@NonNull final Context context, @NonNull final String guid,
-                                       @Nullable final JSONObject preferences) {
-        final Intent intent = new Intent(context, GmaSyncService.class);
-        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_SAVE_PREFERENCES);
-        intent.putExtras(baseExtras(guid, false));
-        intent.putExtra(EXTRA_PREFERENCES, preferences != null ? preferences.toString() : null);
-        context.startService(intent);
-    }
-
     public static void syncDirtyPreferences(@NonNull final Context context, @NonNull final String guid) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_DIRTY_PREFERENCES);
@@ -91,16 +75,6 @@ public class GmaSyncService extends ThreadedIntentService {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_ASSIGNMENTS);
         intent.putExtras(baseExtras(guid, force));
-        context.startService(intent);
-    }
-
-    public static void saveAssignments(@NonNull final Context context, @NonNull final String guid,
-                                       @Nullable final String personId, @Nullable final JSONArray assignments) {
-        final Intent intent = new Intent(context, GmaSyncService.class);
-        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_SAVE_ASSIGNMENTS);
-        intent.putExtras(baseExtras(guid, false));
-        intent.putExtra(EXTRA_PERSON_ID, personId);
-        intent.putExtra(EXTRA_ASSIGNMENTS, assignments != null ? assignments.toString() : null);
         context.startService(intent);
     }
 

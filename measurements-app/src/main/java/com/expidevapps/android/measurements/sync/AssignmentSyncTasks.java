@@ -3,7 +3,6 @@ package com.expidevapps.android.measurements.sync;
 import static org.ccci.gto.android.common.db.AbstractDao.bindValues;
 
 import android.content.Context;
-import android.content.SyncResult;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,8 +16,6 @@ import com.expidevapps.android.measurements.model.Ministry;
 
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.db.Transaction;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +27,6 @@ import java.util.Map;
 
 class AssignmentSyncTasks extends BaseSyncTasks {
     private static final Logger LOG = LoggerFactory.getLogger(AssignmentSyncTasks.class);
-
-    static final String EXTRA_ASSIGNMENTS = AssignmentSyncTasks.class.getName() + ".EXTRA_ASSIGNMENTS";
-    static final String EXTRA_PERSON_ID = AssignmentSyncTasks.class.getName() + ".EXTRA_PERSON_ID";
 
     private static final String SYNC_TIME_ASSIGNMENTS = "last_synced.assignments";
 
@@ -52,19 +46,6 @@ class AssignmentSyncTasks extends BaseSyncTasks {
         final GmaApiClient api = getApi(context, guid);
         final List<Assignment> assignments = api.getAssignments();
         return assignments != null && AssignmentSyncTasks.updateAllAssignments(context, guid, assignments);
-    }
-
-    static void saveAssignments(@NonNull final Context context, @NonNull final String guid,
-                                @NonNull final Bundle args, @NonNull final SyncResult result) {
-        final String raw = args.getString(EXTRA_ASSIGNMENTS);
-        final String personId = args.getString(EXTRA_PERSON_ID);
-        if (raw != null) {
-            try {
-                updateAllAssignments(context, guid, Assignment.listFromJson(new JSONArray(raw), guid, personId));
-            } catch (final JSONException e) {
-                result.stats.numParseExceptions++;
-            }
-        }
     }
 
     private static boolean updateAllAssignments(@NonNull final Context context, @NonNull final String guid,

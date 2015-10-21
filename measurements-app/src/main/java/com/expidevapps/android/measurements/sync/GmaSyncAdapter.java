@@ -34,7 +34,6 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
     static final int SYNCTYPE_ALL = 1;
     static final int SYNCTYPE_MINISTRIES = 2;
     static final int SYNCTYPE_ASSIGNMENTS = 3;
-    static final int SYNCTYPE_SAVE_ASSIGNMENTS = 4;
     static final int SYNCTYPE_CHURCHES = 5;
     static final int SYNCTYPE_DIRTY_CHURCHES = 6;
     static final int SYNCTYPE_MEASUREMENT_TYPES = 7;
@@ -44,7 +43,6 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
     static final int SYNCTYPE_TRAININGS = 11;
     static final int SYNCTYPE_DIRTY_TRAININGS = 12;
     static final int SYNCTYPE_DIRTY_TRAINING_COMPLETIONS = 13;
-    static final int SYNCTYPE_SAVE_PREFERENCES = 14;
     static final int SYNCTYPE_PREFERENCES = 15;
     static final int SYNCTYPE_DIRTY_PREFERENCES = 16;
 
@@ -95,9 +93,6 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                 case SYNCTYPE_ASSIGNMENTS:
                     AssignmentSyncTasks.syncAssignments(mContext, guid, extras);
                     break;
-                case SYNCTYPE_SAVE_ASSIGNMENTS:
-                    AssignmentSyncTasks.saveAssignments(mContext, guid, extras, result);
-                    break;
                 case SYNCTYPE_CHURCHES:
                     ChurchSyncTasks.syncChurches(mContext, guid, extras);
                     break;
@@ -127,9 +122,6 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                     break;
                 case SYNCTYPE_PREFERENCES:
                     UserPreferenceSyncTasks.syncPreferences(mContext, guid, extras, result);
-                    break;
-                case SYNCTYPE_SAVE_PREFERENCES:
-                    UserPreferenceSyncTasks.savePreferences(mContext, guid, extras, result);
                     break;
                 case SYNCTYPE_DIRTY_PREFERENCES:
                     UserPreferenceSyncTasks.syncDirtyPreferences(mContext, guid, extras, result);

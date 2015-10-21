@@ -18,7 +18,6 @@ import com.expidevapps.android.measurements.model.UserPreference;
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.db.Transaction;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,23 +30,9 @@ import java.util.Map;
 public class UserPreferenceSyncTasks extends BaseSyncTasks {
     private static final Logger LOG = LoggerFactory.getLogger(UserPreferenceSyncTasks.class);
 
-    static final String EXTRA_PREFERENCES = UserPreferenceSyncTasks.class.getName() + ".EXTRA_PREFERENCES";
-
     private static final String SYNC_TIME_PREFERENCES = "last_synced.preferences";
 
     private static final long STALE_DURATION_PREFERENCES = DAY_IN_MS;
-
-    static void savePreferences(@NonNull final Context context, @NonNull final String guid, @NonNull final Bundle args,
-                                @NonNull final SyncResult result) {
-        final String raw = args.getString(EXTRA_PREFERENCES);
-        if (raw != null) {
-            try {
-                updateAllPreferences(context, guid, UserPreference.mapFromJson(new JSONObject(raw), guid));
-            } catch (final JSONException e) {
-                result.stats.numParseExceptions++;
-            }
-        }
-    }
 
     static boolean syncPreferences(@NonNull final Context context, @NonNull final String guid,
                                    @NonNull final Bundle args, @NonNull final SyncResult result) throws ApiException {
