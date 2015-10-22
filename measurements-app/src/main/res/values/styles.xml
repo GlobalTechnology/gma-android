@@ -21,11 +21,7 @@
 
     <style name="TextAppearance.GMA.Large" parent="TextAppearance.AppCompat.Large"/>
 
-    <style name="Widget.GMA.Button" parent="android:Widget.ImageButton">
-        <!--<item name="android:background">@drawable/btn_default</item>-->
-      <!--  <item name="android:layout_height">72dp</item>-->
-        <item name="android:background">?android:attr/selectableItemBackground</item>
-
-
+    <style name="Widget.GMA.Button" parent="android:Widget.Button">
+        <item name="android:background">?attr/selectableItemBackground</item>
     </style>
 </resources>
