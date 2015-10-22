@@ -53,6 +53,11 @@
 -dontwarn com.google.android.gms.**
 
 
+# Google Support Library
+# workaround for: https://code.google.com/p/android/issues/detail?id=170471
+-keep class android.support.v7.widget.SearchView { *; }
+
+
 # newrelic settings
 -keep class com.newrelic.** { *; }
 -dontwarn com.newrelic.**
