@@ -150,6 +150,29 @@ public class Story extends Location {
         mCreatedBy = json.optString(JSON_CREATED_BY, null);
     }
 
+    @NonNull
+    @Override
+    public JSONObject toJson() throws JSONException {
+        final JSONObject json = super.toJson();
+
+        json.put(JSON_MINISTRY_ID, mMinistryId);
+        json.put(JSON_MCC, mMcc.mJson);
+        json.put(JSON_TITLE, mTitle);
+        json.put(JSON_CONTENT, mContent);
+        json.put(JSON_PRIVACY, mPrivacy.mJson);
+        json.put(JSON_STATE, mState.mJson);
+
+        // move latitude & longitude to location node
+        if (json.has(JSON_LATITUDE) || json.has(JSON_LONGITUDE)) {
+            final JSONObject location = new JSONObject();
+            location.putOpt(JSON_LATITUDE, json.remove(JSON_LATITUDE));
+            location.putOpt(JSON_LONGITUDE, json.remove(JSON_LONGITUDE));
+            json.put(JSON_LOCATION, location);
+        }
+
+        return json;
+    }
+
     public long getId() {
         return mId;
     }

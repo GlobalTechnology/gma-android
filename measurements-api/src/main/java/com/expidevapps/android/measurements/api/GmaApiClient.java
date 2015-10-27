@@ -19,6 +19,8 @@ import com.expidevapps.android.measurements.model.MeasurementType;
 import com.expidevapps.android.measurements.model.MeasurementValue;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Ministry.Mcc;
+import com.expidevapps.android.measurements.model.PagedList;
+import com.expidevapps.android.measurements.model.Story;
 import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.model.Training.Completion;
 import com.expidevapps.android.measurements.model.UserPreference;
@@ -71,6 +73,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
     private static final String MEASUREMENTS = "measurements";
     private static final String MEASUREMENT_TYPES = "measurement_types";
     private static final String MINISTRIES = "ministries";
+    private static final String STORIES = "stories";
     private static final String TOKEN = "token";
     private static final String TRAINING = "training";
     private static final String TRAINING_COMPLETION = "training_completion";
@@ -639,6 +642,90 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
     }
 
     /* END Assignment endpoints */
+
+    /* BEGIN Story endpoints */
+
+    @Nullable
+    @WorkerThread
+    public Story createStory(@NonNull final Story story) throws ApiException, JSONException {
+        return createStory(story.toJson());
+    }
+
+    @Nullable
+    @WorkerThread
+    public Story createStory(@NonNull final JSONObject story) throws ApiException {
+        // build request
+        final Request request = new Request(STORIES);
+        request.method = Method.POST;
+        request.setContent(story);
+
+        // process request
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+
+            // is this a successful response?
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                return Story.fromJson(new JSONObject(IOUtils.readString(conn.getInputStream())));
+            }
+        } catch (final JSONException e) {
+            reportJSONException(request, e);
+            LOG.error("error parsing createStory response", e);
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    @WorkerThread
+    public PagedList<Story> getStories(@NonNull final String ministryId, final int page, final int pageSize)
+            throws ApiException {
+        return getStories(ministryId, null, page, pageSize);
+    }
+
+    @Nullable
+    @WorkerThread
+    public PagedList<Story> getStories(@NonNull final String ministryId, @Nullable final Mcc mcc,
+                                       final int page, final int pageSize) throws ApiException {
+        if (Ministry.INVALID_ID.equals(ministryId)) {
+            return null;
+        }
+
+        // build request
+        final Request request = new Request(STORIES);
+        request.params.add(param("ministry_id", ministryId));
+        request.params.add(param("page", page));
+        request.params.add(param("per_page", pageSize));
+        if (mcc != null && mcc != Mcc.UNKNOWN) {
+            request.params.add(param("mcc", mcc));
+        }
+
+        // process request
+        HttpURLConnection conn = null;
+        try {
+            conn = this.sendRequest(request);
+
+            // is this a successful response?
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                return Story.listFromJson(new JSONObject(IOUtils.readString(conn.getInputStream())));
+            }
+        } catch (final JSONException e) {
+            reportJSONException(request, e);
+            LOG.error("error parsing getStories response", e);
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+
+        return null;
+    }
+
+    /* END Story endpoints */
 
     /* BEGIN Training endpoints */
 
