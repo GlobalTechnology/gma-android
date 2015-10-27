@@ -18,6 +18,7 @@ import com.expidevapps.android.measurements.model.MeasurementDetails;
 import com.expidevapps.android.measurements.model.MeasurementType;
 import com.expidevapps.android.measurements.model.MeasurementValue;
 import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.model.Ministry.Mcc;
 import com.expidevapps.android.measurements.model.Training;
 import com.expidevapps.android.measurements.model.Training.Completion;
 import com.expidevapps.android.measurements.model.UserPreference;
@@ -222,9 +223,9 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
     }
 
     @NonNull
-    protected final Request.Parameter param(@NonNull final String name, @NonNull final Ministry.Mcc value) {
+    protected final Request.Parameter param(@NonNull final String name, @NonNull final Mcc value) {
         if (BuildConfig.DEBUG) {
-            if (value == Ministry.Mcc.UNKNOWN) {
+            if (value == Mcc.UNKNOWN) {
                 throw new AssertionError("param(name, Mcc.UNKNOWN) is invalid");
             }
         }
@@ -430,17 +431,17 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
     }
 
     @Nullable
-    public List<Measurement> getMeasurements(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
+    public List<Measurement> getMeasurements(@NonNull final String ministryId, @NonNull final Mcc mcc,
                                              @NonNull final YearMonth period) throws ApiException {
         return getMeasurements(ministryId, mcc, period, Locale.getDefault());
     }
 
     @Nullable
-    public List<Measurement> getMeasurements(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
+    public List<Measurement> getMeasurements(@NonNull final String ministryId, @NonNull final Mcc mcc,
                                              @NonNull final YearMonth period, @NonNull final Locale locale)
             throws ApiException {
         // short-circuit if we don't have a valid ministryId or mcc
-        if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
+        if (ministryId.equals(Ministry.INVALID_ID) || mcc == Mcc.UNKNOWN) {
             return null;
         }
 
@@ -476,11 +477,11 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
     }
 
     @Nullable
-    public MeasurementDetails getMeasurementDetails(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
+    public MeasurementDetails getMeasurementDetails(@NonNull final String ministryId, @NonNull final Mcc mcc,
                                                     @NonNull final String permLink, @NonNull final YearMonth period)
             throws ApiException {
         // short-circuit if we don't have a valid ministryId or mcc
-        if (ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
+        if (ministryId.equals(Ministry.INVALID_ID) || mcc == Mcc.UNKNOWN) {
             return null;
         }
 
@@ -642,16 +643,15 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
     /* BEGIN Training endpoints */
 
     @Nullable
-    public List<Training> getTrainings(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc)
-            throws ApiException {
+    public List<Training> getTrainings(@NonNull final String ministryId, @NonNull final Mcc mcc) throws ApiException {
         return getTrainings(ministryId, mcc, true, false);
     }
 
     @Nullable
-    public List<Training> getTrainings(@NonNull final String ministryId, @NonNull final Ministry.Mcc mcc,
-                                       final boolean all, final boolean includeDescendents) throws ApiException {
+    public List<Training> getTrainings(@NonNull final String ministryId, @NonNull final Mcc mcc, final boolean all,
+                                       final boolean includeDescendents) throws ApiException {
         // short-circuit on invalid requests
-        if(ministryId.equals(Ministry.INVALID_ID) || mcc == Ministry.Mcc.UNKNOWN) {
+        if (ministryId.equals(Ministry.INVALID_ID) || mcc == Mcc.UNKNOWN) {
             return null;
         }
 
