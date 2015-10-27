@@ -1,5 +1,7 @@
 package com.expidevapps.android.measurements.model;
 
+import static com.expidevapps.android.measurements.model.PagedList.JSON_META;
+
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -16,6 +18,7 @@ import java.util.List;
 public class Story extends Location {
     public static final long INVALID_ID = -1;
 
+    private static final String JSON_STORIES = "stories";
     private static final String JSON_ID = "story_id";
     private static final String JSON_MINISTRY_ID = "ministry_id";
     private static final String JSON_MCC = "mcc";
@@ -109,6 +112,14 @@ public class Story extends Location {
     public Story() {
     }
 
+    @NonNull
+    public static PagedList<Story> listFromJson(@NonNull final JSONObject json) throws JSONException {
+        final PagedList<Story> stories = PagedList.fromMetaJson(json.getJSONObject(JSON_META));
+        stories.addAll(listFromJson(json.getJSONArray(JSON_STORIES)));
+        return stories;
+    }
+
+    @NonNull
     public static List<Story> listFromJson(@NonNull final JSONArray json) throws JSONException {
         final List<Story> stories = new ArrayList<>(json.length());
         for (int i = 0; i < json.length(); i++) {
@@ -117,6 +128,7 @@ public class Story extends Location {
         return stories;
     }
 
+    @NonNull
     public static Story fromJson(@NonNull final JSONObject json) throws JSONException {
         final Story story = new Story();
         story.populateFromJson(json);
