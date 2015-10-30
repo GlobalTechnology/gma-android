@@ -2,8 +2,8 @@ package com.expidevapps.android.measurements.support.v7.adapter;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static com.expidevapps.android.measurements.Constants.INVALID_STRING_RES;
 import static com.expidevapps.android.measurements.Constants.VISIBILITY;
+import static org.ccci.gto.android.common.Constants.INVALID_STRING_RES;
 
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
