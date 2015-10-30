@@ -367,6 +367,7 @@ public class Contract {
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
+        public static final Expression SQL_WHERE_MINISTRY = field(TABLE, COLUMN_MINISTRY_ID).eq(bind());
 
         static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_MCC, SQL_COLUMN_TITLE,

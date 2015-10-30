@@ -54,3 +54,7 @@
 -assumenosideeffects class org.slf4j.** {
     *;
 }
+
+
+## Picasso
+-dontwarn com.squareup.okhttp.**

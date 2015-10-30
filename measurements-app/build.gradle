@@ -143,12 +143,14 @@ dependencies {
     compile group: 'me.thekey.android', name: 'thekey-lib-accountmanager', version: versionTheKey
 
     compile group: 'org.ccci.gto.android', name: 'gto-support-db', version: versionGtoAndroidSupport
+    compile group: 'org.ccci.gto.android', name: 'gto-support-picasso', version: versionGtoAndroidSupport
     compile group: 'org.ccci.gto.android', name: 'gto-support-recyclerview', version: versionGtoAndroidSupport
 
     compile 'com.github.machinarius:preferencefragment:0.1.1'
     compile 'com.github.PhilJay:MPAndroidChart:v2.1.5'
     compile 'com.github.frett.ViewPagerIndicator:library:c954a2a44f'
     compile 'com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.8.3'
+    compile 'com.squareup.picasso:picasso:2.5.2'
 
     debugCompile group: 'org.slf4j', name: 'slf4j-android', version: versionSLF4J
 
