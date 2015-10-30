@@ -6,6 +6,7 @@ import static com.expidevapps.android.measurements.db.Contract.Story.COLUMN_CONT
 import static com.expidevapps.android.measurements.db.Contract.Story.COLUMN_CREATED;
 import static com.expidevapps.android.measurements.db.Contract.Story.COLUMN_CREATED_BY;
 import static com.expidevapps.android.measurements.db.Contract.Story.COLUMN_ID;
+import static com.expidevapps.android.measurements.db.Contract.Story.COLUMN_IMAGE;
 import static com.expidevapps.android.measurements.db.Contract.Story.COLUMN_PRIVACY;
 import static com.expidevapps.android.measurements.db.Contract.Story.COLUMN_STATE;
 import static com.expidevapps.android.measurements.db.Contract.Story.COLUMN_TITLE;
@@ -42,6 +43,9 @@ class StoryMapper extends LocationMapper<Story> {
             case COLUMN_CONTENT:
                 values.put(field, story.getContent());
                 break;
+            case COLUMN_IMAGE:
+                values.put(field, story.getImageUrl());
+                break;
             case COLUMN_STATE:
                 values.put(field, story.getState().mJson);
                 break;
@@ -76,6 +80,7 @@ class StoryMapper extends LocationMapper<Story> {
         story.setMcc(Mcc.fromJson(getString(c, COLUMN_MCC, Mcc.UNKNOWN.mJson)));
         story.setTitle(getNonNullString(c, COLUMN_TITLE, ""));
         story.setContent(getNonNullString(c, COLUMN_CONTENT, ""));
+        story.setImageUrl(getString(c, COLUMN_IMAGE, null));
         story.setState(State.fromJson(getString(c, COLUMN_STATE, State.UNKNOWN.mJson)));
         story.setPrivacy(Privacy.fromJson(getString(c, COLUMN_PRIVACY, Privacy.DEFAULT.mJson)));
         story.setCreated(getNonNullLocalDate(c, COLUMN_CREATED, LocalDate.now()));

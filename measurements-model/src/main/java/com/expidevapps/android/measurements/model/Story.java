@@ -24,6 +24,7 @@ public class Story extends Location {
     private static final String JSON_MCC = "mcc";
     private static final String JSON_TITLE = "title";
     private static final String JSON_CONTENT = "content";
+    private static final String JSON_IMAGE_URL = "image_url";
     private static final String JSON_CREATED_BY = "created_by";
     private static final String JSON_CREATED = "created_at";
     private static final String JSON_UPDATED = "updated_at";
@@ -100,6 +101,8 @@ public class Story extends Location {
     private String mTitle = "";
     @NonNull
     private String mContent = "";
+    @Nullable
+    private String mImageUrl;
     @NonNull
     private Privacy mPrivacy = Privacy.DEFAULT;
     @NonNull
@@ -144,8 +147,9 @@ public class Story extends Location {
         mMcc = Mcc.fromJson(json.optString(JSON_MCC, Mcc.UNKNOWN.mJson));
         mTitle = json.getString(JSON_TITLE);
         mContent = json.getString(JSON_CONTENT);
-        mPrivacy = Privacy.fromJson(json.optString(JSON_PRIVACY));
-        mState = State.fromJson(json.optString(JSON_STATE));
+        mImageUrl = json.optString(JSON_IMAGE_URL, null);
+        mPrivacy = Privacy.fromJson(json.optString(JSON_PRIVACY, null));
+        mState = State.fromJson(json.optString(JSON_STATE, State.UNKNOWN.mJson));
         mCreated = LocalDate.parse(json.getString(JSON_CREATED));
         mCreatedBy = json.optString(JSON_CREATED_BY, null);
     }
@@ -215,6 +219,15 @@ public class Story extends Location {
 
     public void setContent(@NonNull final String content) {
         mContent = content;
+    }
+
+    @Nullable
+    public String getImageUrl() {
+        return mImageUrl;
+    }
+
+    public void setImageUrl(@Nullable final String url) {
+        mImageUrl = url;
     }
 
     @NonNull
