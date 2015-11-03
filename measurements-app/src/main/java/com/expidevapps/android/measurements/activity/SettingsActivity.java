@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
+import com.expidevapps.android.measurements.Constants;
 import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.service.GoogleAnalyticsManager;
 import com.expidevapps.android.measurements.support.v4.fragment.SettingsFragment;
@@ -37,8 +38,16 @@ public class SettingsActivity extends AppCompatActivity {
 
         mGoogleAnalytics = GoogleAnalyticsManager.getInstance(this);
 
+        // process the intent
         final Intent intent = this.getIntent();
-        mGuid = intent.getStringExtra(EXTRA_GUID);
+        final String guid = intent.getStringExtra(EXTRA_GUID);
+        mGuid = guid != null ? guid : Constants.INVALID_GUID;
+
+        // finish activity if we didn't receive a valid intent
+        if (Constants.INVALID_GUID.equals(mGuid)) {
+            finish();
+            return;
+        }
 
         loadSettingsFragment(false);
     }

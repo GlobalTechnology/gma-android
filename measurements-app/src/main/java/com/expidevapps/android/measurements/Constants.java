@@ -23,6 +23,8 @@ public final class Constants {
         return PREFS_SETTINGS + "_" + guid;
     }
 
+    public static final String INVALID_GUID = "";
+
     /* common args */
     public static final String ARG_GUID = "guid";
     public static final String ARG_MINISTRY_ID = "ministry_id";
