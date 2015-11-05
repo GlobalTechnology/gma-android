@@ -16,6 +16,8 @@ import org.ccci.gto.android.common.db.AbstractMapper;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonth;
 
+import java.io.File;
+
 abstract class BaseMapper<T extends Base> extends AbstractMapper<T> {
     @Override
     protected void mapField(@NonNull ContentValues values, @NonNull String field, @NonNull T obj) {
@@ -49,6 +51,11 @@ abstract class BaseMapper<T extends Base> extends AbstractMapper<T> {
         obj.setLastSynced(getLong(c, COLUMN_LAST_SYNCED, 0));
 
         return obj;
+    }
+
+    @Nullable
+    protected final File getFile(@NonNull final Cursor c, @NonNull final String field, @Nullable final File defValue) {
+        return CursorUtils.getFile(c, field, defValue);
     }
 
     @Nullable

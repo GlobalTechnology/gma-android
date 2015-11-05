@@ -9,6 +9,8 @@ import android.support.annotation.Nullable;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonth;
 
+import java.io.File;
+
 public class CursorUtils {
     @Nullable
     public static YearMonth getYearMonth(@NonNull final Cursor c, @NonNull final String field,
@@ -50,5 +52,16 @@ public class CursorUtils {
                                                 @NonNull final LocalDate defValue) {
         final LocalDate val = getLocalDate(c, field, defValue);
         return val != null ? val : defValue;
+    }
+
+    @Nullable
+    public static File getFile(@NonNull final Cursor c, @NonNull final String field) {
+        return getFile(c, field, null);
+    }
+
+    @Nullable
+    public static File getFile(@NonNull final Cursor c, @NonNull final String field, @Nullable final File defValue) {
+        final String raw = getString(c, field, null);
+        return raw != null ? new File(raw) : defValue;
     }
 }
