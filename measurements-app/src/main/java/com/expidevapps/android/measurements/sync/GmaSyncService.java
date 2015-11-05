@@ -21,7 +21,9 @@ import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MINISTRIES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_NONE;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_PREFERENCES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_STORIES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_TRAININGS;
+import static com.expidevapps.android.measurements.sync.StorySyncTasks.EXTRA_SELFONLY;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
@@ -151,6 +153,15 @@ public class GmaSyncService extends ThreadedIntentService {
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_MEASUREMENT_DETAILS);
         intent.putExtras(measurementExtras(guid, ministryId, mcc, permLink, force));
         intent.putExtra(EXTRA_PERIOD, period.toString());
+        context.startService(intent);
+    }
+
+    public static void syncStories(@NonNull final Context context, @NonNull final String guid,
+                                   @NonNull final String ministryId, final boolean selfOnly, final boolean force) {
+        final Intent intent = new Intent(context, GmaSyncService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_STORIES);
+        intent.putExtras(ministryExtras(guid, ministryId, force));
+        intent.putExtra(EXTRA_SELFONLY, selfOnly);
         context.startService(intent);
     }
 

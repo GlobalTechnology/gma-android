@@ -684,13 +684,21 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
     @WorkerThread
     public PagedList<Story> getStories(@NonNull final String ministryId, final int page, final int pageSize)
             throws ApiException {
-        return getStories(ministryId, null, page, pageSize);
+        return getStories(ministryId, null, Church.INVALID_ID, Training.INVALID_ID, false, page, pageSize);
     }
 
     @Nullable
     @WorkerThread
-    public PagedList<Story> getStories(@NonNull final String ministryId, @Nullable final Mcc mcc,
-                                       final int page, final int pageSize) throws ApiException {
+    public PagedList<Story> getStories(@NonNull final String ministryId, final boolean selfOnly, final int page,
+                                       final int pageSize) throws ApiException {
+        return getStories(ministryId, null, Church.INVALID_ID, Training.INVALID_ID, selfOnly, page, pageSize);
+    }
+
+    @Nullable
+    @WorkerThread
+    public PagedList<Story> getStories(@NonNull final String ministryId, @Nullable final Mcc mcc, final long churchId,
+                                       final long trainingId, final boolean selfOnly, final int page,
+                                       final int pageSize) throws ApiException {
         if (Ministry.INVALID_ID.equals(ministryId)) {
             return null;
         }
@@ -698,11 +706,18 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
         // build request
         final Request request = new Request(STORIES);
         request.params.add(param("ministry_id", ministryId));
-        request.params.add(param("page", page));
-        request.params.add(param("per_page", pageSize));
         if (mcc != null && mcc != Mcc.UNKNOWN) {
             request.params.add(param("mcc", mcc));
         }
+        if (churchId != Church.INVALID_ID) {
+            request.params.add(param("church_id", churchId));
+        }
+        if (trainingId != Training.INVALID_ID) {
+            request.params.add(param("training_id", trainingId));
+        }
+        request.params.add(param("self_only", selfOnly));
+        request.params.add(param("page", page));
+        request.params.add(param("per_page", pageSize));
 
         // process request
         HttpURLConnection conn = null;

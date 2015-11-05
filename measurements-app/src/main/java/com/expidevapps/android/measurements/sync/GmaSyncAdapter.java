@@ -12,6 +12,7 @@ import android.content.SyncResult;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
@@ -45,6 +46,7 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
     static final int SYNCTYPE_DIRTY_TRAINING_COMPLETIONS = 13;
     static final int SYNCTYPE_PREFERENCES = 15;
     static final int SYNCTYPE_DIRTY_PREFERENCES = 16;
+    static final int SYNCTYPE_STORIES = 17;
 
     private static final Object INSTANCE_LOCK = new Object();
     private static GmaSyncAdapter INSTANCE = null;
@@ -83,6 +85,7 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
+    @WorkerThread
     void dispatchSync(@NonNull final String guid, final int type, @NonNull final Bundle extras,
                       @NonNull final SyncResult result) {
         try {
@@ -125,6 +128,9 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                     break;
                 case SYNCTYPE_DIRTY_PREFERENCES:
                     UserPreferenceSyncTasks.syncDirtyPreferences(mContext, guid, extras, result);
+                    break;
+                case SYNCTYPE_STORIES:
+                    StorySyncTasks.syncStories(mContext, guid, extras, result);
                     break;
                 case SYNCTYPE_ALL:
                     syncAll(guid, extras, result);
