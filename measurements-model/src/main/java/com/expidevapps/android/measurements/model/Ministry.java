@@ -7,7 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -15,9 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
-public class Ministry extends Location implements Serializable {
-    private static final long serialVersionUID = 0L;
-
+public class Ministry extends Location {
     public static final String JSON_MINISTRY_ID = "ministry_id";
     public static final String JSON_NAME = "name";
     public static final String JSON_CODE = "min_code";
