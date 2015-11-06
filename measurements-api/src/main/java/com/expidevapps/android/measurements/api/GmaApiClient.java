@@ -43,6 +43,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
@@ -74,6 +75,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
     private static final String MEASUREMENT_TYPES = "measurement_types";
     private static final String MINISTRIES = "ministries";
     private static final String STORIES = "stories";
+    private static final String IMAGES = "images";
     private static final String TOKEN = "token";
     private static final String TRAINING = "training";
     private static final String TRAINING_COMPLETION = "training_completion";
@@ -731,6 +733,36 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
         } catch (final JSONException e) {
             reportJSONException(request, e);
             LOG.error("error parsing getStories response", e);
+        } catch (final IOException e) {
+            throw new ApiSocketException(e);
+        } finally {
+            IOUtils.closeQuietly(conn);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public Story storeImage(final long storyId, @NonNull final File image) throws ApiException {
+        // build request
+        final Request request = new Request(IMAGES);
+        request.method = Method.POST;
+        request.params.add(param("story_id", storyId));
+        request.setContentType(MediaType.FORM_MULTIPART);
+        request.form.add(param("file", image));
+
+        // process request
+        HttpURLConnection conn = null;
+        try {
+            conn = sendRequest(request);
+
+            // is this a successful response?
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
+                return Story.fromJson(new JSONObject(IOUtils.readString(conn.getInputStream())));
+            }
+        } catch (final JSONException e) {
+            reportJSONException(request, e);
+            LOG.error("error parsing storeImage response", e);
         } catch (final IOException e) {
             throw new ApiSocketException(e);
         } finally {
