@@ -4,6 +4,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 
+import com.expidevapps.android.measurements.model.Church;
+import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.model.Ministry.Mcc;
+import com.expidevapps.android.measurements.model.Training;
+
 import butterknife.ButterKnife;
 
 public final class Constants {
@@ -27,10 +32,10 @@ public final class Constants {
 
     /* common args */
     public static final String ARG_GUID = "guid";
-    public static final String ARG_MINISTRY_ID = "ministry_id";
-    public static final String ARG_TRAINING_ID = "training_id";
-    public static final String ARG_CHURCH_ID = "church_id";
-    public static final String ARG_MCC = "mcc";
+    public static final String ARG_MINISTRY_ID = Ministry.ARG_ID;
+    public static final String ARG_TRAINING_ID = Training.ARG_ID;
+    public static final String ARG_CHURCH_ID = Church.ARG_ID;
+    public static final String ARG_MCC = Mcc.ARG;
     public static final String ARG_PERMLINK = "perm_link";
     public static final String ARG_PERIOD = "period";
     public static final String ARG_TYPE = "type";
@@ -41,8 +46,8 @@ public final class Constants {
     /* common extra's */
     public static final String EXTRA_GUID = "guid";
     public static final String EXTRA_CHURCH_IDS = "church_ids";
-    public static final String EXTRA_MINISTRY_ID = "ministry_id";
-    public static final String EXTRA_MCC = "mcc";
+    public static final String EXTRA_MINISTRY_ID = Ministry.EXTRA_ID;
+    public static final String EXTRA_MCC = Mcc.EXTRA;
     public static final String EXTRA_PERIOD = "period";
     public static final String EXTRA_PERMLINK = "perm_link";
     public static final String EXTRA_PERMLINKS = "perm_links";

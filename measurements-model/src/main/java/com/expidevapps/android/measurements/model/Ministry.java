@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Locale;
 
 public class Ministry extends Location {
+    public static final String ARG_ID = "ministry_id";
+    public static final String EXTRA_ID = "ministry_id";
+
     public static final String JSON_MINISTRY_ID = "ministry_id";
     public static final String JSON_NAME = "name";
     public static final String JSON_CODE = "min_code";
@@ -30,6 +33,9 @@ public class Ministry extends Location {
 
     public enum Mcc {
         UNKNOWN(""), SLM(JSON_MCC_SLM), LLM(JSON_MCC_LLM), DS(JSON_MCC_DS), GCM(JSON_MCC_GCM);
+
+        public static final String ARG = "mcc";
+        public static final String EXTRA = "mcc";
 
         @NonNull
         public final String mJson;

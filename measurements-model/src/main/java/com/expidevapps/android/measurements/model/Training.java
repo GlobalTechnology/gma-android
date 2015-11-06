@@ -15,6 +15,8 @@ import java.util.List;
 public class Training extends Location implements Cloneable {
     public static final long INVALID_ID = -1;
 
+    public static final String ARG_ID = "training_id";
+
     private static final String JSON_ID = "id";
     private static final String JSON_NAME = "name";
     private static final String JSON_MINISTRY_ID = "ministry_id";

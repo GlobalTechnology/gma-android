@@ -17,6 +17,8 @@ import java.util.List;
 public class Church extends Location implements Cloneable {
     public static final long INVALID_ID = -1;
 
+    public static final String ARG_ID = "church_id";
+
     private static final int DEVELOPMENT_UNKNOWN = 0;
     private static final int DEVELOPMENT_TARGET = 1;
     private static final int DEVELOPMENT_GROUP = 2;
