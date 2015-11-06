@@ -4,6 +4,7 @@ import static com.expidevapps.android.measurements.Constants.EXTRA_CHURCH_IDS;
 import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.EXTRA_PERMLINKS;
 import static com.expidevapps.android.measurements.Constants.EXTRA_PREFERENCES;
+import static com.expidevapps.android.measurements.Constants.EXTRA_STORY_IDS;
 import static com.expidevapps.android.measurements.Constants.EXTRA_TRAINING_IDS;
 
 import android.content.Intent;
@@ -26,6 +27,7 @@ public final class BroadcastUtils {
     private static final Uri URI_TRAINING = Uri.parse("gma://training/");
     private static final Uri URI_MEASUREMENTS = Uri.parse("gma://measurements/");
     private static final Uri URI_PREFERENCES = Uri.parse("gma://preferences/");
+    private static final Uri URI_STORIES = Uri.parse("gma://stories/");
 
     private static final String ACTION_NO_ASSIGNMENTS = AssignmentSyncTasks.class.getName() + ".ACTION_NO_ASSIGNMENTS";
     private static final String ACTION_UPDATE_ASSIGNMENTS =
@@ -41,6 +43,7 @@ public final class BroadcastUtils {
             GmaSyncService.class.getName() + ".ACTION_UPDATE_MEASUREMENT_VALUES";
     private static final String ACTION_UPDATE_MEASUREMENT_DETAILS =
             GmaSyncService.class.getName() + ".ACTION_UPDATE_MEASUREMENT_DETAILS";
+    private static final String ACTION_UPDATE_STORIES = StorySyncTasks.class.getName() + ".ACTION_UPDATE_STORIES";
     private static final String ACTION_UPDATE_PREFERENCES =
             UserPreferenceSyncTasks.class.getName() + ".ACTION_UPDATE_PREFERENCES";
 
@@ -222,6 +225,16 @@ public final class BroadcastUtils {
 
     /* END Measurement broadcasts */
 
+    /* BEGIN Story broadcasts */
+
+    public static Intent updateStoriesBroadcast(@NonNull final long... ids) {
+        final Intent intent = new Intent(ACTION_UPDATE_STORIES, URI_STORIES);
+        intent.putExtra(EXTRA_STORY_IDS, ids);
+        return intent;
+    }
+
+    /* END Story broadcasts */
+
     /* BEGIN User Preference broadcasts */
 
     public static Intent updatePreferencesBroadcast(@NonNull final String guid, @NonNull final String... prefs) {
@@ -333,6 +346,16 @@ public final class BroadcastUtils {
     }
 
     /* END Measurement filters */
+
+    /* BEGIN Story filters */
+
+    public static IntentFilter updateStoriesFilter() {
+        final IntentFilter filter = new IntentFilter(ACTION_UPDATE_STORIES);
+        addDataUri(filter, URI_STORIES, PatternMatcher.PATTERN_LITERAL);
+        return filter;
+    }
+
+    /* END Story filters */
 
     /* BEGIN User Preference filters */
 

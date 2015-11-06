@@ -30,6 +30,7 @@ import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.Story;
 import com.expidevapps.android.measurements.support.v7.adapter.StoryCursorRecyclerViewAdapter;
+import com.expidevapps.android.measurements.sync.BroadcastUtils;
 
 import org.ccci.gto.android.common.db.support.v4.content.DaoCursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.recyclerview.decorator.DividerItemDecoration;
@@ -173,6 +174,7 @@ public class StoriesFragment extends Fragment {
                     final CursorBroadcastReceiverLoader loader =
                             new DaoCursorBroadcastReceiverLoader<>(context, GmaDao.getInstance(context), Story.class,
                                                                    args);
+                    loader.addIntentFilter(BroadcastUtils.updateStoriesFilter());
                     return loader;
                 default:
                     return null;

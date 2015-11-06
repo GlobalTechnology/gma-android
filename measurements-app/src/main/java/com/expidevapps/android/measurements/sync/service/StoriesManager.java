@@ -4,13 +4,18 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Story;
+import com.expidevapps.android.measurements.sync.BroadcastUtils;
+import com.google.common.primitives.Longs;
 
 import org.ccci.gto.android.common.db.Transaction;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class StoriesManager {
@@ -21,13 +26,16 @@ public class StoriesManager {
                     Contract.Story.COLUMN_CREATED_BY, Contract.Story.COLUMN_CREATED};
 
     @NonNull
+    private final Context mContext;
+    @NonNull
     private final GmaDao mDao;
 
     @Nullable
     private static StoriesManager INSTANCE;
 
     private StoriesManager(@NonNull final Context context) {
-        mDao = GmaDao.getInstance(context);
+        mContext = context;
+        mDao = GmaDao.getInstance(mContext);
     }
 
     public static StoriesManager getInstance(@NonNull final Context context) {
@@ -42,8 +50,11 @@ public class StoriesManager {
 
     @WorkerThread
     public void updateStoriesFromApi(@NonNull final List<Story> stories) {
+        final Collection<Long> updated = new ArrayList<>();
+
         // iterate over all the provided stories
         for (final Story story : stories) {
+            updated.add(story.getId());
             final Transaction tx = mDao.newTransaction();
             try {
                 tx.beginTransactionNonExclusive();
@@ -61,5 +72,9 @@ public class StoriesManager {
                 tx.endTransaction();
             }
         }
+
+        // broadcast that we updated stories
+        LocalBroadcastManager.getInstance(mContext)
+                .sendBroadcast(BroadcastUtils.updateStoriesBroadcast(Longs.toArray(updated)));
     }
 }

@@ -51,6 +51,7 @@ public final class Constants {
     public static final String EXTRA_PERIOD = "period";
     public static final String EXTRA_PERMLINK = "perm_link";
     public static final String EXTRA_PERMLINKS = "perm_links";
+    public static final String EXTRA_STORY_IDS = "story_ids";
     public static final String EXTRA_TRAINING_IDS = "training_ids";
     public static final String EXTRA_TYPE = "type";
     public static final String EXTRA_PREFERENCES = "prefs";
