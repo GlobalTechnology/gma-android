@@ -13,6 +13,7 @@ import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_CHURCHES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_MEASUREMENTS;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_PREFERENCES;
+import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_STORIES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_TRAININGS;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_DIRTY_TRAINING_COMPLETIONS;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_MEASUREMENTS;
@@ -180,6 +181,13 @@ public class GmaSyncService extends ThreadedIntentService {
         final Intent intent = syncStoriesIntent(context, guid, ministryId, filters, force);
         intent.putExtra(EXTRA_PAGE, page);
         intent.putExtra(EXTRA_PAGE_SIZE, pageSize);
+        context.startService(intent);
+    }
+
+    public static void syncDirtyStories(@NonNull final Context context, @NonNull final String guid) {
+        final Intent intent = new Intent(context, GmaSyncService.class);
+        intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_DIRTY_STORIES);
+        intent.putExtras(baseExtras(guid, false));
         context.startService(intent);
     }
 

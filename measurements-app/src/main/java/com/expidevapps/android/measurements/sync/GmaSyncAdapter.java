@@ -47,6 +47,7 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
     static final int SYNCTYPE_PREFERENCES = 15;
     static final int SYNCTYPE_DIRTY_PREFERENCES = 16;
     static final int SYNCTYPE_STORIES = 17;
+    static final int SYNCTYPE_DIRTY_STORIES = 18;
 
     private static final Object INSTANCE_LOCK = new Object();
     private static GmaSyncAdapter INSTANCE = null;
@@ -131,6 +132,9 @@ public class GmaSyncAdapter extends AbstractThreadedSyncAdapter {
                     break;
                 case SYNCTYPE_STORIES:
                     StorySyncTasks.syncStories(mContext, guid, extras, result);
+                    break;
+                case SYNCTYPE_DIRTY_STORIES:
+                    StorySyncTasks.syncDirtyStories(mContext, guid, extras, result);
                     break;
                 case SYNCTYPE_ALL:
                     syncAll(guid, extras, result);
