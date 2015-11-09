@@ -23,6 +23,9 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -91,6 +94,7 @@ public class StoriesFragment extends Fragment {
     @Override
     public void onCreate(@Nullable final Bundle savedState) {
         super.onCreate(savedState);
+        setHasOptionsMenu(true);
 
         // process arguments
         final Bundle args = this.getArguments();
@@ -115,6 +119,12 @@ public class StoriesFragment extends Fragment {
     }
 
     @Override
+    public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_stories, menu);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         startLoaders();
@@ -123,6 +133,16 @@ public class StoriesFragment extends Fragment {
     void onLoadStories(@Nullable final Cursor c) {
         mStories = c;
         updateStoriesView();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                onRefreshStories();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     void onRefreshStories() {
