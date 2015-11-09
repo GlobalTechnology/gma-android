@@ -111,7 +111,7 @@ public class Story extends Location {
     @NonNull
     private Privacy mPrivacy = Privacy.DEFAULT;
     @NonNull
-    private State mState = State.UNKNOWN;
+    private State mState = State.DEFAULT;
     @Nullable
     private String mCreatedBy;
     @NonNull
@@ -147,16 +147,16 @@ public class Story extends Location {
     void populateFromJson(@NonNull final JSONObject json) throws JSONException {
         super.populateFromJson(json);
 
-        mId = json.getLong(JSON_ID);
-        mMinistryId = json.getString(JSON_MINISTRY_ID);
-        mMcc = Mcc.fromJson(json.optString(JSON_MCC, Mcc.UNKNOWN.mJson));
-        mTitle = json.getString(JSON_TITLE);
-        mContent = json.getString(JSON_CONTENT);
-        mImageUrl = json.optString(JSON_IMAGE_URL, null);
-        mPrivacy = Privacy.fromJson(json.optString(JSON_PRIVACY, null));
-        mState = State.fromJson(json.optString(JSON_STATE, State.UNKNOWN.mJson));
-        mCreated = LocalDate.parse(json.getString(JSON_CREATED));
-        mCreatedBy = json.optString(JSON_CREATED_BY, null);
+        mId = json.optLong(JSON_ID, mId);
+        mMinistryId = json.optString(JSON_MINISTRY_ID, mMinistryId);
+        mMcc = Mcc.fromJson(json.optString(JSON_MCC, mMcc.mJson));
+        mTitle = json.optString(JSON_TITLE, mTitle);
+        mContent = json.optString(JSON_CONTENT, mContent);
+        mImageUrl = json.optString(JSON_IMAGE_URL, mImageUrl);
+        mPrivacy = Privacy.fromJson(json.optString(JSON_PRIVACY, mPrivacy.mJson));
+        mState = State.fromJson(json.optString(JSON_STATE, mState.mJson));
+        mCreated = LocalDate.parse(json.optString(JSON_CREATED, mCreated.toString()));
+        mCreatedBy = json.optString(JSON_CREATED_BY, mCreatedBy);
     }
 
     @NonNull
@@ -165,7 +165,9 @@ public class Story extends Location {
         final JSONObject json = super.toJson();
 
         json.put(JSON_MINISTRY_ID, mMinistryId);
-        json.put(JSON_MCC, mMcc.mJson);
+        if (mMcc != Mcc.UNKNOWN) {
+            json.put(JSON_MCC, mMcc.mJson);
+        }
         json.put(JSON_TITLE, mTitle);
         json.put(JSON_CONTENT, mContent);
         json.put(JSON_PRIVACY, mPrivacy.mJson);
