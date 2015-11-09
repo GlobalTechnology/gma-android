@@ -23,7 +23,9 @@ import java.util.List;
 class StorySyncTasks extends BaseSyncTasks {
     private static final String SYNC_TIME_STORIES = "last_synced.stories";
 
-    static final String EXTRA_SELFONLY = StorySyncTasks.class.getName() + ".EXTRA_SELFONLY";
+    static final String EXTRA_FILTERS = StorySyncTasks.class.getName() + ".EXTRA_FILTERS";
+    static final String EXTRA_PAGE = StorySyncTasks.class.getName() + ".EXTRA_PAGE";
+    static final String EXTRA_PAGE_SIZE = StorySyncTasks.class.getName() + ".EXTRA_PAGE_SIZE";
 
     private static final long STALE_DURATION_STORIES = DAY_IN_MS;
 
@@ -37,29 +39,29 @@ class StorySyncTasks extends BaseSyncTasks {
             return false;
         }
 
-        // load remaining filters
-        final boolean selfOnly = args.getBoolean(EXTRA_SELFONLY, false);
+        // fetch extras from the args bundle
+        final Bundle filters = args.getBundle(EXTRA_FILTERS);
+        final int page = args.getInt(EXTRA_PAGE, 1);
+        final int pageSize = args.getInt(EXTRA_PAGE_SIZE, 20);
 
         // short-circuit if we aren't forcing a sync and the data isn't stale
+        //TODO: support filters in sync key
         final boolean force = isForced(args);
         final GmaDao dao = GmaDao.getInstance(context);
-        if (!force && System.currentTimeMillis() - dao.getLastSyncTime(SYNC_TIME_STORIES, ministryId, selfOnly) <
-                STALE_DURATION_STORIES) {
+        final Object[] syncKey = new Object[] {SYNC_TIME_STORIES, ministryId, page, pageSize};
+        if (!force && System.currentTimeMillis() - dao.getLastSyncTime(syncKey) < STALE_DURATION_STORIES) {
             return true;
         }
 
         // short-circuit if we fail to fetch stories
-        final GmaApiClient api = getApi(context, guid);
-        final List<Story> stories = api.getStories(ministryId, selfOnly, 1, 20);
+        final List<Story> stories =
+                StoriesManager.getInstance(context).fetchStories(guid, ministryId, filters, page, pageSize);
         if (stories == null) {
             return false;
         }
 
-        // store the stories in the StoriesManager
-        StoriesManager.getInstance(context).updateStoriesFromApi(stories);
-
         // update the sync time in the database
-        dao.updateLastSyncTime(SYNC_TIME_STORIES, ministryId, selfOnly);
+        dao.updateLastSyncTime(syncKey);
 
         return true;
     }

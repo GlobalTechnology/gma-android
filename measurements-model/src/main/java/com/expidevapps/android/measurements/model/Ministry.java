@@ -1,8 +1,10 @@
 package com.expidevapps.android.measurements.model;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import org.ccci.gto.android.common.util.BundleCompat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,6 +47,15 @@ public class Ministry extends Location {
         Mcc(@NonNull final String json) {
             mJson = json;
             this.raw = json;
+        }
+
+        public void addToBundle(@NonNull final Bundle bundle) {
+            bundle.putString(ARG, mJson);
+        }
+
+        @NonNull
+        public static Mcc fromBundle(@NonNull final Bundle bundle) {
+            return fromJson(BundleCompat.getString(bundle, ARG, UNKNOWN.mJson));
         }
 
         @NonNull

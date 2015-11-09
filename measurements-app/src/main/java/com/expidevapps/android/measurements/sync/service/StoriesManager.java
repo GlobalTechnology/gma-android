@@ -1,17 +1,23 @@
 package com.expidevapps.android.measurements.sync.service;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.expidevapps.android.measurements.BuildConfig;
+import com.expidevapps.android.measurements.Constants;
+import com.expidevapps.android.measurements.api.GmaApiClient;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
+import com.expidevapps.android.measurements.model.PagedList;
 import com.expidevapps.android.measurements.model.Story;
 import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.google.common.primitives.Longs;
 
+import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.db.Transaction;
 
 import java.util.ArrayList;
@@ -46,6 +52,26 @@ public class StoriesManager {
         }
 
         return INSTANCE;
+    }
+
+    private GmaApiClient getApi(@NonNull final String guid) {
+        return GmaApiClient.getInstance(mContext, BuildConfig.GMA_API_BASE_URI, BuildConfig.GMA_API_VERSION,
+                                        Constants.MEASUREMENTS_SOURCE, guid);
+    }
+
+    @Nullable
+    @WorkerThread
+    public PagedList<Story> fetchStories(@NonNull final String guid, @NonNull final String ministryId,
+                                         @Nullable final Bundle filters, final int page, final int pageSize)
+            throws ApiException {
+        // fetch & process the requested stories
+        final PagedList<Story> stories = getApi(guid).getStories(ministryId, filters, page, pageSize);
+        if (stories != null) {
+            updateStoriesFromApi(stories);
+        }
+
+        // return the retrieved stories
+        return stories;
     }
 
     @WorkerThread

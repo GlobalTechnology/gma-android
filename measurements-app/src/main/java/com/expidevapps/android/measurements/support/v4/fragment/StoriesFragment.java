@@ -10,6 +10,7 @@ import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,9 +30,12 @@ import com.expidevapps.android.measurements.R;
 import com.expidevapps.android.measurements.db.Contract;
 import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Ministry;
+import com.expidevapps.android.measurements.model.PagedList;
 import com.expidevapps.android.measurements.model.Story;
 import com.expidevapps.android.measurements.support.v7.adapter.StoryCursorRecyclerViewAdapter;
 import com.expidevapps.android.measurements.sync.BroadcastUtils;
+import com.expidevapps.android.measurements.sync.GmaSyncService;
+import com.expidevapps.android.measurements.sync.service.StoriesManager;
 
 import org.ccci.gto.android.common.db.support.v4.content.DaoCursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.recyclerview.decorator.DividerItemDecoration;
@@ -65,6 +70,10 @@ public class StoriesFragment extends Fragment {
 
     @Nullable
     private Cursor mStories = null;
+    @Nullable
+    private RefreshStoriesTask mRefreshTask = null;
+    @NonNull
+    private final Bundle mFilters = new Bundle();
 
     public static StoriesFragment newInstance(@NonNull final String guid, @NonNull final String ministryId) {
         final StoriesFragment fragment = new StoriesFragment();
@@ -117,6 +126,20 @@ public class StoriesFragment extends Fragment {
     }
 
     void onRefreshStories() {
+        // replace previous refresh task
+        mRefreshTask = new RefreshStoriesTask(getActivity(), mGuid, mMinistryId, new Bundle(mFilters));
+        AsyncTaskCompat.executeParallel(mRefreshTask);
+
+        // update swipe refresh view
+        updateRefreshView();
+    }
+
+    void onFinishedRefreshing(@NonNull final RefreshStoriesTask task) {
+        if (mRefreshTask == task) {
+            mRefreshTask = null;
+        }
+
+        updateRefreshView();
     }
 
     /* END lifecycle */
@@ -129,6 +152,13 @@ public class StoriesFragment extends Fragment {
                     onRefreshStories();
                 }
             });
+            updateRefreshView();
+        }
+    }
+
+    private void updateRefreshView() {
+        if (mSwipeRefresh != null) {
+            mSwipeRefresh.setRefreshing(mRefreshTask != null);
         }
     }
 
@@ -187,6 +217,64 @@ public class StoriesFragment extends Fragment {
                     onLoadStories(cursor);
                     break;
             }
+        }
+    }
+
+    private class LoadStoriesTask extends AsyncTask<Void, Void, PagedList<Story>> {
+        @NonNull
+        private final Context mContext;
+        @NonNull
+        private final String mGuid;
+        @NonNull
+        private final String mMinistryId;
+        @Nullable
+        private final Bundle mFilters;
+        private final int mPage;
+        private final int mPageSize;
+
+        public LoadStoriesTask(@NonNull final Context context, @NonNull final String guid,
+                               @NonNull final String ministryId, @Nullable final Bundle filters, final int page,
+                               final int pageSize) {
+            mContext = context.getApplicationContext();
+            mGuid = guid;
+            mMinistryId = ministryId;
+            mFilters = filters;
+            mPage = page;
+            mPageSize = pageSize;
+        }
+
+        @Override
+        protected PagedList<Story> doInBackground(final Void... ignore) {
+            try {
+                return StoriesManager.getInstance(mContext)
+                        .fetchStories(mGuid, mMinistryId, mFilters, mPage, mPageSize);
+            } catch (final Exception e) {
+                // we had an error fetching the stories, hand the request off to the sync service
+                GmaSyncService.syncStories(mContext, mGuid, mMinistryId, mFilters, mPage, mPageSize, force());
+            }
+            return null;
+        }
+
+        protected boolean force() {
+            return false;
+        }
+    }
+
+    private class RefreshStoriesTask extends LoadStoriesTask {
+        public RefreshStoriesTask(@NonNull final Context context, @NonNull final String guid,
+                                  @NonNull final String ministryId, @Nullable final Bundle filters) {
+            super(context, guid, ministryId, filters, 1, 20);
+        }
+
+        @Override
+        protected boolean force() {
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(@Nullable final PagedList<Story> stories) {
+            super.onPostExecute(stories);
+            onFinishedRefreshing(this);
         }
     }
 }

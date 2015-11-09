@@ -23,7 +23,9 @@ import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_PREFERENCES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_STORIES;
 import static com.expidevapps.android.measurements.sync.GmaSyncAdapter.SYNCTYPE_TRAININGS;
-import static com.expidevapps.android.measurements.sync.StorySyncTasks.EXTRA_SELFONLY;
+import static com.expidevapps.android.measurements.sync.StorySyncTasks.EXTRA_FILTERS;
+import static com.expidevapps.android.measurements.sync.StorySyncTasks.EXTRA_PAGE;
+import static com.expidevapps.android.measurements.sync.StorySyncTasks.EXTRA_PAGE_SIZE;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
@@ -156,12 +158,28 @@ public class GmaSyncService extends ThreadedIntentService {
         context.startService(intent);
     }
 
-    public static void syncStories(@NonNull final Context context, @NonNull final String guid,
-                                   @NonNull final String ministryId, final boolean selfOnly, final boolean force) {
+    private static Intent syncStoriesIntent(@NonNull final Context context, @NonNull final String guid,
+                                            @NonNull final String ministryId, @Nullable final Bundle filters,
+                                            final boolean force) {
         final Intent intent = new Intent(context, GmaSyncService.class);
         intent.putExtra(EXTRA_SYNCTYPE, SYNCTYPE_STORIES);
         intent.putExtras(ministryExtras(guid, ministryId, force));
-        intent.putExtra(EXTRA_SELFONLY, selfOnly);
+        intent.putExtra(EXTRA_FILTERS, filters);
+        return intent;
+    }
+
+    public static void syncStories(@NonNull final Context context, @NonNull final String guid,
+                                   @NonNull final String ministryId, @Nullable final Bundle filters,
+                                   final boolean force) {
+        context.startService(syncStoriesIntent(context, guid, ministryId, filters, force));
+    }
+
+    public static void syncStories(@NonNull final Context context, @NonNull final String guid,
+                                   @NonNull final String ministryId, @Nullable final Bundle filters, final int page,
+                                   final int pageSize, final boolean force) {
+        final Intent intent = syncStoriesIntent(context, guid, ministryId, filters, force);
+        intent.putExtra(EXTRA_PAGE, page);
+        intent.putExtra(EXTRA_PAGE_SIZE, pageSize);
         context.startService(intent);
     }
 

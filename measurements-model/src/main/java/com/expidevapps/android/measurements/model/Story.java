@@ -18,6 +18,8 @@ import java.util.List;
 public class Story extends Location {
     public static final long INVALID_ID = -1;
 
+    public static final String ARG_SELF_ONLY = Story.class.getName() + ".ARG_SELF_ONLY";
+
     private static final String JSON_STORIES = "stories";
     private static final String JSON_ID = "story_id";
     private static final String JSON_MINISTRY_ID = "ministry_id";

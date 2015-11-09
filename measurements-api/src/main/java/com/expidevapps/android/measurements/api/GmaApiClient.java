@@ -2,6 +2,7 @@ package com.expidevapps.android.measurements.api;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
@@ -684,22 +685,7 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
 
     @Nullable
     @WorkerThread
-    public PagedList<Story> getStories(@NonNull final String ministryId, final int page, final int pageSize)
-            throws ApiException {
-        return getStories(ministryId, null, Church.INVALID_ID, Training.INVALID_ID, false, page, pageSize);
-    }
-
-    @Nullable
-    @WorkerThread
-    public PagedList<Story> getStories(@NonNull final String ministryId, final boolean selfOnly, final int page,
-                                       final int pageSize) throws ApiException {
-        return getStories(ministryId, null, Church.INVALID_ID, Training.INVALID_ID, selfOnly, page, pageSize);
-    }
-
-    @Nullable
-    @WorkerThread
-    public PagedList<Story> getStories(@NonNull final String ministryId, @Nullable final Mcc mcc, final long churchId,
-                                       final long trainingId, final boolean selfOnly, final int page,
+    public PagedList<Story> getStories(@NonNull final String ministryId, @Nullable final Bundle filters, final int page,
                                        final int pageSize) throws ApiException {
         if (Ministry.INVALID_ID.equals(ministryId)) {
             return null;
@@ -708,18 +694,25 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
         // build request
         final Request request = new Request(STORIES);
         request.params.add(param("ministry_id", ministryId));
-        if (mcc != null && mcc != Mcc.UNKNOWN) {
-            request.params.add(param("mcc", mcc));
-        }
-        if (churchId != Church.INVALID_ID) {
-            request.params.add(param("church_id", churchId));
-        }
-        if (trainingId != Training.INVALID_ID) {
-            request.params.add(param("training_id", trainingId));
-        }
-        request.params.add(param("self_only", selfOnly));
         request.params.add(param("page", page));
         request.params.add(param("per_page", pageSize));
+
+        // process any filters
+        if (filters != null) {
+            final Mcc mcc = Mcc.fromBundle(filters);
+            if (mcc != Mcc.UNKNOWN) {
+                request.params.add(param("mcc", mcc));
+            }
+            final long churchId = filters.getLong(Church.ARG_ID, Church.INVALID_ID);
+            if (churchId != Church.INVALID_ID) {
+                request.params.add(param("church_id", churchId));
+            }
+            final long trainingId = filters.getLong(Training.ARG_ID, Training.INVALID_ID);
+            if (trainingId != Training.INVALID_ID) {
+                request.params.add(param("training_id", trainingId));
+            }
+            request.params.add(param("self_only", filters.getBoolean(Story.ARG_SELF_ONLY, false)));
+        }
 
         // process request
         HttpURLConnection conn = null;
