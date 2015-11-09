@@ -1,5 +1,7 @@
 package com.expidevapps.android.measurements.support.v7.adapter;
 
+import static com.expidevapps.android.measurements.db.CursorUtils.getFile;
+
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -17,6 +19,7 @@ import org.ccci.gto.android.common.db.util.CursorUtils;
 import org.ccci.gto.android.common.picasso.view.SimplePicassoImageView;
 import org.ccci.gto.android.common.recyclerview.adapter.CursorAdapter;
 
+import java.io.File;
 import java.util.Locale;
 
 import butterknife.ButterKnife;
@@ -59,8 +62,10 @@ public class StoryCursorRecyclerViewAdapter extends CursorAdapter<StoryCursorRec
 
         void bind(@NonNull final Cursor c) {
             if (mImageView != null) {
-                // sanitize image uri
+                final File pendingImage = getFile(c, Contract.Story.COLUMN_PENDING_IMAGE, null);
                 Uri image = Uri.parse(CursorUtils.getNonNullString(c, Contract.Story.COLUMN_IMAGE, ""));
+
+                // sanitize image uri
                 final String scheme = image.getScheme();
                 if (scheme != null) {
                     switch (scheme.toLowerCase(Locale.US)) {
@@ -74,7 +79,12 @@ public class StoryCursorRecyclerViewAdapter extends CursorAdapter<StoryCursorRec
                     image = null;
                 }
 
-                mImageView.setPicassoUri(image);
+                // use the pending image if we have one
+                if (pendingImage != null) {
+                    mImageView.setPicassoFile(pendingImage);
+                } else {
+                    mImageView.setPicassoUri(image);
+                }
             }
             if (mTitleView != null) {
                 mTitleView.setText(CursorUtils.getString(c, Contract.Story.COLUMN_TITLE));

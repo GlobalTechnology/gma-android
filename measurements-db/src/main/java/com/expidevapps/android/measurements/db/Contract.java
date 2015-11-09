@@ -1,6 +1,7 @@
 package com.expidevapps.android.measurements.db;
 
 import static org.ccci.gto.android.common.db.Expression.bind;
+import static org.ccci.gto.android.common.db.Expression.constant;
 import static org.ccci.gto.android.common.db.Expression.field;
 
 import android.provider.BaseColumns;
@@ -346,20 +347,26 @@ public class Contract {
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_CONTENT = "content";
         public static final String COLUMN_IMAGE = "imageUrl";
+        public static final String COLUMN_PENDING_IMAGE = "pendingImage";
         public static final String COLUMN_PRIVACY = "privacy";
         public static final String COLUMN_STATE = "state";
         public static final String COLUMN_CREATED = "created";
         public static final String COLUMN_CREATED_BY = "createdBy";
 
+        public static final Field FIELD_PENDING_IMAGE = field(TABLE, COLUMN_PENDING_IMAGE);
+        public static final Field FIELD_NEW = field(TABLE, COLUMN_NEW);
+        public static final Field FIELD_DIRTY = field(TABLE, COLUMN_DIRTY);
+
         static final String[] PROJECTION_ALL =
                 {COLUMN_ID, COLUMN_MINISTRY_ID, COLUMN_MCC, COLUMN_TITLE, COLUMN_CONTENT, COLUMN_IMAGE, COLUMN_LATITUDE,
-                        COLUMN_LONGITUDE, COLUMN_PRIVACY, COLUMN_STATE, COLUMN_CREATED, COLUMN_CREATED_BY, COLUMN_NEW,
-                        COLUMN_DIRTY};
+                        COLUMN_LONGITUDE, COLUMN_PRIVACY, COLUMN_STATE, COLUMN_CREATED, COLUMN_CREATED_BY,
+                        COLUMN_PENDING_IMAGE, COLUMN_NEW, COLUMN_DIRTY};
 
         private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
         private static final String SQL_COLUMN_TITLE = COLUMN_TITLE + " TEXT";
         private static final String SQL_COLUMN_CONTENT = COLUMN_CONTENT + " TEXT";
         private static final String SQL_COLUMN_IMAGE = COLUMN_IMAGE + " TEXT";
+        private static final String SQL_COLUMN_PENDING_IMAGE = COLUMN_PENDING_IMAGE + " TEXT";
         private static final String SQL_COLUMN_PRIVACY = COLUMN_PRIVACY + " TEXT";
         private static final String SQL_COLUMN_STATE = COLUMN_STATE + " TEXT";
         private static final String SQL_COLUMN_CREATED = COLUMN_CREATED + " TEXT";
@@ -368,12 +375,16 @@ public class Contract {
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
         public static final Expression SQL_WHERE_MINISTRY = field(TABLE, COLUMN_MINISTRY_ID).eq(bind());
+        public static final Expression SQL_WHERE_HAS_PENDING_IMAGE = FIELD_PENDING_IMAGE.isNot(Expression.NULL);
+        public static final Expression SQL_WHERE_NEW = FIELD_NEW.eq(1);
+        public static final Expression SQL_WHERE_DIRTY = FIELD_DIRTY.ne(constant(""));
 
         static final String SQL_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" + TextUtils
                 .join(",", new Object[] {SQL_COLUMN_ID, SQL_COLUMN_MINISTRY_ID, SQL_COLUMN_MCC, SQL_COLUMN_TITLE,
-                        SQL_COLUMN_CONTENT, SQL_COLUMN_IMAGE, SQL_COLUMN_LATITUDE, SQL_COLUMN_LONGITUDE,
-                        SQL_COLUMN_PRIVACY, SQL_COLUMN_STATE, SQL_COLUMN_CREATED, SQL_COLUMN_CREATED_BY, SQL_COLUMN_NEW,
-                        SQL_COLUMN_DIRTY, SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
+                        SQL_COLUMN_CONTENT, SQL_COLUMN_IMAGE, SQL_COLUMN_PENDING_IMAGE, SQL_COLUMN_LATITUDE,
+                        SQL_COLUMN_LONGITUDE, SQL_COLUMN_PRIVACY, SQL_COLUMN_STATE, SQL_COLUMN_CREATED,
+                        SQL_COLUMN_CREATED_BY, SQL_COLUMN_NEW, SQL_COLUMN_DIRTY, SQL_COLUMN_LAST_SYNCED,
+                        SQL_PRIMARY_KEY}) + ")";
         static final String SQL_DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
         @Deprecated
@@ -384,6 +395,9 @@ public class Contract {
                         SQL_COLUMN_LAST_SYNCED, SQL_PRIMARY_KEY}) + ")";
         @Deprecated
         static final String SQL_V55_ALTER_IMAGE = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_IMAGE;
+        @Deprecated
+        static final String SQL_V56_ALTER_PENDING_IMAGE =
+                "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + SQL_COLUMN_PENDING_IMAGE;
     }
 
     public static final class UserPreference extends Base implements Guid {

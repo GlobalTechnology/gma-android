@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,6 +106,8 @@ public class Story extends Location {
     private String mContent = "";
     @Nullable
     private String mImageUrl;
+    @Nullable
+    private File mPendingImage;
     @NonNull
     private Privacy mPrivacy = Privacy.DEFAULT;
     @NonNull
@@ -230,6 +233,16 @@ public class Story extends Location {
 
     public void setImageUrl(@Nullable final String url) {
         mImageUrl = url;
+    }
+
+    @Nullable
+    public File getPendingImage() {
+        return mPendingImage;
+    }
+
+    public void setPendingImage(@Nullable final File image) {
+        // only store absolute paths
+        mPendingImage = image != null && !image.isAbsolute() ? image.getAbsoluteFile() : image;
     }
 
     @NonNull
