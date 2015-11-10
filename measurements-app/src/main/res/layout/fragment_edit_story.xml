@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textCapSentences|textAutoCorrect"
+        android:singleLine="true"
+        android:maxLength="120"
+        android:hint="@string/label_stories_title"/>
+
+    <EditText
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
+        android:gravity="start|top"
+        android:minLines="5"
+        android:lines="5"
+        android:maxLines="10"
+        android:hint="@string/label_stories_content"/>
+
+    <CheckBox
+        android:id="@+id/privacy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/content"
+        android:checked="true"
+        android:text="@string/label_stories_public"/>
+
+    <CheckBox
+        android:id="@+id/published"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/privacy"
+        android:text="@string/label_stories_publish"/>
+
+    <org.ccci.gto.android.common.picasso.view.SimplePicassoImageView
+        android:id="@+id/image"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:layout_below="@id/published"
+        android:scaleType="centerCrop"
+        app:placeholder="@drawable/img_story_default"/>
+
+</RelativeLayout>

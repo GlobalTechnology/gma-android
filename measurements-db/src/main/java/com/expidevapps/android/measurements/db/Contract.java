@@ -353,6 +353,9 @@ public class Contract {
         public static final String COLUMN_CREATED = "created";
         public static final String COLUMN_CREATED_BY = "createdBy";
 
+        public static final Field FIELD_MINISTRY_ID = field(TABLE, COLUMN_MINISTRY_ID);
+        public static final Field FIELD_PRIVACY = field(TABLE, COLUMN_PRIVACY);
+        public static final Field FIELD_STATE = field(TABLE, COLUMN_STATE);
         public static final Field FIELD_PENDING_IMAGE = field(TABLE, COLUMN_PENDING_IMAGE);
         public static final Field FIELD_NEW = field(TABLE, COLUMN_NEW);
         public static final Field FIELD_DIRTY = field(TABLE, COLUMN_DIRTY);

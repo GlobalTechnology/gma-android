@@ -11,6 +11,7 @@ import static com.expidevapps.android.measurements.db.Contract.Story.COLUMN_PEND
 import static com.expidevapps.android.measurements.db.Contract.Story.COLUMN_PRIVACY;
 import static com.expidevapps.android.measurements.db.Contract.Story.COLUMN_STATE;
 import static com.expidevapps.android.measurements.db.Contract.Story.COLUMN_TITLE;
+import static org.ccci.gto.android.common.db.util.CursorUtils.getNonNullEnum;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -38,7 +39,7 @@ class StoryMapper extends LocationMapper<Story> {
                 values.put(field, story.getMinistryId());
                 break;
             case COLUMN_MCC:
-                values.put(field, story.getMcc().mJson);
+                values.put(field, story.getMcc().toString());
                 break;
             case COLUMN_TITLE:
                 values.put(field, story.getTitle());
@@ -54,10 +55,10 @@ class StoryMapper extends LocationMapper<Story> {
                 values.put(field, file != null ? file.getPath() : null);
                 break;
             case COLUMN_STATE:
-                values.put(field, story.getState().mJson);
+                values.put(field, story.getState().toString());
                 break;
             case COLUMN_PRIVACY:
-                values.put(field, story.getPrivacy().mJson);
+                values.put(field, story.getPrivacy().toString());
                 break;
             case COLUMN_CREATED:
                 values.put(field, story.getCreated().toString());
@@ -84,13 +85,13 @@ class StoryMapper extends LocationMapper<Story> {
 
         story.setId(getLong(c, COLUMN_ID, Story.INVALID_ID));
         story.setMinistryId(getNonNullString(c, COLUMN_MINISTRY_ID, Ministry.INVALID_ID));
-        story.setMcc(Mcc.fromJson(getString(c, COLUMN_MCC, Mcc.UNKNOWN.mJson)));
+        story.setMcc(getNonNullEnum(c, COLUMN_MCC, Mcc.class, Mcc.UNKNOWN));
         story.setTitle(getNonNullString(c, COLUMN_TITLE, ""));
         story.setContent(getNonNullString(c, COLUMN_CONTENT, ""));
         story.setImageUrl(getString(c, COLUMN_IMAGE, null));
         story.setPendingImage(getFile(c, COLUMN_PENDING_IMAGE, null));
-        story.setState(State.fromJson(getString(c, COLUMN_STATE, State.UNKNOWN.mJson)));
-        story.setPrivacy(Privacy.fromJson(getString(c, COLUMN_PRIVACY, Privacy.DEFAULT.mJson)));
+        story.setState(getNonNullEnum(c, COLUMN_STATE, State.class, State.UNKNOWN));
+        story.setPrivacy(getNonNullEnum(c, COLUMN_PRIVACY, Privacy.class, Privacy.DEFAULT));
         story.setCreated(getNonNullLocalDate(c, COLUMN_CREATED, LocalDate.now()));
         story.setCreatedBy(getString(c, COLUMN_CREATED_BY, null));
 
