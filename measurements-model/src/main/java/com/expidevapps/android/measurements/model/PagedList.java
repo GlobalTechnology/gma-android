@@ -73,4 +73,8 @@ public final class PagedList<E> extends ForwardingList<E> {
     public int getPages() {
         return mPages;
     }
+
+    public boolean hasMore() {
+        return mTo < mTotal || mPage < mPages;
+    }
 }
