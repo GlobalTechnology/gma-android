@@ -1,6 +1,7 @@
 package com.expidevapps.android.measurements.sync;
 
 import static com.expidevapps.android.measurements.Constants.EXTRA_MINISTRY_ID;
+import static com.expidevapps.android.measurements.api.GmaApiClient.DEFAULT_STORIES_PER_PAGE;
 import static com.expidevapps.android.measurements.db.Contract.Story.SQL_WHERE_DIRTY;
 import static com.expidevapps.android.measurements.db.Contract.Story.SQL_WHERE_HAS_PENDING_IMAGE;
 import static com.expidevapps.android.measurements.db.Contract.Story.SQL_WHERE_NEW;
@@ -57,7 +58,7 @@ class StorySyncTasks extends BaseSyncTasks {
         // fetch extras from the args bundle
         final Bundle filters = args.getBundle(EXTRA_FILTERS);
         final int page = args.getInt(EXTRA_PAGE, 1);
-        final int pageSize = args.getInt(EXTRA_PAGE_SIZE, 20);
+        final int pageSize = args.getInt(EXTRA_PAGE_SIZE, DEFAULT_STORIES_PER_PAGE);
 
         // short-circuit if we aren't forcing a sync and the data isn't stale
         //TODO: support filters in sync key

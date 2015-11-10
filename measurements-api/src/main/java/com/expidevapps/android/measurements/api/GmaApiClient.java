@@ -67,6 +67,8 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
     public static final int V4 = 4;
     public static final int V5 = 5;
 
+    public static final int DEFAULT_STORIES_PER_PAGE = 20;
+
     private static final String PREF_COOKIES = "cookies";
     private static final String PREF_PERSON_ID = "user.person_id";
 
