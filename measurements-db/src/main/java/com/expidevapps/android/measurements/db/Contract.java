@@ -366,12 +366,12 @@ public class Contract {
                         COLUMN_PENDING_IMAGE, COLUMN_NEW, COLUMN_DIRTY};
 
         private static final String SQL_COLUMN_ID = COLUMN_ID + " INTEGER";
-        private static final String SQL_COLUMN_TITLE = COLUMN_TITLE + " TEXT";
-        private static final String SQL_COLUMN_CONTENT = COLUMN_CONTENT + " TEXT";
+        private static final String SQL_COLUMN_TITLE = COLUMN_TITLE + " TEXT NOT NULL";
+        private static final String SQL_COLUMN_CONTENT = COLUMN_CONTENT + " TEXT NOT NULL";
         private static final String SQL_COLUMN_IMAGE = COLUMN_IMAGE + " TEXT";
         private static final String SQL_COLUMN_PENDING_IMAGE = COLUMN_PENDING_IMAGE + " TEXT";
-        private static final String SQL_COLUMN_PRIVACY = COLUMN_PRIVACY + " TEXT";
-        private static final String SQL_COLUMN_STATE = COLUMN_STATE + " TEXT";
+        private static final String SQL_COLUMN_PRIVACY = COLUMN_PRIVACY + " TEXT NOT NULL";
+        private static final String SQL_COLUMN_STATE = COLUMN_STATE + " TEXT NOT NULL";
         private static final String SQL_COLUMN_CREATED = COLUMN_CREATED + " TEXT";
         private static final String SQL_COLUMN_CREATED_BY = COLUMN_CREATED_BY + " TEXT";
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
