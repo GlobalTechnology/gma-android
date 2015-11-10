@@ -78,6 +78,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activity.MeasurementsActivity"/>
         </activity>
+        <activity
+            android:name=".activity.StoriesActivity"
+            android:label="@string/title_activity_stories"
+            android:theme="@style/Theme.GMA.Measurements"
+            android:screenOrientation="userPortrait"
+            android:parentActivityName=".activity.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.MainActivity"/>
+        </activity>
 
         <meta-data
             android:name="com.google.android.gms.version"

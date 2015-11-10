@@ -14,6 +14,11 @@
         android:title="@string/menu_measurements"
         android:orderInCategory="3"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_stories"
+        android:title="@string/menu_stories"
+        android:orderInCategory="4"
+        app:showAsAction="never"/>
     <item android:id="@+id/action_settings" android:title="@string/menu_settings"
         android:orderInCategory="100" app:showAsAction="never" />
     <item

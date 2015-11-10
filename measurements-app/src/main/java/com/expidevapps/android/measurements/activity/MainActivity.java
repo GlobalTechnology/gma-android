@@ -141,6 +141,11 @@ public class MainActivity extends AppCompatActivity {
                     SettingsActivity.start(this, mGuid);
                 }
                 return true;
+            case R.id.action_stories:
+                if (mAssignment != null && !Ministry.INVALID_ID.equals(mAssignment.getMinistryId())) {
+                    StoriesActivity.start(this, mAssignment.getGuid(), mAssignment.getMinistryId());
+                }
+                break;
             case R.id.action_refresh:
                 syncData(true);
                 break;
