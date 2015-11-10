@@ -23,6 +23,7 @@ public class StoriesActivity extends AppCompatActivity {
     private static final String TAG_FRAGMENT_STORIES = "stories";
     private static final String TAG_FRAGMENT_CREATE_STORY = "createStory";
 
+    // these properties should be treated as final and only set/modified in onCreate()
     @NonNull
     private /* final */ String mGuid;
     @NonNull

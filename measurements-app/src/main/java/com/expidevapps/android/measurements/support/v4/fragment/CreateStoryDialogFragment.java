@@ -57,6 +57,7 @@ public class CreateStoryDialogFragment extends BaseEditStoryDialogFragment {
     @InjectView(R.id.published)
     CheckBox mPublished;
 
+    // these properties should be treated as final and only set/modified in onCreate()
     @NonNull
     private /*final*/ String mGuid = INVALID_GUID;
     @NonNull

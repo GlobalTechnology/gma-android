@@ -75,6 +75,7 @@ public class StoriesFragment extends Fragment {
     @Nullable
     private LoadMoreOnScrollListener mLoadMoreListener;
 
+    // these properties should be treated as final and only set/modified in onCreate()
     @NonNull
     private /* final */ String mGuid = INVALID_GUID;
     @NonNull
