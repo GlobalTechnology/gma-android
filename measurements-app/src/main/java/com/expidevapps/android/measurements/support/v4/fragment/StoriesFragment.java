@@ -4,9 +4,13 @@ import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 import static com.expidevapps.android.measurements.Constants.ARG_GUID;
 import static com.expidevapps.android.measurements.Constants.ARG_MINISTRY_ID;
 import static com.expidevapps.android.measurements.Constants.INVALID_GUID;
-import static com.expidevapps.android.measurements.db.Contract.Story.SQL_WHERE_MINISTRY;
+import static com.expidevapps.android.measurements.api.GmaApiClient.DEFAULT_STORIES_PER_PAGE;
+import static com.expidevapps.android.measurements.db.Contract.Story.FIELD_MINISTRY_ID;
+import static com.expidevapps.android.measurements.db.Contract.Story.FIELD_PRIVACY;
+import static com.expidevapps.android.measurements.db.Contract.Story.FIELD_STATE;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_ORDER_BY;
 import static org.ccci.gto.android.common.db.AbstractDao.ARG_WHERE;
+import static org.ccci.gto.android.common.db.Expression.bind;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -35,6 +39,8 @@ import com.expidevapps.android.measurements.db.GmaDao;
 import com.expidevapps.android.measurements.model.Ministry;
 import com.expidevapps.android.measurements.model.PagedList;
 import com.expidevapps.android.measurements.model.Story;
+import com.expidevapps.android.measurements.model.Story.Privacy;
+import com.expidevapps.android.measurements.model.Story.State;
 import com.expidevapps.android.measurements.support.v7.adapter.StoryCursorRecyclerViewAdapter;
 import com.expidevapps.android.measurements.sync.BroadcastUtils;
 import com.expidevapps.android.measurements.sync.GmaSyncService;
@@ -42,6 +48,7 @@ import com.expidevapps.android.measurements.sync.service.StoriesManager;
 
 import org.ccci.gto.android.common.db.support.v4.content.DaoCursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.recyclerview.decorator.DividerItemDecoration;
+import org.ccci.gto.android.common.recyclerview.listener.LoadMoreOnScrollListener;
 import org.ccci.gto.android.common.support.v4.app.SimpleLoaderCallbacks;
 import org.ccci.gto.android.common.support.v4.content.CursorBroadcastReceiverLoader;
 import org.ccci.gto.android.common.util.BundleCompat;
@@ -65,6 +72,8 @@ public class StoriesFragment extends Fragment {
     RecyclerView mStoriesView;
     @Nullable
     private StoryCursorRecyclerViewAdapter mStoriesAdapter;
+    @Nullable
+    private LoadMoreOnScrollListener mLoadMoreListener;
 
     @NonNull
     private /* final */ String mGuid = INVALID_GUID;
@@ -73,10 +82,13 @@ public class StoriesFragment extends Fragment {
 
     @Nullable
     private Cursor mStories = null;
-    @Nullable
-    private RefreshStoriesTask mRefreshTask = null;
     @NonNull
     private final Bundle mFilters = new Bundle();
+    @Nullable
+    private FetchStoriesTask mLoadTask = null;
+
+    private int mLastLoadedStory = 0;
+    private boolean mHasMore = true;
 
     public static StoriesFragment newInstance(@NonNull final String guid, @NonNull final String ministryId) {
         final StoriesFragment fragment = new StoriesFragment();
@@ -102,6 +114,9 @@ public class StoriesFragment extends Fragment {
             mGuid = BundleCompat.getString(args, ARG_GUID, mGuid);
             mMinistryId = BundleCompat.getString(args, ARG_MINISTRY_ID, mMinistryId);
         }
+
+        // trigger an initial fetch of stories
+        fetchStories(false);
     }
 
     @Nullable
@@ -140,25 +155,40 @@ public class StoriesFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.action_refresh:
                 onRefreshStories();
-                break;
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     void onRefreshStories() {
-        // replace previous refresh task
-        mRefreshTask = new RefreshStoriesTask(getActivity(), mGuid, mMinistryId, new Bundle(mFilters));
-        AsyncTaskCompat.executeParallel(mRefreshTask);
+        // reset has more and last page loaded
+        mHasMore = true;
+        mLastLoadedStory = 0;
 
-        // update swipe refresh view
-        updateRefreshView();
+        // trigger a load
+        fetchStories(true);
     }
 
-    void onFinishedRefreshing(@NonNull final RefreshStoriesTask task) {
-        if (mRefreshTask == task) {
-            mRefreshTask = null;
+    void onFinishedFetching(@NonNull final FetchStoriesTask task, @Nullable final PagedList<Story> stories) {
+        if (mLoadTask == task) {
+            mLoadTask = null;
+
+            // tell load more listener we finished loading
+            if (mLoadMoreListener != null) {
+                mLoadMoreListener.doneLoading();
+            }
+
+            // track stats for loaded stories
+            mHasMore = stories != null && stories.hasMore();
+            if (stories != null) {
+                mLastLoadedStory = stories.getTo();
+            }
+
+            // possibly trigger another load if there are still more stories
+            possiblyLoadMore();
         }
 
+        // update refresh view
         updateRefreshView();
     }
 
@@ -178,7 +208,7 @@ public class StoriesFragment extends Fragment {
 
     private void updateRefreshView() {
         if (mSwipeRefresh != null) {
-            mSwipeRefresh.setRefreshing(mRefreshTask != null);
+            mSwipeRefresh.setRefreshing(mLoadTask != null);
         }
     }
 
@@ -188,9 +218,17 @@ public class StoriesFragment extends Fragment {
             mStoriesView.setHasFixedSize(false);
             mStoriesView.setLayoutManager(new LinearLayoutManager(activity));
             mStoriesView.addItemDecoration(new DividerItemDecoration(activity, VERTICAL));
+            mLoadMoreListener = new LoadMoreOnScrollListener() {
+                @Override
+                protected void onLoadMore() {
+                    fetchStories(false);
+                }
+            };
+            mStoriesView.addOnScrollListener(mLoadMoreListener);
 
             mStoriesAdapter = new StoryCursorRecyclerViewAdapter();
             mStoriesView.setAdapter(mStoriesAdapter);
+
             updateStoriesView();
         }
     }
@@ -202,12 +240,35 @@ public class StoriesFragment extends Fragment {
         }
     }
 
+    private void fetchStories(final boolean force) {
+        if (mHasMore) {
+            // replace previous load stories task
+            mLoadTask = new FetchStoriesTask(getActivity(), mGuid, mMinistryId, new Bundle(mFilters),
+                                             (mLastLoadedStory + 1) / DEFAULT_STORIES_PER_PAGE,
+                                             DEFAULT_STORIES_PER_PAGE, force);
+            AsyncTaskCompat.executeParallel(mLoadTask);
+
+            // update swipe refresh view
+            updateRefreshView();
+        }
+    }
+
+    private void possiblyLoadMore() {
+        if (mHasMore && mLoadTask == null) {
+            if (mLoadMoreListener != null && mStoriesView != null) {
+                // XXX: not necessarily the cleanest, but trigger a "fake" scroll to check if more stories are still needed
+                mLoadMoreListener.onScrolled(mStoriesView, 0, 0);
+            }
+        }
+    }
+
     private void startLoaders() {
         final LoaderManager manager = getLoaderManager();
 
         // build the args for the MeasurementDetails loader
         final Bundle args = new Bundle();
-        args.putParcelable(ARG_WHERE, SQL_WHERE_MINISTRY.args(mMinistryId));
+        args.putParcelable(ARG_WHERE, FIELD_STATE.eq(bind(State.PUBLISHED))
+                .and(FIELD_MINISTRY_ID.eq(bind(mMinistryId)).or(FIELD_PRIVACY.eq(bind(Privacy.PUBLIC)))));
         args.putString(ARG_ORDER_BY, Contract.Story.COLUMN_CREATED + " DESC");
 
         // start the Stories Cursor loader
@@ -240,7 +301,7 @@ public class StoriesFragment extends Fragment {
         }
     }
 
-    private class LoadStoriesTask extends AsyncTask<Void, Void, PagedList<Story>> {
+    private class FetchStoriesTask extends AsyncTask<Void, Void, PagedList<Story>> {
         @NonNull
         private final Context mContext;
         @NonNull
@@ -251,16 +312,18 @@ public class StoriesFragment extends Fragment {
         private final Bundle mFilters;
         private final int mPage;
         private final int mPageSize;
+        private final boolean mForce;
 
-        public LoadStoriesTask(@NonNull final Context context, @NonNull final String guid,
-                               @NonNull final String ministryId, @Nullable final Bundle filters, final int page,
-                               final int pageSize) {
+        public FetchStoriesTask(@NonNull final Context context, @NonNull final String guid,
+                                @NonNull final String ministryId, @Nullable final Bundle filters, final int page,
+                                final int pageSize, final boolean force) {
             mContext = context.getApplicationContext();
             mGuid = guid;
             mMinistryId = ministryId;
             mFilters = filters;
             mPage = page;
             mPageSize = pageSize;
+            mForce = force;
         }
 
         @Override
@@ -270,31 +333,15 @@ public class StoriesFragment extends Fragment {
                         .fetchStories(mGuid, mMinistryId, mFilters, mPage, mPageSize);
             } catch (final Exception e) {
                 // we had an error fetching the stories, hand the request off to the sync service
-                GmaSyncService.syncStories(mContext, mGuid, mMinistryId, mFilters, mPage, mPageSize, force());
+                GmaSyncService.syncStories(mContext, mGuid, mMinistryId, mFilters, mPage, mPageSize, mForce);
             }
             return null;
-        }
-
-        protected boolean force() {
-            return false;
-        }
-    }
-
-    private class RefreshStoriesTask extends LoadStoriesTask {
-        public RefreshStoriesTask(@NonNull final Context context, @NonNull final String guid,
-                                  @NonNull final String ministryId, @Nullable final Bundle filters) {
-            super(context, guid, ministryId, filters, 1, 20);
-        }
-
-        @Override
-        protected boolean force() {
-            return true;
         }
 
         @Override
         protected void onPostExecute(@Nullable final PagedList<Story> stories) {
             super.onPostExecute(stories);
-            onFinishedRefreshing(this);
+            onFinishedFetching(this, stories);
         }
     }
 }

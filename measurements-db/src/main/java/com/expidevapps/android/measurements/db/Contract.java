@@ -377,7 +377,6 @@ public class Contract {
         private static final String SQL_PRIMARY_KEY = "PRIMARY KEY(" + COLUMN_ID + ")";
 
         static final String SQL_WHERE_PRIMARY_KEY = COLUMN_ID + " = ?";
-        public static final Expression SQL_WHERE_MINISTRY = field(TABLE, COLUMN_MINISTRY_ID).eq(bind());
         public static final Expression SQL_WHERE_HAS_PENDING_IMAGE = FIELD_PENDING_IMAGE.isNot(Expression.NULL);
         public static final Expression SQL_WHERE_NEW = FIELD_NEW.eq(1);
         public static final Expression SQL_WHERE_DIRTY = FIELD_DIRTY.ne(constant(""));
