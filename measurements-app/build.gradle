@@ -170,7 +170,7 @@ afterEvaluate { project ->
         archives(file("build/outputs/mapping/demo/mapping.txt")) {
             classifier 'demo'
             type 'map'
-            builtBy proguardDemo
+            builtBy assembleDemo
         }
     }
 }
