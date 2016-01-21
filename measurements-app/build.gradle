@@ -7,7 +7,7 @@ buildscript {
 
     dependencies {
         classpath 'com.newrelic.agent.android:agent-gradle-plugin:5.3.2'
-        classpath 'io.fabric.tools:gradle:1.20.1'
+        classpath 'io.fabric.tools:gradle:1.21.2'
     }
 }
 
