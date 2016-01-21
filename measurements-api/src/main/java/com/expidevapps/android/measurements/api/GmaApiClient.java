@@ -66,7 +66,7 @@ import io.fabric.sdk.android.Fabric;
 import me.thekey.android.TheKeySocketException;
 import me.thekey.android.lib.TheKeyImpl;
 
-public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionContext<Session>, Session> {
+public class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionContext<Session>, Session> {
     private static final Logger LOG = LoggerFactory.getLogger(GmaApiClient.class);
 
     public static final int V4 = 4;
