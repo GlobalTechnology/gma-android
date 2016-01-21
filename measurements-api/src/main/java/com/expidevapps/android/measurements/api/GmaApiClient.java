@@ -46,8 +46,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -213,6 +218,18 @@ public final class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionCont
             throws ApiException, IOException {
         super.onPrepareRequest(conn, request);
         assert request.context != null;
+
+        final CookieHandler handler = CookieHandler.getDefault();
+        if (handler instanceof CookieManager) {
+            final CookieStore cookies = ((CookieManager) handler).getCookieStore();
+            try {
+                final URI uri = conn.getURL().toURI();
+                for (final HttpCookie cookie : cookies.get(uri)) {
+                    cookies.remove(uri, cookie);
+                }
+            } catch (URISyntaxException e) {
+            }
+        }
 
         // attach cookies when using the session
         // XXX: this should go away once we remove the cookie requirement on the API
