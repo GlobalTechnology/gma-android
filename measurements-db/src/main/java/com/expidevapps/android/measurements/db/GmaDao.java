@@ -25,6 +25,7 @@ import com.expidevapps.android.measurements.model.UserPreference;
 import com.google.common.base.Joiner;
 
 import org.ccci.gto.android.common.db.AbstractDao;
+import org.ccci.gto.android.common.db.Expression;
 import org.ccci.gto.android.common.db.Mapper;
 import org.ccci.gto.android.common.db.Query;
 import org.ccci.gto.android.common.db.Transaction;
@@ -172,8 +173,8 @@ public class GmaDao extends AbstractDao {
 
     @NonNull
     @Override
-    protected Pair<String, String[]> getPrimaryKeyWhere(@NonNull final Class<?> clazz, @NonNull final Object... key)
-    {
+    protected Pair<String, String[]> getPrimaryKeyWhereRaw(@NonNull final Class<?> clazz,
+                                                           @NonNull final Object... key) {
         final int keyLength;
         final String where;
 
@@ -216,7 +217,7 @@ public class GmaDao extends AbstractDao {
         }
         else
         {
-            return super.getPrimaryKeyWhere(clazz, key);
+            return super.getPrimaryKeyWhereRaw(clazz, key);
         }
 
         // throw an error if the provided key is the wrong size
@@ -230,8 +231,7 @@ public class GmaDao extends AbstractDao {
 
     @NonNull
     @Override
-    protected Pair<String, String[]> getPrimaryKeyWhere(@NonNull final Object obj)
-    {
+    protected Expression getPrimaryKeyWhere(@NonNull final Object obj) {
         if(obj instanceof Ministry)
         {
             return getPrimaryKeyWhere(Ministry.class, ((Ministry) obj).getMinistryId());
@@ -312,7 +312,7 @@ public class GmaDao extends AbstractDao {
         if (value instanceof PersonalMeasurement) {
             sql.append(", 0 - " + Contract.MeasurementValue.COLUMN_VALUE + ")");
         }
-        final Pair<String, String[]> where = getPrimaryKeyWhere(value);
+        final Pair<String, String[]> where = compileExpression(getPrimaryKeyWhere(value));
         sql.append(" WHERE ").append(where.first);
         final String[] args = ArrayUtils.merge(String.class, bindValues(change), where.second);
 
