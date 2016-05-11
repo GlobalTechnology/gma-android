@@ -15,7 +15,8 @@ version '1.0.3-SNAPSHOT'
 
 // define dependency versions for this project
 ext.deps = [
-        androidSupport: '23.1.0'
+        androidSupport: '23.1.0',
+        gtoSupport    : '0.8.0'
 ]
 
 subprojects {

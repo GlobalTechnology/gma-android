@@ -20,7 +20,7 @@ android {
 dependencies {
     compile 'com.android.support:support-v4:' + deps.androidSupport
 
-    compile group: 'org.ccci.gto.android', name: 'gto-support-core', version: versionGtoAndroidSupport
+    compile 'org.ccci.gto.android:gto-support-core:' + deps.gtoSupport
 
     compile group: 'com.google.guava', name: 'guava', version: versionGuava
     compile group: 'net.danlew', name: 'android.joda', version: versionJodaTime

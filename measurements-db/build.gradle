@@ -18,7 +18,7 @@ android {
 dependencies {
     compile project(':measurements-model')
 
-    compile group: 'org.ccci.gto.android', name: 'gto-support-db', version: versionGtoAndroidSupport
+    compile 'org.ccci.gto.android:gto-support-db:' + deps.gtoSupport
 
     compile group: 'com.crashlytics.sdk.android', name: 'crashlytics', version: versionCrashlytics
 }

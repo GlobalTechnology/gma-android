@@ -143,9 +143,8 @@ dependencies {
 
     compile group: 'me.thekey.android', name: 'thekey-lib-accountmanager', version: versionTheKey
 
-    compile group: 'org.ccci.gto.android', name: 'gto-support-db', version: versionGtoAndroidSupport
-    compile group: 'org.ccci.gto.android', name: 'gto-support-picasso', version: versionGtoAndroidSupport
-    compile group: 'org.ccci.gto.android', name: 'gto-support-recyclerview', version: versionGtoAndroidSupport
+    compile 'org.ccci.gto.android:gto-support-picasso:' + deps.gtoSupport
+    compile 'org.ccci.gto.android:gto-support-recyclerview:' + deps.gtoSupport
 
     compile 'com.github.machinarius:preferencefragment:0.1.1'
     compile 'com.github.PhilJay:MPAndroidChart:v2.1.5'
