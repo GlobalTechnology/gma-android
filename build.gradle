@@ -13,6 +13,11 @@ apply from: 'versioning.gradle'
 
 version '1.0.3-SNAPSHOT'
 
+// define dependency versions for this project
+ext.deps = [
+        androidSupport: '23.1.0'
+]
+
 subprojects {
     group 'com.expidevapps.android'
     version rootProject.version

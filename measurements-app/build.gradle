@@ -130,9 +130,9 @@ dependencies {
     compile project(':measurements-api')
     compile project(':measurements-db')
 
-    compile group: 'com.android.support', name: 'appcompat-v7', version: versionAndroidSupport
-    compile group: 'com.android.support', name: 'design', version: versionAndroidSupport
-    compile group: 'com.android.support', name: 'recyclerview-v7', version: versionAndroidSupport
+    compile 'com.android.support:appcompat-v7:' + deps.androidSupport
+    compile 'com.android.support:design:' + deps.androidSupport
+    compile 'com.android.support:recyclerview-v7:' + deps.androidSupport
     compile group: 'com.google.android.gms', name: 'play-services-analytics', version: versionPlayServices
     compile group: 'com.google.android.gms', name: 'play-services-maps', version: versionPlayServices
     compile 'com.google.maps.android:android-maps-utils:0.4'
