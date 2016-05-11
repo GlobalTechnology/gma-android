@@ -86,7 +86,7 @@ public class Training extends Location implements Cloneable {
         training.ministryId = json.getString(JSON_MINISTRY_ID);
         training.name = json.getString(JSON_NAME);
         training.type = json.getString(JSON_TYPE);
-        training.mcc = Ministry.Mcc.fromRaw(json.getString(JSON_MCC));
+        training.mcc = Ministry.Mcc.fromJson(json.getString(JSON_MCC));
         training.date = LocalDate.parse(json.getString(JSON_DATE));
         training.createdBy = json.getString(JSON_CREATED_BY);
         training.setLatitude(json.optDouble(JSON_LATITUDE, Double.NaN));
