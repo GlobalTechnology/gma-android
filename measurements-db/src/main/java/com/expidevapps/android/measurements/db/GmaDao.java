@@ -1,7 +1,5 @@
 package com.expidevapps.android.measurements.db;
 
-import static org.ccci.gto.android.common.db.util.CursorUtils.getLong;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -32,6 +30,8 @@ import org.ccci.gto.android.common.db.Transaction;
 import org.ccci.gto.android.common.util.ArrayUtils;
 
 import java.util.Collection;
+
+import static org.ccci.gto.android.common.db.util.CursorUtils.getLong;
 
 public class GmaDao extends AbstractDao {
     private static final Mapper<Assignment> ASSIGNMENT_MAPPER = new AssignmentMapper();
@@ -279,7 +279,7 @@ public class GmaDao extends AbstractDao {
                 getCursor(Query.select(Contract.LastSync.class).projection(Contract.LastSync.COLUMN_LAST_SYNCED).where(
                         Contract.LastSync.SQL_WHERE_KEY, JOINER_KEY.join(key)));
         if (c.moveToFirst()) {
-            return getLong(c, Contract.LastSync.COLUMN_LAST_SYNCED, 0);
+            return getLong(c, Contract.LastSync.COLUMN_LAST_SYNCED, 0L);
         }
         return 0;
     }

@@ -1082,14 +1082,14 @@ public class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionContext<Se
         }
 
         @Override
-        protected void save(@NonNull final SharedPreferences.Editor prefs) {
+        public void save(@NonNull final SharedPreferences.Editor prefs) {
             super.save(prefs);
             SharedPreferencesUtils.putStringSet(prefs, getPrefAttrName(PREF_COOKIES), this.cookies);
             prefs.putString(getPrefAttrName(PREF_PERSON_ID), mPersonId);
         }
 
         @Override
-        protected void delete(@NonNull SharedPreferences.Editor prefs) {
+        public void delete(@NonNull SharedPreferences.Editor prefs) {
             super.delete(prefs);
             prefs.remove(getPrefAttrName(PREF_COOKIES));
             prefs.remove(getPrefAttrName(PREF_PERSON_ID));
@@ -1108,7 +1108,7 @@ public class GmaApiClient extends AbstractTheKeyApi<Request, ExecutionContext<Se
         }
 
         @Override
-        protected boolean isValid() {
+        public boolean isValid() {
             return super.isValid() && this.cookies.size() > 0;
         }
     }

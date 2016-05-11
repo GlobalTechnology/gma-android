@@ -48,7 +48,7 @@ abstract class BaseMapper<T extends Base> extends AbstractMapper<T> {
         obj.setNew(getBool(c, COLUMN_NEW, false));
         obj.setDirty(getString(c, COLUMN_DIRTY, null));
         obj.setDeleted(getBool(c, COLUMN_DELETED, false));
-        obj.setLastSynced(getLong(c, COLUMN_LAST_SYNCED, 0));
+        obj.setLastSynced(getLong(c, COLUMN_LAST_SYNCED, 0L));
 
         return obj;
     }

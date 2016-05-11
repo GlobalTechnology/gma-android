@@ -34,8 +34,8 @@ import com.google.common.collect.Maps;
 
 import org.ccci.gto.android.common.api.ApiException;
 import org.ccci.gto.android.common.util.BundleCompat;
+import org.ccci.gto.android.common.util.GenericKey;
 import org.ccci.gto.android.common.util.ThreadUtils;
-import org.ccci.gto.android.common.util.ThreadUtils.GenericKey;
 import org.joda.time.YearMonth;
 
 import java.util.ArrayList;
@@ -308,8 +308,8 @@ class MeasurementSyncTasks extends BaseSyncTasks {
         final MeasurementDetails details = api.getMeasurementDetails(ministryId, mcc, permLink, period);
         if (details != null) {
             details.setLastSynced();
-            dao.updateOrInsert(details, new String[] {Contract.MeasurementDetails.COLUMN_JSON,
-                    Contract.MeasurementDetails.COLUMN_LAST_SYNCED});
+            dao.updateOrInsert(details, Contract.MeasurementDetails.COLUMN_JSON,
+                               Contract.MeasurementDetails.COLUMN_LAST_SYNCED);
 
             // broadcast the measurement details sync
             final LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(context);
