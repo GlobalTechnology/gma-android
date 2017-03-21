@@ -1,0 +1,46 @@
+language: android
+sudo: required
+jdk: oraclejdk8
+env:
+  global:
+    - GRADLE_OPTS="-Xms128m -Xmx512m -Dorg.gradle.jvmargs='-Xms128m -Xmx4096m'"
+branches:
+  only:
+    - master
+
+android:
+  components:
+    - tools
+    - tools
+    - platform-tools
+    - build-tools-23.0.3
+    - android-23
+    - extra-android-m2repository
+
+before_cache:
+  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/daemon
+    - $HOME/.gradle/native
+    - $HOME/.gradle/wrapper/
+
+# gradle options
+#  --parallel      : build/test multiple subprojects simultaneously
+#  --continue      : continue processing on an error to try and capture all errors
+#  --stacktrace    : output stacktraces for failures to aid in debugging
+#  --max-workers   : limit the number of workers gradle will spawn
+#  --no-daemon     : disable the background gradle build daemon
+#  -PdisablePreDex : disable library pre-dex to improve build server performance
+script:
+  - ./gradlew --stop
+  - ./gradlew lint -PdisablePreDex --continue --stacktrace --max-workers 2 --no-daemon
+  - ./gradlew build -PdisablePreDex --continue --stacktrace --max-workers 2 --no-daemon -x lint
+
+after_failure:
+  - cat /home/travis/build/CruGlobal/MissionHub-Android/app/build/outputs/lint-results*.xml
+
+notifications:
+  email: false
