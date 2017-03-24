@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_church_create">สร้างโบสถ์ใหม่</string>
+    <string name="title_dialog_church_delete">ลบโบสถ์หรือไม่</string>
+    <string name="text_dialog_church_delete_confirm">แน่ใจหรือไม่ว่าต้องการลบโบสถ์นี้</string>
+    <string name="label_church_name">ชื่อ</string>
+    <string name="label_church_contact_name">ชื่อผู้ติดต่อ</string>
+    <string name="label_church_contact_email">อีเมล</string>
+    <string name="label_church_contact_mobile">มือถือ</string>
+    <string name="label_church_jesus_film_activity">กิจกรรม JESUS Film</string>
+    <string name="label_church_ministry">พันธกิจ</string>
+    <string name="opt_church_jesus_film_activity_yes">ใช่</string>
+    <string name="opt_church_jesus_film_activity_no">ไม่ใช่</string>
+    <string name="alrt_church_jesus_film_required">กรุณาระบุว่าเป็นกิจกรรม JESUS Film หรือไม่</string>
+    <string name="label_church_development">ประเภท</string>
+    <string name="label_church_security">ความปลอดภัย</string>
+    <string name="label_church_size">ขนาด</string>
+    <string name="btn_church_create">สร้าง</string>
+</resources>

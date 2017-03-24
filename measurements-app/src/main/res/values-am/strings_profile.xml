@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_profile_supported_staff">የሚታገዝ ሰራተኛ</string>
+    <string name="title_dialog_profile_set_supported_staff">የሚታገዝ ሰራተኛ</string>
+    <string name="text_profile_supported_staff_message">ወቅታዊውን ሚንስቴር/ቡድን የሚታገዝ ሰራተኛ ሆነው መቀላቀል ይፈልጋሉ?</string>
+    <string name="btn_profile_yes">አዎ</string>
+    <string name="btn_profile_no">አይደለም</string>
+</resources>

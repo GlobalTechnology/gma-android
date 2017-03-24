@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_map_create_item">Tạo Mới</string>
+    <string name="title_dialog_map_create_item_unauthorized">Bạn không được phép tạo một Nhà thờ hoặc Đào tạo mới.</string>
+    <string name="btn_dialog_map_create_church">Nhà thờ</string>
+    <string name="btn_dialog_map_create_training">Đào tạo</string>
+    <string name="label_marker_map_no_name">(không có tên)</string>
+    <plurals name="text_marker_map_church_snippet">
+        <item quantity="other">%1$d thành viên</item>
+    </plurals>
+    <string name="menu_map_search">Tìm kiếm</string>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_training_create">Criar Nova Formação</string>
+    <string name="title_dialog_training_delete">Eliminar Formação?</string>
+    <string name="text_dialog_training_delete_confirm">Tem a certeza de que quer eliminar esta formação?</string>
+    <string name="title_dialog_training_completion_delete">Eliminar Conclusão da Formação?</string>
+    <string name="text_dialog_training_completion_delete_confirm">Tem a certeza de que quer eliminar a conclusão desta formação?</string>
+    <!-- Training Dialog tabs-->
+    <string name="tab_training_training">Formação</string>
+    <string name="tab_training_stages">Etapas</string>
+    <!-- Training Details Fragment-->
+    <string name="label_training_name">Nome</string>
+    <string name="label_training_type">Tipo de Formação</string>
+    <string name="label_training_date">Data</string>
+    <string name="label_training_participants">Participantes</string>
+    <string name="label_training_stage">Etapa</string>
+    <string name="label_training_stage_date">Data</string>
+    <string name="label_training_stage_participants">Participantes</string>
+    <string name="btn_training_add_stage">Adicionar Etapa</string>
+    <string name="btn_training_create">Criar</string>
+</resources>

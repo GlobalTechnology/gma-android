@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_join_ministry">ሚንስቴርን መቀላቀል</string>
+    <string name="title_activity_join_ministry">ሚንስቴርን መቀላቀል</string>
+    <string name="menu_ministry_search">መፈለግ</string>
+    <string name="label_join_ministry_ministry">ሚንስቴር/ቡድን</string>
+    <string name="btn_join_ministry_join">መቀላቀል</string>
+</resources>

@@ -2,190 +2,46 @@ buildscript {
     repositories {
         mavenLocal()
         jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.3'
+    }
+}
+
+apply from: 'versioning.gradle'
+
+version '1.0.3-SNAPSHOT'
+
+// define dependency versions for this project
+ext.deps = [
+        androidSupport: '23.1.0',
+        gtoSupport    : '0.8.0'
+]
+
+subprojects {
+    group 'com.expidevapps.android'
+    version rootProject.version
+
+    repositories {
+        mavenLocal()
+        jcenter()
+        maven {
+            name "maven.gcx.org"
+            url "https://maven.gcx.org/"
+            credentials {
+                username gcxMavenRepositoryUsername
+                password gcxMavenRepositoryPassword
+            }
+        }
         maven { url 'https://maven.fabric.io/public' }
     }
 
-    dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.3'
-        classpath 'com.newrelic.agent.android:agent-gradle-plugin:5.3.0'
-        classpath 'io.fabric.tools:gradle:1.20.1'
-    }
-}
-
-apply plugin: 'com.android.application'
-apply plugin: 'io.fabric'
-apply plugin: 'newrelic'
-apply from: 'versioning.gradle'
-
-group 'org.ccci.gto.android'
-version '0.8.13-SNAPSHOT'
-
-android {
-    compileSdkVersion 23
-    buildToolsVersion '23.0.1'
-
-    defaultConfig {
-        applicationId "com.expidevapps.android.measurements"
-
-        versionName project.version
-        versionCode buildVersionCode()
-
-        minSdkVersion 10
-        targetSdkVersion 23
-
-        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-
-        buildConfigField "long", "THEKEY_CLIENTID", "7439283632057308L"
-        buildConfigField "int", "GMA_API_VERSION", "4"
-        buildConfigField "String", "GOOGLE_ANALYTICS_CLIENT_ID", "\"UA-29919940-7\""
-
-        resValue "string", "google_maps_api_key", "AIzaSyAATaK4l6LRKP5KA61KI2NkHAXd4ilS7NM"
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
-    dexOptions {
-        incremental true
-        javaMaxHeapSize "4g"
-    }
-    lintOptions {
-        warning 'MissingTranslation'
-    }
-    packagingOptions {
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
-    }
-
-    signingConfigs {
-        demo {
-            storeFile file(androidKeystorePath)
-            storePassword androidKeystoreStorePassword
-            keyAlias androidKeystoreDemoKeyAlias
-            keyPassword androidKeystoreKeyPassword
+    apply from: "$rootProject.projectDir/maven_publish.gradle"
+    afterEvaluate { project ->
+        artifacts {
+            archives artifactSourcesJar
+            archives artifactJavadocJar
         }
-        release {
-            storeFile file(androidKeystorePath)
-            storePassword androidKeystoreStorePassword
-            keyAlias androidKeystoreKeyAlias
-            keyPassword androidKeystoreKeyPassword
-        }
-    }
-
-    buildTypes {
-        debug {
-            multiDexEnabled true
-            applicationIdSuffix ".debug"
-            versionNameSuffix "-debug"
-
-            lintOptions {
-                warning 'InvalidPackage'
-            }
-
-            buildConfigField "String", "GMA_API_BASE_URI", "\"https://stage-measurements.global-registry.org/\""
-            buildConfigField "String", "NEW_RELIC_API_KEY", "\"AAfd80ddf74e333f27c92d3f89f125be5cecf9c532\""
-            buildConfigField "int", "GMA_API_VERSION", "5"
-
-            resValue "string", "google_maps_api_key", "AIzaSyCsM4eK9ZND1yZXv9Lg004peeepnKGH0EY"
-        }
-        demo {
-            applicationIdSuffix ".demo"
-            versionNameSuffix "-demo"
-
-            minifyEnabled true
-            shrinkResources true
-            if(signingConfigs.demo.storeFile.exists()) {
-                signingConfig signingConfigs.demo
-            }
-
-            buildConfigField "String", "GMA_API_BASE_URI", "\"https://stage-measurements.global-registry.org/\""
-            buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA8cb9761bdbec4e9ada73f4f4953f5c347f315d37\""
-        }
-        release {
-            minifyEnabled true
-            shrinkResources true
-            if(signingConfigs.release.storeFile.exists()) {
-                signingConfig signingConfigs.release
-            }
-
-            buildConfigField "String", "GMA_API_BASE_URI", "\"https://measurements.global-registry.org/\""
-            buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA3128e4005a5f2d68e0d232aebec6e9936950e042\""
-        }
-    }
-
-    applicationVariants.all {
-        buildConfigField "String", "ACCOUNT_TYPE", '"' + applicationId + '.account"'
-        resValue "string", "account_type", applicationId + ".account"
-        buildConfigField "String", "SYNC_AUTHORITY", '"' + applicationId + '.authority"'
-        resValue "string", "sync_authority", applicationId + ".authority"
-    }
-}
-
-repositories {
-    mavenLocal()
-    jcenter()
-    maven {
-        name "maven.gcx.org"
-        url "https://maven.gcx.org/"
-    }
-    maven { url 'https://jitpack.io' }
-    maven { url 'https://maven.fabric.io/public' }
-}
-
-dependencies {
-    compile 'com.android.support:appcompat-v7:23.0.1'
-    compile 'com.android.support:recyclerview-v7:23.0.1'
-    compile 'com.android.support:support-v4:23.0.1'
-    compile 'com.google.android.gms:play-services-analytics:8.1.0'
-    compile 'com.google.android.gms:play-services-maps:8.1.0'
-    compile 'com.google.guava:guava:18.0'
-    compile 'com.google.maps.android:android-maps-utils:0.3.4'
-
-    compile 'com.crashlytics.sdk.android:crashlytics:2.5.2'
-    compile 'com.newrelic.agent.android:android-agent:5.3.0'
-
-    compile 'com.jakewharton:butterknife:6.1.0'
-
-    compile 'me.thekey.android:thekey-lib-accountmanager:1.1.0'
-
-    compile 'org.ccci.gto.android:gto-support-api:0.7.1-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-core:0.7.1-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-db:0.7.1-SNAPSHOT'
-    compile 'org.ccci.gto.android:gto-support-recyclerview:0.7.1-SNAPSHOT'
-
-    compile 'org.slf4j:slf4j-api:1.7.12'
-    compile 'org.slf4j:slf4j-android:1.7.12'
-
-    compile 'com.github.machinarius:preferencefragment:0.1.1'
-    compile 'com.github.PhilJay:MPAndroidChart:v2.1.0'
-    compile 'com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.6.2'
-    compile 'com.github.frett.ViewPagerIndicator:library:c954a2a44f'
-    compile 'net.danlew:android.joda:2.8.2'
-
-    debugCompile 'com.android.support:multidex:1.0.1'
-    debugCompile 'com.facebook.stetho:stetho:1.2.0'
-    debugCompile 'com.facebook.stetho:stetho-js-rhino:1.2.0'
-}
-
-apply from: 'maven_publish.gradle'
-afterEvaluate { project ->
-    artifacts {
-        archives(file("build/outputs/mapping/release/mapping.txt")) {
-            classifier 'mapping'
-            type 'txt'
-            builtBy proguardRelease
-        }
-        archives(file("build/outputs/apk/gma-demo.apk")) {
-            classifier 'demo'
-            type 'apk'
-            builtBy assembleDemo
-        }
-        archives(file("build/outputs/mapping/demo/mapping.txt")) {
-            classifier 'demo-mapping'
-            type 'txt'
-            builtBy proguardDemo
-        }
-        archives artifactSourcesJar
     }
 }

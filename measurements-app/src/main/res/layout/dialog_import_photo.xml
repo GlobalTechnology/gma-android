@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <Button
+        android:id="@+id/capture"
+        style="@style/Widget.GMA.Stories.Edit.UpdateImage.ActionButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_camera_alt_black_24dp"
+        android:drawableLeft="@drawable/ic_camera_alt_black_24dp"
+        android:text="@string/action_dialog_stories_image_capture"/>
+
+    <Button
+        android:id="@+id/choose"
+        style="@style/Widget.GMA.Stories.Edit.UpdateImage.ActionButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_image_black_24dp"
+        android:drawableLeft="@drawable/ic_image_black_24dp"
+        android:text="@string/action_dialog_stories_image_select"/>
+
+</LinearLayout>

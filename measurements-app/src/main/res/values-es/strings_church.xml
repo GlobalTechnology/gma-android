@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_church_create">Crear nueva iglesia</string>
+    <string name="title_dialog_church_delete">¿Eliminar iglesia?</string>
+    <string name="text_dialog_church_delete_confirm">¿Seguro que deseas eliminar esta iglesia?</string>
+    <string name="label_church_name">Nombre</string>
+    <string name="label_church_contact_name">Nombre de contacto</string>
+    <string name="label_church_contact_email">Email de contacto</string>
+    <string name="label_church_contact_mobile">Celular de contacto</string>
+    <string name="label_church_jesus_film_activity">Actividad de Jesus Film</string>
+    <string name="label_church_ministry">Ministerio</string>
+    <string name="opt_church_jesus_film_activity_yes">Sí</string>
+    <string name="opt_church_jesus_film_activity_no">No</string>
+    <string name="alrt_church_jesus_film_required">Indica si esta era una actividad de JESUS Film.</string>
+    <string name="label_church_development">Tipo</string>
+    <string name="label_church_security">Seguridad</string>
+    <string name="label_church_size">Tamaño</string>
+    <string name="btn_church_create">Crear</string>
+</resources>

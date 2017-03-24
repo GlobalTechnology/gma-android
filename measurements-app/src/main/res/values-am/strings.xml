@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Titles -->
+    <!-- Common Menu items -->
+    <string name="menu_refresh">ማደስ</string>
+    <!-- Common Buttons -->
+    <string name="btn_delete">መሰረዝ</string>
+    <string name="btn_update">ማሻሻል</string>
+</resources>

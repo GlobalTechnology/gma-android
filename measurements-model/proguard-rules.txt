@@ -1,0 +1,2 @@
+# Joda Time
+-dontwarn org.joda.time.tz.ZoneInfoCompiler

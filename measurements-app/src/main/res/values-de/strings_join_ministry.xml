@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_join_ministry">Pfarrei beitreten</string>
+    <string name="title_activity_join_ministry">Amt beitreten</string>
+    <string name="menu_ministry_search">Suchen</string>
+    <string name="label_join_ministry_ministry">Amt/Team</string>
+    <string name="btn_join_ministry_join">Beitreten</string>
+</resources>

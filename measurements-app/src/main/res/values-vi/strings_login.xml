@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="text_login_welcome">Chào mừng bạn đến với GMA, nhấp vào nút Đăng nhập để bắt đầu.</string>
+    <string name="btn_login">Đăng nhập</string>
+    <string name="menu_logout">Đăng xuất</string>
+    <string name="title_dialog_logout">Đăng xuất</string>
+    <string name="text_logout_message">Bạn có chắc mình muốn đăng xuất không?</string>
+</resources>

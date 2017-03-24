@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_stories">Stories</string>
+    <string name="title_dialog_stories_create">Create Story</string>
+    <string name="title_dialog_stories_update_image">Update image</string>
+
+    <string name="menu_stories">Stories</string>
+
+    <string name="action_dialog_stories_image_capture">Take photo</string>
+    <string name="action_dialog_stories_image_select">Choose image</string>
+
+    <string name="label_stories_title">Title</string>
+    <string name="label_stories_content">Content</string>
+    <string name="label_stories_public">Public</string>
+    <string name="label_stories_publish">Publish</string>
+    <string name="btn_stories_create">Create</string>
+</resources>

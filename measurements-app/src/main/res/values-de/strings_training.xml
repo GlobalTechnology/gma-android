@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_training_create">Neues Training erstellen</string>
+    <string name="title_dialog_training_delete">Training löschen?</string>
+    <string name="text_dialog_training_delete_confirm">Möchten Sie dieses Training wirklich löschen?</string>
+    <string name="title_dialog_training_completion_delete">Trainingsabschluss löschen</string>
+    <string name="text_dialog_training_completion_delete_confirm">Sind Sie sicher, dass Sie diesen Traningsabschluss löschen möchten?</string>
+    <!-- Training Dialog tabs-->
+    <string name="tab_training_training">Training</string>
+    <string name="tab_training_stages">Abschnitte</string>
+    <!-- Training Details Fragment-->
+    <string name="label_training_name">Name</string>
+    <string name="label_training_type">Trainingsart</string>
+    <string name="label_training_date">Datum</string>
+    <string name="label_training_participants">Teilnehmer</string>
+    <string name="label_training_stage">Abschnitt</string>
+    <string name="label_training_stage_date">Datum</string>
+    <string name="label_training_stage_participants">Teilnehmer</string>
+    <string name="btn_training_add_stage">Abschnitt hinzufügen</string>
+    <string name="btn_training_create">Erstellen</string>
+</resources>

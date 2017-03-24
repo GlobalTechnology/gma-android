@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_measurements">ልኬቶች</string>
+    <string name="title_activity_measurements_personal">የግል ልኬቶች</string>
+    <string name="title_activity_measurements_local">የሚንስቴር ልኬቶች</string>
+    <string name="title_activity_measurement_details">የልኬት ዝርዝሮች</string>
+    <string name="menu_measurements">ልኬቶች</string>
+    <string name="menu_measurements_personal">የግል ልኬቶች</string>
+    <string name="menu_measurements_ministry">የሚንስቴር ልኬቶች</string>
+    <string name="menu_measurements_favorites">ተወዳጅ ልኬቶች</string>
+    <string name="menu_measurements_all">ሁሉም ልኬቶች</string>
+    <string name="menu_measurements_add_favorite">የሚወዱትን ይጨምሩ</string>
+    <string name="menu_measurements_remove_favorite">የሚወዱትን ያስወግዱ</string>
+    <!-- Measurements Not Authorized dialog -->
+    <string name="title_dialog_measurements_unauthorized">ታግዷል</string>
+    <string name="text_dialog_measurements_unauthorized">ለዚህ ሚኒስቴር ልኬቶችን ለማሳየት አልተፈቀደልዎትም</string>
+    <!-- Measurement accordion sections -->
+    <string name="label_measurements_column_faith">የእምነት ድርጊቶች</string>
+    <string name="label_measurements_column_fruit">ፍሬ</string>
+    <string name="label_measurements_column_outcomes">ውጤቶች</string>
+    <string name="label_measurements_column_other">ሌላ</string>
+    <!-- Measurement details breakdown sections -->
+    <string name="label_measurement_details_breakdown_section_total">አጠቃላይ</string>
+    <string name="label_measurement_details_breakdown_section_local">አካባቢያዊ ቡድን</string>
+    <string name="label_measurement_details_breakdown_section_team">የቡድን አባላት</string>
+    <string name="label_measurement_details_breakdown_section_subministries">ንዑስ ሚንስቴሮች/ ቡድኖች</string>
+    <string name="label_measurement_details_breakdown_section_selfassigned">በራሳቸው የተመደቡ አባላት</string>
+    <string name="label_measurement_details_breakdown_section_split">ልኬቶችን መለያየት</string>
+</resources>

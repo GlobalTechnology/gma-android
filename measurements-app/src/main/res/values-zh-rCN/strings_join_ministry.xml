@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_join_ministry">参与事工</string>
+    <string name="title_activity_join_ministry">参与事工</string>
+    <string name="menu_ministry_search">搜索</string>
+    <string name="label_join_ministry_ministry">事工/团</string>
+    <string name="btn_join_ministry_join">参与</string>
+</resources>

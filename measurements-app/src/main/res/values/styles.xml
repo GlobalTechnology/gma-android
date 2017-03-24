@@ -1,0 +1,27 @@
+<resources>
+    <color name="gma_green">#58b231</color>
+    <color name="measurementValueBackground">#faf8f7</color>
+
+    <!-- Default Shadow settings -->
+    <dimen name="shdw_length">4dp</dimen>
+    <color name="shdw_start">#33000000</color>
+    <color name="shdw_end">#00000000</color>
+
+    <style name="Base"/>
+
+    <style name="Theme.GMA" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textAppearance">@style/TextAppearance.GMA</item>
+        <item name="android:textAppearanceMedium">@style/TextAppearance.GMA.Medium</item>
+        <item name="android:textAppearanceLarge">@style/TextAppearance.GMA.Large</item>
+    </style>
+
+    <style name="TextAppearance.GMA" parent="TextAppearance.AppCompat"/>
+
+    <style name="TextAppearance.GMA.Medium" parent="TextAppearance.AppCompat.Medium"/>
+
+    <style name="TextAppearance.GMA.Large" parent="TextAppearance.AppCompat.Large"/>
+
+    <style name="Widget.GMA.Button" parent="android:Widget.Button">
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+</resources>

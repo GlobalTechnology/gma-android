@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_measurements">Mediciones</string>
+    <string name="title_activity_measurements_personal">Mediciones personales</string>
+    <string name="title_activity_measurements_local">Mediciones de ministerio</string>
+    <string name="title_activity_measurement_details">Detalles de mediciones</string>
+    <string name="menu_measurements">Mediciones</string>
+    <string name="menu_measurements_personal">Mediciones personales</string>
+    <string name="menu_measurements_ministry">Mediciones de ministerio</string>
+    <string name="menu_measurements_favorites">Mediciones favoritas</string>
+    <string name="menu_measurements_all">Todas las mediciones</string>
+    <string name="menu_measurements_add_favorite">Agregar favorito</string>
+    <string name="menu_measurements_remove_favorite">Quitar favorito</string>
+    <!-- Measurements Not Authorized dialog -->
+    <string name="title_dialog_measurements_unauthorized">Bloqueado</string>
+    <string name="text_dialog_measurements_unauthorized">No tienes permiso para ver las mediciones para este ministerio.</string>
+    <!-- Measurement accordion sections -->
+    <string name="label_measurements_column_faith">Acciones de fe</string>
+    <string name="label_measurements_column_fruit">Fruto</string>
+    <string name="label_measurements_column_outcomes">Resultados</string>
+    <string name="label_measurements_column_other">Otro</string>
+    <!-- Measurement details breakdown sections -->
+    <string name="label_measurement_details_breakdown_section_total">Total</string>
+    <string name="label_measurement_details_breakdown_section_local">Equipo local</string>
+    <string name="label_measurement_details_breakdown_section_team">Miembros del equipo</string>
+    <string name="label_measurement_details_breakdown_section_subministries">Subministerios / Equipos</string>
+    <string name="label_measurement_details_breakdown_section_selfassigned">Miembros autoasignados</string>
+    <string name="label_measurement_details_breakdown_section_split">Mediciones divididas</string>
+</resources>

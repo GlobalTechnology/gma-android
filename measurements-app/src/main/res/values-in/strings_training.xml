@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_training_create">Buat Pelatihan Baru</string>
+    <string name="title_dialog_training_delete">Hapus Pelatihan?</string>
+    <string name="text_dialog_training_delete_confirm">Apakah Anda yakin ingin menghapus pelatihan ini?</string>
+    <string name="title_dialog_training_completion_delete">Hapus Penyelesaian Pelatihan?</string>
+    <string name="text_dialog_training_completion_delete_confirm">Apakah Anda yakin ingin menghapus penyelesaian pelatihan ini?</string>
+    <!-- Training Dialog tabs-->
+    <string name="tab_training_training">Pelatihan</string>
+    <string name="tab_training_stages">Tahap</string>
+    <!-- Training Details Fragment-->
+    <string name="label_training_name">Nama</string>
+    <string name="label_training_type">Jenis Pelatihan</string>
+    <string name="label_training_date">Tanggal</string>
+    <string name="label_training_participants">Peserta</string>
+    <string name="label_training_stage">Tahap</string>
+    <string name="label_training_stage_date">Tanggal</string>
+    <string name="label_training_stage_participants">Peserta</string>
+    <string name="btn_training_add_stage">Tambah Tahap</string>
+    <string name="btn_training_create">Buat</string>
+</resources>

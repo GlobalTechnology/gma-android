@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_settings">Ajustes</string>
+    <string name="title_activity_settings">Ajustes</string>
+    <!-- Strings related to Settings -->
+    <string name="pref_category_active_ministry">Ministerio activo</string>
+    <string name="pref_category_map_layer">Niveles de mapa</string>
+    <!-- Ministry preference strings -->
+    <string name="pref_title_ministry_team_text">Ministerio/Equipo</string>
+    <string name="pref_summary_ministry_none_set">No hay ministerio seleccionado</string>
+    <string name="pref_summary_ministry_none_available">No hay ministerios disponibles</string>
+    <!-- MCC preference strings -->
+    <string name="pref_summary_mcc_none_set">No hay MCC seleccionado</string>
+    <string name="pref_summary_mcc_none_available">No hay MCC disponible</string>
+    <!-- Map preferences -->
+    <string name="pref_title_map_layer_church_parents">Relaciones de Padres de iglesia</string>
+    <string name="pref_title_map_layer_church_target">Objetivos</string>
+    <string name="pref_title_map_layer_church_group">Grupos</string>
+    <string name="pref_title_map_layer_church_church">Iglesias</string>
+    <string name="pref_title_map_layer_church_multiplying">Iglesias multiplicadoras</string>
+    <string name="pref_title_map_layer_training">Actividades de entrenamiento</string>
+</resources>

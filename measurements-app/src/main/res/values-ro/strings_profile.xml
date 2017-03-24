@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_profile_supported_staff">Personal acceptat</string>
+    <string name="title_dialog_profile_set_supported_staff">Personal acceptat</string>
+    <string name="text_profile_supported_staff_message">Vreți să vă alăturați misiunii/echipei actuale ca personal acceptat?</string>
+    <string name="btn_profile_yes">Da</string>
+    <string name="btn_profile_no">Nu</string>
+</resources>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_measurements">Показатели</string>
+    <string name="title_activity_measurements_personal">Личные показатели</string>
+    <string name="title_activity_measurements_local">Показатели миссии</string>
+    <string name="title_activity_measurement_details">Подробно</string>
+    <string name="menu_measurements">Показатели</string>
+    <string name="menu_measurements_personal">Личные показатели</string>
+    <string name="menu_measurements_ministry">Показатели миссии</string>
+    <string name="menu_measurements_favorites">Избранные показатели</string>
+    <string name="menu_measurements_all">Все показатели</string>
+    <string name="menu_measurements_add_favorite">Добавить в избранное</string>
+    <string name="menu_measurements_remove_favorite">Удалить из избранного</string>
+    <!-- Measurements Not Authorized dialog -->
+    <string name="title_dialog_measurements_unauthorized">Заблокировано</string>
+    <string name="text_dialog_measurements_unauthorized">Вы не можете просматривать показатели данной миссионерской организации</string>
+    <!-- Measurement accordion sections -->
+    <string name="label_measurements_column_faith">Деяния веры</string>
+    <string name="label_measurements_column_fruit">Плоды</string>
+    <string name="label_measurements_column_outcomes">Результаты</string>
+    <string name="label_measurements_column_other">Другое</string>
+    <!-- Measurement details breakdown sections -->
+    <string name="label_measurement_details_breakdown_section_total">Итого</string>
+    <string name="label_measurement_details_breakdown_section_local">Местная команда</string>
+    <string name="label_measurement_details_breakdown_section_team">Члены команды</string>
+    <string name="label_measurement_details_breakdown_section_subministries">Миссионерские организации / команды нижнего уровня</string>
+    <string name="label_measurement_details_breakdown_section_selfassigned">Самопровозглашенные участники</string>
+    <string name="label_measurement_details_breakdown_section_split">Раздельные показатели</string>
+</resources>

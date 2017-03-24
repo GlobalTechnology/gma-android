@@ -1,0 +1,175 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'com.newrelic.agent.android:agent-gradle-plugin:5.3.2'
+        classpath 'io.fabric.tools:gradle:1.21.2'
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+apply plugin: 'newrelic'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion '23.0.3'
+
+    defaultConfig {
+        applicationId "com.expidevapps.android.measurements"
+
+        versionName project.version
+        versionCode buildVersionCode()
+
+        minSdkVersion 10
+        targetSdkVersion 23
+
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+        buildConfigField "long", "THEKEY_CLIENTID", "7439283632057308L"
+        buildConfigField "int", "GMA_API_VERSION", "5"
+        buildConfigField "String", "GOOGLE_ANALYTICS_CLIENT_ID", "\"UA-29919940-7\""
+
+        resValue "string", "google_maps_api_key", "AIzaSyAATaK4l6LRKP5KA61KI2NkHAXd4ilS7NM"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+    dexOptions {
+        incremental true
+        javaMaxHeapSize "4g"
+    }
+    lintOptions {
+        warning 'MissingTranslation'
+    }
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+
+    signingConfigs {
+        demo {
+            storeFile file(androidKeystorePath)
+            storePassword androidKeystoreStorePassword
+            keyAlias androidKeystoreDemoKeyAlias
+            keyPassword androidKeystoreKeyPassword
+        }
+        release {
+            storeFile file(androidKeystorePath)
+            storePassword androidKeystoreStorePassword
+            keyAlias androidKeystoreKeyAlias
+            keyPassword androidKeystoreKeyPassword
+        }
+    }
+
+    buildTypes {
+        debug {
+            multiDexEnabled true
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+
+            lintOptions {
+                warning 'InvalidPackage'
+            }
+
+            buildConfigField "String", "GMA_API_BASE_URI", "\"https://stage-measurements.global-registry.org/\""
+            buildConfigField "String", "NEW_RELIC_API_KEY", "\"AAfd80ddf74e333f27c92d3f89f125be5cecf9c532\""
+
+            resValue "string", "google_maps_api_key", "AIzaSyCsM4eK9ZND1yZXv9Lg004peeepnKGH0EY"
+        }
+        demo {
+            applicationIdSuffix ".demo"
+            versionNameSuffix "-demo"
+
+            minifyEnabled true
+            shrinkResources true
+            if(signingConfigs.demo.storeFile.exists()) {
+                signingConfig signingConfigs.demo
+            }
+
+            buildConfigField "String", "GMA_API_BASE_URI", "\"https://stage-measurements.global-registry.org/\""
+            buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA8cb9761bdbec4e9ada73f4f4953f5c347f315d37\""
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            if(signingConfigs.release.storeFile.exists()) {
+                signingConfig signingConfigs.release
+            }
+
+            buildConfigField "String", "GMA_API_BASE_URI", "\"https://measurements.global-registry.org/\""
+            buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA3128e4005a5f2d68e0d232aebec6e9936950e042\""
+        }
+    }
+
+    applicationVariants.all {
+        buildConfigField "String", "ACCOUNT_TYPE", '"' + applicationId + '.account"'
+        resValue "string", "account_type", applicationId + ".account"
+        buildConfigField "String", "SYNC_AUTHORITY", '"' + applicationId + '.authority"'
+        resValue "string", "sync_authority", applicationId + ".authority"
+    }
+}
+
+repositories {
+    mavenLocal()
+    jcenter()
+    maven {
+        name "maven.gcx.org"
+        url "https://maven.gcx.org/"
+    }
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    compile project(':measurements-api')
+    compile project(':measurements-db')
+
+    compile 'com.android.support:appcompat-v7:' + deps.androidSupport
+    compile 'com.android.support:design:' + deps.androidSupport
+    compile 'com.android.support:recyclerview-v7:' + deps.androidSupport
+    compile group: 'com.google.android.gms', name: 'play-services-analytics', version: versionPlayServices
+    compile group: 'com.google.android.gms', name: 'play-services-maps', version: versionPlayServices
+    compile 'com.google.maps.android:android-maps-utils:0.4'
+
+    compile 'com.newrelic.agent.android:android-agent:5.3.2'
+
+    compile 'com.jakewharton:butterknife:6.1.0'
+
+    compile group: 'me.thekey.android', name: 'thekey-lib-accountmanager', version: versionTheKey
+
+    compile 'org.ccci.gto.android:gto-support-picasso:' + deps.gtoSupport
+    compile 'org.ccci.gto.android:gto-support-recyclerview:' + deps.gtoSupport
+
+    compile 'com.github.machinarius:preferencefragment:0.1.1'
+    compile 'com.github.PhilJay:MPAndroidChart:v2.1.5'
+    compile 'com.github.frett.ViewPagerIndicator:library:c954a2a44f'
+    compile 'com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.8.3'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+
+    debugCompile group: 'org.slf4j', name: 'slf4j-android', version: versionSLF4J
+
+    debugCompile 'com.android.support:multidex:1.0.1'
+    debugCompile 'com.facebook.stetho:stetho:1.2.0'
+    debugCompile 'com.facebook.stetho:stetho-js-rhino:1.2.0'
+}
+
+afterEvaluate { project ->
+    artifacts {
+        archives(file("build/outputs/apk/measurements-app-demo.apk")) {
+            classifier 'demo'
+            type 'apk'
+            builtBy assembleDemo
+        }
+        archives(file("build/outputs/mapping/demo/mapping.txt")) {
+            classifier 'demo'
+            type 'map'
+            builtBy assembleDemo
+        }
+    }
+}

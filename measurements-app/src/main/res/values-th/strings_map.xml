@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_map_create_item">สร้างใหม่</string>
+    <string name="title_dialog_map_create_item_unauthorized">คุณไม่ได้รับอนุญาตให้สร้างโบสถ์หรือการฝึกอบรมใหม่</string>
+    <string name="btn_dialog_map_create_church">โบสถ์</string>
+    <string name="btn_dialog_map_create_training">การฝึกอบรม</string>
+    <string name="label_marker_map_no_name">(ไม่มีชื่อ)</string>
+    <plurals name="text_marker_map_church_snippet">
+        <item quantity="other">%1$d สมาชิก</item>
+    </plurals>
+    <string name="menu_map_search">ค้นหา</string>
+</resources>

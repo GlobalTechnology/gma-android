@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_measurements">度量</string>
+    <string name="title_activity_measurements_personal">私人度量</string>
+    <string name="title_activity_measurements_local">事工度量</string>
+    <string name="title_activity_measurement_details">度量详情</string>
+    <string name="menu_measurements">度量</string>
+    <string name="menu_measurements_personal">私人度量</string>
+    <string name="menu_measurements_ministry">事工度量</string>
+    <string name="menu_measurements_favorites">收藏度量</string>
+    <string name="menu_measurements_all">所有度量</string>
+    <string name="menu_measurements_add_favorite">添加收藏</string>
+    <string name="menu_measurements_remove_favorite">删除收藏</string>
+    <!-- Measurements Not Authorized dialog -->
+    <string name="title_dialog_measurements_unauthorized">阻止</string>
+    <string name="text_dialog_measurements_unauthorized">您不可以查看此事工的度量结果</string>
+    <!-- Measurement accordion sections -->
+    <string name="label_measurements_column_faith">信仰行动</string>
+    <string name="label_measurements_column_fruit">水果</string>
+    <string name="label_measurements_column_outcomes">结果</string>
+    <string name="label_measurements_column_other">其他</string>
+    <!-- Measurement details breakdown sections -->
+    <string name="label_measurement_details_breakdown_section_total">总计</string>
+    <string name="label_measurement_details_breakdown_section_local">当地团队</string>
+    <string name="label_measurement_details_breakdown_section_team">团队成员</string>
+    <string name="label_measurement_details_breakdown_section_subministries">副事工/团队</string>
+    <string name="label_measurement_details_breakdown_section_selfassigned">自行分配成员</string>
+    <string name="label_measurement_details_breakdown_section_split">拆分度量</string>
+</resources>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_measurements">मापन</string>
+    <string name="title_activity_measurements_personal">निजी मापन</string>
+    <string name="title_activity_measurements_local">मिनिस्ट्री मापन</string>
+    <string name="title_activity_measurement_details">मापन विवरण</string>
+    <string name="menu_measurements">मापन</string>
+    <string name="menu_measurements_personal">निजी मापन</string>
+    <string name="menu_measurements_ministry">मिनिस्ट्री मापन</string>
+    <string name="menu_measurements_favorites">पसंदीदा मापन</string>
+    <string name="menu_measurements_all">सभी मापन</string>
+    <string name="menu_measurements_add_favorite">पसंदीदा जोडें</string>
+    <string name="menu_measurements_remove_favorite">पसंदीदा हटाएं</string>
+    <!-- Measurements Not Authorized dialog -->
+    <string name="title_dialog_measurements_unauthorized">अवरोधित</string>
+    <string name="text_dialog_measurements_unauthorized">आप इस मिनिस्ट्री के मापन देखने के लिए अधिकृत नहीं हैं</string>
+    <!-- Measurement accordion sections -->
+    <string name="label_measurements_column_faith">भरोसे की क्रिया</string>
+    <string name="label_measurements_column_fruit">फल</string>
+    <string name="label_measurements_column_outcomes">नतीजे</string>
+    <string name="label_measurements_column_other">अन्य</string>
+    <!-- Measurement details breakdown sections -->
+    <string name="label_measurement_details_breakdown_section_total">कुल</string>
+    <string name="label_measurement_details_breakdown_section_local">स्थानीय दल</string>
+    <string name="label_measurement_details_breakdown_section_team">दल के सदस्य</string>
+    <string name="label_measurement_details_breakdown_section_subministries">सब-मिनिस्ट्रीज़/टीम्स</string>
+    <string name="label_measurement_details_breakdown_section_selfassigned">स्वनियुक्त सदस्य</string>
+    <string name="label_measurement_details_breakdown_section_split">विभाजित मापन</string>
+</resources>

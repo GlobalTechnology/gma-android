@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_profile_supported_staff">เจ้าหน้าที่สนับสนุน</string>
+    <string name="title_dialog_profile_set_supported_staff">เจ้าหน้าที่สนับสนุน</string>
+    <string name="text_profile_supported_staff_message">คุณต้องการเข้าร่วมพันธกิจ/ทีมปัจจุบันในฐานะเจ้าหน้าที่สนับสนุนหรือไม่</string>
+    <string name="btn_profile_yes">ใช่</string>
+    <string name="btn_profile_no">ไม่</string>
+</resources>

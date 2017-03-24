@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_measurements">Measurements</string>
+    <string name="title_activity_measurements_personal">Personal Measurements</string>
+    <string name="title_activity_measurements_local">Ministry Measurements</string>
+    <string name="title_activity_measurement_details">Measurement Details</string>
+
+    <string name="menu_measurements">Measurements</string>
+    <string name="menu_measurements_personal">Personal Measurements</string>
+    <string name="menu_measurements_ministry">Ministry Measurements</string>
+    <string name="menu_measurements_favorites">Favorite Measurements</string>
+    <string name="menu_measurements_all">All Measurements</string>
+    <string name="menu_measurements_add_favorite">Add Favorite</string>
+    <string name="menu_measurements_remove_favorite">Remove Favorite</string>
+
+    <!-- Measurements Not Authorized dialog -->
+    <eat-comment />
+    <string name="title_dialog_measurements_unauthorized">Blocked</string>
+    <string name="text_dialog_measurements_unauthorized">You are not allowed to view measurements for this ministry</string>
+
+    <!-- Measurement accordion sections -->
+    <eat-comment />
+    <string name="label_measurements_column_faith">Faith Actions</string>
+    <string name="label_measurements_column_fruit">Fruit</string>
+    <string name="label_measurements_column_outcomes">Outcomes</string>
+    <string name="label_measurements_column_other">Other</string>
+
+    <!-- Measurement details breakdown sections -->
+    <eat-comment />
+    <string name="label_measurement_details_breakdown_section_total">Total</string>
+    <string name="label_measurement_details_breakdown_section_local">Local Team</string>
+    <string name="label_measurement_details_breakdown_section_team">Team Members</string>
+    <string name="label_measurement_details_breakdown_section_subministries">Sub-Ministries / Teams</string>
+    <string name="label_measurement_details_breakdown_section_selfassigned">Self Assigned Members</string>
+    <string name="label_measurement_details_breakdown_section_split">Split Measurements</string>
+</resources>

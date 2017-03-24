@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Titles -->
+    <!-- Common Menu items -->
+    <string name="menu_refresh">รีเฟรช</string>
+    <!-- Common Buttons -->
+    <string name="btn_delete">ลบ</string>
+    <string name="btn_update">อัปเดต</string>
+</resources>

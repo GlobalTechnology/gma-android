@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_training_create">Tạo thêm Đào tạo mới</string>
+    <string name="title_dialog_training_delete">Xóa Đào tạo?</string>
+    <string name="text_dialog_training_delete_confirm">Bạn có chắc là muốn xóa đào tạo này không?</string>
+    <string name="title_dialog_training_completion_delete">Xóa việc Hoàn thành khóa Đào tạo?</string>
+    <string name="text_dialog_training_completion_delete_confirm">Bạn có chắc mình muốn xóa việc hoàn thành khóa đào tạo này không?</string>
+    <!-- Training Dialog tabs-->
+    <string name="tab_training_training">Đào tạo</string>
+    <string name="tab_training_stages">Các bước</string>
+    <!-- Training Details Fragment-->
+    <string name="label_training_name">Tên</string>
+    <string name="label_training_type">Loại Đào tạo</string>
+    <string name="label_training_date">Ngày</string>
+    <string name="label_training_participants">Người tham gia</string>
+    <string name="label_training_stage">Bước</string>
+    <string name="label_training_stage_date">Ngày</string>
+    <string name="label_training_stage_participants">Người tham gia</string>
+    <string name="btn_training_add_stage">Thêm Bước</string>
+    <string name="btn_training_create">Tạo</string>
+</resources>

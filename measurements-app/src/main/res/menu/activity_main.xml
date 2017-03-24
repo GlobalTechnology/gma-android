@@ -1,0 +1,34 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context="com.expidevapps.android.measurements.activity.MainActivity">
+
+    <item android:id="@+id/action_join_ministry"
+        android:title="@string/menu_join_ministry"
+        android:orderInCategory="1"
+        app:showAsAction="never"/>
+    <item android:id="@+id/action_supported_staff"
+        android:title="@string/menu_profile_supported_staff"
+        android:orderInCategory="2"
+        app:showAsAction="never"/>
+    <item android:id="@+id/action_measurements"
+        android:title="@string/menu_measurements"
+        android:orderInCategory="3"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_stories"
+        android:title="@string/menu_stories"
+        android:orderInCategory="4"
+        app:showAsAction="never"/>
+    <item android:id="@+id/action_settings" android:title="@string/menu_settings"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item
+        android:id="@+id/action_refresh"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        android:title="@string/menu_refresh"/>
+    <item android:id="@+id/action_logout"
+        android:title="@string/menu_logout"
+        android:orderInCategory="102"
+        app:showAsAction="never"/>
+
+</menu>

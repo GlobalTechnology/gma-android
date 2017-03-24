@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_measurements">Thước đo</string>
+    <string name="title_activity_measurements_personal">Thước đo Cá nhân</string>
+    <string name="title_activity_measurements_local">Thước đo Đoàn mục sư</string>
+    <string name="title_activity_measurement_details">Chi tiết thang đo</string>
+    <string name="menu_measurements">Thang đo</string>
+    <string name="menu_measurements_personal">Thước đo Cá nhân</string>
+    <string name="menu_measurements_ministry">Thước đo Đoàn mục sư</string>
+    <string name="menu_measurements_favorites">Thước đo Yêu thích</string>
+    <string name="menu_measurements_all">Tất cả Thước đo</string>
+    <string name="menu_measurements_add_favorite">Thêm Mục yêu thích</string>
+    <string name="menu_measurements_remove_favorite">Loại bỏ Mục yêu thích</string>
+    <!-- Measurements Not Authorized dialog -->
+    <string name="title_dialog_measurements_unauthorized">Đã chặn</string>
+    <string name="text_dialog_measurements_unauthorized">Bạn không được phép xem các thước đo cho đoàn mục sư này</string>
+    <!-- Measurement accordion sections -->
+    <string name="label_measurements_column_faith">Hành động Tín ngưỡng</string>
+    <string name="label_measurements_column_fruit">Hoa quả</string>
+    <string name="label_measurements_column_outcomes">Thu nhập</string>
+    <string name="label_measurements_column_other">Khác</string>
+    <!-- Measurement details breakdown sections -->
+    <string name="label_measurement_details_breakdown_section_total">Tổng số</string>
+    <string name="label_measurement_details_breakdown_section_local">Đội Địa phương</string>
+    <string name="label_measurement_details_breakdown_section_team">Các thành viên trong Đội</string>
+    <string name="label_measurement_details_breakdown_section_subministries">Tiểu đoàn mục sư / Đội</string>
+    <string name="label_measurement_details_breakdown_section_selfassigned">Thành viên Tự Chỉ định</string>
+    <string name="label_measurement_details_breakdown_section_split">Chia Thang đo</string>
+</resources>

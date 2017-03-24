@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_church_create">አዲስ ቤተክርስቲያን መፍጠር</string>
+    <string name="title_dialog_church_delete">ቤተክርስቲያን ይጥፋ?</string>
+    <string name="text_dialog_church_delete_confirm">እርግጠኛ ነዎት ይህን ቤተክርስቲያን ማጥፋት ይፈልጋሉ?</string>
+    <string name="label_church_name">ስም</string>
+    <string name="label_church_contact_name">መገኛ ስም</string>
+    <string name="label_church_contact_email">መገኛ ኢሜል</string>
+    <string name="label_church_contact_mobile">መገኛ ተንቀሳቃሽ ስልክ</string>
+    <string name="label_church_jesus_film_activity">JESUS Film እንቅስቃሴ</string>
+    <string name="label_church_ministry">ሚንስቴር</string>
+    <string name="opt_church_jesus_film_activity_yes">አዎ</string>
+    <string name="opt_church_jesus_film_activity_no">አይደለም</string>
+    <string name="alrt_church_jesus_film_required">ይህ JESUS Film እንቅስቃሴ ከነበረ እባክዎን ይግለጹ።</string>
+    <string name="label_church_development">መጻፍ</string>
+    <string name="label_church_security">ደህንነት</string>
+    <string name="label_church_size">መጠን</string>
+    <string name="btn_church_create">መፍጠር</string>
+</resources>

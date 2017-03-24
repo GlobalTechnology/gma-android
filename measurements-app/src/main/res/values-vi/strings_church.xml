@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_church_create">Tạo Nhà thờ Mới</string>
+    <string name="title_dialog_church_delete">Xóa Nhà thờ?</string>
+    <string name="text_dialog_church_delete_confirm">Bạn có chắc là muốn xóa nhà thờ này không?</string>
+    <string name="label_church_name">Tên</string>
+    <string name="label_church_contact_name">Tên Liên lạc</string>
+    <string name="label_church_contact_email">Email Liên lạc</string>
+    <string name="label_church_contact_mobile">Số di động Liên lạc</string>
+    <string name="label_church_jesus_film_activity">Hoạt động JESUS Film</string>
+    <string name="label_church_ministry">Đoàn mục sư</string>
+    <string name="opt_church_jesus_film_activity_yes">Có</string>
+    <string name="opt_church_jesus_film_activity_no">Không</string>
+    <string name="alrt_church_jesus_film_required">Vui lòng cho biết nếu đã có một hoạt động của JESUS Film.</string>
+    <string name="label_church_development">Loại</string>
+    <string name="label_church_security">An ninh</string>
+    <string name="label_church_size">Kích cỡ</string>
+    <string name="btn_church_create">Tạo</string>
+</resources>

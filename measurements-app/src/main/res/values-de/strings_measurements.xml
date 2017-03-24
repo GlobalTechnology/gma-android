@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_measurements">Maßnahmen</string>
+    <string name="title_activity_measurements_personal">Persönliche Maßnahmen</string>
+    <string name="title_activity_measurements_local">Pfarrei-Maßnahmen</string>
+    <string name="title_activity_measurement_details">Maßnahmen-Infos</string>
+    <string name="menu_measurements">Maßnahmen</string>
+    <string name="menu_measurements_personal">Persönliche Maßnahmen</string>
+    <string name="menu_measurements_ministry">Pfarrei-Maßnahmen</string>
+    <string name="menu_measurements_favorites">Favorisierte Maßnahmen</string>
+    <string name="menu_measurements_all">Alle Maßnahmen</string>
+    <string name="menu_measurements_add_favorite">Favorit hinzufügen</string>
+    <string name="menu_measurements_remove_favorite">Favorit entfernen</string>
+    <!-- Measurements Not Authorized dialog -->
+    <string name="title_dialog_measurements_unauthorized">Blockiert</string>
+    <string name="text_dialog_measurements_unauthorized">Sie sind nicht berechtigt, Maßnahmen dieses Amts zu sehen</string>
+    <!-- Measurement accordion sections -->
+    <string name="label_measurements_column_faith">Glaubensaktionen</string>
+    <string name="label_measurements_column_fruit">Erfolge</string>
+    <string name="label_measurements_column_outcomes">Ergebnisse</string>
+    <string name="label_measurements_column_other">Sonstiges</string>
+    <!-- Measurement details breakdown sections -->
+    <string name="label_measurement_details_breakdown_section_total">Insgesamt</string>
+    <string name="label_measurement_details_breakdown_section_local">Regionales Team</string>
+    <string name="label_measurement_details_breakdown_section_team">Teammitglieder</string>
+    <string name="label_measurement_details_breakdown_section_subministries">Unterämter/Teams</string>
+    <string name="label_measurement_details_breakdown_section_selfassigned">Selbsternannte Mitglieder</string>
+    <string name="label_measurement_details_breakdown_section_split">Maßnahmen aufschlüsseln</string>
+</resources>

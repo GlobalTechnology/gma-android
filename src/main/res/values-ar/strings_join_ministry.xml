@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="menu_join_ministry">الانضمام إلى كهنوت جديد</string>
-    <string name="title_activity_join_ministry">الانضمام إلى الكهنوت</string>
-    <string name="menu_ministry_search">بحث</string>
-    <string name="label_join_ministry_ministry">فريق الكهنوت</string>
-    <string name="btn_join_ministry_join">انضمام</string>
-</resources>

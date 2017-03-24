@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_join_ministry">เข้าร่วมพันธกิจ</string>
+    <string name="title_activity_join_ministry">เข้าร่วมพันธกิจ</string>
+    <string name="menu_ministry_search">ค้นหา</string>
+    <string name="label_join_ministry_ministry">พันธกิจ/ทีม</string>
+    <string name="btn_join_ministry_join">เข้าร่วม</string>
+</resources>

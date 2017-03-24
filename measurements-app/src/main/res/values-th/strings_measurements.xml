@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_measurements">การวัดผล</string>
+    <string name="title_activity_measurements_personal">การวัดผลส่วนบุคคล</string>
+    <string name="title_activity_measurements_local">การวัดผลพันธกิจ</string>
+    <string name="title_activity_measurement_details">รายละเอียดการวัดผล</string>
+    <string name="menu_measurements">การวัดผล</string>
+    <string name="menu_measurements_personal">การวัดผลส่วนบุคคล</string>
+    <string name="menu_measurements_ministry">การวัดผลพันธกิจ</string>
+    <string name="menu_measurements_favorites">รายการโปรดในการวัดผล</string>
+    <string name="menu_measurements_all">การวัดผลทั้งหมด</string>
+    <string name="menu_measurements_add_favorite">เพิ่มรายการโปรด</string>
+    <string name="menu_measurements_remove_favorite">ลบรายการโปรด</string>
+    <!-- Measurements Not Authorized dialog -->
+    <string name="title_dialog_measurements_unauthorized">บล็อก</string>
+    <string name="text_dialog_measurements_unauthorized">คุณไม่ได้รับอนุญาตให้ดูการวัดผลพันธกิจนี้</string>
+    <!-- Measurement accordion sections -->
+    <string name="label_measurements_column_faith">ปฏิบัติการสร้างศรัทธา</string>
+    <string name="label_measurements_column_fruit">ผล</string>
+    <string name="label_measurements_column_outcomes">ผลลัพธ์</string>
+    <string name="label_measurements_column_other">อื่นๆ</string>
+    <!-- Measurement details breakdown sections -->
+    <string name="label_measurement_details_breakdown_section_total">รวม</string>
+    <string name="label_measurement_details_breakdown_section_local">ทีมท้องถิ่น</string>
+    <string name="label_measurement_details_breakdown_section_team">สมาชิกทีม</string>
+    <string name="label_measurement_details_breakdown_section_subministries">พันธกิจย่อย/ทีม</string>
+    <string name="label_measurement_details_breakdown_section_selfassigned">สมาชิกมอบหมายตนเอง</string>
+    <string name="label_measurement_details_breakdown_section_split">แยกการวัดผล</string>
+</resources>

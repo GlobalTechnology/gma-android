@@ -3,16 +3,14 @@ apply plugin: 'maven'
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: "https://maven.gcx.org/artifactory/android-release") {
+            repository(url: gcxMavenRepositoryDeploy) {
                 authentication(userName: gcxMavenRepositoryUsername, password: gcxMavenRepositoryPassword)
             }
-            snapshotRepository(url: "https://maven.gcx.org/artifactory/android-snapshot") {
+            snapshotRepository(url: gcxMavenRepositorySnapshotDeploy) {
                 authentication(userName: gcxMavenRepositoryUsername, password: gcxMavenRepositoryPassword)
             }
 
             pom.project {
-                artifactId POM_ARTIFACT_ID
-
                 scm {
                     connection POM_SCM_CONNECTION
                     developerConnection POM_SCM_CONNECTION
@@ -30,7 +28,7 @@ afterEvaluate {
         }
     }
     if (project.plugins.hasPlugin('com.android.library')) {
-        apply plugin: 'android-maven'
+        apply plugin: 'com.github.dcendents.android-maven'
     }
     if (project.plugins.hasPlugin('com.android.application') || project.plugins.hasPlugin('com.android.library')) {
         task artifactSourcesJar(type: Jar) {

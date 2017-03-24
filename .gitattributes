@@ -1,5 +1,9 @@
 .gitignore   text
+*.bat        text
 *.gradle     text
 *.java       text
+*.md         text
+*.pro        text
 *.properties text
+*.txt        text
 *.xml        text

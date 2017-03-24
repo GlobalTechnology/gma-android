@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_map_create_item">Buat Baru</string>
+    <string name="title_dialog_map_create_item_unauthorized">Anda tidak diizinkan untuk membuat Gereja atau Pelatihan baru.</string>
+    <string name="btn_dialog_map_create_church">Gereja</string>
+    <string name="btn_dialog_map_create_training">Pelatihan</string>
+    <string name="label_marker_map_no_name">(tidak ada nama)</string>
+    <plurals name="text_marker_map_church_snippet">
+        <item quantity="other">%1$d anggota</item>
+    </plurals>
+    <string name="menu_map_search">Cari</string>
+</resources>

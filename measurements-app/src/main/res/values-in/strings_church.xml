@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_church_create">Buat Gereja Baru</string>
+    <string name="title_dialog_church_delete">Hapus Gereja?</string>
+    <string name="text_dialog_church_delete_confirm">Apakah Anda yakin ingin menghapus gereja ini?</string>
+    <string name="label_church_name">Nama</string>
+    <string name="label_church_contact_name">Nama Kontak</string>
+    <string name="label_church_contact_email">Email Kontak</string>
+    <string name="label_church_contact_mobile">Kontak Ponsel</string>
+    <string name="label_church_jesus_film_activity">Aktivitas JESUS Film</string>
+    <string name="label_church_ministry">Pelayanan</string>
+    <string name="opt_church_jesus_film_activity_yes">Ya</string>
+    <string name="opt_church_jesus_film_activity_no">Tidak</string>
+    <string name="alrt_church_jesus_film_required">Harap menunjukkan jika ini adalah aktivitas JESUS Film.</string>
+    <string name="label_church_development">Jenis</string>
+    <string name="label_church_security">Keamanan</string>
+    <string name="label_church_size">Ukuran</string>
+    <string name="btn_church_create">Buat</string>
+</resources>

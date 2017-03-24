@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_dialog_training_create">አዲስ ስልጠና መፍጠር</string>
+    <string name="title_dialog_training_delete">ስልጠና ማጥፋት</string>
+    <string name="text_dialog_training_delete_confirm">እርግጠኛ ነዎት ይህን ስልጠና ማጥፋት ይፈልጋሉ?</string>
+    <string name="title_dialog_training_completion_delete">የስልጠና መጠናቀቅ ይሰረዝ?</string>
+    <string name="text_dialog_training_completion_delete_confirm">ይህን የስልጠና መጠናቀቅ መሰረዝ እንደሚፈልጉ እርግጠኛ ነዎት?</string>
+    <!-- Training Dialog tabs-->
+    <string name="tab_training_training">ስልጠና</string>
+    <string name="tab_training_stages">ደረጃዎች</string>
+    <!-- Training Details Fragment-->
+    <string name="label_training_name">ስም</string>
+    <string name="label_training_type">የስልጠና አይነት</string>
+    <string name="label_training_date">ቀን</string>
+    <string name="label_training_participants">ተሳታፊዎች</string>
+    <string name="label_training_stage">ደረጃ</string>
+    <string name="label_training_stage_date">ቀን</string>
+    <string name="label_training_stage_participants">ተሳታፊዎች</string>
+    <string name="btn_training_add_stage">ደረጃ ይጨምሩ</string>
+    <string name="btn_training_create">መፍጠር</string>
+</resources>

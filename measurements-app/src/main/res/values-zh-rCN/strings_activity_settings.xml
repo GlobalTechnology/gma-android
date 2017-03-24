@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_settings">设置</string>
+    <string name="title_activity_settings">设置</string>
+    <!-- Strings related to Settings -->
+    <string name="pref_category_active_ministry">活跃事工</string>
+    <string name="pref_category_map_layer">图层</string>
+    <!-- Ministry preference strings -->
+    <string name="pref_title_ministry_team_text">事工/团队</string>
+    <string name="pref_summary_ministry_none_set">未选择事工</string>
+    <string name="pref_summary_ministry_none_available">现无事工</string>
+    <!-- MCC preference strings -->
+    <string name="pref_summary_mcc_none_set">未选择 MCC</string>
+    <string name="pref_summary_mcc_none_available">现无 MCCs</string>
+    <!-- Map preferences -->
+    <string name="pref_title_map_layer_church_parents">上级教会关系</string>
+    <string name="pref_title_map_layer_church_target">目标</string>
+    <string name="pref_title_map_layer_church_group">团体</string>
+    <string name="pref_title_map_layer_church_church">教会</string>
+    <string name="pref_title_map_layer_church_multiplying">倍增教会</string>
+    <string name="pref_title_map_layer_training">培训活动</string>
+</resources>

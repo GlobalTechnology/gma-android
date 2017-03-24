@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_profile_supported_staff">Nhân viên Hỗ trợ</string>
+    <string name="title_dialog_profile_set_supported_staff">Nhân viên Hỗ trợ</string>
+    <string name="text_profile_supported_staff_message">Bạn có muốn tham gia đoàn mục sư / Đội hiện tại với tư cách là Nhân viên Hỗ trợ không?</string>
+    <string name="btn_profile_yes">Có</string>
+    <string name="btn_profile_no">Không</string>
+</resources>

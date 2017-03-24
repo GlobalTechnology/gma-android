@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_settings">إعدادات</string>
+    <string name="title_activity_settings">إعدادات</string>
+    <!-- Strings related to Settings -->
+    <string name="pref_category_active_ministry">الكهنوت النشط</string>
+    <string name="pref_category_map_layer">طبقات الخريطة</string>
+    <!-- Ministry preference strings -->
+    <string name="pref_title_ministry_team_text">فريق الكهنوت</string>
+    <string name="pref_summary_ministry_none_set">لم يتم تحديد أي كهنوت</string>
+    <string name="pref_summary_ministry_none_available">لا يوجد أي كهنوت</string>
+    <!-- MCC preference strings -->
+    <string name="pref_summary_mcc_none_set">لم يتم تحديد MCC</string>
+    <string name="pref_summary_mcc_none_available">MCCs غير توفرة</string>
+    <!-- Map preferences -->
+    <string name="pref_title_map_layer_church_parents">علاقات الكنيسة الرئيسية</string>
+    <string name="pref_title_map_layer_church_target">الأهداف</string>
+    <string name="pref_title_map_layer_church_group">المجموعات</string>
+    <string name="pref_title_map_layer_church_church">الكنائس</string>
+    <string name="pref_title_map_layer_church_multiplying">تزايد الكنائس</string>
+    <string name="pref_title_map_layer_training">نشاطات التدريب</string>
+</resources>
