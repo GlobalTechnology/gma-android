@@ -8,7 +8,7 @@ android {
         minSdkVersion 10
         targetSdkVersion 23
 
-        buildConfigField "String", "GMA_API_BASE_URI", "\"https://measurements.global-registry.org/\""
+        buildConfigField "String", "GMA_API_BASE_URI", "\"https://measurements-api.cru.org/\""
         buildConfigField "int", "GMA_API_VERSION", "5"
     }
 
