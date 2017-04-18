@@ -78,7 +78,7 @@ android {
                 warning 'InvalidPackage'
             }
 
-            buildConfigField "String", "GMA_API_BASE_URI", "\"https://stage-measurements.global-registry.org/\""
+            buildConfigField "String", "GMA_API_BASE_URI", "\"https://measurements-api-stage.cru.org/\""
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AAfd80ddf74e333f27c92d3f89f125be5cecf9c532\""
 
             resValue "string", "google_maps_api_key", "AIzaSyCsM4eK9ZND1yZXv9Lg004peeepnKGH0EY"
@@ -93,7 +93,7 @@ android {
                 signingConfig signingConfigs.demo
             }
 
-            buildConfigField "String", "GMA_API_BASE_URI", "\"https://stage-measurements.global-registry.org/\""
+            buildConfigField "String", "GMA_API_BASE_URI", "\"https://measurements-api-stage.cru.org/\""
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA8cb9761bdbec4e9ada73f4f4953f5c347f315d37\""
         }
         release {
@@ -103,7 +103,7 @@ android {
                 signingConfig signingConfigs.release
             }
 
-            buildConfigField "String", "GMA_API_BASE_URI", "\"https://measurements.global-registry.org/\""
+            buildConfigField "String", "GMA_API_BASE_URI", "\"https://measurements-api.cru.org/\""
             buildConfigField "String", "NEW_RELIC_API_KEY", "\"AA3128e4005a5f2d68e0d232aebec6e9936950e042\""
         }
     }
